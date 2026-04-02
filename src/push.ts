@@ -1,15 +1,26 @@
 import webpush from "web-push";
 import { db } from "./db.js";
 
+/** Strips quotes/BOM/whitespace often introduced when pasting into Railway or .env files. */
+function normalizeVapidKey(raw: string | undefined | null): string | null {
+  if (raw == null) return null;
+  let s = String(raw).trim();
+  if (s.charCodeAt(0) === 0xfeff) s = s.slice(1).trim();
+  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+    s = s.slice(1, -1).trim();
+  }
+  s = s.replace(/\s/g, "");
+  return s.length > 0 ? s : null;
+}
+
 export function getVapidPublicKey(): string | null {
-  const k = process.env.VAPID_PUBLIC_KEY?.trim();
-  return k && k.length > 0 ? k : null;
+  return normalizeVapidKey(process.env.VAPID_PUBLIC_KEY);
 }
 
 /** Returns true if VAPID keys are set and web-push is configured. */
 export function configureWebPush(): boolean {
-  const pub = process.env.VAPID_PUBLIC_KEY?.trim();
-  const priv = process.env.VAPID_PRIVATE_KEY?.trim();
+  const pub = normalizeVapidKey(process.env.VAPID_PUBLIC_KEY);
+  const priv = normalizeVapidKey(process.env.VAPID_PRIVATE_KEY);
   const subject = process.env.VAPID_SUBJECT?.trim() || "mailto:airalert@example.com";
   if (!pub || !priv) return false;
   webpush.setVapidDetails(subject, pub, priv);
@@ -17,7 +28,7 @@ export function configureWebPush(): boolean {
 }
 
 export function isWebPushConfigured(): boolean {
-  return !!(process.env.VAPID_PUBLIC_KEY?.trim() && process.env.VAPID_PRIVATE_KEY?.trim());
+  return !!(normalizeVapidKey(process.env.VAPID_PUBLIC_KEY) && normalizeVapidKey(process.env.VAPID_PRIVATE_KEY));
 }
 
 type SubRow = { endpoint: string; p256dh: string; auth: string };

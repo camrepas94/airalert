@@ -1259,6 +1259,16 @@
         });
       }
 
+      function normalizeVapidPublicKeyClient(raw) {
+        if (raw == null || typeof raw !== "string") return "";
+        let s = raw.trim();
+        if (s.charCodeAt(0) === 0xfeff) s = s.slice(1).trim();
+        if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+          s = s.slice(1, -1).trim();
+        }
+        return s.replace(/\s+/g, "");
+      }
+
       function urlBase64ToUint8Array(base64String) {
         const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
         const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -1292,6 +1302,21 @@
             pushMsg.classList.add("err");
             return;
           }
+          const vapidKeyClean = normalizeVapidPublicKeyClient(keyRes.publicKey);
+          if (!vapidKeyClean) {
+            pushMsg.textContent = "VAPID public key from server is empty after cleanup. Check Railway VAPID_PUBLIC_KEY (one line, no quotes).";
+            pushMsg.classList.add("err");
+            return;
+          }
+          let appServerKey;
+          try {
+            appServerKey = urlBase64ToUint8Array(vapidKeyClean);
+          } catch (decodeErr) {
+            pushMsg.textContent =
+              "VAPID public key is not valid base64 (often caused by quotes, spaces, or line breaks in Railway). Open Variables → VAPID_PUBLIC_KEY → paste the key as one line only, no quotation marks, Save, Redeploy.";
+            pushMsg.classList.add("err");
+            return;
+          }
           const swUrl = new URL("/sw.js", apiOrigin()).href;
           const scope = new URL("/", apiOrigin()).href;
           const reg = await navigator.serviceWorker.register(swUrl, { scope });
@@ -1304,7 +1329,7 @@
           }
           const sub = await reg.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(keyRes.publicKey),
+            applicationServerKey: appServerKey,
           });
           const json = sub.toJSON();
           await api("/api/users/" + encodeURIComponent(userId) + "/push-subscription", {
@@ -1314,7 +1339,13 @@
           pushMsg.textContent =
             "Push enabled. When a show airs on your calendar day, you should get a banner (server checks on a schedule — use “Refresh episodes + run notification pass” to test sooner).";
         } catch (e) {
-          pushMsg.textContent = e.message || "Could not enable push.";
+          const msg = e && e.message ? String(e.message) : "";
+          if (/invalid character/i.test(msg) || /not correctly encoded/i.test(msg) || /atob/i.test(msg)) {
+            pushMsg.textContent =
+              "The VAPID key failed to decode (Safari: “invalid characters”). In Railway, set VAPID_PUBLIC_KEY to a single line with no spaces or quotes — copy directly from `npx web-push generate-vapid-keys`, redeploy, try again.";
+          } else {
+            pushMsg.textContent = msg || "Could not enable push.";
+          }
           pushMsg.classList.add("err");
         }
       }
