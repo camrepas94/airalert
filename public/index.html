@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Airalert</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f1115;
+        --panel: #181c24;
+        --text: #e8eaef;
+        --muted: #9aa3b2;
+        --accent: #6c9ef8;
+        --border: #2a3140;
+        --danger: #f07178;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        min-height: 100vh;
+      }
+      main {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 3rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 650;
+        margin: 0 0 0.25rem;
+        letter-spacing: -0.02em;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+      }
+      section {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1rem 1.1rem;
+        margin-bottom: 1rem;
+      }
+      h2 {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0 0 0.75rem;
+        font-weight: 600;
+      }
+      label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 0.35rem;
+      }
+      input[type="text"],
+      input[type="number"],
+      select {
+        width: 100%;
+        padding: 0.55rem 0.65rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #0c0e12;
+        color: var(--text);
+        font-size: 1rem;
+      }
+      input:focus,
+      select:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+      .row {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        align-items: flex-end;
+      }
+      .row > div {
+        flex: 1;
+        min-width: 140px;
+      }
+      button {
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        padding: 0.55rem 0.9rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        background: var(--accent);
+        color: #0a0c10;
+      }
+      button.secondary {
+        background: #2a3140;
+        color: var(--text);
+      }
+      a.secondary {
+        display: inline-block;
+        background: #2a3140;
+        color: var(--text);
+        text-decoration: none;
+        border-radius: 8px;
+        padding: 0.55rem 0.9rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+      a.secondary:hover {
+        filter: brightness(1.08);
+      }
+      button.danger {
+        background: transparent;
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        padding: 0.35rem 0.6rem;
+        font-size: 0.8rem;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.65rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      li:last-child {
+        border-bottom: none;
+      }
+      .search-results button {
+        width: 100%;
+        margin-top: 0.35rem;
+        text-align: left;
+        font-weight: 500;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      .calendar-url {
+        word-break: break-all;
+        font-size: 0.8rem;
+        background: #0c0e12;
+        padding: 0.6rem 0.65rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        margin: 0.5rem 0;
+      }
+      .msg {
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+      }
+      .msg.err {
+        color: var(--danger);
+      }
+      pre {
+        font-size: 0.75rem;
+        overflow: auto;
+        max-height: 200px;
+        background: #0c0e12;
+        padding: 0.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+      .search-hint {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin: 0.35rem 0 0.75rem;
+        line-height: 1.45;
+      }
+      .search-toolbar {
+        display: flex;
+        gap: 0.5rem;
+        align-items: stretch;
+        flex-wrap: wrap;
+      }
+      .search-toolbar input[type="text"] {
+        flex: 1;
+        min-width: 0;
+      }
+      .search-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+      }
+      .search-post-toolbar {
+        display: none;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 0.75rem 1rem;
+        margin: 0.75rem 0 0.5rem;
+        padding: 0.65rem 0.75rem;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+      .search-post-toolbar.visible {
+        display: flex;
+      }
+      .search-post-field label {
+        display: block;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+      }
+      .search-post-field select {
+        min-width: 10rem;
+        padding: 0.45rem 0.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #0c0e12;
+        color: var(--text);
+        font-size: 0.9rem;
+      }
+      .search-pagination {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem 0.75rem;
+        margin-top: 0.35rem;
+        font-size: 0.85rem;
+      }
+      .search-page-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+      }
+      .search-page-nav button {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.85rem;
+      }
+      .search-fullpage-link {
+        font-size: 0.85rem;
+        margin-top: 0.35rem;
+      }
+      .search-loading {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-top: 0.65rem;
+      }
+      .search-card {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.75rem;
+        margin-bottom: 0.65rem;
+        background: #0c0e12;
+      }
+      .search-card-inner {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+      }
+      .search-thumb {
+        width: 56px;
+        height: 78px;
+        object-fit: cover;
+        border-radius: 6px;
+        flex-shrink: 0;
+        background: var(--border);
+      }
+      .search-thumb.placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        color: var(--muted);
+        text-align: center;
+        padding: 0.25rem;
+        line-height: 1.2;
+      }
+      .search-card-main {
+        flex: 1;
+        min-width: 0;
+      }
+      .search-card-title {
+        font-weight: 650;
+        font-size: 1rem;
+        margin: 0 0 0.2rem;
+        line-height: 1.3;
+      }
+      .search-card-meta {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 0.5rem;
+      }
+      .search-card-meta .net {
+        color: var(--accent);
+        font-weight: 500;
+      }
+      .btn-subscribe-inline {
+        margin-top: 0.15rem;
+      }
+      .show-link {
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        font-weight: 650;
+        color: var(--accent);
+        text-align: left;
+        cursor: pointer;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .show-link:hover {
+        color: #8cb4ff;
+      }
+      .next-ep {
+        margin-top: 0.35rem;
+        font-size: 0.85rem;
+        line-height: 1.4;
+      }
+      .modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        background: rgba(0, 0, 0, 0.65);
+        align-items: flex-end;
+        justify-content: center;
+        padding: 1rem;
+      }
+      .modal-backdrop.open {
+        display: flex;
+      }
+      @media (min-width: 560px) {
+        .modal-backdrop {
+          align-items: center;
+        }
+      }
+      .modal-panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        width: 100%;
+        max-width: 520px;
+        max-height: min(88vh, 720px);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+      }
+      .modal-header {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        padding: 1rem 1rem 0.75rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .modal-poster-slot {
+        flex-shrink: 0;
+        width: 72px;
+        min-height: 102px;
+      }
+      .modal-poster {
+        width: 72px;
+        height: 102px;
+        object-fit: cover;
+        border-radius: 8px;
+        flex-shrink: 0;
+        background: var(--border);
+        display: block;
+      }
+      .modal-poster.placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        color: var(--muted);
+        text-align: center;
+        padding: 0.35rem;
+      }
+      .modal-title-block {
+        flex: 1;
+        min-width: 0;
+      }
+      .modal-title-block h3 {
+        margin: 0 0 0.35rem;
+        font-size: 1.1rem;
+        font-weight: 650;
+        line-height: 1.25;
+      }
+      .modal-stats {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin: 0;
+      }
+      .modal-close {
+        flex-shrink: 0;
+        background: transparent;
+        color: var(--muted);
+        padding: 0.35rem 0.5rem;
+        font-size: 1.25rem;
+        line-height: 1;
+      }
+      .modal-close:hover {
+        color: var(--text);
+      }
+      .modal-body {
+        padding: 0.85rem 1rem 1.1rem;
+        overflow-y: auto;
+        font-size: 0.9rem;
+      }
+      .modal-summary {
+        color: var(--muted);
+        margin: 0 0 1rem;
+        line-height: 1.5;
+      }
+      .modal-next {
+        background: #0c0e12;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.65rem 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .modal-next strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--text);
+      }
+      .season-block {
+        margin-bottom: 1rem;
+      }
+      .season-block h4 {
+        margin: 0 0 0.45rem;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .ep-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+      }
+      .ep-table td {
+        padding: 0.35rem 0.4rem 0.35rem 0;
+        vertical-align: top;
+        border-bottom: 1px solid var(--border);
+      }
+      .ep-table tr:last-child td {
+        border-bottom: none;
+      }
+      .ep-num {
+        color: var(--muted);
+        white-space: nowrap;
+        width: 3.2rem;
+      }
+      .ep-date {
+        color: var(--muted);
+        white-space: nowrap;
+        width: 6.5rem;
+      }
+      .modal-error {
+        color: var(--danger);
+        margin: 0;
+      }
+      .tab-nav {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        margin: 0 0 1.15rem;
+      }
+      .tab-btn {
+        cursor: pointer;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.5rem 0.85rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        background: var(--panel);
+        color: var(--text);
+      }
+      .tab-btn:hover {
+        border-color: var(--muted);
+      }
+      .tab-btn.active {
+        background: var(--accent);
+        color: #0a0c10;
+        border-color: transparent;
+      }
+      .tab-btn:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .tab-panel {
+        display: none;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Airalert</h1>
+      <p class="sub">Track shows from TVMaze, optional daily notifications (V1 dry run), and calendar sync.</p>
+
+      <nav class="tab-nav" role="tablist" aria-label="Main sections">
+        <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="profile" id="tabBtnProfile">
+          Your Profile
+        </button>
+        <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="add" id="tabBtnAdd">Add a Show</button>
+        <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="shows" id="tabBtnShows">Your Shows</button>
+      </nav>
+
+      <div id="tab-profile" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnProfile">
+        <section>
+          <h2>Your profile</h2>
+          <div class="row">
+            <div>
+              <label for="tz">Timezone</label>
+              <input id="tz" type="text" placeholder="America/Los_Angeles" />
+            </div>
+            <div>
+              <label for="hour">Reminder hour (local)</label>
+              <input id="hour" type="number" min="0" max="23" value="8" />
+            </div>
+          </div>
+          <button type="button" id="saveProfile" style="margin-top: 0.75rem">Save profile</button>
+          <p class="muted msg" id="profileMsg"></p>
+        </section>
+
+        <section>
+          <h2>Calendar sync</h2>
+          <p class="muted">Subscribe in Google Calendar, Apple Calendar, or Outlook. Refreshes when the app pulls new episodes.</p>
+          <div class="calendar-url" id="calUrl"></div>
+          <button type="button" class="secondary" id="copyCal">Copy URL</button>
+        </section>
+      </div>
+
+      <div id="tab-add" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnAdd">
+        <section>
+          <h2>Add a show</h2>
+          <p class="search-hint">
+            <strong>Show title</strong> is matched against TVMaze (names only). The public TVMaze search API only returns about ten hits per request, so we also scan their full show catalog for titles containing your words — that way broad terms like “housewives” can list every franchise, not just the first few. Results are sorted by most recently aired when TVMaze provides it. Use <strong>Filter by network</strong> to narrow the list. Shows already on your list are hidden.
+          </p>
+          <div class="search-fields">
+            <div>
+              <label for="searchTitle">Show title</label>
+              <input id="searchTitle" type="text" placeholder="e.g. The Valley" autocomplete="off" />
+            </div>
+          </div>
+          <div class="search-toolbar" style="margin-top: 0.75rem">
+            <button type="button" id="searchBtn">Search</button>
+          </div>
+          <p class="search-loading" id="searchLoading" style="display: none">
+            Searching… (catalog scan + last-air dates can take ~10–30 seconds for broad queries)
+          </p>
+          <p class="msg err" id="searchErr"></p>
+          <div id="searchPostToolbar" class="search-post-toolbar">
+            <div class="search-post-field">
+              <label for="searchNetworkFilter">Filter by network</label>
+              <select id="searchNetworkFilter" aria-label="Filter results by network">
+                <option value="">All networks</option>
+              </select>
+            </div>
+            <div class="search-post-field">
+              <label for="searchPageSize">Results per page</label>
+              <select id="searchPageSize" aria-label="Results per page">
+                <option value="10">10</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+            <div class="search-pagination" id="searchPagination"></div>
+          </div>
+          <p class="muted search-fullpage-link" id="searchFullPageLink" style="display: none"></p>
+          <div class="search-results" id="results"></div>
+        </section>
+      </div>
+
+      <div id="tab-shows" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnShows">
+        <section>
+          <h2>Your shows</h2>
+          <ul id="subs"></ul>
+          <p class="muted" id="subsEmpty">No shows yet.</p>
+        </section>
+
+        <section>
+          <h2>Upcoming (cached)</h2>
+          <button type="button" class="secondary" id="refreshData">Refresh episodes + run notification pass</button>
+          <p class="muted msg" id="jobMsg"></p>
+          <pre id="jobOut" style="display: none"></pre>
+        </section>
+
+        <section>
+          <h2>Notification log (V1 dry run)</h2>
+          <ul id="notifs"></ul>
+          <p class="muted" id="notifsEmpty">None yet. The hourly job records when an episode airs “today” in your timezone.</p>
+        </section>
+      </div>
+    </main>
+
+    <div class="modal-backdrop" id="showModal" role="dialog" aria-modal="true" aria-labelledby="modalShowTitle">
+      <div class="modal-panel">
+        <div class="modal-header">
+          <div class="modal-poster placeholder" id="modalPoster">No image</div>
+          <div class="modal-title-block">
+            <h3 id="modalShowTitle">Show</h3>
+            <p class="modal-stats" id="modalShowStats"></p>
+          </div>
+          <button type="button" class="modal-close secondary" id="modalClose" aria-label="Close">×</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+          <p class="muted">Loading…</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const LS_USER = "airalert_user_id";
+      function apiOrigin() {
+        if (window.location.protocol === "file:") {
+          return "http://127.0.0.1:3000";
+        }
+        return window.location.origin;
+      }
+      const api = (path, opts = {}) => {
+        const url = path.startsWith("http") ? path : new URL(path, apiOrigin()).href;
+        const { headers: userHeaders, ...rest } = opts;
+        return fetch(url, {
+          ...rest,
+          headers: {
+            ...(rest.body != null ? { "Content-Type": "application/json" } : {}),
+            ...userHeaders,
+          },
+        }).then(async (r) => {
+          const data = await r.json().catch(() => ({}));
+          if (!r.ok) {
+            const msg = data.error || data.message || r.statusText;
+            throw new Error(msg + " (HTTP " + r.status + ")");
+          }
+          return data;
+        });
+      };
+
+      async function ensureUser() {
+        let id = localStorage.getItem(LS_USER);
+        if (id) return id;
+        const u = await api("/api/users", {
+          method: "POST",
+          body: JSON.stringify({ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
+        });
+        localStorage.setItem(LS_USER, u.id);
+        return u.id;
+      }
+
+      async function loadUser(userId) {
+        const u = await api("/api/users/" + userId);
+        document.getElementById("tz").value = u.timezone || "";
+        document.getElementById("hour").value = u.reminderHourLocal ?? 8;
+        const base = location.origin;
+        document.getElementById("calUrl").textContent = base + "/calendar/" + u.calendarToken + ".ics";
+      }
+
+      async function saveProfile(userId) {
+        const msg = document.getElementById("profileMsg");
+        msg.textContent = "";
+        try {
+          await api("/api/users/" + userId, {
+            method: "PATCH",
+            body: JSON.stringify({
+              timezone: document.getElementById("tz").value.trim(),
+              reminderHourLocal: Number(document.getElementById("hour").value),
+            }),
+          });
+          msg.textContent = "Saved.";
+        } catch (e) {
+          msg.textContent = e.message;
+          msg.classList.add("err");
+        }
+      }
+
+      async function loadSubs(userId) {
+        const { subscriptions } = await api("/api/users/" + userId + "/subscriptions");
+        const ul = document.getElementById("subs");
+        const empty = document.getElementById("subsEmpty");
+        ul.innerHTML = "";
+        if (!subscriptions.length) {
+          empty.style.display = "block";
+          return;
+        }
+        empty.style.display = "none";
+        for (const s of subscriptions) {
+          const showId = Number(s.tvmazeShowId ?? s.tvmaze_show_id ?? s.showId);
+          const nextEpisode = s.nextEpisode ?? s.next_episode ?? null;
+          const lastAiredEpisode = s.lastAiredEpisode ?? s.last_aired_episode ?? null;
+          const li = document.createElement("li");
+          const left = document.createElement("div");
+          const titleBtn = document.createElement("button");
+          titleBtn.type = "button";
+          titleBtn.className = "show-link";
+          titleBtn.textContent = s.showName;
+          titleBtn.addEventListener("click", () => openShowDetails(showId));
+          left.appendChild(titleBtn);
+          const next = document.createElement("div");
+          next.className = "muted next-ep";
+          if (nextEpisode) {
+            const ne = nextEpisode;
+            if (ne.dateTba) {
+              next.textContent = "Next: date not announced yet · " + ne.label;
+            } else {
+              next.textContent =
+                "Next: " +
+                formatAirDate(ne.airdate, ne.airtime || "") +
+                " · " +
+                ne.label;
+            }
+          } else if (lastAiredEpisode) {
+            next.textContent =
+              "No upcoming date in TVMaze yet. Last in guide: " +
+              formatAirDate(lastAiredEpisode.airdate, lastAiredEpisode.airtime || "") +
+              " · " +
+              lastAiredEpisode.label;
+          } else {
+            next.textContent = Number.isFinite(showId)
+              ? "No episode dates in cache — open Your Shows and tap Refresh episodes."
+              : "Show details unavailable from subscription payload. Please refresh the app/server.";
+          }
+          left.appendChild(next);
+          const btn = document.createElement("button");
+          btn.className = "danger";
+          btn.textContent = "Remove";
+          btn.onclick = async () => {
+            await api("/api/subscriptions/" + s.id, { method: "DELETE" });
+            loadSubs(userId);
+          };
+          li.appendChild(left);
+          li.appendChild(btn);
+          ul.appendChild(li);
+        }
+      }
+
+      async function loadNotifs(userId) {
+        const { notifications } = await api("/api/users/" + userId + "/notifications");
+        const ul = document.getElementById("notifs");
+        const empty = document.getElementById("notifsEmpty");
+        ul.innerHTML = "";
+        if (!notifications.length) {
+          empty.style.display = "block";
+          return;
+        }
+        empty.style.display = "none";
+        for (const n of notifications) {
+          const li = document.createElement("li");
+          li.innerHTML =
+            "<div><strong>" +
+            escapeHtml(n.showName) +
+            "</strong><div class=\"muted\">" +
+            escapeHtml(n.episodeLabel) +
+            " · " +
+            escapeHtml(n.airdate) +
+            "</div></div>";
+          ul.appendChild(li);
+        }
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function formatAirDate(airdate, airtime) {
+        if (!airdate) return "TBA";
+        const parts = airdate.split("-").map(Number);
+        if (parts.length < 3 || parts.some((n) => Number.isNaN(n))) return airdate;
+        const dt = new Date(parts[0], parts[1] - 1, parts[2]);
+        const s = dt.toLocaleDateString(undefined, {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+        if (airtime && airtime !== "00:00") {
+          return s + " · " + airtime;
+        }
+        return s;
+      }
+
+      function closeShowModal() {
+        document.getElementById("showModal").classList.remove("open");
+      }
+
+      function setModalPoster(url) {
+        const el = document.getElementById("modalPoster");
+        el.innerHTML = "";
+        if (url) {
+          el.className = "modal-poster-slot";
+          const img = document.createElement("img");
+          img.className = "modal-poster";
+          img.src = url;
+          img.alt = "";
+          el.appendChild(img);
+        } else {
+          el.className = "modal-poster placeholder";
+          el.textContent = "No image";
+        }
+      }
+
+      function renderShowDetails(data) {
+        const body = document.getElementById("modalBody");
+        body.innerHTML = "";
+
+        if (data.summary) {
+          const p = document.createElement("p");
+          p.className = "modal-summary";
+          p.textContent = data.summary;
+          body.appendChild(p);
+        }
+
+        if (data.source === "tvmaze") {
+          const note = document.createElement("p");
+          note.className = "muted";
+          note.style.fontSize = "0.8rem";
+          note.textContent =
+            "Episode list loaded live from TVMaze. Run “Refresh episodes” on the main page to save dates into the cache for faster loads and calendar sync.";
+          body.appendChild(note);
+        }
+
+        const nextBox = document.createElement("div");
+        nextBox.className = "modal-next";
+        const nextStrong = document.createElement("strong");
+        nextStrong.textContent = "Next episode";
+        nextBox.appendChild(nextStrong);
+        const nextLine = document.createElement("div");
+        if (data.nextEpisode) {
+          const ne = data.nextEpisode;
+          nextLine.textContent =
+            formatAirDate(ne.airdate, ne.airtime || "") +
+            " · S" +
+            ne.season +
+            "E" +
+            ne.number +
+            " — " +
+            ne.name;
+        } else {
+          nextLine.textContent = "No upcoming dated episode listed (show may be ended or dates TBA).";
+        }
+        nextBox.appendChild(nextLine);
+        body.appendChild(nextBox);
+
+        for (const block of data.seasons) {
+          const sec = document.createElement("div");
+          sec.className = "season-block";
+          const h = document.createElement("h4");
+          h.textContent = "Season " + block.season;
+          sec.appendChild(h);
+          const table = document.createElement("table");
+          table.className = "ep-table";
+          for (const ep of block.episodes) {
+            const tr = document.createElement("tr");
+            const tdN = document.createElement("td");
+            tdN.className = "ep-num";
+            tdN.textContent = "E" + ep.number;
+            const tdD = document.createElement("td");
+            tdD.className = "ep-date";
+            tdD.textContent = ep.airdate ? formatAirDate(ep.airdate, ep.airtime || "") : "TBA";
+            const tdT = document.createElement("td");
+            tdT.textContent = ep.name || "TBA";
+            tr.appendChild(tdN);
+            tr.appendChild(tdD);
+            tr.appendChild(tdT);
+            table.appendChild(tr);
+          }
+          sec.appendChild(table);
+          body.appendChild(sec);
+        }
+      }
+
+      async function openShowDetails(showId) {
+        const modal = document.getElementById("showModal");
+        const body = document.getElementById("modalBody");
+        document.getElementById("modalShowTitle").textContent = "Loading…";
+        document.getElementById("modalShowStats").textContent = "";
+        setModalPoster(null);
+        body.innerHTML = "<p class=\"muted\">Loading…</p>";
+        modal.classList.add("open");
+
+        try {
+          if (!Number.isInteger(showId) || showId < 1) {
+            throw new Error("Invalid show id from subscription list.");
+          }
+          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          const qs = new URLSearchParams();
+          qs.set("showId", String(showId));
+          qs.set("timezone", tz);
+          let data;
+          try {
+            data = await api("/api/show-details?" + qs.toString());
+          } catch {
+            data = await api("/api/shows/" + encodeURIComponent(String(showId)) + "/details?timezone=" + encodeURIComponent(tz));
+          }
+          const sh = data.show;
+          document.getElementById("modalShowTitle").textContent = sh.name;
+          const bits = [];
+          if (sh.network) bits.push(sh.network);
+          if (sh.premiered) bits.push("Premiered " + sh.premiered);
+          if (sh.status) bits.push(sh.status);
+          bits.push(data.seasonCount + " season" + (data.seasonCount === 1 ? "" : "s"));
+          bits.push(data.episodeCount + " episode" + (data.episodeCount === 1 ? "" : "s"));
+          document.getElementById("modalShowStats").textContent = bits.join(" · ");
+          setModalPoster(sh.image || null);
+          renderShowDetails(data);
+        } catch (e) {
+          body.innerHTML = "";
+          const p = document.createElement("p");
+          p.className = "modal-error";
+          p.textContent = e.message || "Could not load show.";
+          body.appendChild(p);
+        }
+      }
+
+      const LS_SEARCH_PAGE_SIZE = "airalert_search_page_size";
+      const LIVE_SEARCH_DEBOUNCE_MS = 300;
+
+      let searchResultState = { allShows: [], page: 1 };
+      let liveSearchTimer = null;
+      let activeSearchAbortController = null;
+      let activeSearchRequestId = 0;
+
+      function appendSearchResultCard(box, s, userId, err) {
+        const card = document.createElement("div");
+        card.className = "search-card";
+        const inner = document.createElement("div");
+        inner.className = "search-card-inner";
+
+        if (s.image) {
+          const img = document.createElement("img");
+          img.className = "search-thumb";
+          img.src = s.image;
+          img.alt = "";
+          inner.appendChild(img);
+        } else {
+          const ph = document.createElement("div");
+          ph.className = "search-thumb placeholder";
+          ph.textContent = "No art";
+          inner.appendChild(ph);
+        }
+
+        const main = document.createElement("div");
+        main.className = "search-card-main";
+
+        const titleRow = document.createElement("div");
+        titleRow.className = "search-card-title";
+        titleRow.textContent = s.name;
+        main.appendChild(titleRow);
+
+        const meta = document.createElement("div");
+        meta.className = "search-card-meta";
+        const parts = [];
+        if (s.network) parts.push(s.network);
+        if (s.premiered) parts.push(String(s.premiered).slice(0, 4));
+        if (s.lastAiredDate) parts.push("Last aired " + s.lastAiredDate);
+        meta.textContent = parts.length ? parts.join(" · ") : "Network / year unknown";
+        main.appendChild(meta);
+
+        const subBtn = document.createElement("button");
+        subBtn.type = "button";
+        subBtn.className = "btn-subscribe-inline";
+        subBtn.textContent = "Subscribe";
+        subBtn.addEventListener("click", async () => {
+          subBtn.disabled = true;
+          try {
+            await api("/api/users/" + userId + "/subscriptions", {
+              method: "POST",
+              body: JSON.stringify({ tvmazeShowId: s.id }),
+            });
+            await loadSubs(userId);
+            subBtn.textContent = "Subscribed";
+            card.style.opacity = "0.55";
+          } catch (e) {
+            err.textContent = e.message;
+            err.classList.add("err");
+            subBtn.disabled = false;
+          }
+        });
+        main.appendChild(subBtn);
+
+        inner.appendChild(main);
+        card.appendChild(inner);
+        box.appendChild(card);
+      }
+
+      function buildSearchQuery(userId, opts = {}) {
+        const fast = opts.fast === true;
+        const limit = Number.isFinite(opts.limit) ? Math.floor(opts.limit) : 100;
+        const title = document.getElementById("searchTitle").value.trim();
+        const qs = new URLSearchParams();
+        if (title) qs.set("title", title);
+        if (title) qs.set("q", title);
+        qs.set("excludeUserId", userId);
+        qs.set("limit", String(Math.min(100, Math.max(1, limit))));
+        if (fast) qs.set("fast", "1");
+        return { qs, title };
+      }
+
+      function populateNetworkFilterOptions() {
+        const sel = document.getElementById("searchNetworkFilter");
+        const prev = sel.value;
+        const list = searchResultState.allShows;
+        const named = [
+          ...new Set(list.map((s) => s.network).filter(Boolean)),
+        ].sort((a, b) => a.localeCompare(b));
+        const hasUnknown = list.some((s) => !s.network);
+        sel.innerHTML = "";
+        const all = document.createElement("option");
+        all.value = "";
+        all.textContent = "All networks";
+        sel.appendChild(all);
+        if (hasUnknown) {
+          const o = document.createElement("option");
+          o.value = "__none__";
+          o.textContent = "No network listed";
+          sel.appendChild(o);
+        }
+        for (const n of named) {
+          const o = document.createElement("option");
+          o.value = n;
+          o.textContent = n;
+          sel.appendChild(o);
+        }
+        const ok = [...sel.options].some((o) => o.value === prev);
+        sel.value = ok ? prev : "";
+      }
+
+      function getNetworkFilteredShows() {
+        const v = document.getElementById("searchNetworkFilter").value;
+        if (v === "__none__") return searchResultState.allShows.filter((s) => !s.network);
+        if (v) return searchResultState.allShows.filter((s) => (s.network || "") === v);
+        return searchResultState.allShows;
+      }
+
+      function renderSearchPage(userId) {
+        const err = document.getElementById("searchErr");
+        const box = document.getElementById("results");
+        const pagEl = document.getElementById("searchPagination");
+        const filtered = getNetworkFilteredShows();
+        let pageSize = Number(document.getElementById("searchPageSize").value);
+        if (![10, 50, 100].includes(pageSize)) pageSize = 10;
+        let page = searchResultState.page || 1;
+        const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+        page = Math.min(Math.max(1, page), totalPages);
+        searchResultState.page = page;
+        const start = (page - 1) * pageSize;
+        const slice = filtered.slice(start, start + pageSize);
+
+        box.innerHTML = "";
+        for (const s of slice) {
+          appendSearchResultCard(box, s, userId, err);
+        }
+
+        pagEl.innerHTML = "";
+        const summary = document.createElement("span");
+        summary.className = "muted";
+        if (!filtered.length) {
+          summary.textContent = "No matches for this filter.";
+        } else {
+          const end = Math.min(page * pageSize, filtered.length);
+          summary.textContent = "Showing " + (start + 1) + "–" + end + " of " + filtered.length;
+        }
+        pagEl.appendChild(summary);
+        if (totalPages > 1) {
+          const nav = document.createElement("div");
+          nav.className = "search-page-nav";
+          const prevB = document.createElement("button");
+          prevB.type = "button";
+          prevB.className = "secondary";
+          prevB.textContent = "Previous";
+          prevB.disabled = page <= 1;
+          prevB.addEventListener("click", () => {
+            searchResultState.page = page - 1;
+            renderSearchPage(userId);
+          });
+          const nextB = document.createElement("button");
+          nextB.type = "button";
+          nextB.className = "secondary";
+          nextB.textContent = "Next";
+          nextB.disabled = page >= totalPages;
+          nextB.addEventListener("click", () => {
+            searchResultState.page = page + 1;
+            renderSearchPage(userId);
+          });
+          nav.appendChild(prevB);
+          nav.appendChild(document.createTextNode(" Page " + page + " / " + totalPages + " "));
+          nav.appendChild(nextB);
+          pagEl.appendChild(nav);
+        }
+      }
+
+      function applySearchResultLayout(userId, qs) {
+        const toolbar = document.getElementById("searchPostToolbar");
+        const linkP = document.getElementById("searchFullPageLink");
+        populateNetworkFilterOptions();
+        toolbar.classList.add("visible");
+        const title = document.getElementById("searchTitle").value.trim();
+        if (title) {
+          linkP.style.display = "block";
+          const a = document.createElement("a");
+          a.href = "/search-results.html?" + qs.toString();
+          a.className = "secondary";
+          a.textContent = "Open full results page";
+          linkP.innerHTML = "";
+          linkP.appendChild(a);
+          linkP.appendChild(document.createTextNode(" (same search, useful on small screens)."));
+        } else {
+          linkP.style.display = "none";
+          linkP.innerHTML = "";
+        }
+        const saved = localStorage.getItem(LS_SEARCH_PAGE_SIZE);
+        if (saved === "10" || saved === "50" || saved === "100") {
+          document.getElementById("searchPageSize").value = saved;
+        }
+        searchResultState.page = 1;
+        renderSearchPage(userId);
+      }
+
+      async function performSearch(userId, opts = {}) {
+        const isLive = opts.live === true;
+        const err = document.getElementById("searchErr");
+        const box = document.getElementById("results");
+        const loading = document.getElementById("searchLoading");
+        const btn = document.getElementById("searchBtn");
+        const toolbar = document.getElementById("searchPostToolbar");
+        const linkP = document.getElementById("searchFullPageLink");
+        if (!isLive) {
+          err.textContent = "";
+          err.classList.remove("err");
+          box.innerHTML = "";
+          toolbar.classList.remove("visible");
+          linkP.style.display = "none";
+          linkP.innerHTML = "";
+        }
+        const { qs, title } = buildSearchQuery(userId, {
+          fast: isLive,
+          limit: isLive ? 50 : 100,
+        });
+        if (!title) {
+          if (!isLive) {
+            err.textContent = "Enter a show title.";
+            err.classList.add("err");
+          }
+          return;
+        }
+        if (isLive && title.length < 2) return;
+
+        if (activeSearchAbortController) {
+          activeSearchAbortController.abort();
+        }
+        activeSearchAbortController = new AbortController();
+        const reqId = ++activeSearchRequestId;
+
+        if (!isLive) {
+          loading.style.display = "block";
+          btn.disabled = true;
+        }
+        try {
+          const { shows } = await api("/api/shows/search?" + qs.toString(), {
+            signal: activeSearchAbortController.signal,
+          });
+          if (reqId !== activeSearchRequestId) return;
+          if (!shows.length) {
+            if (!isLive) {
+              err.textContent =
+                "No new shows to add. Try different words, or every match is already on your list.";
+              err.classList.add("err");
+            }
+            return;
+          }
+          searchResultState.allShows = shows;
+          applySearchResultLayout(userId, qs);
+        } catch (e) {
+          if (e && e.name === "AbortError") return;
+          if (!isLive) {
+            err.textContent = e.message;
+            err.classList.add("err");
+          }
+        } finally {
+          if (!isLive && reqId === activeSearchRequestId) {
+            loading.style.display = "none";
+            btn.disabled = false;
+          }
+        }
+      }
+
+      function scheduleLiveSearch(userId) {
+        if (liveSearchTimer) clearTimeout(liveSearchTimer);
+        liveSearchTimer = setTimeout(() => {
+          performSearch(userId, { live: true });
+        }, LIVE_SEARCH_DEBOUNCE_MS);
+      }
+
+      function setTab(name) {
+        document.querySelectorAll(".tab-panel").forEach((el) => {
+          el.classList.toggle("active", el.id === "tab-" + name);
+        });
+        document.querySelectorAll(".tab-nav .tab-btn").forEach((btn) => {
+          const on = btn.getAttribute("data-tab") === name;
+          btn.classList.toggle("active", on);
+          btn.setAttribute("aria-selected", on ? "true" : "false");
+        });
+      }
+
+      (async function init() {
+        const userId = await ensureUser();
+        await loadUser(userId);
+        await loadSubs(userId);
+        await loadNotifs(userId);
+
+        document.querySelectorAll(".tab-nav .tab-btn").forEach((btn) => {
+          btn.addEventListener("click", () => setTab(btn.getAttribute("data-tab")));
+        });
+
+        document.getElementById("saveProfile").onclick = () => saveProfile(userId);
+
+        document.getElementById("copyCal").onclick = async () => {
+          const t = document.getElementById("calUrl").textContent;
+          try {
+            await navigator.clipboard.writeText(t);
+            document.getElementById("profileMsg").textContent = "Calendar URL copied.";
+          } catch {
+            prompt("Copy this URL:", t);
+          }
+        };
+
+        document.getElementById("searchBtn").onclick = () => performSearch(userId);
+
+        document.getElementById("searchTitle").addEventListener("input", () => {
+          scheduleLiveSearch(userId);
+        });
+
+        document.getElementById("searchTitle").addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (liveSearchTimer) clearTimeout(liveSearchTimer);
+            performSearch(userId);
+          }
+        });
+
+        document.getElementById("searchNetworkFilter").addEventListener("change", () => {
+          searchResultState.page = 1;
+          renderSearchPage(userId);
+        });
+
+        document.getElementById("searchPageSize").addEventListener("change", () => {
+          localStorage.setItem(LS_SEARCH_PAGE_SIZE, document.getElementById("searchPageSize").value);
+          searchResultState.page = 1;
+          renderSearchPage(userId);
+        });
+
+        document.getElementById("modalClose").onclick = () => closeShowModal();
+        document.getElementById("showModal").addEventListener("click", (e) => {
+          if (e.target.id === "showModal") closeShowModal();
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeShowModal();
+        });
+
+        document.getElementById("refreshData").onclick = async () => {
+          const msg = document.getElementById("jobMsg");
+          const out = document.getElementById("jobOut");
+          msg.textContent = "Running…";
+          out.style.display = "none";
+          try {
+            const data = await api("/api/jobs/run", { method: "POST" });
+            msg.textContent =
+              "Refreshed " + data.refreshed.length + " show(s). Logged " + data.notificationsCreated + " notification(s).";
+            out.style.display = "block";
+            out.textContent = JSON.stringify(data, null, 2);
+            await loadNotifs(userId);
+            await loadSubs(userId);
+          } catch (e) {
+            msg.textContent = e.message;
+            msg.classList.add("err");
+          }
+        };
+      })();
+    </script>
+  </body>
+</html>

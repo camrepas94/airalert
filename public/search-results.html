@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Search results — Airalert</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f1115;
+        --panel: #181c24;
+        --text: #e8eaef;
+        --muted: #9aa3b2;
+        --accent: #6c9ef8;
+        --border: #2a3140;
+        --danger: #f07178;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        min-height: 100vh;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 3rem;
+      }
+      .top-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.25rem;
+      }
+      .top-nav h1 {
+        font-size: 1.25rem;
+        font-weight: 650;
+        margin: 0;
+        letter-spacing: -0.02em;
+      }
+      a.home-link {
+        display: inline-block;
+        background: #2a3140;
+        color: var(--text);
+        text-decoration: none;
+        border-radius: 8px;
+        padding: 0.55rem 0.9rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+      a.home-link:hover {
+        filter: brightness(1.08);
+      }
+      .query-summary {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin: 0 0 1rem;
+      }
+      .query-summary strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+      section {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1rem 1.1rem;
+        margin-bottom: 1rem;
+      }
+      h2 {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0 0 0.75rem;
+        font-weight: 600;
+      }
+      .search-loading {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+      .msg.err {
+        color: var(--danger);
+        font-size: 0.9rem;
+        margin: 0 0 0.75rem;
+      }
+      .search-card {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.75rem;
+        margin-bottom: 0.65rem;
+        background: #0c0e12;
+      }
+      .search-card-inner {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+      }
+      .search-thumb {
+        width: 56px;
+        height: 78px;
+        object-fit: cover;
+        border-radius: 6px;
+        flex-shrink: 0;
+        background: var(--border);
+      }
+      .search-thumb.placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        color: var(--muted);
+        text-align: center;
+        padding: 0.25rem;
+        line-height: 1.2;
+      }
+      .search-card-main {
+        flex: 1;
+        min-width: 0;
+      }
+      .search-card-title {
+        font-weight: 650;
+        font-size: 1rem;
+        margin: 0 0 0.2rem;
+        line-height: 1.3;
+      }
+      .search-card-meta {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 0.5rem;
+      }
+      .search-card-meta .net {
+        color: var(--accent);
+        font-weight: 500;
+      }
+      button {
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        padding: 0.55rem 0.9rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        background: var(--accent);
+        color: #0a0c10;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      .btn-subscribe-inline {
+        margin-top: 0.15rem;
+      }
+      .search-post-toolbar {
+        display: none;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 0.75rem 1rem;
+        margin: 0 0 0.75rem;
+        padding: 0.65rem 0.75rem;
+        background: #0c0e12;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+      .search-post-toolbar.visible {
+        display: flex;
+      }
+      .search-post-field label {
+        display: block;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+      }
+      .search-post-field select {
+        min-width: 10rem;
+        padding: 0.45rem 0.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #0c0e12;
+        color: var(--text);
+        font-size: 0.9rem;
+      }
+      .search-pagination {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem 0.75rem;
+        margin-top: 0.35rem;
+        font-size: 0.85rem;
+      }
+      .search-page-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+      }
+      .search-page-nav button {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.85rem;
+        background: #2a3140;
+        color: var(--text);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .search-page-nav button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="top-nav">
+        <h1 id="pageTitle">Search results</h1>
+        <a class="home-link" href="/">← Home</a>
+      </div>
+      <p class="query-summary" id="querySummary"></p>
+
+      <section>
+        <h2>Results</h2>
+        <p class="search-loading" id="loading">Loading…</p>
+        <p class="msg err" id="err" style="display: none"></p>
+        <div id="searchPostToolbar" class="search-post-toolbar">
+          <div class="search-post-field">
+            <label for="searchNetworkFilter">Filter by network</label>
+            <select id="searchNetworkFilter" aria-label="Filter results by network">
+              <option value="">All networks</option>
+            </select>
+          </div>
+          <div class="search-post-field">
+            <label for="searchPageSize">Results per page</label>
+            <select id="searchPageSize" aria-label="Results per page">
+              <option value="10">10</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+          <div class="search-pagination" id="searchPagination"></div>
+        </div>
+        <div id="results"></div>
+      </section>
+    </main>
+
+    <script>
+      const LS_USER = "airalert_user_id";
+
+      function apiOrigin() {
+        if (window.location.protocol === "file:") {
+          return "http://127.0.0.1:3000";
+        }
+        return window.location.origin;
+      }
+
+      const api = (path, opts = {}) => {
+        const url = path.startsWith("http") ? path : new URL(path, apiOrigin()).href;
+        const { headers: userHeaders, ...rest } = opts;
+        return fetch(url, {
+          ...rest,
+          headers: {
+            ...(rest.body != null ? { "Content-Type": "application/json" } : {}),
+            ...userHeaders,
+          },
+        }).then(async (r) => {
+          const data = await r.json().catch(() => ({}));
+          if (!r.ok) throw new Error(data.error || r.statusText);
+          return data;
+        });
+      };
+
+      async function ensureUser() {
+        let id = localStorage.getItem(LS_USER);
+        if (id) return id;
+        const u = await api("/api/users", {
+          method: "POST",
+          body: JSON.stringify({ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
+        });
+        localStorage.setItem(LS_USER, u.id);
+        return u.id;
+      }
+
+      const LS_SEARCH_PAGE_SIZE = "airalert_search_page_size";
+
+      let searchResultState = { allShows: [], page: 1 };
+
+      function appendSearchResultCard(box, s, userId, errEl) {
+        const card = document.createElement("div");
+        card.className = "search-card";
+        const inner = document.createElement("div");
+        inner.className = "search-card-inner";
+
+        if (s.image) {
+          const img = document.createElement("img");
+          img.className = "search-thumb";
+          img.src = s.image;
+          img.alt = "";
+          inner.appendChild(img);
+        } else {
+          const ph = document.createElement("div");
+          ph.className = "search-thumb placeholder";
+          ph.textContent = "No art";
+          inner.appendChild(ph);
+        }
+
+        const main = document.createElement("div");
+        main.className = "search-card-main";
+
+        const titleRow = document.createElement("div");
+        titleRow.className = "search-card-title";
+        titleRow.textContent = s.name;
+        main.appendChild(titleRow);
+
+        const meta = document.createElement("div");
+        meta.className = "search-card-meta";
+        const parts = [];
+        if (s.network) parts.push(s.network);
+        if (s.premiered) parts.push(String(s.premiered).slice(0, 4));
+        if (s.lastAiredDate) parts.push("Last aired " + s.lastAiredDate);
+        meta.textContent = parts.length ? parts.join(" · ") : "Network / year unknown";
+        main.appendChild(meta);
+
+        const subBtn = document.createElement("button");
+        subBtn.type = "button";
+        subBtn.className = "btn-subscribe-inline";
+        subBtn.textContent = "Subscribe";
+        subBtn.addEventListener("click", async () => {
+          subBtn.disabled = true;
+          try {
+            await api("/api/users/" + userId + "/subscriptions", {
+              method: "POST",
+              body: JSON.stringify({ tvmazeShowId: s.id }),
+            });
+            subBtn.textContent = "Subscribed";
+            card.style.opacity = "0.55";
+          } catch (e) {
+            errEl.style.display = "block";
+            errEl.textContent = e.message;
+            subBtn.disabled = false;
+          }
+        });
+        main.appendChild(subBtn);
+
+        inner.appendChild(main);
+        card.appendChild(inner);
+        box.appendChild(card);
+      }
+
+      function populateNetworkFilterOptions() {
+        const sel = document.getElementById("searchNetworkFilter");
+        const prev = sel.value;
+        const list = searchResultState.allShows;
+        const named = [...new Set(list.map((s) => s.network).filter(Boolean))].sort((a, b) =>
+          a.localeCompare(b),
+        );
+        const hasUnknown = list.some((s) => !s.network);
+        sel.innerHTML = "";
+        const all = document.createElement("option");
+        all.value = "";
+        all.textContent = "All networks";
+        sel.appendChild(all);
+        if (hasUnknown) {
+          const o = document.createElement("option");
+          o.value = "__none__";
+          o.textContent = "No network listed";
+          sel.appendChild(o);
+        }
+        for (const n of named) {
+          const o = document.createElement("option");
+          o.value = n;
+          o.textContent = n;
+          sel.appendChild(o);
+        }
+        const ok = [...sel.options].some((o) => o.value === prev);
+        sel.value = ok ? prev : "";
+      }
+
+      function getNetworkFilteredShows() {
+        const v = document.getElementById("searchNetworkFilter").value;
+        if (v === "__none__") return searchResultState.allShows.filter((s) => !s.network);
+        if (v) return searchResultState.allShows.filter((s) => (s.network || "") === v);
+        return searchResultState.allShows;
+      }
+
+      function renderSearchPage(userId, errEl) {
+        const box = document.getElementById("results");
+        const pagEl = document.getElementById("searchPagination");
+        const filtered = getNetworkFilteredShows();
+        let pageSize = Number(document.getElementById("searchPageSize").value);
+        if (![10, 50, 100].includes(pageSize)) pageSize = 10;
+        let page = searchResultState.page || 1;
+        const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+        page = Math.min(Math.max(1, page), totalPages);
+        searchResultState.page = page;
+        const start = (page - 1) * pageSize;
+        const slice = filtered.slice(start, start + pageSize);
+
+        box.innerHTML = "";
+        for (const s of slice) {
+          appendSearchResultCard(box, s, userId, errEl);
+        }
+
+        pagEl.innerHTML = "";
+        const summary = document.createElement("span");
+        summary.style.color = "var(--muted)";
+        if (!filtered.length) {
+          summary.textContent = "No matches for this filter.";
+        } else {
+          const end = Math.min(page * pageSize, filtered.length);
+          summary.textContent = "Showing " + (start + 1) + "–" + end + " of " + filtered.length;
+        }
+        pagEl.appendChild(summary);
+        if (totalPages > 1) {
+          const nav = document.createElement("div");
+          nav.className = "search-page-nav";
+          const prevB = document.createElement("button");
+          prevB.type = "button";
+          prevB.textContent = "Previous";
+          prevB.disabled = page <= 1;
+          prevB.addEventListener("click", () => {
+            searchResultState.page = page - 1;
+            renderSearchPage(userId, errEl);
+          });
+          const nextB = document.createElement("button");
+          nextB.type = "button";
+          nextB.textContent = "Next";
+          nextB.disabled = page >= totalPages;
+          nextB.addEventListener("click", () => {
+            searchResultState.page = page + 1;
+            renderSearchPage(userId, errEl);
+          });
+          nav.appendChild(prevB);
+          nav.appendChild(document.createTextNode(" Page " + page + " / " + totalPages + " "));
+          nav.appendChild(nextB);
+          pagEl.appendChild(nav);
+        }
+      }
+
+      (async function () {
+        const params = new URLSearchParams(window.location.search);
+        const title = (params.get("title") || "").trim();
+        const legacyQ = (params.get("q") || "").trim();
+        const summaryEl = document.getElementById("querySummary");
+        const loadingEl = document.getElementById("loading");
+        const errEl = document.getElementById("err");
+        const toolbar = document.getElementById("searchPostToolbar");
+
+        if (!title && !legacyQ) {
+          loadingEl.style.display = "none";
+          summaryEl.innerHTML =
+            "No search terms in the URL. Use <strong>Search</strong> on the home page, or <a href=\"/\" style=\"color:var(--accent)\">go home</a>.";
+          return;
+        }
+
+        summaryEl.textContent = "";
+        const frag = document.createDocumentFragment();
+        const qDisplay = title || legacyQ;
+        const b = document.createElement("strong");
+        b.textContent = "Title: ";
+        frag.appendChild(b);
+        frag.appendChild(document.createTextNode(qDisplay));
+        summaryEl.appendChild(frag);
+
+        const userId = await ensureUser();
+        const qs = new URLSearchParams();
+        if (title) qs.set("title", title);
+        if (legacyQ) qs.set("q", legacyQ);
+        else if (title) qs.set("q", title);
+        qs.set("excludeUserId", userId);
+        qs.set("limit", "100");
+
+        try {
+          const { shows } = await api("/api/shows/search?" + qs.toString());
+          loadingEl.style.display = "none";
+          if (!shows.length) {
+            errEl.style.display = "block";
+            errEl.textContent =
+              "No new shows to add for this search — try different words, or every match is already on your list.";
+            return;
+          }
+          document.getElementById("pageTitle").textContent = "Search results (" + shows.length + ")";
+          searchResultState.allShows = shows;
+          searchResultState.page = 1;
+          populateNetworkFilterOptions();
+          toolbar.classList.add("visible");
+          const saved = localStorage.getItem(LS_SEARCH_PAGE_SIZE);
+          if (saved === "10" || saved === "50" || saved === "100") {
+            document.getElementById("searchPageSize").value = saved;
+          }
+
+          const filterEl = document.getElementById("searchNetworkFilter");
+          const pageEl = document.getElementById("searchPageSize");
+          filterEl.onchange = () => {
+            searchResultState.page = 1;
+            renderSearchPage(userId, errEl);
+          };
+          pageEl.onchange = () => {
+            localStorage.setItem(LS_SEARCH_PAGE_SIZE, pageEl.value);
+            searchResultState.page = 1;
+            renderSearchPage(userId, errEl);
+          };
+
+          renderSearchPage(userId, errEl);
+        } catch (e) {
+          loadingEl.style.display = "none";
+          errEl.style.display = "block";
+          errEl.textContent = e.message || "Search failed.";
+        }
+      })();
+    </script>
+  </body>
+</html>
