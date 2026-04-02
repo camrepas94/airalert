@@ -17,12 +17,29 @@ import {
 import { normalizeEpisodeAirdate, safeTodayInTimeZone } from "./time.js";
 import { buildIcsCalendar, episodeUid } from "./ics.js";
 import { refreshAllSubscribedShows, runDailyNotifications } from "./jobs.js";
+import { configureWebPush, getVapidPublicKey } from "./push.js";
 
 const PORT = Number(process.env.PORT) || 3000;
+const publicDir = path.join(process.cwd(), "public");
 
-const app = Fastify({ logger: true, ignoreTrailingSlash: true });
+const webPushReady = configureWebPush();
+
+const app = Fastify({
+  logger: true,
+  routerOptions: {
+    ignoreTrailingSlash: true,
+  },
+});
 
 await app.register(cors, { origin: true });
+
+if (webPushReady) {
+  app.log.info("Web Push: VAPID keys loaded");
+} else {
+  app.log.info(
+    "Web Push: off until VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY (+ optional VAPID_SUBJECT) are set — server is fine without them",
+  );
+}
 
 function randomToken(): string {
   return crypto.randomBytes(24).toString("hex");
@@ -484,10 +501,51 @@ app.post("/api/users/:userId/devices", async (request, reply) => {
   return { ok: true, id };
 });
 
+app.get("/api/push/vapid-public-key", async () => ({
+  publicKey: getVapidPublicKey(),
+  enabled: !!getVapidPublicKey(),
+}));
+
+app.post("/api/users/:userId/push-subscription", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const body = (request.body ?? {}) as {
+    endpoint?: string;
+    keys?: { p256dh?: string; auth?: string };
+  };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  if (!getVapidPublicKey()) {
+    reply.code(503);
+    return { error: "Push not configured on server (missing VAPID keys)" };
+  }
+  const endpoint = typeof body.endpoint === "string" ? body.endpoint.trim() : "";
+  const p256dh = typeof body.keys?.p256dh === "string" ? body.keys.p256dh.trim() : "";
+  const auth = typeof body.keys?.auth === "string" ? body.keys.auth.trim() : "";
+  if (!endpoint || !p256dh || !auth) {
+    reply.code(400);
+    return { error: "Invalid subscription (need endpoint, keys.p256dh, keys.auth)" };
+  }
+  const id = uuidv4();
+  db.prepare(
+    `INSERT INTO web_push_subscriptions (id, user_id, endpoint, p256dh, auth, updated_at)
+     VALUES (?, ?, ?, ?, ?, datetime('now'))
+     ON CONFLICT(endpoint) DO UPDATE SET
+       user_id = excluded.user_id,
+       p256dh = excluded.p256dh,
+       auth = excluded.auth,
+       updated_at = datetime('now')`,
+  ).run(id, userId, endpoint, p256dh, auth);
+  reply.code(201);
+  return { ok: true };
+});
+
 /** Admin / dev: refresh episode cache + run notification pass. */
 app.post("/api/jobs/run", async () => {
   const refreshed = await refreshAllSubscribedShows();
-  const notifications = runDailyNotifications();
+  const notifications = await runDailyNotifications();
   return { refreshed, notificationsCreated: notifications.length, notifications };
 });
 
@@ -614,26 +672,48 @@ app.get("/calendar/:filename", async (request, reply) => {
   return ics;
 });
 
-const publicDir = path.join(process.cwd(), "public");
 function readPublicHtml(name: string): string {
   return fs.readFileSync(path.join(publicDir, name), "utf8");
 }
 app.get("/", async (_req, reply) => {
+  reply.header("Cache-Control", "no-store, max-age=0");
   reply.type("text/html; charset=utf-8").send(readPublicHtml("index.html"));
 });
 app.get("/index.html", async (_req, reply) => {
+  reply.header("Cache-Control", "no-store, max-age=0");
   reply.type("text/html; charset=utf-8").send(readPublicHtml("index.html"));
 });
 app.get("/search-results.html", async (_req, reply) => {
+  reply.header("Cache-Control", "no-store, max-age=0");
   reply.type("text/html; charset=utf-8").send(readPublicHtml("search-results.html"));
+});
+
+app.get("/sw.js", async (_req, reply) => {
+  const p = path.join(publicDir, "sw.js");
+  if (!fs.existsSync(p)) {
+    reply.code(404);
+    return "Not found";
+  }
+  reply.header("Cache-Control", "no-store, max-age=0");
+  return reply.type("application/javascript; charset=utf-8").send(fs.readFileSync(p, "utf8"));
+});
+
+app.get("/manifest.json", async (_req, reply) => {
+  const p = path.join(publicDir, "manifest.json");
+  if (!fs.existsSync(p)) {
+    reply.code(404);
+    return "Not found";
+  }
+  reply.header("Cache-Control", "no-store, max-age=0");
+  return reply.type("application/manifest+json; charset=utf-8").send(fs.readFileSync(p, "utf8"));
 });
 
 cron.schedule("5 * * * *", async () => {
   try {
     await refreshAllSubscribedShows();
-    const n = runDailyNotifications();
+    const n = await runDailyNotifications();
     if (n.length) {
-      app.log.info({ count: n.length }, "notifications recorded (dry_run)");
+      app.log.info({ count: n.length }, "notifications recorded");
     }
   } catch (err) {
     app.log.error(err, "scheduled job failed");

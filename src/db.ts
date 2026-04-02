@@ -67,6 +67,17 @@ db.exec(`
     UNIQUE (user_id, platform, push_token)
   );
 
+  CREATE TABLE IF NOT EXISTS web_push_subscriptions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    endpoint TEXT NOT NULL UNIQUE,
+    p256dh TEXT NOT NULL,
+    auth TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON show_subscriptions(user_id);
   CREATE INDEX IF NOT EXISTS idx_notification_user ON notification_log(user_id);
+  CREATE INDEX IF NOT EXISTS idx_web_push_user ON web_push_subscriptions(user_id);
 `);

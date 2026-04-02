@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { db } from "./db.js";
 import { fetchShowEpisodes } from "./tvmaze.js";
 import { normalizeEpisodeAirdate, safeTodayInTimeZone } from "./time.js";
+import { sendWebPushToUser } from "./push.js";
 
 type SubscriptionRow = {
   id: string;
@@ -79,9 +80,9 @@ export type DryRunNotification = {
 
 /**
  * Record notifications for episodes airing "today" in each user's timezone.
- * V1: channel `dry_run` — no FCM/APNs yet. Idempotent per user+episode.
+ * Logs to DB (dry_run channel). Sends Web Push when VAPID is configured and the user has subscribed.
  */
-export function runDailyNotifications(): DryRunNotification[] {
+export async function runDailyNotifications(): Promise<DryRunNotification[]> {
   const subs = db.prepare(`SELECT id, user_id, tvmaze_show_id, show_name FROM show_subscriptions`).all() as SubscriptionRow[];
 
   const users = new Map<string, UserRow>();
@@ -132,6 +133,11 @@ export function runDailyNotifications(): DryRunNotification[] {
           episodeLabel,
           airdate: ep.airdate,
           tvmazeEpisodeId: ep.tvmaze_episode_id,
+        });
+        await sendWebPushToUser(sub.user_id, {
+          title: sub.show_name,
+          body: `Airs today: ${episodeLabel}`,
+          url: "/",
         });
       }
     }

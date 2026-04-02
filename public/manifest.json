@@ -1,0 +1,9 @@
+{
+  "name": "Airalert",
+  "short_name": "Airalert",
+  "description": "TV show episode reminders",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1115",
+  "theme_color": "#181c24"
+}
