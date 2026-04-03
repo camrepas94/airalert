@@ -907,9 +907,22 @@
         });
       };
 
+      function isStaleUserError(e) {
+        const m = e && e.message ? String(e.message) : "";
+        return m.includes("User not found");
+      }
+
       async function ensureUser() {
-        let id = localStorage.getItem(LS_USER);
-        if (id) return id;
+        const stored = localStorage.getItem(LS_USER);
+        if (stored) {
+          try {
+            await api("/api/users/" + encodeURIComponent(stored));
+            return stored;
+          } catch (e) {
+            if (!isStaleUserError(e)) throw e;
+            localStorage.removeItem(LS_USER);
+          }
+        }
         const u = await api("/api/users", {
           method: "POST",
           body: JSON.stringify({ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
@@ -1027,6 +1040,18 @@
             "</div></div>";
           ul.appendChild(li);
         }
+      }
+
+      async function recreateUserSession() {
+        localStorage.removeItem(LS_USER);
+        appUserId = null;
+        const id = await ensureUser();
+        appUserId = id;
+        await loadUser(id);
+        await loadSubs(id);
+        await loadNotifs(id);
+        loadRecommended(id);
+        return id;
       }
 
       function escapeHtml(s) {
@@ -1246,20 +1271,35 @@
         subBtn.textContent = "Subscribe";
         subBtn.addEventListener("click", async () => {
           subBtn.disabled = true;
-          try {
-            await api("/api/users/" + userId + "/subscriptions", {
+          const postSub = (uid) =>
+            api("/api/users/" + encodeURIComponent(uid) + "/subscriptions", {
               method: "POST",
               body: JSON.stringify({ tvmazeShowId: s.id }),
             });
-            await loadSubs(userId);
-            loadRecommended(userId);
-            subBtn.textContent = "Subscribed";
-            card.style.opacity = "0.55";
+          let uid = resolveUserId();
+          try {
+            await postSub(uid);
           } catch (e) {
-            err.textContent = e.message;
-            err.classList.add("err");
-            subBtn.disabled = false;
+            if (!isStaleUserError(e)) {
+              err.textContent = e.message;
+              err.classList.add("err");
+              subBtn.disabled = false;
+              return;
+            }
+            try {
+              uid = await recreateUserSession();
+              await postSub(uid);
+            } catch (e2) {
+              err.textContent = e2.message;
+              err.classList.add("err");
+              subBtn.disabled = false;
+              return;
+            }
           }
+          await loadSubs(uid);
+          loadRecommended(uid);
+          subBtn.textContent = "Subscribed";
+          card.style.opacity = "0.55";
         });
         main.appendChild(subBtn);
 

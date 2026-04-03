@@ -356,9 +356,22 @@
         });
       };
 
+      function isStaleUserError(e) {
+        const m = e && e.message ? String(e.message) : "";
+        return m.includes("User not found");
+      }
+
       async function ensureUser() {
-        let id = localStorage.getItem(LS_USER);
-        if (id) return id;
+        const stored = localStorage.getItem(LS_USER);
+        if (stored) {
+          try {
+            await api("/api/users/" + encodeURIComponent(stored));
+            return stored;
+          } catch (e) {
+            if (!isStaleUserError(e)) throw e;
+            localStorage.removeItem(LS_USER);
+          }
+        }
         const u = await api("/api/users", {
           method: "POST",
           body: JSON.stringify({ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
@@ -413,18 +426,34 @@
         subBtn.textContent = "Subscribe";
         subBtn.addEventListener("click", async () => {
           subBtn.disabled = true;
-          try {
-            await api("/api/users/" + userId + "/subscriptions", {
+          const postSub = (uid) =>
+            api("/api/users/" + encodeURIComponent(uid) + "/subscriptions", {
               method: "POST",
               body: JSON.stringify({ tvmazeShowId: s.id }),
             });
-            subBtn.textContent = "Subscribed";
-            card.style.opacity = "0.55";
+          try {
+            await postSub(userId);
           } catch (e) {
-            errEl.style.display = "block";
-            errEl.textContent = e.message;
-            subBtn.disabled = false;
+            if (isStaleUserError(e)) {
+              localStorage.removeItem(LS_USER);
+              try {
+                const newId = await ensureUser();
+                await postSub(newId);
+              } catch (e2) {
+                errEl.style.display = "block";
+                errEl.textContent = e2.message;
+                subBtn.disabled = false;
+                return;
+              }
+            } else {
+              errEl.style.display = "block";
+              errEl.textContent = e.message;
+              subBtn.disabled = false;
+              return;
+            }
           }
+          subBtn.textContent = "Subscribed";
+          card.style.opacity = "0.55";
         });
         main.appendChild(subBtn);
 
