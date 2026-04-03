@@ -95,6 +95,11 @@ export async function runDailyNotifications(): Promise<DryRunNotification[]> {
     VALUES (@id, @user_id, @tvmaze_episode_id, @show_name, @episode_label, @airdate, 'dry_run')
   `);
 
+  const insertWatchTask = db.prepare(`
+    INSERT OR IGNORE INTO watch_tasks (id, user_id, tvmaze_show_id, tvmaze_episode_id, show_name, episode_label, airdate)
+    VALUES (@id, @user_id, @tvmaze_show_id, @tvmaze_episode_id, @show_name, @episode_label, @airdate)
+  `);
+
   const findEpisodes = db.prepare(`
     SELECT tvmaze_episode_id, name, season, number, date(airdate) AS airdate
     FROM episodes_cache
@@ -134,6 +139,15 @@ export async function runDailyNotifications(): Promise<DryRunNotification[]> {
           airdate: ep.airdate,
           tvmazeEpisodeId: ep.tvmaze_episode_id,
         });
+        insertWatchTask.run({
+          id: randomUUID(),
+          user_id: sub.user_id,
+          tvmaze_show_id: sub.tvmaze_show_id,
+          tvmaze_episode_id: ep.tvmaze_episode_id,
+          show_name: sub.show_name,
+          episode_label: episodeLabel,
+          airdate: ep.airdate,
+        });
         await sendWebPushToUser(sub.user_id, {
           title: sub.show_name,
           body: `Airs today: ${episodeLabel}`,
@@ -144,4 +158,58 @@ export async function runDailyNotifications(): Promise<DryRunNotification[]> {
   }
 
   return created;
+}
+
+type UserNudgeRow = {
+  id: string;
+  timezone: string;
+  task_nudge_days_after_air: number;
+};
+
+/**
+ * For users who enabled “still watching?” nudges: if an episode aired N calendar days ago
+ * (in their timezone) and the task is still open, send one follow-up push.
+ */
+export async function runTaskNudgeNotifications(): Promise<number> {
+  const users = db
+    .prepare(
+      `SELECT id, timezone, task_nudge_days_after_air FROM users
+       WHERE task_nudge_days_after_air IS NOT NULL AND task_nudge_days_after_air IN (1, 3, 7)`,
+    )
+    .all() as UserNudgeRow[];
+
+  const selectDue = db.prepare(`
+    SELECT id, user_id, show_name, episode_label
+    FROM watch_tasks
+    WHERE user_id = ?
+      AND completed_at IS NULL
+      AND nudge_sent_at IS NULL
+      AND date(airdate, '+' || ? || ' days') = date(?)
+  `);
+
+  const markNudged = db.prepare(`UPDATE watch_tasks SET nudge_sent_at = datetime('now') WHERE id = ? AND user_id = ?`);
+
+  let sent = 0;
+  for (const u of users) {
+    const today = safeTodayInTimeZone(u.timezone);
+    const offset = String(u.task_nudge_days_after_air);
+    const rows = selectDue.all(u.id, offset, today) as {
+      id: string;
+      user_id: string;
+      show_name: string;
+      episode_label: string;
+    }[];
+
+    for (const row of rows) {
+      await sendWebPushToUser(row.user_id, {
+        title: "Still watching?",
+        body: `Have you watched ${row.show_name} yet?!`,
+        url: "/",
+      });
+      markNudged.run(row.id, row.user_id);
+      sent += 1;
+    }
+  }
+
+  return sent;
 }

@@ -16,7 +16,7 @@ import {
 } from "./tvmaze.js";
 import { normalizeEpisodeAirdate, safeTodayInTimeZone } from "./time.js";
 import { buildIcsCalendar, episodeUid } from "./ics.js";
-import { refreshAllSubscribedShows, runDailyNotifications } from "./jobs.js";
+import { refreshAllSubscribedShows, runDailyNotifications, runTaskNudgeNotifications } from "./jobs.js";
 import { configureWebPush, getVapidPublicKey } from "./push.js";
 import { computeRecommendedShows } from "./recommend.js";
 
@@ -160,7 +160,8 @@ app.get("/api/users/me", async (request, reply) => {
   }
   const row = db
     .prepare(
-      `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken, created_at AS createdAt FROM users WHERE id = ?`,
+      `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt FROM users WHERE id = ?`,
     )
     .get(sid) as Record<string, unknown> | undefined;
   if (!row) {
@@ -180,7 +181,10 @@ app.post("/api/users/session/clear", async (request, reply) => {
 app.get("/api/users/:id", async (request, reply) => {
   const { id } = request.params as { id: string };
   const row = db
-    .prepare(`SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken, created_at AS createdAt FROM users WHERE id = ?`)
+    .prepare(
+      `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt FROM users WHERE id = ?`,
+    )
     .get(id) as Record<string, unknown> | undefined;
   if (!row) {
     reply.code(404);
@@ -191,7 +195,11 @@ app.get("/api/users/:id", async (request, reply) => {
 
 app.patch("/api/users/:id", async (request, reply) => {
   const { id } = request.params as { id: string };
-  const body = (request.body ?? {}) as { timezone?: string; reminderHourLocal?: number };
+  const body = (request.body ?? {}) as {
+    timezone?: string;
+    reminderHourLocal?: number;
+    taskNudgeDaysAfterAir?: number | null;
+  };
   const existing = db.prepare(`SELECT id FROM users WHERE id = ?`).get(id);
   if (!existing) {
     reply.code(404);
@@ -204,9 +212,18 @@ app.patch("/api/users/:id", async (request, reply) => {
     const h = Math.min(23, Math.max(0, body.reminderHourLocal));
     db.prepare(`UPDATE users SET reminder_hour_local = ? WHERE id = ?`).run(h, id);
   }
+  if ("taskNudgeDaysAfterAir" in body) {
+    const v = body.taskNudgeDaysAfterAir;
+    if (v === null || v === 0) {
+      db.prepare(`UPDATE users SET task_nudge_days_after_air = NULL WHERE id = ?`).run(id);
+    } else if (v === 1 || v === 3 || v === 7) {
+      db.prepare(`UPDATE users SET task_nudge_days_after_air = ? WHERE id = ?`).run(v, id);
+    }
+  }
   const row = db
     .prepare(
-      `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken FROM users WHERE id = ?`,
+      `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir FROM users WHERE id = ?`,
     )
     .get(id);
   return row;
@@ -678,7 +695,62 @@ app.post("/api/users/:userId/push-subscription", async (request, reply) => {
 app.post("/api/jobs/run", async () => {
   const refreshed = await refreshAllSubscribedShows();
   const notifications = await runDailyNotifications();
-  return { refreshed, notificationsCreated: notifications.length, notifications };
+  const taskNudgesSent = await runTaskNudgeNotifications();
+  return { refreshed, notificationsCreated: notifications.length, notifications, taskNudgesSent };
+});
+
+app.get("/api/users/:userId/watch-tasks", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const rows = db
+    .prepare(
+      `SELECT id, tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId,
+              show_name AS showName, episode_label AS episodeLabel, airdate,
+              completed_at AS completedAt, nudge_sent_at AS nudgeSentAt, created_at AS createdAt
+       FROM watch_tasks WHERE user_id = ?
+       ORDER BY (completed_at IS NULL) DESC, airdate DESC, created_at DESC
+       LIMIT 120`,
+    )
+    .all(userId);
+  return { tasks: rows };
+});
+
+app.patch("/api/users/:userId/watch-tasks/:taskId", async (request, reply) => {
+  const { userId, taskId } = request.params as { userId: string; taskId: string };
+  const body = (request.body ?? {}) as { completed?: boolean };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const task = db
+    .prepare(`SELECT id FROM watch_tasks WHERE id = ? AND user_id = ?`)
+    .get(taskId, userId);
+  if (!task) {
+    reply.code(404);
+    return { error: "Task not found" };
+  }
+  if (body.completed === true) {
+    db.prepare(`UPDATE watch_tasks SET completed_at = datetime('now') WHERE id = ? AND user_id = ?`).run(taskId, userId);
+  } else if (body.completed === false) {
+    db.prepare(`UPDATE watch_tasks SET completed_at = NULL WHERE id = ? AND user_id = ?`).run(taskId, userId);
+  } else {
+    reply.code(400);
+    return { error: "Set completed: true or false" };
+  }
+  const row = db
+    .prepare(
+      `SELECT id, tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId,
+              show_name AS showName, episode_label AS episodeLabel, airdate,
+              completed_at AS completedAt, nudge_sent_at AS nudgeSentAt
+       FROM watch_tasks WHERE id = ? AND user_id = ?`,
+    )
+    .get(taskId, userId);
+  return row;
 });
 
 app.get("/api/users/:userId/notifications", async (request, reply) => {
@@ -856,6 +928,10 @@ cron.schedule("5 * * * *", async () => {
     const n = await runDailyNotifications();
     if (n.length) {
       app.log.info({ count: n.length }, "notifications recorded");
+    }
+    const nudges = await runTaskNudgeNotifications();
+    if (nudges > 0) {
+      app.log.info({ count: nudges }, "task nudge pushes sent");
     }
   } catch (err) {
     app.log.error(err, "scheduled job failed");

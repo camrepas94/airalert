@@ -1,4 +1,10 @@
-import { fetchShow, searchShowsMerged, fetchPreviousEpisodeAirdates } from "./tvmaze.js";
+import {
+  fetchShow,
+  searchShowsMerged,
+  searchShowsPlain,
+  fetchPreviousEpisodeAirdates,
+  scanShowsCatalogForGenreFit,
+} from "./tvmaze.js";
 
 type ShowDetail = Awaited<ReturnType<typeof fetchShow>>;
 
@@ -44,6 +50,84 @@ function commonTitlePrefix(names: string[]): string {
   return s.trim();
 }
 
+/** Genres from subscribed shows (lowercase) for overlap scoring. */
+export function buildUserGenreSet(details: ShowDetail[]): Set<string> {
+  const s = new Set<string>();
+  for (const d of details) {
+    for (const g of d.genres ?? []) {
+      const k = g.trim().toLowerCase();
+      if (k.length >= 2) s.add(k);
+    }
+  }
+  return s;
+}
+
+/** Subscription genre counts (lowercase key) for weighted overlap. */
+export function buildUserGenreWeights(details: ShowDetail[]): Map<string, number> {
+  const m = new Map<string, number>();
+  for (const d of details) {
+    for (const g of d.genres ?? []) {
+      const k = g.trim().toLowerCase();
+      if (k.length < 2) continue;
+      m.set(k, (m.get(k) ?? 0) + 1);
+    }
+  }
+  return m;
+}
+
+function buildUserNetworkCounts(details: ShowDetail[]): Map<string, number> {
+  const m = new Map<string, number>();
+  for (const d of details) {
+    const n = d.network?.name ?? d.webChannel?.name ?? "";
+    const t = n.trim();
+    if (t.length < 2) continue;
+    m.set(t, (m.get(t) ?? 0) + 1);
+  }
+  return m;
+}
+
+/**
+ * Primary: TVMaze genre names from your subscriptions (search uses the same strings TVMaze lists).
+ * Secondary: networks shared by 2+ subscribed shows (only used if genre search is thin).
+ */
+export function buildGenreFirstQueries(details: ShowDetail[]): {
+  genreQueries: string[];
+  sharedNetworkQueries: string[];
+  queriesUsed: string[];
+} {
+  const genreCounts = new Map<string, number>();
+  const netCounts = new Map<string, number>();
+
+  for (const d of details) {
+    for (const g of d.genres ?? []) {
+      const raw = g.trim();
+      if (raw.length >= 2) genreCounts.set(raw, (genreCounts.get(raw) ?? 0) + 1);
+    }
+    const net = d.network?.name ?? d.webChannel?.name ?? "";
+    if (net.trim()) {
+      const n = net.trim();
+      netCounts.set(n, (netCounts.get(n) ?? 0) + 1);
+    }
+  }
+
+  const genreQueries = [...genreCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([g]) => g)
+    .slice(0, 7);
+
+  const sharedNetworkQueries: string[] = [];
+  for (const [name, c] of netCounts) {
+    if (c >= 2 && name.length >= 3) sharedNetworkQueries.push(name);
+  }
+
+  const queriesUsed: string[] = [];
+  for (const g of genreQueries) queriesUsed.push(`Genre: ${g}`);
+  for (const n of sharedNetworkQueries.slice(0, 2)) queriesUsed.push(`Network: ${n}`);
+
+  return { genreQueries, sharedNetworkQueries, queriesUsed };
+}
+
+/** Legacy mixed query builder — used only when subscribed shows have no genre metadata. */
 export function buildRecommendationQueries(details: ShowDetail[]): string[] {
   const queries: string[] = [];
   if (details.length === 0) return queries;
@@ -130,8 +214,9 @@ export type RecommendedShowHit = {
 };
 
 /**
- * Suggest shows using genres, shared networks, repeated title words, and common title prefix
- * from the user's current subscriptions (TVMaze metadata only; fast search, no catalog scan).
+ * Suggest shows using **catalog genre fit** (paginated `/shows` includes real `genres` fields),
+ * plus plain TVMaze search for genres/networks (no `real`/`the` query variants that bias titles).
+ * Title-heavy heuristics run only when subscriptions have no usable genre metadata.
  */
 export async function computeRecommendedShows(subscribedShowIds: number[]): Promise<{
   shows: RecommendedShowHit[];
@@ -147,50 +232,160 @@ export async function computeRecommendedShows(subscribedShowIds: number[]): Prom
     return { shows: [], queriesUsed: [] };
   }
 
-  const queriesUsed = buildRecommendationQueries(details);
-  if (queriesUsed.length === 0) {
-    return { shows: [], queriesUsed: [] };
+  const userGenreWeights = buildUserGenreWeights(details);
+  const userNetCounts = buildUserNetworkCounts(details);
+  const { genreQueries, sharedNetworkQueries, queriesUsed: planLines } = buildGenreFirstQueries(details);
+  const queriesUsed: string[] = [];
+
+  type Agg = {
+    id: number;
+    name: string;
+    network: string | null;
+    premiered: string | null;
+    image: string | null;
+    searchHits: number;
+    catalogFit: number;
+  };
+
+  const candidates = new Map<number, Agg>();
+
+  if (userGenreWeights.size > 0) {
+    queriesUsed.push("Catalog: sampled TVMaze pages, scored by true genre overlap (not title search)");
+    const catalogMatches = await scanShowsCatalogForGenreFit(userGenreWeights, subSet, {
+      pageRanges: [
+        [0, 9],
+        [48, 59],
+      ],
+      concurrency: 8,
+    });
+    for (const [id, { show, genreFit }] of catalogMatches) {
+      candidates.set(id, {
+        id,
+        name: show.name,
+        network: show.network?.name ?? show.webChannel?.name ?? null,
+        premiered: show.premiered ?? null,
+        image: show.image?.medium ?? null,
+        searchHits: 0,
+        catalogFit: genreFit,
+      });
+    }
   }
 
-  const scored = new Map<
-    number,
-    {
-      id: number;
-      name: string;
-      network: string | null;
-      premiered: string | null;
-      image: string | null;
-      matchScore: number;
-    }
-  >();
+  queriesUsed.push(...planLines);
 
-  await Promise.all(
-    queriesUsed.map(async (q) => {
-      const hits = await searchShowsMerged(q);
-      for (const h of hits) {
-        const id = h.show.id;
-        if (subSet.has(id)) continue;
-        const cur = scored.get(id);
-        if (cur) cur.matchScore += 1;
-        else {
-          scored.set(id, {
-            id,
-            name: h.show.name,
-            network: h.show.network?.name ?? h.show.webChannel?.name ?? null,
-            premiered: h.show.premiered ?? null,
-            image: h.show.image?.medium ?? null,
-            matchScore: 1,
-          });
+  async function addSearchHits(plan: { q: string; weight: number; merged: boolean }[]) {
+    await Promise.all(
+      plan.map(async ({ q, weight, merged }) => {
+        const hits = merged ? await searchShowsMerged(q) : await searchShowsPlain(q);
+        for (const h of hits) {
+          const id = h.show.id;
+          if (subSet.has(id)) continue;
+          let cur = candidates.get(id);
+          if (!cur) {
+            cur = {
+              id,
+              name: h.show.name,
+              network: h.show.network?.name ?? h.show.webChannel?.name ?? null,
+              premiered: h.show.premiered ?? null,
+              image: h.show.image?.medium ?? null,
+              searchHits: 0,
+              catalogFit: 0,
+            };
+            candidates.set(id, cur);
+          }
+          cur.searchHits += weight;
         }
-      }
-    }),
+      }),
+    );
+  }
+
+  const useHeuristicFallback = genreQueries.length === 0;
+
+  if (!useHeuristicFallback) {
+    await addSearchHits(genreQueries.map((q) => ({ q, weight: 2, merged: false })));
+    if (candidates.size < 12 && sharedNetworkQueries.length > 0) {
+      await addSearchHits(sharedNetworkQueries.slice(0, 2).map((q) => ({ q, weight: 1, merged: false })));
+    }
+    if (userGenreWeights.size > 0 && candidates.size < 14) {
+      await addSearchHits(genreQueries.slice(0, 4).map((q) => ({ q, weight: 1, merged: true })));
+    }
+  } else {
+    queriesUsed.push("Heuristic queries (no genre tags on subscriptions — title/network search)");
+    const fallback = buildRecommendationQueries(details);
+    queriesUsed.push(...fallback.map((q) => `Search: ${q}`));
+    await addSearchHits(fallback.map((q) => ({ q, weight: 1, merged: true })));
+  }
+
+  if (candidates.size === 0) {
+    return { shows: [], queriesUsed };
+  }
+
+  let ordered = [...candidates.values()].sort(
+    (a, b) =>
+      b.catalogFit * 14 + b.searchHits * 3 - (a.catalogFit * 14 + a.searchHits * 3) ||
+      a.name.localeCompare(b.name),
   );
+  ordered = ordered.slice(0, 48);
 
-  let list = [...scored.values()].sort((a, b) => b.matchScore - a.matchScore || a.name.localeCompare(b.name)).slice(0, 3);
+  type Row = Agg & { matchScore: number };
+  const enriched: Row[] = [];
 
-  const lastAiredById = await fetchPreviousEpisodeAirdates(list.map((s) => s.id));
+  for (let i = 0; i < ordered.length; i += 6) {
+    const chunk = ordered.slice(i, i + 6);
+    const part = await Promise.all(
+      chunk.map(async (c): Promise<Row> => {
+        try {
+          const d = await fetchShow(c.id);
+          const net = d.network?.name ?? d.webChannel?.name ?? "";
+          const netTrim = net.trim();
 
-  const shows: RecommendedShowHit[] = list.map((s) => ({
+          let genreOverlap = 0;
+          for (const g of d.genres ?? []) {
+            const k = g.trim().toLowerCase();
+            genreOverlap += userGenreWeights.get(k) ?? 0;
+          }
+
+          const netHits = netTrim ? (userNetCounts.get(netTrim) ?? 0) : 0;
+          const sharedNetBonus = netHits >= 2 ? 8 : netHits === 1 ? 3 : 0;
+          const runningBonus =
+            d.status === "Running" ? 5 : d.status === "In Development" ? 2 : 0;
+
+          let matchScore =
+            genreOverlap * 22 +
+            c.catalogFit * 6 +
+            c.searchHits * 3 +
+            sharedNetBonus +
+            runningBonus;
+
+          if (genreOverlap === 0 && c.catalogFit <= 0 && c.searchHits > 0) {
+            matchScore *= 0.12;
+          }
+
+          return {
+            ...c,
+            matchScore,
+            name: d.name ?? c.name,
+            network: netTrim || c.network,
+            premiered: d.premiered ?? c.premiered,
+            image: d.image?.medium ?? c.image,
+          };
+        } catch {
+          return {
+            ...c,
+            matchScore: c.catalogFit * 16 + c.searchHits * 2,
+          };
+        }
+      }),
+    );
+    enriched.push(...part);
+  }
+
+  enriched.sort((a, b) => b.matchScore - a.matchScore || a.name.localeCompare(b.name));
+  const top = enriched.slice(0, 18);
+
+  const lastAiredById = await fetchPreviousEpisodeAirdates(top.map((s) => s.id));
+
+  const shows: RecommendedShowHit[] = top.map((s) => ({
     id: s.id,
     name: s.name,
     network: s.network,
@@ -201,12 +396,12 @@ export async function computeRecommendedShows(subscribedShowIds: number[]): Prom
   }));
 
   shows.sort((a, b) => {
+    if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
     if (a.lastAiredDate && b.lastAiredDate) return b.lastAiredDate.localeCompare(a.lastAiredDate);
     if (a.lastAiredDate && !b.lastAiredDate) return -1;
     if (!a.lastAiredDate && b.lastAiredDate) return 1;
-    if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
     return a.name.localeCompare(b.name);
   });
 
-  return { shows, queriesUsed };
+  return { shows: shows.slice(0, 14), queriesUsed };
 }

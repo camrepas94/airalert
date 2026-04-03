@@ -1,15 +1,63 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 36" fill="none" aria-hidden="true">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 212 36" fill="none" aria-hidden="true">
   <defs>
-    <linearGradient id="airalertStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6c9ef8"/>
-      <stop offset="100%" stop-color="#8cb4ff"/>
+    <linearGradient id="airalertIconStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="55%" stop-color="#5b9cff"/>
+      <stop offset="100%" stop-color="#c084fc"/>
     </linearGradient>
+    <linearGradient id="airalertIconFill" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0f1419"/>
+      <stop offset="100%" stop-color="#050508"/>
+    </linearGradient>
+    <linearGradient id="airalertWordAir" x1="0%" y1="0%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#f4f7fc"/>
+      <stop offset="45%" stop-color="#bae6fd"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="airalertWordAlert" x1="0%" y1="0%" x2="100%" y2="80%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="50%" stop-color="#7dd3fc"/>
+      <stop offset="100%" stop-color="#e879f9"/>
+    </linearGradient>
+    <filter id="airalertWordGlow" x="-15%" y="-40%" width="130%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="0.9" result="b"/>
+      <feFlood flood-color="#22d3ee" flood-opacity="0.45" result="f"/>
+      <feComposite in="f" in2="b" operator="in" result="g"/>
+      <feMerge>
+        <feMergeNode in="g"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <g transform="translate(0,5)">
-    <rect x="1" y="8" width="26" height="17" rx="2.5" stroke="url(#airalertStroke)" stroke-width="2" fill="#0c0e12"/>
-    <path d="M7 8L4.5 1.5M21 8L23.5 1.5" stroke="url(#airalertStroke)" stroke-width="1.8" stroke-linecap="round"/>
-    <circle cx="24" cy="5.5" r="3.25" fill="#f07178"/>
+  <!-- Antenna + TV (sample 2 direction: clear rabbit ears, glass screen, signal lines) -->
+  <g transform="translate(0, 4)">
+    <path
+      d="M 7 11 C 6 6 4.5 2.5 2.5 0.5 M 25 11 C 26 6 27.5 2.5 29.5 0.5"
+      stroke="url(#airalertIconStroke)"
+      stroke-width="1.85"
+      stroke-linecap="round"
+    />
+    <rect
+      x="1"
+      y="10"
+      width="30"
+      height="19"
+      rx="3.5"
+      stroke="url(#airalertIconStroke)"
+      stroke-width="2"
+      fill="url(#airalertIconFill)"
+    />
+    <g stroke="#22d3ee" stroke-opacity="0.22" stroke-width="0.9" stroke-linecap="round">
+      <line x1="5" y1="15" x2="27" y2="15"/>
+      <line x1="5" y1="18.5" x2="27" y2="18.5"/>
+      <line x1="5" y1="22" x2="24" y2="22"/>
+    </g>
+    <circle cx="27.5" cy="13" r="3" fill="#f472b6" fill-opacity="0.92"/>
+    <circle cx="27.5" cy="13" r="5" fill="none" stroke="#f472b6" stroke-opacity="0.35" stroke-width="0.75"/>
   </g>
-  <text x="34" y="26" fill="#e8eaef" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.04em">Air</text>
-  <text x="64" y="26" fill="#6c9ef8" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.04em">alert</text>
+  <!-- Wordmark: icy “Air” → cyan–magenta “alert”, neon glass -->
+  <g font-family="system-ui, -apple-system, 'Segoe UI', Inter, Roboto, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.055em" filter="url(#airalertWordGlow)">
+    <text x="38" y="26" fill="url(#airalertWordAir)">Air</text>
+    <text x="71" y="26" fill="url(#airalertWordAlert)">alert</text>
+  </g>
 </svg>

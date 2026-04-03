@@ -89,6 +89,9 @@ export async function searchShows(query: string): Promise<TvmazeShowSearch[]> {
 type TvmazeShowListItem = {
   id: number;
   name: string;
+  type?: string;
+  status?: string | null;
+  genres?: string[];
   premiered?: string | null;
   network?: { name: string } | null;
   webChannel?: { name: string } | null;
@@ -136,6 +139,67 @@ export async function searchShowsMerged(query: string): Promise<TvmazeShowSearch
     }
   }
   return [...byId.values()];
+}
+
+/** Single `/search/shows` call — use for genre/network strings so we do not add `real`/`the` title variants. */
+export async function searchShowsPlain(query: string): Promise<TvmazeShowSearch[]> {
+  return searchShows(query);
+}
+
+export async function fetchShowsCatalogPage(page: number): Promise<TvmazeShowListItem[]> {
+  const res = await fetch(`${BASE}/shows?page=${page}`);
+  if (res.status === 404) return [];
+  if (!res.ok) {
+    throw new Error(`TVMaze shows?page=${page} HTTP ${res.status}: ${res.statusText}`);
+  }
+  const rows = (await res.json()) as TvmazeShowListItem[];
+  return Array.isArray(rows) ? rows : [];
+}
+
+/**
+ * Sample catalog pages; score each show by **genre overlap** with the user's weighted genre map
+ * (counts from subscriptions). Uses list payloads which include `genres` — no per-show fetch.
+ */
+export async function scanShowsCatalogForGenreFit(
+  userGenreWeights: Map<string, number>,
+  excludeIds: Set<number>,
+  opts: { pageRanges: [number, number][]; concurrency: number },
+): Promise<Map<number, { show: TvmazeShowListItem; genreFit: number }>> {
+  if (userGenreWeights.size === 0) return new Map();
+
+  const pages: number[] = [];
+  for (const [a, b] of opts.pageRanges) {
+    const lo = Math.min(a, b);
+    const hi = Math.max(a, b);
+    for (let p = lo; p <= hi; p++) pages.push(p);
+  }
+  const uniquePages = [...new Set(pages)].sort((x, y) => x - y);
+  const out = new Map<number, { show: TvmazeShowListItem; genreFit: number }>();
+
+  for (let i = 0; i < uniquePages.length; i += opts.concurrency) {
+    const batch = uniquePages.slice(i, i + opts.concurrency);
+    const settled = await Promise.allSettled(batch.map((page) => fetchShowsCatalogPage(page)));
+    for (const s of settled) {
+      if (s.status !== "fulfilled") continue;
+      for (const show of s.value) {
+        if (!show?.id || excludeIds.has(show.id)) continue;
+        let fit = 0;
+        for (const g of show.genres ?? []) {
+          const k = g.trim().toLowerCase();
+          if (k.length < 2) continue;
+          fit += userGenreWeights.get(k) ?? 0;
+        }
+        if (fit <= 0) continue;
+        const prev = out.get(show.id);
+        if (!prev || fit > prev.genreFit) {
+          out.set(show.id, { show, genreFit: fit });
+        }
+      }
+    }
+    await new Promise((r) => setTimeout(r, 6));
+  }
+
+  return out;
 }
 
 /**

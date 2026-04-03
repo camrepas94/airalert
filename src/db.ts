@@ -180,3 +180,28 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_notification_user ON notification_log(user_id);
   CREATE INDEX IF NOT EXISTS idx_web_push_user ON web_push_subscriptions(user_id);
 `);
+
+const userColNames = new Set(
+  (db.prepare(`PRAGMA table_info(users)`).all() as { name: string }[]).map((r) => r.name),
+);
+if (!userColNames.has("task_nudge_days_after_air")) {
+  db.exec(`ALTER TABLE users ADD COLUMN task_nudge_days_after_air INTEGER`);
+}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS watch_tasks (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    tvmaze_show_id INTEGER NOT NULL,
+    tvmaze_episode_id INTEGER NOT NULL,
+    show_name TEXT NOT NULL,
+    episode_label TEXT NOT NULL,
+    airdate TEXT NOT NULL,
+    completed_at TEXT,
+    nudge_sent_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (user_id, tvmaze_episode_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_watch_tasks_user ON watch_tasks(user_id);
+  CREATE INDEX IF NOT EXISTS idx_watch_tasks_user_open ON watch_tasks(user_id, completed_at);
+`);
