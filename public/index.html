@@ -81,7 +81,8 @@
         z-index: 0;
         max-width: 640px;
         margin: 0 auto;
-        padding: 1.75rem 1.1rem 3.5rem;
+        padding: 0.35rem 1.1rem 3.5rem;
+        padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
       }
       .brand-heading {
         margin: 0 0 0.35rem;
@@ -405,10 +406,121 @@
         border: 1px solid var(--border-strong);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) inset;
       }
+      .search-shell {
+        position: relative;
+        border-radius: 18px;
+        padding: 1rem 1.05rem 1.1rem;
+        background: linear-gradient(145deg, rgba(12, 20, 40, 0.55) 0%, rgba(6, 10, 22, 0.72) 100%);
+        border: 1px solid rgba(130, 200, 255, 0.16);
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.06) inset, 0 12px 40px -12px rgba(91, 156, 255, 0.2),
+          0 0 60px -20px rgba(232, 121, 249, 0.12);
+      }
+      .search-shell > h2 {
+        margin-top: 0;
+        margin-bottom: 0.65rem;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        color: var(--neon-cyan);
+      }
       .search-fields {
         display: flex;
         flex-direction: column;
         gap: 0.65rem;
+      }
+      .recent-chips-wrap {
+        margin-top: 0.85rem;
+      }
+      .recent-chips-wrap[hidden] {
+        display: none !important;
+      }
+      .recent-chips-label {
+        margin: 0 0 0.4rem;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        font-weight: 600;
+      }
+      .recent-chips {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 0.45rem;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+        margin: 0 -0.15rem;
+        padding-left: 0.15rem;
+        padding-right: 0.15rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+      }
+      .recent-chips::-webkit-scrollbar {
+        height: 4px;
+      }
+      .recent-chips::-webkit-scrollbar-thumb {
+        background: rgba(130, 200, 255, 0.25);
+        border-radius: 4px;
+      }
+      button.recent-chip {
+        flex-shrink: 0;
+        margin: 0;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border-radius: 999px;
+        background: rgba(20, 32, 56, 0.75);
+        color: var(--accent-hot);
+        border: 1px solid rgba(34, 211, 238, 0.28);
+        box-shadow: 0 0 20px -6px rgba(34, 211, 238, 0.25);
+      }
+      button.recent-chip:hover:not(:disabled) {
+        background: rgba(34, 211, 238, 0.12);
+        border-color: rgba(34, 211, 238, 0.45);
+        color: var(--text);
+      }
+      .search-loading-bar {
+        position: relative;
+        margin: 0.75rem 0 0.5rem;
+        height: 2.35rem;
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        overflow: hidden;
+      }
+      .search-loading-bar[hidden] {
+        display: none !important;
+      }
+      .search-loading-bar-fill {
+        position: absolute;
+        inset: 0;
+        width: 40%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(34, 211, 238, 0.35),
+          rgba(91, 156, 255, 0.45),
+          rgba(232, 121, 249, 0.2),
+          transparent
+        );
+        animation: search-bar-slide 1.1s ease-in-out infinite;
+      }
+      @keyframes search-bar-slide {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(350%);
+        }
+      }
+      .search-loading-bar-text {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--muted);
+        letter-spacing: 0.02em;
       }
       .search-post-toolbar {
         display: none;
@@ -660,17 +772,27 @@
         line-height: 1.5;
       }
       .modal-next {
-        background: var(--inset);
-        border: 1px solid var(--border-strong);
+        background: rgba(0, 0, 0, 0.32);
+        border: 1px solid rgba(34, 211, 238, 0.22);
         border-radius: 12px;
-        padding: 0.7rem 0.8rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28) inset;
+        padding: 0.65rem 0.85rem;
+        margin: 0;
+        box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35) inset, 0 0 24px -8px rgba(34, 211, 238, 0.15);
       }
-      .modal-next strong {
+      .modal-next .modal-next-kicker {
         display: block;
-        margin-bottom: 0.25rem;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 700;
+        color: var(--neon-cyan);
+        margin-bottom: 0.35rem;
+      }
+      .modal-next-detail {
+        font-size: 0.88rem;
+        line-height: 1.45;
         color: var(--text);
+        font-weight: 500;
       }
       .season-block {
         margin-bottom: 1rem;
@@ -713,7 +835,7 @@
       .tab-nav {
         position: relative;
         z-index: 20;
-        margin: 0 0 1.35rem;
+        margin: 0.15rem 0 1rem;
       }
       .tab-rail {
         display: flex;
@@ -779,17 +901,38 @@
       .app-top {
         position: sticky;
         top: 0;
-        z-index: 30;
+        z-index: 40;
         margin: 0 -1.1rem;
-        padding: 0 1.1rem 0.35rem;
-        transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        padding: 0.65rem 1.1rem 0.5rem;
+        padding-top: max(0.65rem, env(safe-area-inset-top, 0px));
+        background: rgba(5, 5, 10, 0.78);
+        -webkit-backdrop-filter: blur(18px) saturate(1.12);
+        backdrop-filter: blur(18px) saturate(1.12);
+        border-bottom: 1px solid rgba(130, 200, 255, 0.08);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, padding 0.22s ease;
+      }
+      .app-top::after {
+        content: "";
+        display: block;
+        height: 2px;
+        margin: 0.5rem -1.1rem 0;
+        background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.35), rgba(91, 156, 255, 0.3), rgba(232, 121, 249, 0.22), transparent);
+        opacity: 0.65;
+        pointer-events: none;
       }
       .app-top.is-scrolled {
-        background: rgba(5, 5, 10, 0.82);
-        -webkit-backdrop-filter: blur(18px) saturate(1.1);
-        backdrop-filter: blur(18px) saturate(1.1);
-        border-bottom: 1px solid rgba(130, 200, 255, 0.12);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+        background: rgba(5, 5, 10, 0.94);
+        -webkit-backdrop-filter: blur(22px) saturate(1.12);
+        backdrop-filter: blur(22px) saturate(1.12);
+        border-bottom-color: rgba(130, 200, 255, 0.16);
+        box-shadow: 0 14px 48px rgba(0, 0, 0, 0.42);
+        padding-top: max(0.4rem, env(safe-area-inset-top, 0px));
+        padding-bottom: 0.35rem;
+      }
+      .app-top.is-scrolled::after {
+        opacity: 0.35;
+        margin-top: 0.35rem;
       }
       .app-top.is-scrolled .sub {
         display: none;
@@ -802,21 +945,29 @@
         margin-bottom: 0.65rem;
       }
 
-      @keyframes sk-pulse {
-        0%,
+      @keyframes sk-shimmer {
+        0% {
+          background-position: 200% 0;
+        }
         100% {
-          opacity: 0.38;
+          background-position: -200% 0;
         }
-        50% {
-          opacity: 0.62;
-        }
+      }
+      .skeleton-shimmer {
+        background: linear-gradient(
+          105deg,
+          rgba(130, 200, 255, 0.06) 0%,
+          rgba(34, 211, 238, 0.18) 42%,
+          rgba(91, 156, 255, 0.14) 50%,
+          rgba(130, 200, 255, 0.06) 100%
+        );
+        background-size: 220% 100%;
+        animation: sk-shimmer 1.35s ease-in-out infinite;
       }
       .skeleton-card .skeleton-thumb {
         width: 56px;
         height: 78px;
         border-radius: 8px;
-        background: rgba(130, 200, 255, 0.12);
-        animation: sk-pulse 1.05s ease-in-out infinite;
         flex-shrink: 0;
       }
       .skeleton-card .skeleton-main {
@@ -830,8 +981,6 @@
       .skeleton-line {
         height: 0.72rem;
         border-radius: 6px;
-        background: rgba(130, 200, 255, 0.1);
-        animation: sk-pulse 1.05s ease-in-out infinite;
       }
       .skeleton-line-title {
         width: 72%;
@@ -839,13 +988,11 @@
       }
       .skeleton-line-meta {
         width: 55%;
-        animation-delay: 0.12s;
       }
       .skeleton-line-btn {
         width: 40%;
         height: 2rem;
         margin-top: 0.25rem;
-        animation-delay: 0.24s;
       }
 
       .toast-root {
@@ -865,17 +1012,29 @@
         pointer-events: none;
         width: 100%;
         text-align: center;
-        padding: 0.65rem 1rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--text);
-        background: rgba(12, 18, 32, 0.92);
-        -webkit-backdrop-filter: blur(12px);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(130, 200, 255, 0.25);
-        border-radius: 12px;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45), 0 0 32px -8px rgba(34, 211, 238, 0.2);
-        animation: toast-in 0.28s ease;
+        padding: 0.72rem 1rem 0.78rem;
+        font-size: 0.92rem;
+        font-weight: 650;
+        color: #f0f7ff;
+        background: linear-gradient(165deg, rgba(18, 28, 52, 0.96) 0%, rgba(8, 14, 28, 0.98) 100%);
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(34, 211, 238, 0.42);
+        border-radius: 14px;
+        box-shadow: 0 4px 28px rgba(0, 0, 0, 0.55), 0 0 40px -6px rgba(34, 211, 238, 0.35),
+          0 0 56px -10px rgba(232, 121, 249, 0.2);
+        animation: toast-in 0.28s ease, toast-glow 2.4s ease-in-out infinite;
+      }
+      @keyframes toast-glow {
+        0%,
+        100% {
+          box-shadow: 0 4px 28px rgba(0, 0, 0, 0.55), 0 0 40px -6px rgba(34, 211, 238, 0.35),
+            0 0 56px -10px rgba(232, 121, 249, 0.2);
+        }
+        50% {
+          box-shadow: 0 4px 32px rgba(0, 0, 0, 0.55), 0 0 48px -4px rgba(34, 211, 238, 0.5),
+            0 0 64px -8px rgba(232, 121, 249, 0.28);
+        }
       }
       @keyframes toast-in {
         from {
@@ -910,9 +1069,22 @@
         position: relative;
         z-index: 1;
       }
+      .empty-state-icon {
+        width: 3.25rem;
+        height: 3.25rem;
+        margin: 0 auto 0.85rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.45rem;
+        background: rgba(34, 211, 238, 0.1);
+        border: 1px solid rgba(34, 211, 238, 0.35);
+        box-shadow: 0 0 32px -8px rgba(34, 211, 238, 0.4);
+      }
       .empty-state-title {
         margin: 0 0 0.35rem;
-        font-size: 1.05rem;
+        font-size: 1.08rem;
         font-weight: 650;
         letter-spacing: -0.02em;
       }
@@ -924,13 +1096,17 @@
       }
       .empty-state-cta {
         margin: 0 auto;
+        padding-left: 1.35rem;
+        padding-right: 1.35rem;
       }
 
       .modal-next-pinned {
         flex-shrink: 0;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(4, 10, 22, 0.55);
+        padding: 0.85rem 1rem 0.9rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: linear-gradient(90deg, rgba(34, 211, 238, 0.1) 0%, rgba(4, 10, 22, 0.72) 38%);
+        border-left: 3px solid var(--neon-cyan);
+        box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.45);
       }
       .modal-next-pinned[hidden] {
         display: none !important;
@@ -951,20 +1127,22 @@
         <h1 class="brand-heading">
           <img class="brand-logo" src="/logo.svg" width="200" height="36" alt="Airalert" />
         </h1>
-        <p class="sub">Track shows from TVMaze, optional daily notifications (V1 dry run), and calendar sync.</p>
+        <p class="sub">
+          Search on <strong>Add a Show</strong> to follow series. Use <strong>Your Profile</strong> for timezone, calendar sync, and optional push — plus a quick start guide.
+        </p>
 
         <nav class="tab-nav" role="tablist" aria-label="Main sections">
           <div class="tab-rail">
-            <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="profile" id="tabBtnProfile">
+            <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="profile" id="tabBtnProfile">
               Your Profile
             </button>
-            <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="add" id="tabBtnAdd">Add a Show</button>
+            <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="add" id="tabBtnAdd">Add a Show</button>
             <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="shows" id="tabBtnShows">Your Shows</button>
           </div>
         </nav>
       </header>
 
-      <div id="tab-profile" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnProfile">
+      <div id="tab-profile" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnProfile">
         <section class="how-to" aria-label="Quick start guide">
           <button type="button" class="fold-toggle" id="foldHowToBtn" aria-expanded="false" aria-controls="foldHowToBody">
             <span class="fold-title">Quick start</span>
@@ -1014,6 +1192,10 @@
               </div>
             </div>
             <button type="button" id="saveProfile" style="margin-top: 0.75rem">Save profile</button>
+            <button type="button" class="secondary" id="newDeviceListBtn" style="margin-top: 0.5rem">New list on this device</button>
+            <p class="muted" style="font-size: 0.8rem; margin-top: 0.4rem; line-height: 1.45">
+              If this phone shows someone else’s subscriptions, tap once to start your own list (clears this browser’s session cookie).
+            </p>
             <p class="muted msg" id="profileMsg"></p>
             <p class="profile-jump">
               <a href="#section-push">Episode alerts: turn on push ↓</a>
@@ -1035,18 +1217,23 @@
         </section>
       </div>
 
-      <div id="tab-add" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnAdd">
-        <section>
-          <h2>Add a show</h2>
+      <div id="tab-add" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnAdd">
+        <section class="search-shell" aria-label="Search and subscribe">
+          <h2>Find a show</h2>
           <div class="search-fields">
             <div>
               <label for="searchTitle">Show title</label>
-              <input id="searchTitle" type="text" placeholder="e.g. The Valley" autocomplete="off" />
+              <input id="searchTitle" type="text" placeholder="Type a title, press Enter — or tap a recent search" autocomplete="off" />
             </div>
           </div>
-          <p class="search-loading" id="searchLoading" style="display: none">
-            Searching… (catalog scan + last-air dates can take ~10–30 seconds for broad queries)
-          </p>
+          <div id="recentChipsWrap" class="recent-chips-wrap" hidden>
+            <p class="recent-chips-label muted">Recent searches</p>
+            <div class="recent-chips" id="recentChips" role="list"></div>
+          </div>
+          <div id="searchLoadingBar" class="search-loading-bar" hidden>
+            <div class="search-loading-bar-fill" aria-hidden="true"></div>
+            <span class="search-loading-bar-text">Searching TVMaze &amp; catalog…</span>
+          </div>
           <p class="msg err" id="searchErr"></p>
           <div id="searchPostToolbar" class="search-post-toolbar">
             <div class="search-post-field">
@@ -1097,6 +1284,7 @@
           <div class="fold-body" id="foldSubsBody" hidden>
             <ul id="subs"></ul>
             <div id="subsEmptyState" class="empty-state-card" style="display: none">
+              <div class="empty-state-icon" aria-hidden="true">📺</div>
               <p class="empty-state-title">No shows yet</p>
               <p class="empty-state-hint muted">Search by title and subscribe — your list will show up here.</p>
               <button type="button" class="empty-state-cta" id="subsEmptyCta">Add a show</button>
@@ -1148,6 +1336,7 @@
         const url = path.startsWith("http") ? path : new URL(path, apiOrigin()).href;
         const { headers: userHeaders, ...rest } = opts;
         return fetch(url, {
+          credentials: "include",
           ...rest,
           headers: {
             ...(rest.body != null ? { "Content-Type": "application/json" } : {}),
@@ -1169,11 +1358,29 @@
       }
 
       async function ensureUser() {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        try {
+          const me = await api("/api/users/me");
+          if (me && me.id) {
+            localStorage.setItem(LS_USER, me.id);
+            return me.id;
+          }
+        } catch (e) {
+          const m = String(e && e.message ? e.message : "");
+          if (!/\(HTTP 401\)/.test(m)) throw e;
+        }
         const stored = localStorage.getItem(LS_USER);
         if (stored) {
           try {
             await api("/api/users/" + encodeURIComponent(stored));
-            return stored;
+            const u = await api("/api/users/bootstrap", {
+              method: "POST",
+              body: JSON.stringify({ timezone: tz, resumeUserId: stored }),
+            });
+            if (u && u.id) {
+              localStorage.setItem(LS_USER, u.id);
+              return u.id;
+            }
           } catch (e) {
             if (!isStaleUserError(e)) throw e;
             localStorage.removeItem(LS_USER);
@@ -1181,7 +1388,7 @@
         }
         const u = await api("/api/users/bootstrap", {
           method: "POST",
-          body: JSON.stringify({ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
+          body: JSON.stringify({ timezone: tz }),
         });
         localStorage.setItem(LS_USER, u.id);
         return u.id;
@@ -1236,15 +1443,15 @@
           const inner = document.createElement("div");
           inner.className = "search-card-inner";
           const sk = document.createElement("div");
-          sk.className = "skeleton-thumb";
+          sk.className = "skeleton-thumb skeleton-shimmer";
           const main = document.createElement("div");
           main.className = "skeleton-main";
           const l1 = document.createElement("div");
-          l1.className = "skeleton-line skeleton-line-title";
+          l1.className = "skeleton-line skeleton-line-title skeleton-shimmer";
           const l2 = document.createElement("div");
-          l2.className = "skeleton-line skeleton-line-meta";
+          l2.className = "skeleton-line skeleton-line-meta skeleton-shimmer";
           const l3 = document.createElement("div");
-          l3.className = "skeleton-line skeleton-line-btn";
+          l3.className = "skeleton-line skeleton-line-btn skeleton-shimmer";
           main.appendChild(l1);
           main.appendChild(l2);
           main.appendChild(l3);
@@ -1341,6 +1548,11 @@
       }
 
       async function recreateUserSession() {
+        try {
+          await api("/api/users/session/clear", { method: "POST" });
+        } catch {
+          /* still drop local id */
+        }
         localStorage.removeItem(LS_USER);
         appUserId = null;
         const id = await ensureUser();
@@ -1405,10 +1617,12 @@
 
         const nextBox = document.createElement("div");
         nextBox.className = "modal-next";
-        const nextStrong = document.createElement("strong");
-        nextStrong.textContent = "Next episode";
-        nextBox.appendChild(nextStrong);
+        const kicker = document.createElement("span");
+        kicker.className = "modal-next-kicker";
+        kicker.textContent = "Next episode";
+        nextBox.appendChild(kicker);
         const nextLine = document.createElement("div");
+        nextLine.className = "modal-next-detail";
         if (data.nextEpisode) {
           const ne = data.nextEpisode;
           nextLine.textContent =
@@ -1519,7 +1733,64 @@
       }
 
       const LS_SEARCH_PAGE_SIZE = "airalert_search_page_size";
+      const LS_RECENT_SEARCHES = "airalert_recent_searches";
+      const MAX_RECENT_SEARCHES = 10;
       const LIVE_SEARCH_DEBOUNCE_MS = 300;
+
+      function loadRecentSearches() {
+        try {
+          const raw = localStorage.getItem(LS_RECENT_SEARCHES);
+          const a = raw ? JSON.parse(raw) : [];
+          if (!Array.isArray(a)) return [];
+          return a
+            .filter((x) => typeof x === "string" && x.trim())
+            .map((x) => x.trim());
+        } catch {
+          return [];
+        }
+      }
+
+      function saveRecentSearches(list) {
+        localStorage.setItem(LS_RECENT_SEARCHES, JSON.stringify(list.slice(0, MAX_RECENT_SEARCHES)));
+      }
+
+      function recordRecentSearch(query) {
+        const t = String(query || "").trim();
+        if (t.length < 2) return;
+        const lower = t.toLowerCase();
+        const next = [t, ...loadRecentSearches().filter((x) => x.toLowerCase() !== lower)];
+        saveRecentSearches(next);
+        renderRecentChips();
+      }
+
+      function renderRecentChips() {
+        const wrap = document.getElementById("recentChipsWrap");
+        const host = document.getElementById("recentChips");
+        if (!wrap || !host) return;
+        const list = loadRecentSearches();
+        if (!list.length) {
+          wrap.hidden = true;
+          host.innerHTML = "";
+          return;
+        }
+        wrap.hidden = false;
+        host.innerHTML = "";
+        for (const q of list) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "recent-chip";
+          b.setAttribute("role", "listitem");
+          b.textContent = q;
+          b.addEventListener("click", () => {
+            document.getElementById("searchTitle").value = q;
+            const uid = resolveUserId();
+            if (!uid) return;
+            if (liveSearchTimer) clearTimeout(liveSearchTimer);
+            performSearch(uid);
+          });
+          host.appendChild(b);
+        }
+      }
 
       let searchResultState = { allShows: [], page: 1 };
       let liveSearchTimer = null;
@@ -1796,6 +2067,7 @@
         const box = document.getElementById("results");
         const toolbar = document.getElementById("searchPostToolbar");
         const linkP = document.getElementById("searchFullPageLink");
+        const loadingBar = document.getElementById("searchLoadingBar");
         if (!isLive) {
           err.textContent = "";
           err.classList.remove("err");
@@ -1823,7 +2095,12 @@
         activeSearchAbortController = new AbortController();
         const reqId = ++activeSearchRequestId;
 
-        renderSearchSkeleton(box, isLive ? 3 : 5);
+        renderSearchSkeleton(box, isLive ? 4 : 6);
+        let showedBar = false;
+        if (loadingBar) {
+          loadingBar.hidden = false;
+          showedBar = true;
+        }
         try {
           const { shows } = await api("/api/shows/search?" + qs.toString(), {
             signal: activeSearchAbortController.signal,
@@ -1839,12 +2116,17 @@
           }
           searchResultState.allShows = shows;
           applySearchResultLayout(userId, qs);
+          if (!isLive) recordRecentSearch(title);
         } catch (e) {
           if (e && e.name === "AbortError") return;
           box.innerHTML = "";
           if (!isLive) {
             err.textContent = e.message;
             err.classList.add("err");
+          }
+        } finally {
+          if (showedBar && loadingBar && reqId === activeSearchRequestId) {
+            loadingBar.hidden = true;
           }
         }
       }
@@ -1865,6 +2147,11 @@
           btn.classList.toggle("active", on);
           btn.setAttribute("aria-selected", on ? "true" : "false");
         });
+        if (name === "add") {
+          renderRecentChips();
+          const id = resolveUserId();
+          if (id) loadRecommended(id);
+        }
       }
 
       function normalizeVapidPublicKeyClient(raw) {
@@ -1960,12 +2247,7 @@
 
       document.querySelectorAll(".tab-nav .tab-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
-          const t = btn.getAttribute("data-tab");
-          setTab(t);
-          if (t === "add") {
-            const id = localStorage.getItem(LS_USER);
-            if (id) loadRecommended(id);
-          }
+          setTab(btn.getAttribute("data-tab"));
         });
       });
 
@@ -2050,8 +2332,13 @@
         await loadSubs(userId);
         await loadNotifs(userId);
         loadRecommended(userId);
+        renderRecentChips();
 
         document.getElementById("saveProfile").onclick = () => saveProfile(userId);
+        document.getElementById("newDeviceListBtn").onclick = async () => {
+          await recreateUserSession();
+          showToast("Fresh list on this device.");
+        };
 
         document.getElementById("copyCal").onclick = async () => {
           const t = document.getElementById("calUrl").textContent;

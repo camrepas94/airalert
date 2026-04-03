@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import Fastify from "fastify";
+import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import cors from "@fastify/cors";
 import cron from "node-cron";
 import { v4 as uuidv4 } from "uuid";
@@ -32,7 +32,10 @@ const app = Fastify({
   },
 });
 
-await app.register(cors, { origin: true });
+await app.register(cors, {
+  origin: true,
+  credentials: true,
+});
 
 if (webPushReady) {
   app.log.info("Web Push: VAPID keys loaded");
@@ -44,6 +47,55 @@ if (webPushReady) {
 
 function randomToken(): string {
   return crypto.randomBytes(24).toString("hex");
+}
+
+/** HttpOnly session — per browser profile / device (not synced like localStorage can be across linked devices). */
+const SESSION_COOKIE = "airalert_uid";
+
+function parseCookies(cookieHeader: string | undefined): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!cookieHeader) return out;
+  for (const part of cookieHeader.split(";")) {
+    const idx = part.indexOf("=");
+    if (idx === -1) continue;
+    const k = part.slice(0, idx).trim();
+    const v = part.slice(idx + 1).trim();
+    if (k) {
+      try {
+        out[k] = decodeURIComponent(v);
+      } catch {
+        out[k] = v;
+      }
+    }
+  }
+  return out;
+}
+
+function sessionCookieSecureSuffix(request: FastifyRequest): string {
+  const fwd = String(request.headers["x-forwarded-proto"] ?? "")
+    .split(",")[0]
+    .trim();
+  const proto = fwd || (request as { protocol?: string }).protocol || "http";
+  return proto === "https" ? "; Secure" : "";
+}
+
+function setSessionCookie(reply: FastifyReply, request: FastifyRequest, userId: string) {
+  const sec = sessionCookieSecureSuffix(request);
+  reply.header(
+    "Set-Cookie",
+    `${SESSION_COOKIE}=${encodeURIComponent(userId)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000${sec}`,
+  );
+}
+
+function clearSessionCookie(reply: FastifyReply, request: FastifyRequest) {
+  const sec = sessionCookieSecureSuffix(request);
+  reply.header("Set-Cookie", `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${sec}`);
+}
+
+function sessionUserIdFromRequest(request: FastifyRequest): string | undefined {
+  const raw = parseCookies(request.headers.cookie)[SESSION_COOKIE];
+  if (typeof raw !== "string" || !raw.trim()) return undefined;
+  return raw.trim();
 }
 
 function stripHtml(html: string): string {
@@ -89,13 +141,55 @@ app.post("/api/users", async (request, reply) => {
   return created;
 });
 
+type BootstrapBody = UserCreateInput & { resumeUserId?: string };
+
 app.post("/api/users/bootstrap", async (request, reply) => {
-  const body = (request.body ?? {}) as UserCreateInput;
+  const body = (request.body ?? {}) as BootstrapBody;
   const { timezone, reminderHourLocal } = normalizeUserCreateInput(body);
-  /** Always create a new anonymous user. (Older builds reused the sole row when COUNT(users)=1, which merged every new phone into one account.) */
+  const resumeRaw = typeof body.resumeUserId === "string" ? body.resumeUserId.trim() : "";
+  if (resumeRaw) {
+    const row = db
+      .prepare(
+        `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken FROM users WHERE id = ?`,
+      )
+      .get(resumeRaw) as
+      | { id: string; timezone: string; reminderHourLocal: number; calendarToken: string }
+      | undefined;
+    if (row) {
+      setSessionCookie(reply, request, row.id);
+      return { id: row.id, timezone: row.timezone, reminderHourLocal: row.reminderHourLocal, calendarToken: row.calendarToken, reused: false };
+    }
+  }
   const created = createUserRecord(timezone, reminderHourLocal);
+  setSessionCookie(reply, request, created.id);
   reply.code(201);
   return { ...created, reused: false };
+});
+
+/** Current browser session (cookie). Register before `/api/users/:id` so `me` is not parsed as an id. */
+app.get("/api/users/me", async (request, reply) => {
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401);
+    return { error: "No session" };
+  }
+  const row = db
+    .prepare(
+      `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken, created_at AS createdAt FROM users WHERE id = ?`,
+    )
+    .get(sid) as Record<string, unknown> | undefined;
+  if (!row) {
+    clearSessionCookie(reply, request);
+    reply.code(401);
+    return { error: "Session invalid" };
+  }
+  return row;
+});
+
+/** Clears the HttpOnly session cookie so the next bootstrap creates a fresh user on this device. */
+app.post("/api/users/session/clear", async (request, reply) => {
+  clearSessionCookie(reply, request);
+  return { ok: true };
 });
 
 app.get("/api/users/:id", async (request, reply) => {
