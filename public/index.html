@@ -654,11 +654,6 @@
         transform: none;
         filter: none;
       }
-      .modal-body {
-        padding: 0.85rem 1rem 1.1rem;
-        overflow-y: auto;
-        font-size: 0.9rem;
-      }
       .modal-summary {
         color: var(--muted);
         margin: 0 0 1rem;
@@ -780,24 +775,194 @@
       .tab-panel.active {
         display: block;
       }
+
+      .app-top {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        margin: 0 -1.1rem;
+        padding: 0 1.1rem 0.35rem;
+        transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+      .app-top.is-scrolled {
+        background: rgba(5, 5, 10, 0.82);
+        -webkit-backdrop-filter: blur(18px) saturate(1.1);
+        backdrop-filter: blur(18px) saturate(1.1);
+        border-bottom: 1px solid rgba(130, 200, 255, 0.12);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+      }
+      .app-top.is-scrolled .sub {
+        display: none;
+      }
+      .app-top.is-scrolled .brand-heading .brand-logo {
+        height: 1.45rem;
+        max-width: 10rem;
+      }
+      .app-top.is-scrolled .tab-nav {
+        margin-bottom: 0.65rem;
+      }
+
+      @keyframes sk-pulse {
+        0%,
+        100% {
+          opacity: 0.38;
+        }
+        50% {
+          opacity: 0.62;
+        }
+      }
+      .skeleton-card .skeleton-thumb {
+        width: 56px;
+        height: 78px;
+        border-radius: 8px;
+        background: rgba(130, 200, 255, 0.12);
+        animation: sk-pulse 1.05s ease-in-out infinite;
+        flex-shrink: 0;
+      }
+      .skeleton-card .skeleton-main {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding-top: 0.15rem;
+      }
+      .skeleton-line {
+        height: 0.72rem;
+        border-radius: 6px;
+        background: rgba(130, 200, 255, 0.1);
+        animation: sk-pulse 1.05s ease-in-out infinite;
+      }
+      .skeleton-line-title {
+        width: 72%;
+        height: 0.95rem;
+      }
+      .skeleton-line-meta {
+        width: 55%;
+        animation-delay: 0.12s;
+      }
+      .skeleton-line-btn {
+        width: 40%;
+        height: 2rem;
+        margin-top: 0.25rem;
+        animation-delay: 0.24s;
+      }
+
+      .toast-root {
+        position: fixed;
+        bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        pointer-events: none;
+        width: min(calc(100vw - 2rem), 22rem);
+      }
+      .toast {
+        pointer-events: none;
+        width: 100%;
+        text-align: center;
+        padding: 0.65rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text);
+        background: rgba(12, 18, 32, 0.92);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(130, 200, 255, 0.25);
+        border-radius: 12px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45), 0 0 32px -8px rgba(34, 211, 238, 0.2);
+        animation: toast-in 0.28s ease;
+      }
+      @keyframes toast-in {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .empty-state-card {
+        position: relative;
+        text-align: center;
+        padding: 1.5rem 1.1rem 1.35rem;
+        border-radius: 16px;
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        background: rgba(4, 10, 24, 0.45);
+        overflow: hidden;
+        margin-top: 0.35rem;
+      }
+      .empty-state-card::before {
+        content: "";
+        position: absolute;
+        inset: -40%;
+        background: radial-gradient(circle at 50% 30%, rgba(91, 156, 255, 0.18), transparent 55%),
+          radial-gradient(circle at 80% 70%, rgba(232, 121, 249, 0.1), transparent 45%);
+        pointer-events: none;
+      }
+      .empty-state-card > * {
+        position: relative;
+        z-index: 1;
+      }
+      .empty-state-title {
+        margin: 0 0 0.35rem;
+        font-size: 1.05rem;
+        font-weight: 650;
+        letter-spacing: -0.02em;
+      }
+      .empty-state-hint {
+        margin: 0 0 1rem;
+        max-width: 16rem;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .empty-state-cta {
+        margin: 0 auto;
+      }
+
+      .modal-next-pinned {
+        flex-shrink: 0;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(4, 10, 22, 0.55);
+      }
+      .modal-next-pinned[hidden] {
+        display: none !important;
+      }
+      .modal-body-scroll {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 0.85rem 1rem 1.1rem;
+        font-size: 0.9rem;
+      }
     </style>
   </head>
   <body>
+    <div class="toast-root" id="toastRoot" aria-live="polite" aria-atomic="true"></div>
     <main>
-      <h1 class="brand-heading">
-        <img class="brand-logo" src="/logo.svg" width="200" height="36" alt="Airalert" />
-      </h1>
-      <p class="sub">Track shows from TVMaze, optional daily notifications (V1 dry run), and calendar sync.</p>
+      <header class="app-top" id="appTopBar">
+        <h1 class="brand-heading">
+          <img class="brand-logo" src="/logo.svg" width="200" height="36" alt="Airalert" />
+        </h1>
+        <p class="sub">Track shows from TVMaze, optional daily notifications (V1 dry run), and calendar sync.</p>
 
-      <nav class="tab-nav" role="tablist" aria-label="Main sections">
-        <div class="tab-rail">
-          <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="profile" id="tabBtnProfile">
-            Your Profile
-          </button>
-          <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="add" id="tabBtnAdd">Add a Show</button>
-          <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="shows" id="tabBtnShows">Your Shows</button>
-        </div>
-      </nav>
+        <nav class="tab-nav" role="tablist" aria-label="Main sections">
+          <div class="tab-rail">
+            <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="profile" id="tabBtnProfile">
+              Your Profile
+            </button>
+            <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="add" id="tabBtnAdd">Add a Show</button>
+            <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="shows" id="tabBtnShows">Your Shows</button>
+          </div>
+        </nav>
+      </header>
 
       <div id="tab-profile" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnProfile">
         <section class="how-to" aria-label="Quick start guide">
@@ -931,7 +1096,11 @@
           </button>
           <div class="fold-body" id="foldSubsBody" hidden>
             <ul id="subs"></ul>
-            <p class="muted" id="subsEmpty">No shows yet.</p>
+            <div id="subsEmptyState" class="empty-state-card" style="display: none">
+              <p class="empty-state-title">No shows yet</p>
+              <p class="empty-state-hint muted">Search by title and subscribe — your list will show up here.</p>
+              <button type="button" class="empty-state-cta" id="subsEmptyCta">Add a show</button>
+            </div>
           </div>
         </section>
 
@@ -960,7 +1129,8 @@
           </div>
           <button type="button" class="modal-close secondary" id="modalClose" aria-label="Close">×</button>
         </div>
-        <div class="modal-body" id="modalBody">
+        <div class="modal-next-pinned" id="modalNextPinned" hidden></div>
+        <div class="modal-body-scroll" id="modalBody">
           <p class="muted">Loading…</p>
         </div>
       </div>
@@ -1037,16 +1207,58 @@
             }),
           });
           msg.textContent = "Saved.";
+          showToast("Profile saved");
         } catch (e) {
           msg.textContent = e.message;
           msg.classList.add("err");
         }
       }
 
+      function showToast(message, ms = 2800) {
+        const root = document.getElementById("toastRoot");
+        if (!root) return;
+        const el = document.createElement("div");
+        el.className = "toast";
+        el.textContent = message;
+        root.appendChild(el);
+        setTimeout(() => {
+          el.style.opacity = "0";
+          el.style.transition = "opacity 0.25s ease";
+          setTimeout(() => el.remove(), 260);
+        }, ms);
+      }
+
+      function renderSearchSkeleton(box, count) {
+        box.innerHTML = "";
+        for (let i = 0; i < count; i++) {
+          const card = document.createElement("div");
+          card.className = "search-card skeleton-card";
+          const inner = document.createElement("div");
+          inner.className = "search-card-inner";
+          const sk = document.createElement("div");
+          sk.className = "skeleton-thumb";
+          const main = document.createElement("div");
+          main.className = "skeleton-main";
+          const l1 = document.createElement("div");
+          l1.className = "skeleton-line skeleton-line-title";
+          const l2 = document.createElement("div");
+          l2.className = "skeleton-line skeleton-line-meta";
+          const l3 = document.createElement("div");
+          l3.className = "skeleton-line skeleton-line-btn";
+          main.appendChild(l1);
+          main.appendChild(l2);
+          main.appendChild(l3);
+          inner.appendChild(sk);
+          inner.appendChild(main);
+          card.appendChild(inner);
+          box.appendChild(card);
+        }
+      }
+
       async function loadSubs(userId) {
         const { subscriptions } = await api("/api/users/" + userId + "/subscriptions");
         const ul = document.getElementById("subs");
-        const empty = document.getElementById("subsEmpty");
+        const empty = document.getElementById("subsEmptyState");
         ul.innerHTML = "";
         if (!subscriptions.length) {
           empty.style.display = "block";
@@ -1187,23 +1399,9 @@
 
       function renderShowDetails(data) {
         const body = document.getElementById("modalBody");
+        const pin = document.getElementById("modalNextPinned");
         body.innerHTML = "";
-
-        if (data.summary) {
-          const p = document.createElement("p");
-          p.className = "modal-summary";
-          p.textContent = data.summary;
-          body.appendChild(p);
-        }
-
-        if (data.source === "tvmaze") {
-          const note = document.createElement("p");
-          note.className = "muted";
-          note.style.fontSize = "0.8rem";
-          note.textContent =
-            "Episode list loaded live from TVMaze. Run Refresh Data on the main page to save dates into the cache for faster loads and calendar sync.";
-          body.appendChild(note);
-        }
+        pin.innerHTML = "";
 
         const nextBox = document.createElement("div");
         nextBox.className = "modal-next";
@@ -1225,7 +1423,24 @@
           nextLine.textContent = "No upcoming dated episode listed (show may be ended or dates TBA).";
         }
         nextBox.appendChild(nextLine);
-        body.appendChild(nextBox);
+        pin.appendChild(nextBox);
+        pin.hidden = false;
+
+        if (data.summary) {
+          const p = document.createElement("p");
+          p.className = "modal-summary";
+          p.textContent = data.summary;
+          body.appendChild(p);
+        }
+
+        if (data.source === "tvmaze") {
+          const note = document.createElement("p");
+          note.className = "muted";
+          note.style.fontSize = "0.8rem";
+          note.textContent =
+            "Episode list loaded live from TVMaze. Run Refresh Data on the main page to save dates into the cache for faster loads and calendar sync.";
+          body.appendChild(note);
+        }
 
         for (const block of data.seasons) {
           const sec = document.createElement("div");
@@ -1258,6 +1473,9 @@
       async function openShowDetails(showId) {
         const modal = document.getElementById("showModal");
         const body = document.getElementById("modalBody");
+        const pin = document.getElementById("modalNextPinned");
+        pin.hidden = true;
+        pin.innerHTML = "";
         document.getElementById("modalShowTitle").textContent = "Loading…";
         document.getElementById("modalShowStats").textContent = "";
         setModalPoster(null);
@@ -1290,6 +1508,8 @@
           setModalPoster(sh.image || null);
           renderShowDetails(data);
         } catch (e) {
+          pin.hidden = true;
+          pin.innerHTML = "";
           body.innerHTML = "";
           const p = document.createElement("p");
           p.className = "modal-error";
@@ -1386,6 +1606,7 @@
           loadRecommended(uid);
           subBtn.textContent = "Subscribed";
           card.style.opacity = "0.55";
+          showToast("Subscribed");
         });
         main.appendChild(subBtn);
 
@@ -1573,7 +1794,6 @@
         const isLive = opts.live === true;
         const err = document.getElementById("searchErr");
         const box = document.getElementById("results");
-        const loading = document.getElementById("searchLoading");
         const toolbar = document.getElementById("searchPostToolbar");
         const linkP = document.getElementById("searchFullPageLink");
         if (!isLive) {
@@ -1603,33 +1823,28 @@
         activeSearchAbortController = new AbortController();
         const reqId = ++activeSearchRequestId;
 
-        if (!isLive) {
-          loading.style.display = "block";
-        }
+        renderSearchSkeleton(box, isLive ? 3 : 5);
         try {
           const { shows } = await api("/api/shows/search?" + qs.toString(), {
             signal: activeSearchAbortController.signal,
           });
           if (reqId !== activeSearchRequestId) return;
           if (!shows.length) {
-            if (!isLive) {
-              err.textContent =
-                "No new shows to add. Try different words, or every match is already on your list.";
-              err.classList.add("err");
-            }
+            box.innerHTML = "";
+            if (isLive) return;
+            err.textContent =
+              "No new shows to add. Try different words, or every match is already on your list.";
+            err.classList.add("err");
             return;
           }
           searchResultState.allShows = shows;
           applySearchResultLayout(userId, qs);
         } catch (e) {
           if (e && e.name === "AbortError") return;
+          box.innerHTML = "";
           if (!isLive) {
             err.textContent = e.message;
             err.classList.add("err");
-          }
-        } finally {
-          if (!isLive && reqId === activeSearchRequestId) {
-            loading.style.display = "none";
           }
         }
       }
@@ -1788,6 +2003,32 @@
         body.hidden = btn.getAttribute("aria-expanded") !== "true";
       }
 
+      (function setupAppTopScroll() {
+        const bar = document.getElementById("appTopBar");
+        if (!bar) return;
+        let raf = false;
+        function tick() {
+          raf = false;
+          bar.classList.toggle("is-scrolled", window.scrollY > 28);
+        }
+        window.addEventListener(
+          "scroll",
+          () => {
+            if (!raf) {
+              raf = true;
+              requestAnimationFrame(tick);
+            }
+          },
+          { passive: true },
+        );
+        tick();
+      })();
+
+      const subsEmptyCta = document.getElementById("subsEmptyCta");
+      if (subsEmptyCta) {
+        subsEmptyCta.addEventListener("click", () => setTab("add"));
+      }
+
       document.querySelectorAll("button.fold-toggle").forEach((btn) => {
         syncFoldFromToggle(btn);
         btn.addEventListener("click", () => {
@@ -1817,6 +2058,7 @@
           try {
             await navigator.clipboard.writeText(t);
             document.getElementById("profileMsg").textContent = "Calendar URL copied.";
+            showToast("Calendar link copied");
           } catch {
             prompt("Copy this URL:", t);
           }
