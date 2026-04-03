@@ -6,7 +6,7 @@ import cors from "@fastify/cors";
 import cron from "node-cron";
 import { v4 as uuidv4 } from "uuid";
 import "./db.js";
-import { db } from "./db.js";
+import { db, getSqlitePersistenceInfo } from "./db.js";
 import {
   searchShowsWithCatalog,
   fetchShow,
@@ -50,7 +50,11 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
-app.get("/api/health", async () => ({ ok: true }));
+app.get("/api/health", async () => ({
+  ok: true,
+  /** Open in a browser after deploy to confirm DB is on a volume (looksEphemeral should be false). */
+  sqlite: getSqlitePersistenceInfo(),
+}));
 
 app.post("/api/users", async (request, reply) => {
   const body = (request.body ?? {}) as { timezone?: string; reminderHourLocal?: number };

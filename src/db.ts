@@ -4,20 +4,94 @@ import Database from "better-sqlite3";
 
 /**
  * Subscriptions and users live in SQLite under this directory.
- * Default: ./data (ephemeral on many hosts — lost on each deploy).
- * For production, set AIRALERT_DATA_DIR to a persistent path (e.g. a mounted volume).
+ * Priority: AIRALERT_DATA_DIR → Railway's RAILWAY_VOLUME_MOUNT_PATH → ./data (under cwd, usually /app/data on Railway).
+ *
+ * Railway: mount the volume at the SAME path you use here. Common choice: mount volume to /app/data and either
+ * leave env unset (uses ./data = /app/data) OR set AIRALERT_DATA_DIR=/app/data
  */
+type PersistenceSource = "AIRALERT_DATA_DIR" | "RAILWAY_VOLUME_MOUNT_PATH" | "cwd";
+
+const explicitDataDir = process.env.AIRALERT_DATA_DIR?.trim();
+const railwayMount = process.env.RAILWAY_VOLUME_MOUNT_PATH?.trim();
+
+let persistenceSource: PersistenceSource;
 const dataDir = (() => {
-  const fromEnv = process.env.AIRALERT_DATA_DIR?.trim();
-  if (fromEnv) return path.resolve(fromEnv);
+  if (explicitDataDir) {
+    persistenceSource = "AIRALERT_DATA_DIR";
+    return path.resolve(explicitDataDir);
+  }
+  if (railwayMount) {
+    persistenceSource = "RAILWAY_VOLUME_MOUNT_PATH";
+    return path.resolve(railwayMount);
+  }
+  persistenceSource = "cwd";
   return path.join(process.cwd(), "data");
 })();
+
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
+/** Verify we can write — SQLite will fail silently later if this is wrong on some hosts */
+try {
+  const probe = path.join(dataDir, ".airalert-write-test");
+  fs.writeFileSync(probe, "ok", "utf8");
+  fs.unlinkSync(probe);
+} catch (e) {
+  console.error("[airalert] FATAL: cannot write to data directory:", dataDir, e);
+}
+
 const dbPath = path.join(dataDir, "airalert.db");
 export const db: InstanceType<typeof Database> = new Database(dbPath);
+
+const onRailway = Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID);
+if (onRailway && persistenceSource === "cwd") {
+  console.error(
+    "[airalert] WARNING: No persistent DB path. Attach a volume to THIS service. Mount it at /app/data (recommended) " +
+      "so it matches the app default, or set AIRALERT_DATA_DIR to your volume mount path. " +
+      "Otherwise subscriptions are lost on every deploy.",
+  );
+}
+
+console.log(
+  `[airalert] SQLite: ${dbPath} (source=${persistenceSource}, cwd=${process.cwd()})` +
+    (railwayMount ? ` RAILWAY_VOLUME_MOUNT_PATH=${railwayMount}` : ""),
+);
+
+export function getSqlitePersistenceInfo(): {
+  dbPath: string;
+  dataDir: string;
+  persistenceSource: PersistenceSource;
+  cwd: string;
+  railwayVolumeMount: string | null;
+  airalertDataDir: string | null;
+  dbFileExists: boolean;
+  dbFileBytes: number;
+  onRailway: boolean;
+  looksEphemeral: boolean;
+} {
+  let dbFileBytes = 0;
+  let dbFileExists = false;
+  try {
+    const st = fs.statSync(dbPath);
+    dbFileExists = true;
+    dbFileBytes = st.size;
+  } catch {
+    /* empty db may not exist until first write in some edge cases */
+  }
+  return {
+    dbPath,
+    dataDir,
+    persistenceSource,
+    cwd: process.cwd(),
+    railwayVolumeMount: railwayMount || null,
+    airalertDataDir: explicitDataDir || null,
+    dbFileExists,
+    dbFileBytes,
+    onRailway,
+    looksEphemeral: onRailway && persistenceSource === "cwd",
+  };
+}
 
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
