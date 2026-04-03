@@ -137,6 +137,76 @@
         margin: 0 0 0.75rem;
         font-weight: 600;
       }
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      button.fold-toggle {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin: 0 0 0.75rem;
+        padding: 0;
+        background: transparent !important;
+        border: none !important;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        text-align: left;
+        box-shadow: none !important;
+        transform: none;
+        filter: none;
+      }
+      button.fold-toggle:hover:not(:disabled) {
+        color: var(--text);
+        background: transparent !important;
+        filter: none;
+        transform: none;
+        box-shadow: none !important;
+      }
+      .fold-toggle:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+      .fold-toggle .fold-chev {
+        flex-shrink: 0;
+        font-size: 0.55rem;
+        line-height: 1;
+        opacity: 0.85;
+        transition: transform 0.2s ease;
+      }
+      .fold-toggle[aria-expanded="true"] .fold-chev {
+        transform: rotate(180deg);
+      }
+      .recommended-fold-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+      }
+      .recommended-fold-head .fold-toggle {
+        flex: 1 1 12rem;
+        margin-bottom: 0;
+        min-width: 0;
+      }
+      .recommended-fold-head .secondary {
+        flex-shrink: 0;
+      }
       section.how-to {
         border-left: 3px solid var(--accent);
         box-shadow: var(--shadow-lift), var(--shadow-card), -12px 0 36px -8px var(--accent-soft);
@@ -320,12 +390,6 @@
         border-radius: 10px;
         border: 1px solid var(--border-strong);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) inset;
-      }
-      .search-hint {
-        font-size: 0.8rem;
-        color: var(--muted);
-        margin: 0.35rem 0 0.75rem;
-        line-height: 1.45;
       }
       .search-toolbar {
         display: flex;
@@ -727,58 +791,64 @@
       </nav>
 
       <div id="tab-profile" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnProfile">
-        <section class="how-to" aria-labelledby="howToHeading">
-          <h2 id="howToHeading">Quick start</h2>
-          <p class="how-to-lead muted">
-            Track shows from TVMaze, get reminders, and optionally sync your calendar. Do this once to get going:
-          </p>
-          <ol class="how-to-steps">
-            <li>
-              <strong>Save your settings.</strong> Set <strong>timezone</strong> and <strong>reminder hour</strong>, then <strong>Save profile</strong>.
-            </li>
-            <li>
-              <strong>Add shows.</strong> Open <strong>Add a Show</strong>, search, open a result, and subscribe. Your list lives under <strong>Your Shows</strong>.
-            </li>
-            <li>
-              <strong>Browse suggestions.</strong> On <strong>Add a Show</strong>, scroll below search to <strong>Recommended for you</strong> (appears after you follow a few series).
-            </li>
-            <li>
-              <strong>Optional:</strong> Turn on <strong>Push notifications</strong> on this tab for this device. On iPhone, add Airalert to your Home Screen first.
-            </li>
-            <li>
-              <strong>Optional:</strong> Copy <strong>Calendar sync</strong> and subscribe in Google, Apple, or Outlook.
-            </li>
-            <li>
-              On <strong>Your Shows</strong>, tap <strong>Refresh episodes</strong> to update schedules. <strong>Notification log</strong> shows what the app recorded (dry run for now).
-            </li>
-          </ol>
+        <section class="how-to" aria-label="Quick start guide">
+          <button type="button" class="fold-toggle" id="foldHowToBtn" aria-expanded="false" aria-controls="foldHowToBody">
+            <span class="fold-title">Quick start</span>
+            <span class="fold-chev" aria-hidden="true">▼</span>
+          </button>
+          <div class="fold-body" id="foldHowToBody" hidden>
+            <p class="how-to-lead muted">
+              Track shows from TVMaze, get reminders, and optionally sync your calendar. Do this once to get going:
+            </p>
+            <ol class="how-to-steps">
+              <li>
+                <strong>Save your settings.</strong> Set <strong>timezone</strong> and <strong>reminder hour</strong>, then <strong>Save profile</strong>.
+              </li>
+              <li>
+                <strong>Add shows.</strong> Open <strong>Add a Show</strong>, search, open a result, and subscribe. Your list lives under <strong>Your Shows</strong>.
+              </li>
+              <li>
+                <strong>Browse suggestions.</strong> On <strong>Add a Show</strong>, scroll below search to <strong>Recommended for you</strong> (appears after you follow a few series).
+              </li>
+              <li>
+                <strong>Optional:</strong> Turn on <strong>Push notifications</strong> on this tab. On iPhone, add Airalert to your Home Screen first.
+              </li>
+              <li>
+                <strong>Optional:</strong> Copy <strong>Calendar sync</strong> and subscribe in Google, Apple, or Outlook.
+              </li>
+              <li>
+                On <strong>Your Shows</strong>, tap <strong>Refresh Data</strong> to update schedules. <strong>Notification log</strong> shows what the app recorded.
+              </li>
+            </ol>
+          </div>
         </section>
 
-        <section>
-          <h2>Your profile</h2>
-          <div class="row">
-            <div>
-              <label for="tz">Timezone</label>
-              <input id="tz" type="text" placeholder="America/Los_Angeles" />
+        <section aria-label="Your profile">
+          <button type="button" class="fold-toggle" id="foldProfileBtn" aria-expanded="true" aria-controls="foldProfileBody">
+            <span class="fold-title">Your profile</span>
+            <span class="fold-chev" aria-hidden="true">▼</span>
+          </button>
+          <div class="fold-body" id="foldProfileBody">
+            <div class="row">
+              <div>
+                <label for="tz">Timezone</label>
+                <input id="tz" type="text" placeholder="America/Los_Angeles" />
+              </div>
+              <div>
+                <label for="hour">Reminder hour (local)</label>
+                <input id="hour" type="number" min="0" max="23" value="8" />
+              </div>
             </div>
-            <div>
-              <label for="hour">Reminder hour (local)</label>
-              <input id="hour" type="number" min="0" max="23" value="8" />
-            </div>
+            <button type="button" id="saveProfile" style="margin-top: 0.75rem">Save profile</button>
+            <p class="muted msg" id="profileMsg"></p>
+            <p class="profile-jump">
+              <a href="#section-push">Episode alerts: turn on push ↓</a>
+            </p>
           </div>
-          <button type="button" id="saveProfile" style="margin-top: 0.75rem">Save profile</button>
-          <p class="muted msg" id="profileMsg"></p>
-          <p class="profile-jump">
-            <a href="#section-push">Episode alerts: turn on push for this phone ↓</a>
-          </p>
         </section>
 
         <section id="section-push" class="push-section" aria-labelledby="pushHeading">
-          <h2 id="pushHeading">Push notifications (this phone)</h2>
-          <p class="muted">
-            Tap the button below. Uses <strong>Web Push</strong> (not the App Store). On iPhone: add this site to your Home Screen first (Share → Add to Home Screen),
-            then open Airalert from that icon. iOS <strong>16.4+</strong>. Your host must have <strong>VAPID</strong> keys set in environment variables.
-          </p>
+          <h2 id="pushHeading">Push notifications</h2>
           <button type="button" class="secondary push-btn" id="enablePushBtn">Turn on push for this device</button>
           <p class="muted msg" id="pushMsg"></p>
         </section>
@@ -794,9 +864,6 @@
       <div id="tab-add" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnAdd">
         <section>
           <h2>Add a show</h2>
-          <p class="search-hint">
-            <strong>Show title</strong> is matched against TVMaze (names only). The public TVMaze search API only returns about ten hits per request, so we also scan their full show catalog for titles containing your words — that way broad terms like “housewives” can list every franchise, not just the first few. Results are sorted by most recently aired when TVMaze provides it. Use <strong>Filter by network</strong> to narrow the list. Shows already on your list are hidden.
-          </p>
           <div class="search-fields">
             <div>
               <label for="searchTitle">Show title</label>
@@ -832,32 +899,45 @@
         </section>
 
         <section class="recommended-section" aria-labelledby="recommendedHeading">
-          <h2 id="recommendedHeading">Recommended for you</h2>
-          <p class="muted" id="recommendedHint">
-            Subscribe to a few shows using <strong>Add a show</strong> above — we’ll suggest similar series here.
-          </p>
-          <p class="search-loading" id="recommendedLoading" style="display: none">Loading suggestions…</p>
-          <p class="msg err" id="recommendedErr"></p>
-          <div class="search-results" id="recommendedList"></div>
+          <div class="recommended-fold-head">
+            <button type="button" class="fold-toggle" id="foldRecommendedBtn" aria-expanded="true" aria-controls="foldRecommendedBody">
+              <span class="fold-title" id="recommendedHeading">Recommended for you</span>
+              <span class="fold-chev" aria-hidden="true">▼</span>
+            </button>
+            <button type="button" class="secondary" id="recommendedRefreshBtn">Refresh</button>
+          </div>
+          <div class="fold-body" id="foldRecommendedBody">
+            <p class="muted" id="recommendedHint">
+              Subscribe to a few shows using <strong>Add a show</strong> above — we’ll suggest similar series here.
+            </p>
+            <p class="search-loading" id="recommendedLoading" style="display: none">Loading suggestions…</p>
+            <p class="msg err" id="recommendedErr"></p>
+            <div class="search-results" id="recommendedList"></div>
+          </div>
         </section>
       </div>
 
       <div id="tab-shows" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnShows">
-        <section>
-          <h2>Your shows</h2>
-          <ul id="subs"></ul>
-          <p class="muted" id="subsEmpty">No shows yet.</p>
+        <section aria-label="Your shows">
+          <button type="button" class="fold-toggle" id="foldSubsBtn" aria-expanded="true" aria-controls="foldSubsBody">
+            <span class="fold-title">Your shows</span>
+            <span class="fold-chev" aria-hidden="true">▼</span>
+          </button>
+          <div class="fold-body" id="foldSubsBody">
+            <ul id="subs"></ul>
+            <p class="muted" id="subsEmpty">No shows yet.</p>
+          </div>
         </section>
 
         <section>
-          <h2>Upcoming (cached)</h2>
-          <button type="button" class="secondary" id="refreshData">Refresh episodes + run notification pass</button>
+          <h2>Upcoming</h2>
+          <button type="button" class="secondary" id="refreshData">Refresh Data</button>
           <p class="muted msg" id="jobMsg"></p>
           <pre id="jobOut" style="display: none"></pre>
         </section>
 
         <section>
-          <h2>Notification log (V1 dry run)</h2>
+          <h2>Notification log</h2>
           <ul id="notifs"></ul>
           <p class="muted" id="notifsEmpty">None yet. The hourly job records when an episode airs “today” in your timezone.</p>
         </section>
@@ -1000,7 +1080,7 @@
               lastAiredEpisode.label;
           } else {
             next.textContent = Number.isFinite(showId)
-              ? "No episode dates in cache — open Your Shows and tap Refresh episodes."
+              ? "No episode dates in cache — open Your Shows and tap Refresh Data."
               : "Show details unavailable from subscription payload. Please refresh the app/server.";
           }
           left.appendChild(next);
@@ -1115,7 +1195,7 @@
           note.className = "muted";
           note.style.fontSize = "0.8rem";
           note.textContent =
-            "Episode list loaded live from TVMaze. Run “Refresh episodes” on the main page to save dates into the cache for faster loads and calendar sync.";
+            "Episode list loaded live from TVMaze. Run Refresh Data on the main page to save dates into the cache for faster loads and calendar sync.";
           body.appendChild(note);
         }
 
@@ -1647,7 +1727,7 @@
             body: JSON.stringify(json),
           });
           pushMsg.textContent =
-            "Push enabled. When a show airs on your calendar day, you should get a banner (server checks on a schedule — use “Refresh episodes + run notification pass” to test sooner).";
+            "Push enabled. When a show airs on your calendar day, you should get a banner (server checks on a schedule — use Refresh Data on Your Shows to test sooner).";
         } catch (e) {
           const msg = e && e.message ? String(e.message) : "";
           if (/invalid character/i.test(msg) || /not correctly encoded/i.test(msg) || /atob/i.test(msg)) {
@@ -1701,6 +1781,27 @@
         searchResultState.page = 1;
         const uid = resolveUserId();
         if (uid) renderSearchPage(uid);
+      });
+
+      function syncFoldFromToggle(btn) {
+        const id = btn.getAttribute("aria-controls");
+        const body = id && document.getElementById(id);
+        if (!body) return;
+        body.hidden = btn.getAttribute("aria-expanded") !== "true";
+      }
+
+      document.querySelectorAll("button.fold-toggle").forEach((btn) => {
+        syncFoldFromToggle(btn);
+        btn.addEventListener("click", () => {
+          const open = btn.getAttribute("aria-expanded") === "true";
+          btn.setAttribute("aria-expanded", open ? "false" : "true");
+          syncFoldFromToggle(btn);
+        });
+      });
+
+      document.getElementById("recommendedRefreshBtn").addEventListener("click", () => {
+        const uid = resolveUserId();
+        if (uid) loadRecommended(uid);
       });
 
       (async function init() {
