@@ -646,6 +646,8 @@
         margin: 0;
       }
       .tab-nav {
+        position: relative;
+        z-index: 20;
         margin: 0 0 1.35rem;
       }
       .tab-rail {
@@ -653,12 +655,12 @@
         flex-wrap: wrap;
         gap: 0.2rem;
         padding: 0.35rem;
-        background: rgba(255, 255, 255, 0.04);
+        background: rgba(255, 255, 255, 0.06);
         border: 1px solid var(--border);
         border-radius: 14px;
-        -webkit-backdrop-filter: blur(14px);
-        backdrop-filter: blur(14px);
         box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
       }
       .tab-btn {
         cursor: pointer;
@@ -673,6 +675,8 @@
         background: transparent;
         color: var(--muted);
         box-shadow: none;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(108, 158, 248, 0.25);
         transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
       }
       .tab-btn:hover:not(:disabled) {
@@ -697,6 +701,8 @@
       }
       .tab-panel {
         display: none;
+        position: relative;
+        z-index: 0;
       }
       .tab-panel.active {
         display: block;
@@ -1609,20 +1615,23 @@
         }
       }
 
+      document.querySelectorAll(".tab-nav .tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const t = btn.getAttribute("data-tab");
+          setTab(t);
+          if (t === "add") {
+            const id = localStorage.getItem(LS_USER);
+            if (id) loadRecommended(id);
+          }
+        });
+      });
+
       (async function init() {
         const userId = await ensureUser();
         await loadUser(userId);
         await loadSubs(userId);
         await loadNotifs(userId);
         loadRecommended(userId);
-
-        document.querySelectorAll(".tab-nav .tab-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const t = btn.getAttribute("data-tab");
-            setTab(t);
-            if (t === "add") loadRecommended(userId);
-          });
-        });
 
         document.getElementById("saveProfile").onclick = () => saveProfile(userId);
 
