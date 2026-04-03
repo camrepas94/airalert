@@ -1194,7 +1194,7 @@
             <button type="button" id="saveProfile" style="margin-top: 0.75rem">Save profile</button>
             <button type="button" class="secondary" id="newDeviceListBtn" style="margin-top: 0.5rem">New list on this device</button>
             <p class="muted" style="font-size: 0.8rem; margin-top: 0.4rem; line-height: 1.45">
-              If this phone shows someone else’s subscriptions, tap once to start your own list (clears this browser’s session cookie).
+              Still seeing the same shows on two phones? Tap here on <strong>one</strong> of them after updating the app — it clears this phone’s session so it can get its own list. (iCloud can sync website data; we no longer trust that for login.)
             </p>
             <p class="muted msg" id="profileMsg"></p>
             <p class="profile-jump">
@@ -1369,23 +1369,11 @@
           const m = String(e && e.message ? e.message : "");
           if (!/\(HTTP 401\)/.test(m)) throw e;
         }
-        const stored = localStorage.getItem(LS_USER);
-        if (stored) {
-          try {
-            await api("/api/users/" + encodeURIComponent(stored));
-            const u = await api("/api/users/bootstrap", {
-              method: "POST",
-              body: JSON.stringify({ timezone: tz, resumeUserId: stored }),
-            });
-            if (u && u.id) {
-              localStorage.setItem(LS_USER, u.id);
-              return u.id;
-            }
-          } catch (e) {
-            if (!isStaleUserError(e)) throw e;
-            localStorage.removeItem(LS_USER);
-          }
-        }
+        /**
+         * No session cookie: always create a new server user. Do NOT resume from localStorage —
+         * Safari/iCloud (and similar) can sync localStorage across phones, which would reattach
+         * every device to the same account. The HttpOnly cookie is per-device and is the session.
+         */
         const u = await api("/api/users/bootstrap", {
           method: "POST",
           body: JSON.stringify({ timezone: tz }),

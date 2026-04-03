@@ -141,25 +141,10 @@ app.post("/api/users", async (request, reply) => {
   return created;
 });
 
-type BootstrapBody = UserCreateInput & { resumeUserId?: string };
-
 app.post("/api/users/bootstrap", async (request, reply) => {
-  const body = (request.body ?? {}) as BootstrapBody;
+  const body = (request.body ?? {}) as UserCreateInput;
   const { timezone, reminderHourLocal } = normalizeUserCreateInput(body);
-  const resumeRaw = typeof body.resumeUserId === "string" ? body.resumeUserId.trim() : "";
-  if (resumeRaw) {
-    const row = db
-      .prepare(
-        `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken FROM users WHERE id = ?`,
-      )
-      .get(resumeRaw) as
-      | { id: string; timezone: string; reminderHourLocal: number; calendarToken: string }
-      | undefined;
-    if (row) {
-      setSessionCookie(reply, request, row.id);
-      return { id: row.id, timezone: row.timezone, reminderHourLocal: row.reminderHourLocal, calendarToken: row.calendarToken, reused: false };
-    }
-  }
+  /** Always a new row + new session cookie (no resumeUserId — synced localStorage caused multi-phone same account). */
   const created = createUserRecord(timezone, reminderHourLocal);
   setSessionCookie(reply, request, created.id);
   reply.code(201);
