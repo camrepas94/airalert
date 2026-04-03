@@ -18,6 +18,7 @@ import { normalizeEpisodeAirdate, safeTodayInTimeZone } from "./time.js";
 import { buildIcsCalendar, episodeUid } from "./ics.js";
 import { refreshAllSubscribedShows, runDailyNotifications } from "./jobs.js";
 import { configureWebPush, getVapidPublicKey } from "./push.js";
+import { computeRecommendedShows } from "./recommend.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 const publicDir = path.join(process.cwd(), "public");
@@ -429,6 +430,28 @@ app.get("/api/users/:userId/subscriptions", async (request, reply) => {
   return { subscriptions };
 });
 
+app.get("/api/users/:userId/recommended-shows", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const rows = db
+    .prepare(`SELECT tvmaze_show_id AS id FROM show_subscriptions WHERE user_id = ?`)
+    .all(userId) as { id: number }[];
+  const ids = rows.map((r) => Number(r.id)).filter((n) => Number.isInteger(n) && n > 0);
+  try {
+    const { shows, queriesUsed } = await computeRecommendedShows(ids);
+    return { shows, queriesUsed };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    app.log.error(err, "recommended-shows failed");
+    reply.code(502);
+    return { error: msg };
+  }
+});
+
 app.post("/api/users/:userId/subscriptions", async (request, reply) => {
   const { userId } = request.params as { userId: string };
   const body = (request.body ?? {}) as { tvmazeShowId?: number };
@@ -706,6 +729,16 @@ app.get("/manifest.json", async (_req, reply) => {
   }
   reply.header("Cache-Control", "no-store, max-age=0");
   return reply.type("application/manifest+json; charset=utf-8").send(fs.readFileSync(p, "utf8"));
+});
+
+app.get("/logo.svg", async (_req, reply) => {
+  const p = path.join(publicDir, "logo.svg");
+  if (!fs.existsSync(p)) {
+    reply.code(404);
+    return "Not found";
+  }
+  reply.header("Cache-Control", "public, max-age=86400");
+  return reply.type("image/svg+xml; charset=utf-8").send(fs.readFileSync(p, "utf8"));
 });
 
 cron.schedule("5 * * * *", async () => {

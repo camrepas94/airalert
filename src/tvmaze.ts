@@ -243,6 +243,7 @@ export type TvmazeShowDetail = {
   premiered?: string | null;
   status?: string | null;
   summary?: string | null;
+  genres?: string[];
   network?: { name: string } | null;
   webChannel?: { name: string } | null;
   image?: { medium?: string; original?: string } | null;
