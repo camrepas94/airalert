@@ -13,23 +13,30 @@
     <style>
       :root {
         color-scheme: dark;
-        --bg: #0a0a0b;
-        --panel: rgba(22, 24, 31, 0.78);
-        --panel-solid: #14161d;
-        --text: #f0f2f7;
-        --muted: #8b95a8;
-        --accent: #6c9ef8;
-        --accent-soft: rgba(108, 158, 248, 0.22);
-        --border: rgba(255, 255, 255, 0.09);
-        --border-strong: rgba(255, 255, 255, 0.14);
-        --danger: #f07178;
-        --inset: rgba(0, 0, 0, 0.4);
-        --shadow-card: 0 4px 28px rgba(0, 0, 0, 0.45);
-        --shadow-lift: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+        --bg: #050508;
+        --panel: rgba(10, 12, 20, 0.74);
+        --panel-solid: #0e1018;
+        --text: #f4f7fc;
+        --muted: #8a9bb8;
+        --accent: #5b9cff;
+        --accent-hot: #8ecbff;
+        --accent-soft: rgba(91, 156, 255, 0.3);
+        --neon-cyan: #22d3ee;
+        --neon-magenta: #e879f9;
+        --border: rgba(130, 200, 255, 0.11);
+        --border-strong: rgba(140, 210, 255, 0.22);
+        --danger: #ff7b86;
+        --inset: rgba(0, 0, 0, 0.48);
+        --shadow-card: 0 4px 32px rgba(0, 0, 0, 0.52), 0 0 48px -16px rgba(34, 211, 238, 0.14),
+          0 0 72px -24px rgba(124, 92, 255, 0.12);
+        --shadow-lift: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 0 0 1px rgba(34, 211, 238, 0.06) inset;
         --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       }
       * {
         box-sizing: border-box;
+      }
+      html {
+        background: var(--bg);
       }
       body {
         margin: 0;
@@ -48,22 +55,22 @@
         pointer-events: none;
         z-index: -1;
         border-radius: 50%;
-        filter: blur(100px);
-        opacity: 0.4;
+        filter: blur(110px);
+        opacity: 0.48;
       }
       body::before {
-        width: min(85vw, 520px);
-        height: min(85vw, 520px);
-        top: -12%;
-        right: -18%;
-        background: radial-gradient(circle, rgba(124, 92, 255, 0.35) 0%, transparent 68%);
+        width: min(90vw, 560px);
+        height: min(90vw, 560px);
+        top: -14%;
+        right: -20%;
+        background: radial-gradient(circle, rgba(124, 92, 255, 0.42) 0%, rgba(232, 121, 249, 0.12) 45%, transparent 70%);
       }
       body::after {
-        width: min(75vw, 480px);
-        height: min(75vw, 480px);
-        bottom: -8%;
-        left: -22%;
-        background: radial-gradient(circle, rgba(55, 130, 246, 0.28) 0%, transparent 65%);
+        width: min(80vw, 500px);
+        height: min(80vw, 500px);
+        bottom: -10%;
+        left: -24%;
+        background: radial-gradient(circle, rgba(34, 211, 238, 0.32) 0%, rgba(91, 156, 255, 0.14) 50%, transparent 68%);
       }
       main {
         position: relative;
@@ -88,19 +95,20 @@
       }
       a.home-link {
         display: inline-block;
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(20, 28, 48, 0.55);
         color: var(--text);
         text-decoration: none;
         border-radius: 10px;
-        border: 1px solid var(--border-strong);
+        border: 1px solid rgba(130, 200, 255, 0.18);
         padding: 0.58rem 1rem;
         font-size: 0.95rem;
         font-weight: 600;
-        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
-        transition: background 0.15s ease;
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 0 24px -8px rgba(34, 211, 238, 0.08);
+        transition: background 0.15s ease, border-color 0.15s ease;
       }
       a.home-link:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(30, 42, 68, 0.65);
+        border-color: rgba(140, 210, 255, 0.28);
         filter: none;
       }
       .query-summary {
@@ -114,8 +122,8 @@
       }
       section {
         background: var(--panel);
-        -webkit-backdrop-filter: blur(18px);
-        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(22px) saturate(1.15);
+        backdrop-filter: blur(22px) saturate(1.15);
         border: 1px solid var(--border);
         border-radius: 16px;
         padding: 1.15rem 1.2rem;
@@ -145,14 +153,15 @@
         margin: 0 0 0.75rem;
       }
       .search-card {
-        border: 1px solid var(--border);
+        border: 1px solid rgba(130, 200, 255, 0.14);
         border-radius: 14px;
         padding: 0.85rem;
         margin-bottom: 0.7rem;
-        background: rgba(0, 0, 0, 0.32);
-        -webkit-backdrop-filter: blur(10px);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 4px 20px rgba(0, 0, 0, 0.25);
+        background: rgba(4, 8, 18, 0.45);
+        -webkit-backdrop-filter: blur(14px) saturate(1.1);
+        backdrop-filter: blur(14px) saturate(1.1);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 0 0 1px rgba(34, 211, 238, 0.05) inset,
+          0 6px 24px rgba(0, 0, 0, 0.35), 0 0 40px -12px rgba(91, 156, 255, 0.12);
       }
       .search-card-inner {
         display: flex;
@@ -198,21 +207,23 @@
       }
       button {
         cursor: pointer;
-        border: 1px solid rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(142, 203, 255, 0.35);
         border-radius: 10px;
         padding: 0.58rem 1rem;
         font-size: 0.95rem;
         font-weight: 600;
         font-family: inherit;
-        background: linear-gradient(180deg, #8cb4ff 0%, var(--accent) 42%, #5288e8 100%);
-        color: #07080c;
-        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.22) inset, 0 6px 20px rgba(108, 158, 248, 0.32);
+        background: linear-gradient(180deg, var(--accent-hot) 0%, var(--accent) 38%, #3d7ae8 100%);
+        color: #030508;
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.28) inset, 0 4px 16px rgba(34, 211, 238, 0.18),
+          0 8px 28px rgba(91, 156, 255, 0.35);
         transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
       }
       button:hover:not(:disabled) {
         transform: translateY(-1px);
-        filter: brightness(1.04);
-        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 8px 26px rgba(108, 158, 248, 0.4);
+        filter: brightness(1.05);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.32) inset, 0 6px 22px rgba(34, 211, 238, 0.22),
+          0 12px 36px rgba(91, 156, 255, 0.42);
       }
       button:active:not(:disabled) {
         transform: translateY(0);
