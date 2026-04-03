@@ -100,11 +100,6 @@
           max-width: 12.5rem;
         }
       }
-      .sub {
-        color: var(--muted);
-        font-size: 0.95rem;
-        margin-bottom: 1.5rem;
-      }
       section {
         background: var(--panel);
         -webkit-backdrop-filter: blur(22px) saturate(1.15);
@@ -426,6 +421,45 @@
         display: flex;
         flex-direction: column;
         gap: 0.65rem;
+      }
+      .search-input-wrap {
+        position: relative;
+        display: block;
+      }
+      .search-input-wrap input[type="text"] {
+        padding-right: 2.65rem;
+      }
+      button.search-clear-btn {
+        position: absolute;
+        top: 50%;
+        right: 0.4rem;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.05rem;
+        height: 2.05rem;
+        padding: 0;
+        margin: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(130, 200, 255, 0.22);
+        color: var(--muted);
+        font-size: 1.2rem;
+        line-height: 1;
+        font-weight: 400;
+        box-shadow: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      button.search-clear-btn:hover:not(:disabled) {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(140, 210, 255, 0.32);
+        transform: translateY(-50%);
+        filter: none;
+      }
+      button.search-clear-btn[hidden] {
+        display: none !important;
       }
       .recent-chips-wrap {
         margin-top: 0.85rem;
@@ -934,9 +968,6 @@
         opacity: 0.35;
         margin-top: 0.35rem;
       }
-      .app-top.is-scrolled .sub {
-        display: none;
-      }
       .app-top.is-scrolled .brand-heading .brand-logo {
         height: 1.45rem;
         max-width: 10rem;
@@ -1127,9 +1158,6 @@
         <h1 class="brand-heading">
           <img class="brand-logo" src="/logo.svg" width="200" height="36" alt="Airalert" />
         </h1>
-        <p class="sub">
-          Search on <strong>Add a Show</strong> to follow series. Use <strong>Your Profile</strong> for timezone, calendar sync, and optional push — plus a quick start guide.
-        </p>
 
         <nav class="tab-nav" role="tablist" aria-label="Main sections">
           <div class="tab-rail">
@@ -1150,26 +1178,29 @@
           </button>
           <div class="fold-body" id="foldHowToBody" hidden>
             <p class="how-to-lead muted">
-              Track shows from TVMaze, get reminders, and optionally sync your calendar. Do this once to get going:
+              Airalert opens on <strong>Add a Show</strong>. This guide lives on <strong>Your Profile</strong> — use the tabs at the top to switch anytime.
             </p>
             <ol class="how-to-steps">
               <li>
-                <strong>Save your settings.</strong> Set <strong>timezone</strong> and <strong>reminder hour</strong>, then <strong>Save profile</strong>.
+                <strong>Search and subscribe.</strong> On <strong>Add a Show</strong>, type a title — results update as you type, or press <strong>Enter</strong> for a full search (then <strong>Recent searches</strong> chips may appear). Tap <strong>Subscribe</strong> on a result card. Use <strong>×</strong> in the field to clear and search again. Your list is on <strong>Your Shows</strong> (expand <strong>Your shows</strong> there to see it). To browse episodes for a show you already follow, tap its title in that list to open details.
               </li>
               <li>
-                <strong>Add shows.</strong> Open <strong>Add a Show</strong>, search, open a result, and subscribe. Your list lives under <strong>Your Shows</strong>.
+                <strong>Save your profile.</strong> On <strong>Your Profile</strong>, set <strong>timezone</strong> and <strong>reminder hour (local)</strong>, then <strong>Save profile</strong>. That drives correct dates, the server job, and your calendar feed.
               </li>
               <li>
-                <strong>Browse suggestions.</strong> On <strong>Add a Show</strong>, scroll below search to <strong>Recommended for you</strong> (appears after you follow a few series).
+                <strong>Recommended for you.</strong> Still on <strong>Add a Show</strong>, expand <strong>Recommended for you</strong> below the results (use <strong>Refresh</strong> if needed). Suggestions improve after you’ve subscribed to a few series.
               </li>
               <li>
-                <strong>Optional:</strong> Turn on <strong>Push notifications</strong> on this tab. On iPhone, add Airalert to your Home Screen first.
+                <strong>Optional — Push.</strong> On <strong>Your Profile</strong>, use <strong>Turn on push for this device</strong>. On iPhone, add Airalert to the Home Screen first for reliable delivery.
               </li>
               <li>
-                <strong>Optional:</strong> Copy <strong>Calendar sync</strong> and subscribe in Google, Apple, or Outlook.
+                <strong>Optional — Calendar.</strong> On <strong>Your Profile</strong>, copy the calendar URL under <strong>Calendar sync</strong> (<strong>Copy URL</strong>) and subscribe in Google, Apple, or Outlook. It updates when the app refreshes episode data.
               </li>
               <li>
-                On <strong>Your Shows</strong>, tap <strong>Refresh Data</strong> to update schedules. <strong>Notification log</strong> shows what the app recorded.
+                <strong>Refresh and log.</strong> On <strong>Your Shows</strong>, use <strong>Refresh Data</strong> (under <strong>Upcoming</strong>) to pull TVMaze data into the cache. <strong>Notification log</strong> lists what the hourly job recorded when an episode airs “today” in your timezone (entries are stored as dry-run; web push also fires when you’ve enabled it and the server sends a notification).
+              </li>
+              <li>
+                <strong>Own list per phone.</strong> If two devices show the same subscriptions unexpectedly, on <strong>one</strong> device use <strong>New list on this device</strong> in <strong>Your profile</strong> (clears this browser’s session).
               </li>
             </ol>
           </div>
@@ -1223,7 +1254,10 @@
           <div class="search-fields">
             <div>
               <label for="searchTitle">Show title</label>
-              <input id="searchTitle" type="text" placeholder="Type a title, press Enter — or tap a recent search" autocomplete="off" />
+              <div class="search-input-wrap">
+                <input id="searchTitle" type="text" placeholder="Type a title, press Enter — or tap a recent search" autocomplete="off" />
+                <button type="button" class="search-clear-btn" id="searchClearBtn" hidden aria-label="Clear search">×</button>
+              </div>
             </div>
           </div>
           <div id="recentChipsWrap" class="recent-chips-wrap" hidden>
@@ -1771,6 +1805,7 @@
           b.textContent = q;
           b.addEventListener("click", () => {
             document.getElementById("searchTitle").value = q;
+            syncSearchClearBtn();
             const uid = resolveUserId();
             if (!uid) return;
             if (liveSearchTimer) clearTimeout(liveSearchTimer);
@@ -2126,6 +2161,42 @@
         }, LIVE_SEARCH_DEBOUNCE_MS);
       }
 
+      function syncSearchClearBtn() {
+        const input = document.getElementById("searchTitle");
+        const btn = document.getElementById("searchClearBtn");
+        if (!input || !btn) return;
+        btn.hidden = input.value.length === 0;
+      }
+
+      function clearSearchFieldAndResults() {
+        const input = document.getElementById("searchTitle");
+        if (input) input.value = "";
+        syncSearchClearBtn();
+        if (liveSearchTimer) {
+          clearTimeout(liveSearchTimer);
+          liveSearchTimer = null;
+        }
+        if (activeSearchAbortController) {
+          activeSearchAbortController.abort();
+          activeSearchAbortController = null;
+        }
+        const err = document.getElementById("searchErr");
+        const box = document.getElementById("results");
+        const toolbar = document.getElementById("searchPostToolbar");
+        const linkP = document.getElementById("searchFullPageLink");
+        const loadingBar = document.getElementById("searchLoadingBar");
+        err.textContent = "";
+        err.classList.remove("err");
+        box.innerHTML = "";
+        toolbar.classList.remove("visible");
+        linkP.style.display = "none";
+        linkP.innerHTML = "";
+        if (loadingBar) loadingBar.hidden = true;
+        searchResultState.allShows = [];
+        searchResultState.page = 1;
+        if (input) input.focus();
+      }
+
       function setTab(name) {
         document.querySelectorAll(".tab-panel").forEach((el) => {
           el.classList.toggle("active", el.id === "tab-" + name);
@@ -2240,8 +2311,13 @@
       });
 
       document.getElementById("searchTitle").addEventListener("input", () => {
+        syncSearchClearBtn();
         const uid = resolveUserId();
         if (uid) scheduleLiveSearch(uid);
+      });
+
+      document.getElementById("searchClearBtn").addEventListener("click", () => {
+        clearSearchFieldAndResults();
       });
 
       document.getElementById("searchTitle").addEventListener("keydown", (e) => {
