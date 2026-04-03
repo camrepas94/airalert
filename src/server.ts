@@ -50,6 +50,31 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+type UserCreateInput = { timezone?: string; reminderHourLocal?: number };
+
+function normalizeUserCreateInput(body: UserCreateInput): { timezone: string; reminderHourLocal: number } {
+  const timezone = typeof body.timezone === "string" && body.timezone.trim() ? body.timezone.trim() : "America/Los_Angeles";
+  let reminderHourLocal = 8;
+  if (typeof body.reminderHourLocal === "number" && Number.isInteger(body.reminderHourLocal)) {
+    reminderHourLocal = Math.min(23, Math.max(0, body.reminderHourLocal));
+  }
+  return { timezone, reminderHourLocal };
+}
+
+function createUserRecord(timezone: string, reminderHourLocal: number): {
+  id: string;
+  timezone: string;
+  reminderHourLocal: number;
+  calendarToken: string;
+} {
+  const id = uuidv4();
+  const calendarToken = randomToken();
+  db.prepare(
+    `INSERT INTO users (id, timezone, reminder_hour_local, calendar_token) VALUES (?, ?, ?, ?)`,
+  ).run(id, timezone, reminderHourLocal, calendarToken);
+  return { id, timezone, reminderHourLocal, calendarToken };
+}
+
 app.get("/api/health", async () => ({
   ok: true,
   /** Open in a browser after deploy to confirm DB is on a volume (looksEphemeral should be false). */
@@ -57,19 +82,31 @@ app.get("/api/health", async () => ({
 }));
 
 app.post("/api/users", async (request, reply) => {
-  const body = (request.body ?? {}) as { timezone?: string; reminderHourLocal?: number };
-  const timezone = typeof body.timezone === "string" && body.timezone.trim() ? body.timezone.trim() : "America/Los_Angeles";
-  let reminderHourLocal = 8;
-  if (typeof body.reminderHourLocal === "number" && Number.isInteger(body.reminderHourLocal)) {
-    reminderHourLocal = Math.min(23, Math.max(0, body.reminderHourLocal));
-  }
-  const id = uuidv4();
-  const calendarToken = randomToken();
-  db.prepare(
-    `INSERT INTO users (id, timezone, reminder_hour_local, calendar_token) VALUES (?, ?, ?, ?)`,
-  ).run(id, timezone, reminderHourLocal, calendarToken);
+  const body = (request.body ?? {}) as UserCreateInput;
+  const { timezone, reminderHourLocal } = normalizeUserCreateInput(body);
+  const created = createUserRecord(timezone, reminderHourLocal);
   reply.code(201);
-  return { id, timezone, reminderHourLocal, calendarToken };
+  return created;
+});
+
+app.post("/api/users/bootstrap", async (request, reply) => {
+  const body = (request.body ?? {}) as UserCreateInput;
+  const { timezone, reminderHourLocal } = normalizeUserCreateInput(body);
+  const countRow = db.prepare(`SELECT COUNT(*) AS count FROM users`).get() as { count: number };
+  if (Number(countRow?.count || 0) === 1) {
+    const existing = db
+      .prepare(
+        `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken
+         FROM users ORDER BY created_at DESC LIMIT 1`,
+      )
+      .get() as { id: string; timezone: string; reminderHourLocal: number; calendarToken: string } | undefined;
+    if (existing) {
+      return { ...existing, reused: true };
+    }
+  }
+  const created = createUserRecord(timezone, reminderHourLocal);
+  reply.code(201);
+  return { ...created, reused: false };
 });
 
 app.get("/api/users/:id", async (request, reply) => {

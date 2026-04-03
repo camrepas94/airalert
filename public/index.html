@@ -990,7 +990,7 @@
             localStorage.removeItem(LS_USER);
           }
         }
-        const u = await api("/api/users", {
+        const u = await api("/api/users/bootstrap", {
           method: "POST",
           body: JSON.stringify({ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
         });
