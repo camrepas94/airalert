@@ -92,18 +92,7 @@ app.post("/api/users", async (request, reply) => {
 app.post("/api/users/bootstrap", async (request, reply) => {
   const body = (request.body ?? {}) as UserCreateInput;
   const { timezone, reminderHourLocal } = normalizeUserCreateInput(body);
-  const countRow = db.prepare(`SELECT COUNT(*) AS count FROM users`).get() as { count: number };
-  if (Number(countRow?.count || 0) === 1) {
-    const existing = db
-      .prepare(
-        `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken
-         FROM users ORDER BY created_at DESC LIMIT 1`,
-      )
-      .get() as { id: string; timezone: string; reminderHourLocal: number; calendarToken: string } | undefined;
-    if (existing) {
-      return { ...existing, reused: true };
-    }
-  }
+  /** Always create a new anonymous user. (Older builds reused the sole row when COUNT(users)=1, which merged every new phone into one account.) */
   const created = createUserRecord(timezone, reminderHourLocal);
   reply.code(201);
   return { ...created, reused: false };
