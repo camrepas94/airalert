@@ -2,7 +2,16 @@ import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
 
-const dataDir = path.join(process.cwd(), "data");
+/**
+ * Subscriptions and users live in SQLite under this directory.
+ * Default: ./data (ephemeral on many hosts — lost on each deploy).
+ * For production, set AIRALERT_DATA_DIR to a persistent path (e.g. a mounted volume).
+ */
+const dataDir = (() => {
+  const fromEnv = process.env.AIRALERT_DATA_DIR?.trim();
+  if (fromEnv) return path.resolve(fromEnv);
+  return path.join(process.cwd(), "data");
+})();
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }

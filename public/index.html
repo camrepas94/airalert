@@ -391,16 +391,6 @@
         border: 1px solid var(--border-strong);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) inset;
       }
-      .search-toolbar {
-        display: flex;
-        gap: 0.5rem;
-        align-items: stretch;
-        flex-wrap: wrap;
-      }
-      .search-toolbar input[type="text"] {
-        flex: 1;
-        min-width: 0;
-      }
       .search-fields {
         display: flex;
         flex-direction: column;
@@ -477,7 +467,7 @@
       .search-loading {
         font-size: 0.85rem;
         color: var(--muted);
-        margin-top: 0.65rem;
+        margin-top: 0.85rem;
       }
       .search-card {
         border: 1px solid var(--border);
@@ -824,11 +814,11 @@
         </section>
 
         <section aria-label="Your profile">
-          <button type="button" class="fold-toggle" id="foldProfileBtn" aria-expanded="true" aria-controls="foldProfileBody">
+          <button type="button" class="fold-toggle" id="foldProfileBtn" aria-expanded="false" aria-controls="foldProfileBody">
             <span class="fold-title">Your profile</span>
             <span class="fold-chev" aria-hidden="true">▼</span>
           </button>
-          <div class="fold-body" id="foldProfileBody">
+          <div class="fold-body" id="foldProfileBody" hidden>
             <div class="row">
               <div>
                 <label for="tz">Timezone</label>
@@ -870,9 +860,6 @@
               <input id="searchTitle" type="text" placeholder="e.g. The Valley" autocomplete="off" />
             </div>
           </div>
-          <div class="search-toolbar" style="margin-top: 0.75rem">
-            <button type="button" id="searchBtn">Search</button>
-          </div>
           <p class="search-loading" id="searchLoading" style="display: none">
             Searching… (catalog scan + last-air dates can take ~10–30 seconds for broad queries)
           </p>
@@ -900,13 +887,13 @@
 
         <section class="recommended-section" aria-labelledby="recommendedHeading">
           <div class="recommended-fold-head">
-            <button type="button" class="fold-toggle" id="foldRecommendedBtn" aria-expanded="true" aria-controls="foldRecommendedBody">
+            <button type="button" class="fold-toggle" id="foldRecommendedBtn" aria-expanded="false" aria-controls="foldRecommendedBody">
               <span class="fold-title" id="recommendedHeading">Recommended for you</span>
               <span class="fold-chev" aria-hidden="true">▼</span>
             </button>
             <button type="button" class="secondary" id="recommendedRefreshBtn">Refresh</button>
           </div>
-          <div class="fold-body" id="foldRecommendedBody">
+          <div class="fold-body" id="foldRecommendedBody" hidden>
             <p class="muted" id="recommendedHint">
               Subscribe to a few shows using <strong>Add a show</strong> above — we’ll suggest similar series here.
             </p>
@@ -919,11 +906,11 @@
 
       <div id="tab-shows" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnShows">
         <section aria-label="Your shows">
-          <button type="button" class="fold-toggle" id="foldSubsBtn" aria-expanded="true" aria-controls="foldSubsBody">
+          <button type="button" class="fold-toggle" id="foldSubsBtn" aria-expanded="false" aria-controls="foldSubsBody">
             <span class="fold-title">Your shows</span>
             <span class="fold-chev" aria-hidden="true">▼</span>
           </button>
-          <div class="fold-body" id="foldSubsBody">
+          <div class="fold-body" id="foldSubsBody" hidden>
             <ul id="subs"></ul>
             <p class="muted" id="subsEmpty">No shows yet.</p>
           </div>
@@ -1568,7 +1555,6 @@
         const err = document.getElementById("searchErr");
         const box = document.getElementById("results");
         const loading = document.getElementById("searchLoading");
-        const btn = document.getElementById("searchBtn");
         const toolbar = document.getElementById("searchPostToolbar");
         const linkP = document.getElementById("searchFullPageLink");
         if (!isLive) {
@@ -1600,7 +1586,6 @@
 
         if (!isLive) {
           loading.style.display = "block";
-          btn.disabled = true;
         }
         try {
           const { shows } = await api("/api/shows/search?" + qs.toString(), {
@@ -1626,7 +1611,6 @@
         } finally {
           if (!isLive && reqId === activeSearchRequestId) {
             loading.style.display = "none";
-            btn.disabled = false;
           }
         }
       }
@@ -1749,11 +1733,6 @@
             if (id) loadRecommended(id);
           }
         });
-      });
-
-      document.getElementById("searchBtn").addEventListener("click", () => {
-        const uid = resolveUserId();
-        if (uid) performSearch(uid);
       });
 
       document.getElementById("searchTitle").addEventListener("input", () => {
