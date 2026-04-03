@@ -11,8 +11,20 @@ import Database from "better-sqlite3";
  */
 type PersistenceSource = "AIRALERT_DATA_DIR" | "RAILWAY_VOLUME_MOUNT_PATH" | "cwd";
 
-const explicitDataDir = process.env.AIRALERT_DATA_DIR?.trim();
-const railwayMount = process.env.RAILWAY_VOLUME_MOUNT_PATH?.trim();
+/**
+ * Railway has been seen to set RAILWAY_VOLUME_MOUNT_PATH to a comma-glued duplicate (e.g. "/data,/data").
+ * That produces a bogus path like "/data,/data/airalert.db" which is NOT on the volume at /data.
+ */
+function firstDirFromEnv(value: string | undefined): string | undefined {
+  if (value == null) return undefined;
+  const t = value.trim();
+  if (!t) return undefined;
+  const first = t.split(",")[0]?.trim();
+  return first || undefined;
+}
+
+const explicitDataDir = firstDirFromEnv(process.env.AIRALERT_DATA_DIR);
+const railwayMount = firstDirFromEnv(process.env.RAILWAY_VOLUME_MOUNT_PATH);
 
 let persistenceSource: PersistenceSource;
 const dataDir = (() => {
@@ -64,6 +76,8 @@ export function getSqlitePersistenceInfo(): {
   persistenceSource: PersistenceSource;
   cwd: string;
   railwayVolumeMount: string | null;
+  /** If Railway sent a comma-separated value, this was the raw string (for debugging). */
+  railwayVolumeMountRaw: string | null;
   airalertDataDir: string | null;
   dbFileExists: boolean;
   dbFileBytes: number;
@@ -79,12 +93,14 @@ export function getSqlitePersistenceInfo(): {
   } catch {
     /* empty db may not exist until first write in some edge cases */
   }
+  const rawRail = process.env.RAILWAY_VOLUME_MOUNT_PATH?.trim() ?? "";
   return {
     dbPath,
     dataDir,
     persistenceSource,
     cwd: process.cwd(),
     railwayVolumeMount: railwayMount || null,
+    railwayVolumeMountRaw: rawRail && rawRail !== railwayMount ? rawRail : null,
     airalertDataDir: explicitDataDir || null,
     dbFileExists,
     dbFileBytes,
