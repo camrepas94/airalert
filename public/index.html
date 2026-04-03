@@ -1195,6 +1195,11 @@
       let activeSearchAbortController = null;
       let activeSearchRequestId = 0;
       let recommendedLoadRequestId = 0;
+      let appUserId = null;
+
+      function resolveUserId() {
+        return appUserId || localStorage.getItem(LS_USER);
+      }
 
       function appendSearchResultCard(box, s, userId, err) {
         const card = document.createElement("div");
@@ -1626,8 +1631,41 @@
         });
       });
 
+      document.getElementById("searchBtn").addEventListener("click", () => {
+        const uid = resolveUserId();
+        if (uid) performSearch(uid);
+      });
+
+      document.getElementById("searchTitle").addEventListener("input", () => {
+        const uid = resolveUserId();
+        if (uid) scheduleLiveSearch(uid);
+      });
+
+      document.getElementById("searchTitle").addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        const uid = resolveUserId();
+        if (!uid) return;
+        if (liveSearchTimer) clearTimeout(liveSearchTimer);
+        performSearch(uid);
+      });
+
+      document.getElementById("searchNetworkFilter").addEventListener("change", () => {
+        const uid = resolveUserId();
+        searchResultState.page = 1;
+        if (uid) renderSearchPage(uid);
+      });
+
+      document.getElementById("searchPageSize").addEventListener("change", () => {
+        localStorage.setItem(LS_SEARCH_PAGE_SIZE, document.getElementById("searchPageSize").value);
+        searchResultState.page = 1;
+        const uid = resolveUserId();
+        if (uid) renderSearchPage(uid);
+      });
+
       (async function init() {
         const userId = await ensureUser();
+        appUserId = userId;
         await loadUser(userId);
         await loadSubs(userId);
         await loadNotifs(userId);
@@ -1646,31 +1684,6 @@
         };
 
         document.getElementById("enablePushBtn").onclick = () => registerWebPush(userId);
-
-        document.getElementById("searchBtn").onclick = () => performSearch(userId);
-
-        document.getElementById("searchTitle").addEventListener("input", () => {
-          scheduleLiveSearch(userId);
-        });
-
-        document.getElementById("searchTitle").addEventListener("keydown", (e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            if (liveSearchTimer) clearTimeout(liveSearchTimer);
-            performSearch(userId);
-          }
-        });
-
-        document.getElementById("searchNetworkFilter").addEventListener("change", () => {
-          searchResultState.page = 1;
-          renderSearchPage(userId);
-        });
-
-        document.getElementById("searchPageSize").addEventListener("change", () => {
-          localStorage.setItem(LS_SEARCH_PAGE_SIZE, document.getElementById("searchPageSize").value);
-          searchResultState.page = 1;
-          renderSearchPage(userId);
-        });
 
         document.getElementById("modalClose").onclick = () => closeShowModal();
         document.getElementById("showModal").addEventListener("click", (e) => {
