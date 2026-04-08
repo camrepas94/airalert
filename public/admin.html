@@ -35,7 +35,8 @@
         color: var(--text);
         line-height: 1.5;
         min-height: 100vh;
-        padding: 1rem 1.1rem 3rem;
+        padding: 1rem max(1rem, env(safe-area-inset-left)) 3rem max(1rem, env(safe-area-inset-right));
+        -webkit-tap-highlight-color: rgba(34, 211, 238, 0.15);
       }
       h1 {
         margin: 0 0 0.25rem;
@@ -67,28 +68,31 @@
         margin-bottom: 0.35rem;
       }
       input[type="password"],
-      input[type="text"] {
+      input[type="text"],
+      input[type="number"] {
         width: 100%;
         max-width: 22rem;
-        padding: 0.55rem 0.65rem;
+        padding: 0.6rem 0.65rem;
         border-radius: 10px;
         border: 1px solid var(--border);
         background: rgba(0, 0, 0, 0.35);
         color: var(--text);
         font-family: inherit;
-        font-size: 0.95rem;
+        font-size: 16px;
       }
       button {
         font-family: inherit;
         font-weight: 600;
         cursor: pointer;
         border-radius: 10px;
-        padding: 0.55rem 1rem;
+        padding: 0.65rem 1rem;
+        min-height: 44px;
         border: 1px solid rgba(130, 200, 255, 0.25);
         background: linear-gradient(180deg, rgba(91, 156, 255, 0.35) 0%, rgba(91, 156, 255, 0.12) 100%);
         color: var(--text);
         margin-top: 0.65rem;
         margin-right: 0.5rem;
+        touch-action: manipulation;
       }
       button.secondary {
         background: rgba(255, 255, 255, 0.06);
@@ -114,9 +118,29 @@
       .totals strong {
         color: var(--text);
       }
+      .scroll-hint {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin: 0 0 0.35rem;
+        display: none;
+      }
+      @media (max-width: 720px) {
+        .scroll-hint {
+          display: block;
+        }
+      }
       .table-wrap {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        margin: 0 -0.25rem;
+        padding: 0 0.25rem;
+      }
+      .admin-table {
+        width: 100%;
+        min-width: 640px;
+        border-collapse: collapse;
+        font-size: 0.82rem;
       }
       table {
         width: 100%;
@@ -143,10 +167,88 @@
       tr[data-user] {
         cursor: pointer;
       }
+      tr[data-user] td {
+        padding: 0.5rem 0.45rem;
+      }
+      @media (max-width: 720px) {
+        tr[data-user] td {
+          padding: 0.65rem 0.5rem;
+        }
+      }
       tr.detail-row td {
         background: rgba(0, 0, 0, 0.28);
-        padding: 0.75rem 0.5rem;
-        font-size: 0.8rem;
+        padding: 0.85rem 0.65rem;
+        font-size: 0.88rem;
+      }
+      .detail-admin-box {
+        padding: 0.75rem 0.85rem;
+        margin: 0 0 0.85rem;
+        border-radius: 12px;
+        border: 1px solid rgba(252, 211, 77, 0.35);
+        background: rgba(245, 158, 11, 0.08);
+      }
+      .detail-admin-box strong {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.82rem;
+        color: #fde68a;
+        letter-spacing: 0.03em;
+      }
+      .detail-admin-box label {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin: 0;
+        padding: 0.35rem 0;
+        font-size: 1rem;
+        text-transform: none;
+        letter-spacing: normal;
+        color: var(--text);
+        cursor: pointer;
+        min-height: 44px;
+      }
+      .detail-admin-box input[type="checkbox"] {
+        width: 1.15rem;
+        height: 1.15rem;
+        flex-shrink: 0;
+      }
+      .detail-add-show {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 0.5rem;
+        margin: 0 0 0.85rem;
+      }
+      .detail-add-show label {
+        flex: 1 1 100%;
+        margin: 0;
+      }
+      .detail-add-show input[type="number"] {
+        flex: 1 1 6rem;
+        max-width: 8rem;
+        min-height: 44px;
+      }
+      .detail-add-show button {
+        margin-top: 0;
+      }
+      .detail-show-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem 0.5rem;
+        margin: 0.45rem 0;
+        padding: 0.35rem 0;
+        border-bottom: 1px solid rgba(130, 200, 255, 0.08);
+      }
+      .detail-show-line button.danger {
+        margin: 0;
+        margin-left: auto;
+        padding: 0.45rem 0.75rem;
+        min-height: 40px;
+        font-size: 0.82rem;
+        background: rgba(255, 123, 134, 0.15);
+        border-color: rgba(255, 123, 134, 0.35);
+        color: var(--danger);
       }
       .mono {
         font-family: ui-monospace, monospace;
@@ -168,6 +270,10 @@
       .pill.rec {
         background: rgba(232, 121, 249, 0.2);
         color: #f5c2ff;
+      }
+      .pill.adm {
+        background: rgba(245, 158, 11, 0.22);
+        color: #fde68a;
       }
       .pill.unk {
         background: rgba(138, 155, 184, 0.2);
@@ -201,13 +307,17 @@
     </section>
 
     <section id="dash" class="hidden">
-      <p style="margin-top: 0">
+      <p class="dash-actions" style="margin-top: 0; display: flex; flex-wrap: wrap; gap: 0.5rem">
         <button type="button" class="secondary" id="logoutBtn">Sign out</button>
         <button type="button" class="secondary" id="refreshBtn">Refresh data</button>
       </p>
       <div class="totals" id="totals"></div>
+      <p class="scroll-hint">Swipe the table horizontally on a small screen.</p>
+      <p class="muted" style="font-size: 0.82rem; margin: 0 0 0.5rem">
+        <strong>Tip:</strong> Tap any user row to open <strong>Admin access</strong> (grant/revoke), add a show by TVMaze ID, or remove shows.
+      </p>
       <div class="table-wrap">
-        <table>
+        <table class="admin-table">
           <thead>
             <tr>
               <th>Username</th>
@@ -264,11 +374,35 @@
         el(id).classList.toggle("hidden", !on);
       }
 
+      function truthyBit(v) {
+        return v === true || v === 1;
+      }
+
       function pillClass(from) {
         if (from === "search") return "search";
         if (from === "recommended") return "rec";
-        if (from === "admin") return "search";
+        if (from === "admin") return "adm";
         return "unk";
+      }
+
+      function showToast(msg) {
+        let t = document.getElementById("adminToast");
+        if (!t) {
+          t = document.createElement("div");
+          t.id = "adminToast";
+          t.setAttribute("role", "status");
+          t.style.cssText =
+            "position:fixed;bottom:max(1.25rem,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);" +
+            "background:rgba(14,18,32,0.96);color:#f4f7fc;padding:0.7rem 1.1rem;border-radius:14px;" +
+            "border:1px solid rgba(130,200,255,0.22);z-index:200;font-size:0.9rem;max-width:min(92vw,22rem);" +
+            "text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.45);pointer-events:none;";
+          document.body.appendChild(t);
+        }
+        t.textContent = msg;
+        clearTimeout(showToast._timer);
+        showToast._timer = setTimeout(() => {
+          t.textContent = "";
+        }, 2800);
       }
 
       function pillLabel(from) {
@@ -358,39 +492,118 @@
             try {
               const d = await api("/api/admin/users/" + encodeURIComponent(u.id));
               const subs = d.subscriptions || [];
-              const parts = [];
-              parts.push(
-                "<div style='margin-bottom:0.5rem'><strong>Tasks:</strong> " +
-                  d.tasks.completed +
-                  " completed, " +
-                  d.tasks.open +
-                  " open, " +
-                  d.tasks.total +
-                  " total</div>",
-              );
+              const ua = d.user || {};
+              const isAdm = truthyBit(ua.isAdmin);
+              let html =
+                "<div class=\"detail-admin-box\">" +
+                "<strong>Admin access</strong>" +
+                "<label><input type=\"checkbox\" id=\"admToggle_" +
+                u.id +
+                "\" " +
+                (isAdm ? "checked" : "") +
+                " /> Grant this user access to the Admin tab &amp; this page</label>" +
+                "</div>" +
+                "<div style='margin-bottom:0.65rem'><strong>Tasks:</strong> " +
+                d.tasks.completed +
+                " completed · " +
+                d.tasks.open +
+                " open · " +
+                d.tasks.total +
+                " total</div>" +
+                "<div class=\"detail-add-show\">" +
+                "<label for=\"admAddShow_" +
+                u.id +
+                "\">Add show (TVMaze numeric ID)</label>" +
+                "<input type=\"number\" id=\"admAddShow_" +
+                u.id +
+                "\" min=\"1\" step=\"1\" placeholder=\"e.g. 82\" />" +
+                "<button type=\"button\" class=\"secondary\" id=\"admAddBtn_" +
+                u.id +
+                "\">Add show</button>" +
+                "</div>" +
+                "<div><strong>Shows</strong></div>";
               if (!subs.length) {
-                parts.push("<p class='muted' style='margin:0'>No subscriptions.</p>");
+                html += "<p class='muted' style='margin:0.35rem 0 0'>No subscriptions yet.</p>";
               } else {
-                parts.push("<div><strong>Shows</strong> (source when added)</div><ul style='margin:0.35rem 0 0 1rem'>");
                 for (const s of subs) {
-                  const af = s.addedFrom || null;
-                  parts.push(
-                    "<li><span class=\"pill " +
-                      pillClass(af) +
-                      "\">" +
-                      pillLabel(af) +
-                      "</span> " +
-                      (s.showName || "") +
-                      " <span class='mono'>(" +
-                      s.tvmazeShowId +
-                      ")</span> — " +
-                      (s.createdAt || "") +
-                      "</li>",
-                  );
+                  const af = s.addedFrom || "";
+                  html +=
+                    "<div class=\"detail-show-line\">" +
+                    "<span class=\"pill " +
+                    pillClass(af) +
+                    "\">" +
+                    pillLabel(af) +
+                    "</span>" +
+                    "<span>" +
+                    escapeHtml(s.showName || "") +
+                    "</span>" +
+                    "<span class='mono muted'>(" +
+                    s.tvmazeShowId +
+                    ")</span>" +
+                    "<button type=\"button\" class=\"danger adm-rm\" data-subid=\"" +
+                    escapeHtml(s.id) +
+                    "\">Remove</button>" +
+                    "</div>";
                 }
-                parts.push("</ul>");
               }
-              detailTd.innerHTML = parts.join("");
+              detailTd.innerHTML = html;
+
+              const cb = document.getElementById("admToggle_" + u.id);
+              if (cb) {
+                cb.addEventListener("click", (ev) => ev.stopPropagation());
+                cb.addEventListener("change", async () => {
+                  try {
+                    await api("/api/admin/users/" + encodeURIComponent(u.id), {
+                      method: "PATCH",
+                      body: JSON.stringify({ isAdmin: cb.checked }),
+                    });
+                    showToast(cb.checked ? "Admin access granted" : "Admin access removed");
+                    await loadDash();
+                  } catch (e) {
+                    showToast(e.message || "Update failed");
+                    cb.checked = !cb.checked;
+                  }
+                });
+              }
+
+              const addBtn = document.getElementById("admAddBtn_" + u.id);
+              const addIn = document.getElementById("admAddShow_" + u.id);
+              if (addBtn && addIn) {
+                addBtn.addEventListener("click", async (ev) => {
+                  ev.stopPropagation();
+                  const n = Number(addIn.value);
+                  if (!Number.isInteger(n) || n < 1) {
+                    showToast("Enter a valid TVMaze show ID");
+                    return;
+                  }
+                  try {
+                    await api("/api/admin/users/" + encodeURIComponent(u.id) + "/subscriptions", {
+                      method: "POST",
+                      body: JSON.stringify({ tvmazeShowId: n }),
+                    });
+                    showToast("Show added");
+                    addIn.value = "";
+                    await loadDash();
+                  } catch (e) {
+                    showToast(e.message || "Could not add show");
+                  }
+                });
+              }
+
+              detailTd.querySelectorAll("button.adm-rm").forEach((b) => {
+                b.addEventListener("click", async (ev) => {
+                  ev.stopPropagation();
+                  const sid = b.getAttribute("data-subid");
+                  if (!sid) return;
+                  try {
+                    await api("/api/admin/subscriptions/" + encodeURIComponent(sid), { method: "DELETE" });
+                    showToast("Show removed");
+                    await loadDash();
+                  } catch (e) {
+                    showToast(e.message || "Remove failed");
+                  }
+                });
+              });
             } catch (e) {
               detailTd.textContent = e.message || "Failed to load user.";
             }
