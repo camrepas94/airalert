@@ -98,7 +98,20 @@
         margin: 0 0 0.35rem;
         line-height: 1;
       }
-      .profile-home-btn {
+      .app-top-header-spacer {
+        flex: 1;
+        min-width: 0;
+        pointer-events: none;
+      }
+      .app-top-header-actions {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.45rem;
+        min-width: 0;
+      }
+      .header-icon-btn {
         flex-shrink: 0;
         display: flex;
         align-items: center;
@@ -120,9 +133,38 @@
         transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
         color: inherit;
       }
-      .profile-home-btn:hover:not(:disabled) {
+      .header-icon-btn:hover:not(:disabled) {
         background: rgba(255, 255, 255, 0.07);
         box-shadow: 0 0 0 1px rgba(142, 203, 255, 0.28) inset, 0 6px 18px rgba(0, 0, 0, 0.42);
+      }
+      .help-quickstart-char {
+        font-size: 1.28rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        background: linear-gradient(118deg, #22d3ee 0%, #5b9cff 52%, #c084fc 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.35));
+      }
+      .help-quickstart-btn.active {
+        color: #f8fbff;
+        animation: tab-glow-pulse 2.8s ease-in-out infinite;
+        background: linear-gradient(180deg, rgba(91, 156, 255, 0.32) 0%, rgba(91, 156, 255, 0.1) 100%);
+        box-shadow: 0 0 0 1px rgba(142, 203, 255, 0.4) inset, 0 0 22px 2px rgba(91, 156, 255, 0.45),
+          0 0 48px 0 rgba(91, 156, 255, 0.2), 0 0 56px -6px rgba(34, 211, 238, 0.12), 0 8px 20px rgba(0, 0, 0, 0.42);
+      }
+      .help-quickstart-btn.active:hover:not(:disabled) {
+        box-shadow: 0 0 0 1px rgba(142, 203, 255, 0.48) inset, 0 0 28px 3px rgba(91, 156, 255, 0.52),
+          0 0 56px 0 rgba(91, 156, 255, 0.26), 0 0 64px -4px rgba(34, 211, 238, 0.16), 0 8px 22px rgba(0, 0, 0, 0.45);
+      }
+      .help-quickstart-btn.active .help-quickstart-char {
+        background: linear-gradient(118deg, #e0f7ff 0%, #bae6fd 45%, #ddd6fe 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 8px rgba(91, 156, 255, 0.5));
       }
       .profile-home-btn.active {
         color: #f8fbff;
@@ -142,7 +184,7 @@
       }
       .brand-heading {
         margin: 0;
-        flex: 1;
+        flex: 0 0 auto;
         min-width: 0;
         line-height: 1;
       }
@@ -288,10 +330,6 @@
       }
       .recommended-fold-head .secondary {
         flex-shrink: 0;
-      }
-      section.how-to {
-        box-shadow: var(--shadow-lift), var(--shadow-card), var(--panel-glow-blue),
-          -10px 0 52px -14px rgba(91, 156, 255, 0.24), 10px 0 52px -14px rgba(91, 156, 255, 0.24);
       }
       .how-to-lead {
         margin: 0 0 0.85rem;
@@ -495,16 +533,6 @@
       .muted {
         color: rgba(154, 184, 224, 0.9);
         font-size: 0.85rem;
-      }
-      .calendar-url {
-        word-break: break-all;
-        font-size: 0.8rem;
-        background: var(--inset);
-        padding: 0.65rem 0.75rem;
-        border-radius: 10px;
-        border: 1px solid var(--border-strong);
-        margin: 0.5rem 0;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) inset;
       }
       .msg {
         font-size: 0.85rem;
@@ -917,6 +945,45 @@
         min-width: 0;
         width: auto;
       }
+      .modal-backdrop.quickstart-help-backdrop {
+        z-index: 55;
+        align-items: center;
+      }
+      .quickstart-help-panel {
+        max-width: min(520px, calc(100vw - 2rem));
+        max-height: min(85vh, 640px);
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        overflow: hidden;
+        border-color: rgba(130, 200, 255, 0.28);
+        box-shadow: var(--shadow-lift), var(--shadow-card), var(--panel-glow-blue),
+          -8px 0 40px -12px rgba(91, 156, 255, 0.22), 8px 0 40px -12px rgba(34, 211, 238, 0.18);
+      }
+      .quickstart-help-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        flex-shrink: 0;
+        padding: 0.85rem 1rem 0.75rem;
+        border-bottom: 1px solid rgba(130, 200, 255, 0.14);
+      }
+      .quickstart-help-head h3 {
+        margin: 0;
+        font-size: 1.08rem;
+        font-weight: 750;
+        line-height: 1.25;
+        background: linear-gradient(105deg, #5ee9f7 0%, #7dd3fc 45%, #5b9cff 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.25));
+      }
+      .quickstart-help-panel .modal-body-scroll {
+        padding-top: 0.65rem;
+      }
       @media (min-width: 560px) {
         .modal-backdrop {
           align-items: center;
@@ -1327,7 +1394,7 @@
         display: flex;
       }
       .tab-btn:focus-visible,
-      .profile-home-btn:focus-visible {
+      .header-icon-btn:focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: 2px;
       }
@@ -1380,7 +1447,7 @@
         height: 1.45rem;
         max-width: 10.5rem;
       }
-      .app-top.is-scrolled .profile-home-btn {
+      .app-top.is-scrolled .header-icon-btn {
         width: 2.2rem;
         height: 2.2rem;
         min-width: 40px;
@@ -1580,46 +1647,60 @@
     <main>
       <header class="app-top" id="appTopBar">
         <div class="app-top-brand-row">
-          <button
-            type="button"
-            class="profile-home-btn"
-            id="tabBtnProfile"
-            aria-label="Your Profile"
-            aria-pressed="false"
-            aria-controls="tab-profile"
-            title="Your Profile"
-          >
-            <svg
-              class="profile-home-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <defs>
-                <linearGradient id="homeProfileStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#22d3ee" />
-                  <stop offset="55%" stop-color="#5b9cff" />
-                  <stop offset="100%" stop-color="#c084fc" />
-                </linearGradient>
-                <linearGradient id="homeProfileFill" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#0f1419" />
-                  <stop offset="100%" stop-color="#050508" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M12 3 4 10v11h5v-6h6v6h5V10l-8-7z"
-                fill="url(#homeProfileFill)"
-                fill-opacity="0.88"
-                stroke="url(#homeProfileStroke)"
-                stroke-width="1.55"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
+          <div class="app-top-header-spacer" aria-hidden="true"></div>
           <h1 class="brand-heading">
             <img class="brand-logo" src="/logo.svg" width="212" height="36" alt="Airalert" />
           </h1>
+          <div class="app-top-header-actions">
+            <button
+              type="button"
+              class="header-icon-btn help-quickstart-btn"
+              id="quickStartHelpBtn"
+              aria-label="Quick start guide"
+              aria-expanded="false"
+              aria-controls="quickStartHelpModalBody"
+              title="Quick start"
+            >
+              <span class="help-quickstart-char" aria-hidden="true">?</span>
+            </button>
+            <button
+              type="button"
+              class="header-icon-btn profile-home-btn"
+              id="tabBtnProfile"
+              aria-label="Your Profile"
+              aria-pressed="false"
+              aria-controls="tab-profile"
+              title="Your Profile"
+            >
+              <svg
+                class="profile-home-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient id="homeProfileStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#22d3ee" />
+                    <stop offset="55%" stop-color="#5b9cff" />
+                    <stop offset="100%" stop-color="#c084fc" />
+                  </linearGradient>
+                  <linearGradient id="homeProfileFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#0f1419" />
+                    <stop offset="100%" stop-color="#050508" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M12 3 4 10v11h5v-6h6v6h5V10l-8-7z"
+                  fill="url(#homeProfileFill)"
+                  fill-opacity="0.88"
+                  stroke="url(#homeProfileStroke)"
+                  stroke-width="1.55"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <nav class="tab-nav" role="tablist" aria-label="Main sections">
@@ -1681,44 +1762,6 @@
       </header>
 
       <div id="tab-profile" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnProfile">
-        <section class="how-to" aria-label="Quick start guide">
-          <button type="button" class="fold-toggle" id="foldHowToBtn" aria-expanded="false" aria-controls="foldHowToBody">
-            <span class="fold-title">Quick start</span>
-            <span class="fold-chev" aria-hidden="true">▼</span>
-          </button>
-          <div class="fold-body" id="foldHowToBody" hidden>
-            <p class="how-to-lead muted">
-              Airalert opens on <strong>Add a Show</strong>. This guide lives on <strong>Your Profile</strong> — tap the <strong>home</strong> icon in the header or use the tabs below to switch anytime.
-            </p>
-            <ol class="how-to-steps">
-              <li>
-                <strong>Search and subscribe.</strong> On <strong>Add a Show</strong>, type a title — results update as you type, or press <strong>Enter</strong> for a full search (then <strong>Recent searches</strong> chips may appear). Tap <strong>Subscribe</strong> on a result card. Use <strong>×</strong> in the field to clear and search again. Your list is on <strong>Your Shows</strong> (expand <strong>Your shows</strong> there to see it). To browse episodes for a show you already follow, tap its title in that list to open details.
-              </li>
-              <li>
-                <strong>Save your profile.</strong> On <strong>Your Profile</strong>, set <strong>timezone</strong> and <strong>reminder hour (local)</strong>, then <strong>Save profile</strong>. That drives correct dates, the server job, and your calendar feed.
-              </li>
-              <li>
-                <strong>Recommended for you.</strong> Still on <strong>Add a Show</strong>, expand <strong>Recommended for you</strong> below the results (use <strong>Refresh</strong> if needed). Suggestions are weighted by <strong>genres</strong> from your subscriptions (plus shared networks when needed).
-              </li>
-              <li>
-                <strong>Tasks.</strong> Open the <strong>Tasks</strong> tab: when an episode airs on its calendar day, it appears as a checklist item. Check it off when you’ve watched. Optional: on <strong>Your Profile</strong>, set a follow-up push (1, 3, or 7 days after air) if you still haven’t marked it watched — e.g. “Have you watched … yet?!”
-              </li>
-              <li>
-                <strong>Optional — Push.</strong> On <strong>Your Profile</strong>, use <strong>Turn on push for this device</strong>. On iPhone, add Airalert to the Home Screen first for reliable delivery.
-              </li>
-              <li>
-                <strong>Optional — Calendar.</strong> On <strong>Your Profile</strong>, copy the calendar URL under <strong>Calendar sync</strong> (<strong>Copy URL</strong>) and subscribe in Google, Apple, or Outlook. It updates when the app refreshes episode data.
-              </li>
-              <li>
-                <strong>Refresh and log.</strong> On <strong>Your Shows</strong>, use <strong>Refresh Data</strong> (under <strong>Upcoming</strong>) to pull TVMaze data into the cache. <strong>Notification log</strong> lists what the hourly job recorded when an episode airs “today” in your timezone (entries are stored as dry-run; web push also fires when you’ve enabled it and the server sends a notification).
-              </li>
-              <li>
-                <strong>Own list per phone.</strong> If two devices show the same subscriptions unexpectedly, on <strong>one</strong> device use <strong>New list on this device</strong> in <strong>Your profile</strong> (clears this browser’s session).
-              </li>
-            </ol>
-          </div>
-        </section>
-
         <section class="panel-rail-cyan" aria-label="Your profile">
           <button type="button" class="fold-toggle" id="foldProfileBtn" aria-expanded="false" aria-controls="foldProfileBody">
             <span class="fold-title">Your profile</span>
@@ -1815,13 +1858,6 @@
           <h2 id="pushHeading">Push notifications</h2>
           <button type="button" class="secondary push-btn" id="enablePushBtn">Turn on push for this device</button>
           <p class="muted msg" id="pushMsg"></p>
-        </section>
-
-        <section>
-          <h2>Calendar sync</h2>
-          <p class="muted">Subscribe in Google Calendar, Apple Calendar, or Outlook. Refreshes when the app pulls new episodes.</p>
-          <div class="calendar-url" id="calUrl"></div>
-          <button type="button" class="secondary" id="copyCal">Copy URL</button>
         </section>
       </div>
 
@@ -2020,6 +2056,49 @@
       </div>
     </div>
 
+    <div
+      class="modal-backdrop quickstart-help-backdrop"
+      id="quickStartHelpModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quickStartHelpHeading"
+    >
+      <div class="modal-panel quickstart-help-panel">
+        <div class="quickstart-help-head">
+          <h3 id="quickStartHelpHeading">Quick start</h3>
+          <button type="button" class="modal-close secondary" id="quickStartHelpClose" aria-label="Close quick start">×</button>
+        </div>
+        <div class="modal-body-scroll" id="quickStartHelpModalBody">
+          <p class="how-to-lead muted">
+            Airalert opens on <strong>Add a Show</strong>. Open this guide anytime with the <strong>?</strong> button in the header. The <strong>home</strong> icon opens <strong>Your Profile</strong>; use the tabs below to switch sections.
+          </p>
+          <ol class="how-to-steps">
+            <li>
+              <strong>Search and subscribe.</strong> On <strong>Add a Show</strong>, type a title — results update as you type, or press <strong>Enter</strong> for a full search (then <strong>Recent searches</strong> chips may appear). Tap <strong>Subscribe</strong> on a result card. Use <strong>×</strong> in the field to clear and search again. Your list is on <strong>Your Shows</strong> (expand <strong>Your shows</strong> there to see it). To browse episodes for a show you already follow, tap its title in that list to open details.
+            </li>
+            <li>
+              <strong>Save your profile.</strong> On <strong>Your Profile</strong>, set <strong>timezone</strong> and <strong>reminder hour (local)</strong>, then <strong>Save profile</strong>. That drives correct dates and the server reminder job.
+            </li>
+            <li>
+              <strong>Recommended for you.</strong> Still on <strong>Add a Show</strong>, expand <strong>Recommended for you</strong> below the results (use <strong>Refresh</strong> if needed). Suggestions are weighted by <strong>genres</strong> from your subscriptions (plus shared networks when needed).
+            </li>
+            <li>
+              <strong>Tasks.</strong> Open the <strong>Tasks</strong> tab: when an episode airs on its calendar day, it appears as a checklist item. Check it off when you’ve watched. Optional: on <strong>Your Profile</strong>, set a follow-up push (1, 3, or 7 days after air) if you still haven’t marked it watched — e.g. “Have you watched … yet?!”
+            </li>
+            <li>
+              <strong>Optional — Push.</strong> On <strong>Your Profile</strong>, use <strong>Turn on push for this device</strong>. On iPhone, add Airalert to the Home Screen first for reliable delivery.
+            </li>
+            <li>
+              <strong>Refresh and log.</strong> On <strong>Your Shows</strong>, use <strong>Refresh Data</strong> (under <strong>Upcoming</strong>) to pull TVMaze data into the cache. <strong>Notification log</strong> lists what the hourly job recorded when an episode airs “today” in your timezone (entries are stored as dry-run; web push also fires when you’ve enabled it and the server sends a notification).
+            </li>
+            <li>
+              <strong>Own list per phone.</strong> If two devices show the same subscriptions unexpectedly, on <strong>one</strong> device use <strong>New list on this device</strong> in <strong>Your profile</strong> (clears this browser’s session).
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-backdrop" id="showModal" role="dialog" aria-modal="true" aria-labelledby="modalShowTitle">
       <div class="modal-panel">
         <div class="modal-header">
@@ -2105,8 +2184,6 @@
         if (nudgeEl) {
           nudgeEl.value = nudge === 1 || nudge === 3 || nudge === 7 ? String(nudge) : "";
         }
-        const base = location.origin;
-        document.getElementById("calUrl").textContent = base + "/calendar/" + u.calendarToken + ".ics";
       }
 
       async function saveProfile(userId) {
@@ -2648,7 +2725,7 @@
           note.className = "muted";
           note.style.fontSize = "0.8rem";
           note.textContent =
-            "Episode list loaded live from TVMaze. Run Refresh Data on the main page to save dates into the cache for faster loads and calendar sync.";
+            "Episode list loaded live from TVMaze. Run Refresh Data on the main page to save dates into the cache for faster loads and up-to-date tasks.";
           body.appendChild(note);
         }
 
@@ -3174,7 +3251,30 @@
         if (input) input.focus();
       }
 
+      function openQuickStartHelpModal() {
+        const el = document.getElementById("quickStartHelpModal");
+        const btn = document.getElementById("quickStartHelpBtn");
+        if (!el) return;
+        el.classList.add("open");
+        if (btn) {
+          btn.classList.add("active");
+          btn.setAttribute("aria-expanded", "true");
+        }
+      }
+
+      function closeQuickStartHelpModal() {
+        const el = document.getElementById("quickStartHelpModal");
+        const btn = document.getElementById("quickStartHelpBtn");
+        if (el) el.classList.remove("open");
+        if (btn) {
+          btn.classList.remove("active");
+          btn.setAttribute("aria-expanded", "false");
+        }
+      }
+
       function setTab(name) {
+        const qsm = document.getElementById("quickStartHelpModal");
+        if (qsm && qsm.classList.contains("open")) closeQuickStartHelpModal();
         document.querySelectorAll(".tab-panel").forEach((el) => {
           el.classList.toggle("active", el.id === "tab-" + name);
         });
@@ -3545,17 +3645,6 @@
           showToast("Fresh list on this device.");
         };
 
-        document.getElementById("copyCal").onclick = async () => {
-          const t = document.getElementById("calUrl").textContent;
-          try {
-            await navigator.clipboard.writeText(t);
-            document.getElementById("profileMsg").textContent = "Calendar URL copied.";
-            showToast("Calendar link copied");
-          } catch {
-            prompt("Copy this URL:", t);
-          }
-        };
-
         document.getElementById("enablePushBtn").onclick = () => {
           const uid = resolveUserId();
           if (uid) registerWebPush(uid);
@@ -3565,8 +3654,23 @@
         document.getElementById("showModal").addEventListener("click", (e) => {
           if (e.target.id === "showModal") closeShowModal();
         });
+        document.getElementById("quickStartHelpBtn").addEventListener("click", () => {
+          const el = document.getElementById("quickStartHelpModal");
+          if (el && el.classList.contains("open")) closeQuickStartHelpModal();
+          else openQuickStartHelpModal();
+        });
+        document.getElementById("quickStartHelpClose").addEventListener("click", () => closeQuickStartHelpModal());
+        document.getElementById("quickStartHelpModal").addEventListener("click", (e) => {
+          if (e.target.id === "quickStartHelpModal") closeQuickStartHelpModal();
+        });
+
         document.addEventListener("keydown", (e) => {
           if (e.key !== "Escape") return;
+          const qs = document.getElementById("quickStartHelpModal");
+          if (qs && qs.classList.contains("open")) {
+            closeQuickStartHelpModal();
+            return;
+          }
           const ap = document.getElementById("accountPromptModal");
           if (ap && ap.classList.contains("open")) {
             const reg = document.getElementById("accountPromptStepRegister");
