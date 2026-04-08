@@ -83,6 +83,25 @@
         left: -24%;
         background: radial-gradient(circle, rgba(34, 211, 238, 0.32) 0%, rgba(91, 156, 255, 0.14) 50%, transparent 68%);
       }
+      .bg-mesh-mid {
+        position: fixed;
+        pointer-events: none;
+        z-index: -1;
+        left: 50%;
+        top: 26%;
+        width: min(120vw, 720px);
+        height: min(100vw, 520px);
+        transform: translate(-50%, -35%);
+        border-radius: 50%;
+        filter: blur(100px);
+        opacity: 0.38;
+        background: radial-gradient(
+          ellipse at center,
+          rgba(91, 156, 255, 0.24) 0%,
+          rgba(34, 211, 238, 0.14) 42%,
+          transparent 68%
+        );
+      }
       main {
         position: relative;
         z-index: 0;
@@ -187,12 +206,22 @@
         flex: 0 0 auto;
         min-width: 0;
         line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.6rem;
+        transform: translateZ(0);
+        isolation: isolate;
       }
       .brand-heading .brand-logo {
         display: block;
         height: 2rem;
         width: auto;
         max-width: min(12rem, 76vw);
+        opacity: 1;
+        position: relative;
+        z-index: 1;
+        filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.45)) drop-shadow(0 0 28px rgba(91, 156, 255, 0.28));
       }
       @media (min-width: 400px) {
         .brand-heading .brand-logo {
@@ -354,6 +383,101 @@
       }
       .how-to-steps strong {
         color: var(--text);
+      }
+      .profile-identity-heading {
+        margin: 0 0 0.85rem;
+        font-size: 0.78rem;
+        letter-spacing: 0.12em;
+        font-weight: 750;
+        text-transform: uppercase;
+        color: #5ee9f7;
+        text-shadow: 0 0 20px rgba(34, 211, 238, 0.35);
+      }
+      section.profile-identity {
+        border-left-color: var(--neon-cyan);
+        border-right-color: var(--neon-cyan);
+        box-shadow: var(--shadow-lift), var(--shadow-card), var(--panel-glow-cyan);
+        padding: 1.1rem 1.15rem 1.15rem;
+      }
+      .profile-identity-inner {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+      .profile-avatar-wrap {
+        flex-shrink: 0;
+        text-align: center;
+      }
+      .profile-avatar-btn {
+        width: 5.5rem;
+        height: 5.5rem;
+        border-radius: 50%;
+        padding: 0;
+        margin: 0;
+        border: 2px solid rgba(34, 211, 238, 0.45);
+        background: rgba(0, 0, 0, 0.35);
+        box-shadow: 0 0 28px -4px rgba(34, 211, 238, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+        cursor: pointer;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      .profile-avatar-btn:hover:not(:disabled) {
+        transform: scale(1.03);
+        box-shadow: 0 0 36px -2px rgba(34, 211, 238, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      }
+      .profile-avatar-btn img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .profile-avatar-placeholder {
+        font-size: 2rem;
+        font-weight: 300;
+        color: rgba(130, 200, 255, 0.75);
+        line-height: 1;
+      }
+      .profile-avatar-hint {
+        margin: 0.4rem 0 0;
+        font-size: 0.72rem;
+        max-width: 6.5rem;
+      }
+      .profile-identity-fields {
+        flex: 1 1 12rem;
+        min-width: 0;
+      }
+      .profile-readonly-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.75rem;
+        align-items: baseline;
+        margin-top: 0.5rem;
+        font-size: 0.88rem;
+      }
+      .profile-readonly-label {
+        color: rgba(154, 184, 224, 0.75);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+        min-width: 6.5rem;
+      }
+      .profile-readonly-value {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .profile-identity-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-top: 0.85rem;
+      }
+      .profile-identity-actions button {
+        margin: 0;
       }
       section.panel-rail-cyan h2,
       section.panel-rail-cyan .fold-toggle {
@@ -551,23 +675,100 @@
         border: 1px solid var(--border-strong);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) inset;
       }
+      .add-hero {
+        margin-bottom: 1rem;
+      }
+      .add-hero-card {
+        border-radius: 20px;
+        padding: 1.35rem 1.25rem 1.45rem;
+        text-align: center;
+        background: linear-gradient(160deg, rgba(16, 24, 48, 0.72) 0%, rgba(8, 12, 26, 0.88) 100%);
+        border: 1px solid rgba(130, 200, 255, 0.22);
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.08) inset, 0 20px 56px -20px rgba(34, 211, 238, 0.25),
+          0 24px 64px rgba(0, 0, 0, 0.45), var(--panel-glow-blue);
+        -webkit-backdrop-filter: blur(20px) saturate(1.15);
+        backdrop-filter: blur(20px) saturate(1.15);
+      }
+      .add-hero-logo {
+        display: block;
+        width: min(18rem, 88vw);
+        height: auto;
+        max-height: 3.4rem;
+        margin: 0 auto;
+        opacity: 1;
+        filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.35)) drop-shadow(0 0 40px rgba(91, 156, 255, 0.22));
+      }
+      .add-hero-tagline {
+        margin: 0.75rem 0 0;
+        font-size: 0.92rem;
+        line-height: 1.45;
+        max-width: 22rem;
+        margin-left: auto;
+        margin-right: auto;
+      }
       .search-shell {
         position: relative;
-        border-radius: 18px;
-        padding: 1rem 1.05rem 1.1rem;
-        background: linear-gradient(145deg, rgba(12, 20, 40, 0.55) 0%, rgba(6, 10, 22, 0.72) 100%);
-        border: 1px solid rgba(130, 200, 255, 0.16);
+        border-radius: 22px;
+        padding: 1.25rem 1.15rem 1.2rem;
+        background: linear-gradient(155deg, rgba(14, 22, 46, 0.65) 0%, rgba(6, 10, 24, 0.8) 100%);
+        border: 1px solid rgba(130, 200, 255, 0.2);
         border-left: 3px solid var(--neon-cyan);
         border-right: 3px solid var(--neon-cyan);
-        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.06) inset, 0 12px 40px -12px rgba(34, 211, 238, 0.2),
-          0 0 60px -20px rgba(34, 211, 238, 0.1), var(--panel-glow-cyan);
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.1) inset, 0 16px 48px -16px rgba(34, 211, 238, 0.28),
+          0 0 72px -24px rgba(91, 156, 255, 0.15), var(--panel-glow-cyan);
+        overflow: hidden;
       }
-      .search-shell > h2 {
-        margin-top: 0;
-        margin-bottom: 0.65rem;
-        font-size: 0.78rem;
-        letter-spacing: 0.08em;
-        color: var(--neon-cyan);
+      .search-shell::before {
+        content: "";
+        position: absolute;
+        inset: -40% -20% auto;
+        height: 55%;
+        background: radial-gradient(ellipse at 50% 0%, rgba(34, 211, 238, 0.12) 0%, transparent 55%);
+        pointer-events: none;
+      }
+      .search-hero-head {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        margin-bottom: 0.35rem;
+      }
+      .search-hero-icon {
+        flex-shrink: 0;
+        width: 1.65rem;
+        height: 1.65rem;
+        opacity: 0.95;
+      }
+      .search-shell .search-hero-title {
+        margin: 0;
+        flex: 1;
+        min-width: 0;
+        font-size: 1.45rem;
+        font-weight: 750;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+        background: linear-gradient(100deg, #f4f7fc 0%, #7dd3fc 38%, #38bdf8 62%, #c084fc 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.35));
+      }
+      .search-hero-sub {
+        position: relative;
+        margin: 0 0 1rem;
+        font-size: 0.88rem;
+        line-height: 1.45;
+      }
+      .search-input-hero input[type="text"] {
+        border-radius: 999px;
+        padding: 0.75rem 2.75rem 0.75rem 1.05rem;
+        font-size: 1rem;
+        border-color: rgba(34, 211, 238, 0.35);
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.08) inset, 0 4px 24px rgba(0, 0, 0, 0.35) inset,
+          0 0 32px -8px rgba(34, 211, 238, 0.2);
+      }
+      .search-input-hero input[type="text"]::placeholder {
+        color: rgba(138, 155, 184, 0.85);
       }
       .search-fields {
         display: flex;
@@ -945,9 +1146,28 @@
         min-width: 0;
         width: auto;
       }
+      @keyframes quickstart-pop-in {
+        from {
+          opacity: 0;
+          transform: scale(0.92) translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
       .modal-backdrop.quickstart-help-backdrop {
         z-index: 55;
         align-items: center;
+        padding: 0.85rem;
+      }
+      .modal-backdrop.quickstart-help-backdrop.open {
+        background: rgba(4, 6, 12, 0.82);
+        -webkit-backdrop-filter: blur(12px) saturate(1.15);
+        backdrop-filter: blur(12px) saturate(1.15);
+      }
+      .modal-backdrop.quickstart-help-backdrop.open .quickstart-help-panel {
+        animation: quickstart-pop-in 0.38s cubic-bezier(0.18, 1, 0.32, 1) forwards;
       }
       .quickstart-help-panel {
         max-width: min(520px, calc(100vw - 2rem));
@@ -957,9 +1177,11 @@
         flex-direction: column;
         padding: 0;
         overflow: hidden;
-        border-color: rgba(130, 200, 255, 0.28);
-        box-shadow: var(--shadow-lift), var(--shadow-card), var(--panel-glow-blue),
-          -8px 0 40px -12px rgba(91, 156, 255, 0.22), 8px 0 40px -12px rgba(34, 211, 238, 0.18);
+        border: 2px solid rgba(34, 211, 238, 0.55);
+        border-radius: 20px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset, 0 0 48px 6px rgba(34, 211, 238, 0.42),
+          0 0 96px 12px rgba(34, 211, 238, 0.18), 0 0 80px -8px rgba(91, 156, 255, 0.35),
+          0 28px 72px rgba(0, 0, 0, 0.65), var(--panel-glow-blue);
       }
       .quickstart-help-head {
         display: flex;
@@ -1643,6 +1865,7 @@
     </style>
   </head>
   <body>
+    <div class="bg-mesh-mid" aria-hidden="true"></div>
     <div class="toast-root" id="toastRoot" aria-live="polite" aria-atomic="true"></div>
     <main>
       <header class="app-top" id="appTopBar">
@@ -1762,9 +1985,40 @@
       </header>
 
       <div id="tab-profile" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnProfile">
-        <section class="panel-rail-cyan" aria-label="Your profile">
+        <section class="profile-identity panel-rail-cyan" aria-labelledby="profileIdentityHeading">
+          <h2 id="profileIdentityHeading" class="profile-identity-heading">Your profile</h2>
+          <div class="profile-identity-inner">
+            <div class="profile-avatar-wrap">
+              <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden />
+              <button type="button" class="profile-avatar-btn" id="profileAvatarBtn" aria-label="Change profile photo">
+                <img id="profileAvatarImg" alt="" width="88" height="88" hidden decoding="async" />
+                <span id="profileAvatarPlaceholder" class="profile-avatar-placeholder" aria-hidden="true">+</span>
+              </button>
+              <p class="muted profile-avatar-hint">Tap photo to upload</p>
+            </div>
+            <div class="profile-identity-fields">
+              <label for="displayName">Display name</label>
+              <input id="displayName" type="text" maxlength="120" placeholder="Your full name" autocomplete="name" />
+              <div class="profile-readonly-row">
+                <span class="profile-readonly-label">Username</span>
+                <span id="profileUsernameDisplay" class="profile-readonly-value">Guest</span>
+              </div>
+              <div class="profile-readonly-row">
+                <span class="profile-readonly-label">Member since</span>
+                <span id="profileMemberSince" class="profile-readonly-value">—</span>
+              </div>
+              <div class="profile-identity-actions">
+                <button type="button" id="saveProfileInfoBtn">Save name &amp; photo</button>
+                <button type="button" class="secondary" id="removeAvatarBtn">Remove photo</button>
+              </div>
+              <p class="muted msg" id="profileInfoMsg" style="margin-top: 0.55rem"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-rail-cyan" aria-label="Reminders and timezone">
           <button type="button" class="fold-toggle" id="foldProfileBtn" aria-expanded="false" aria-controls="foldProfileBody">
-            <span class="fold-title">Your profile</span>
+            <span class="fold-title">Reminders &amp; timezone</span>
             <span class="fold-chev" aria-hidden="true">▼</span>
           </button>
           <div class="fold-body" id="foldProfileBody" hidden>
@@ -1790,7 +2044,7 @@
                 </p>
               </div>
             </div>
-            <button type="button" id="saveProfile" style="margin-top: 0.75rem">Save profile</button>
+            <button type="button" id="saveProfile" style="margin-top: 0.75rem">Save schedule &amp; timezone</button>
             <button type="button" class="secondary" id="newDeviceListBtn" style="margin-top: 0.5rem">New list on this device</button>
             <p class="muted" style="font-size: 0.8rem; margin-top: 0.4rem; line-height: 1.45">
               Still seeing the same shows on two phones? Tap here on <strong>one</strong> of them after updating the app — it clears this phone’s session so it can get its own list. (iCloud can sync website data; we no longer trust that for login.)
@@ -1862,13 +2116,33 @@
       </div>
 
       <div id="tab-add" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnAdd">
+        <section class="add-hero" aria-label="Airalert">
+          <div class="add-hero-card">
+            <img class="add-hero-logo" src="/logo.svg" width="280" height="48" alt="Airalert" />
+            <p class="add-hero-tagline muted">Track shows you love — search, subscribe, and never miss an air date.</p>
+          </div>
+        </section>
         <section class="search-shell" aria-label="Search and subscribe">
-          <h2>Find a show</h2>
+          <div class="search-hero-head">
+            <svg class="search-hero-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="searchIconGrad" x1="4" y1="4" x2="20" y2="20">
+                  <stop stop-color="#22d3ee" />
+                  <stop offset="0.55" stop-color="#5b9cff" />
+                  <stop offset="1" stop-color="#c084fc" />
+                </linearGradient>
+              </defs>
+              <circle cx="11" cy="11" r="6.5" stroke="url(#searchIconGrad)" stroke-width="1.75" />
+              <path d="M16 16l4 4" stroke="url(#searchIconGrad)" stroke-width="1.75" stroke-linecap="round" />
+            </svg>
+            <h2 class="search-hero-title">Find a show</h2>
+          </div>
+          <p class="search-hero-sub muted">Search TVMaze by title — live results as you type, or press Enter for a full search.</p>
           <div class="search-fields">
             <div>
               <label for="searchTitle">Show title</label>
-              <div class="search-input-wrap">
-                <input id="searchTitle" type="text" placeholder="Type a title, press Enter — or tap a recent search" autocomplete="off" />
+              <div class="search-input-wrap search-input-hero">
+                <input id="searchTitle" type="text" placeholder="Search shows by title…" autocomplete="off" />
                 <button type="button" class="search-clear-btn" id="searchClearBtn" hidden aria-label="Clear search">×</button>
               </div>
             </div>
@@ -2077,7 +2351,7 @@
               <strong>Search and subscribe.</strong> On <strong>Add a Show</strong>, type a title — results update as you type, or press <strong>Enter</strong> for a full search (then <strong>Recent searches</strong> chips may appear). Tap <strong>Subscribe</strong> on a result card. Use <strong>×</strong> in the field to clear and search again. Your list is on <strong>Your Shows</strong> (expand <strong>Your shows</strong> there to see it). To browse episodes for a show you already follow, tap its title in that list to open details.
             </li>
             <li>
-              <strong>Save your profile.</strong> On <strong>Your Profile</strong>, set <strong>timezone</strong> and <strong>reminder hour (local)</strong>, then <strong>Save profile</strong>. That drives correct dates and the server reminder job.
+              <strong>Your profile card.</strong> On <strong>Your Profile</strong>, add a <strong>photo</strong>, <strong>display name</strong>, and use <strong>Save name &amp; photo</strong>. Open <strong>Reminders &amp; timezone</strong> to set <strong>timezone</strong> and <strong>reminder hour</strong>, then <strong>Save schedule &amp; timezone</strong>.
             </li>
             <li>
               <strong>Recommended for you.</strong> Still on <strong>Add a Show</strong>, expand <strong>Recommended for you</strong> below the results (use <strong>Refresh</strong> if needed). Suggestions are weighted by <strong>genres</strong> from your subscriptions (plus shared networks when needed).
@@ -2092,7 +2366,7 @@
               <strong>Refresh and log.</strong> On <strong>Your Shows</strong>, use <strong>Refresh Data</strong> (under <strong>Upcoming</strong>) to pull TVMaze data into the cache. <strong>Notification log</strong> lists what the hourly job recorded when an episode airs “today” in your timezone (entries are stored as dry-run; web push also fires when you’ve enabled it and the server sends a notification).
             </li>
             <li>
-              <strong>Own list per phone.</strong> If two devices show the same subscriptions unexpectedly, on <strong>one</strong> device use <strong>New list on this device</strong> in <strong>Your profile</strong> (clears this browser’s session).
+              <strong>Own list per phone.</strong> If two devices show the same subscriptions unexpectedly, on <strong>one</strong> device use <strong>New list on this device</strong> under <strong>Reminders &amp; timezone</strong> (clears this browser’s session).
             </li>
           </ol>
         </div>
@@ -2175,6 +2449,94 @@
         return u.id;
       }
 
+      let profileAvatarDirty = false;
+      /** @type {string | null | undefined} */
+      let profileAvatarPending = undefined;
+
+      function formatMemberSince(createdAt) {
+        if (createdAt == null || createdAt === "") return "—";
+        const raw = String(createdAt).trim();
+        const d = new Date(raw.includes("T") ? raw : raw.replace(" ", "T"));
+        if (Number.isNaN(d.getTime())) return "—";
+        try {
+          return new Intl.DateTimeFormat(undefined, { month: "short", year: "numeric", day: "numeric" }).format(d);
+        } catch {
+          return raw.slice(0, 10);
+        }
+      }
+
+      function resizeImageFileToDataUrl(file) {
+        return new Promise((resolve, reject) => {
+          if (!file.type.startsWith("image/")) {
+            reject(new Error("Choose an image file"));
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => {
+            const data = reader.result;
+            if (typeof data !== "string") {
+              reject(new Error("Could not read file"));
+              return;
+            }
+            const img = new Image();
+            img.onload = () => {
+              const max = 320;
+              let w = img.naturalWidth;
+              let h = img.naturalHeight;
+              const scale = Math.min(1, max / Math.max(w, h));
+              w = Math.round(w * scale);
+              h = Math.round(h * scale);
+              const canvas = document.createElement("canvas");
+              canvas.width = w;
+              canvas.height = h;
+              const ctx = canvas.getContext("2d");
+              if (!ctx) {
+                reject(new Error("Could not process image"));
+                return;
+              }
+              ctx.drawImage(img, 0, 0, w, h);
+              let q = 0.88;
+              let url = canvas.toDataURL("image/jpeg", q);
+              while (url.length > 400000 && q > 0.42) {
+                q -= 0.06;
+                url = canvas.toDataURL("image/jpeg", q);
+              }
+              if (url.length > 450000) {
+                reject(new Error("Image is still too large after resize; try a smaller photo"));
+                return;
+              }
+              resolve(url);
+            };
+            img.onerror = () => reject(new Error("Could not decode image"));
+            img.src = data;
+          };
+          reader.onerror = () => reject(new Error("Could not read file"));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function syncProfileIdentityFromUser(u) {
+        const dn = document.getElementById("displayName");
+        if (dn) dn.value = (u && u.displayName) || "";
+        const img = document.getElementById("profileAvatarImg");
+        const ph = document.getElementById("profileAvatarPlaceholder");
+        profileAvatarDirty = false;
+        profileAvatarPending = undefined;
+        if (u && u.avatarDataUrl) {
+          img.src = u.avatarDataUrl;
+          img.hidden = false;
+          ph.hidden = true;
+        } else {
+          img.removeAttribute("src");
+          img.hidden = true;
+          ph.hidden = false;
+        }
+        const un = document.getElementById("profileUsernameDisplay");
+        if (un) un.textContent = (u && u.username) || "Guest";
+        const ms = document.getElementById("profileMemberSince");
+        if (ms) ms.textContent = formatMemberSince(u && u.createdAt);
+      }
+
       async function loadUser(userId) {
         const u = await api("/api/users/" + userId);
         document.getElementById("tz").value = u.timezone || "";
@@ -2183,6 +2545,34 @@
         const nudgeEl = document.getElementById("taskNudgeDays");
         if (nudgeEl) {
           nudgeEl.value = nudge === 1 || nudge === 3 || nudge === 7 ? String(nudge) : "";
+        }
+        syncProfileIdentityFromUser(u);
+      }
+
+      async function saveProfileInfo(userId) {
+        const msg = document.getElementById("profileInfoMsg");
+        if (msg) {
+          msg.textContent = "";
+          msg.classList.remove("err");
+        }
+        try {
+          const body = { displayName: document.getElementById("displayName").value.trim() };
+          if (profileAvatarDirty) {
+            body.avatarDataUrl = profileAvatarPending === null ? null : profileAvatarPending;
+          }
+          await api("/api/users/" + userId, {
+            method: "PATCH",
+            body: JSON.stringify(body),
+          });
+          await loadUser(userId);
+          if (msg) msg.textContent = "Saved.";
+          showToast("Profile updated");
+        } catch (e) {
+          if (msg) {
+            msg.textContent = e.message || "Could not save";
+            msg.classList.add("err");
+          }
+          showToast(e.message || "Could not save");
         }
       }
 
@@ -2453,6 +2843,8 @@
           guest.hidden = false;
           signed.hidden = true;
         }
+        if (me) syncProfileIdentityFromUser(me);
+        else syncProfileIdentityFromUser(null);
       }
 
       function adminPillClass(from) {
@@ -3640,6 +4032,40 @@
           const uid = resolveUserId();
           if (uid) saveProfile(uid);
         };
+        document.getElementById("saveProfileInfoBtn").addEventListener("click", () => {
+          const uid = resolveUserId();
+          if (uid) saveProfileInfo(uid);
+        });
+        document.getElementById("profileAvatarBtn").addEventListener("click", () => {
+          document.getElementById("profileAvatarInput").click();
+        });
+        document.getElementById("profileAvatarInput").addEventListener("change", async (e) => {
+          const input = e.target;
+          const f = input.files && input.files[0];
+          input.value = "";
+          if (!f) return;
+          try {
+            const url = await resizeImageFileToDataUrl(f);
+            profileAvatarPending = url;
+            profileAvatarDirty = true;
+            const img = document.getElementById("profileAvatarImg");
+            const ph = document.getElementById("profileAvatarPlaceholder");
+            img.src = url;
+            img.hidden = false;
+            ph.hidden = true;
+          } catch (err) {
+            showToast(err.message || "Could not read image");
+          }
+        });
+        document.getElementById("removeAvatarBtn").addEventListener("click", () => {
+          profileAvatarPending = null;
+          profileAvatarDirty = true;
+          const img = document.getElementById("profileAvatarImg");
+          const ph = document.getElementById("profileAvatarPlaceholder");
+          img.removeAttribute("src");
+          img.hidden = true;
+          ph.hidden = false;
+        });
         document.getElementById("newDeviceListBtn").onclick = async () => {
           await recreateUserSession();
           showToast("Fresh list on this device.");

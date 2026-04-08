@@ -196,6 +196,12 @@ if (!userColNames.has("password_hash")) {
 if (!userColNames.has("is_admin")) {
   db.exec(`ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0`);
 }
+if (!userColNames.has("display_name")) {
+  db.exec(`ALTER TABLE users ADD COLUMN display_name TEXT`);
+}
+if (!userColNames.has("avatar_data_url")) {
+  db.exec(`ALTER TABLE users ADD COLUMN avatar_data_url TEXT`);
+}
 
 try {
   db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username_lower ON users(lower(username)) WHERE username IS NOT NULL`);

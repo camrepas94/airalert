@@ -24,6 +24,9 @@ import { hashPassword, verifyPassword } from "./password.js";
 const PORT = Number(process.env.PORT) || 3000;
 const publicDir = path.join(process.cwd(), "public");
 
+/** Client sends a resized data URL; cap size to keep SQLite and responses reasonable. */
+const MAX_AVATAR_DATA_URL_LEN = 450_000;
+
 const webPushReady = configureWebPush();
 
 const app = Fastify({
@@ -547,7 +550,7 @@ app.get("/api/users/me", async (request, reply) => {
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
               task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
-              username,
+              username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword,
               is_admin AS isAdmin
        FROM users WHERE id = ?`,
@@ -574,7 +577,8 @@ app.get("/api/users/:id", async (request, reply) => {
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
               task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
-              username, is_admin AS isAdmin,
+              username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
+              is_admin AS isAdmin,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword
        FROM users WHERE id = ?`,
     )
@@ -593,11 +597,37 @@ app.patch("/api/users/:id", async (request, reply) => {
     timezone?: string;
     reminderHourLocal?: number;
     taskNudgeDaysAfterAir?: number | null;
+    displayName?: string | null;
+    avatarDataUrl?: string | null;
   };
   const existing = db.prepare(`SELECT id FROM users WHERE id = ?`).get(id);
   if (!existing) {
     reply.code(404);
     return { error: "User not found" };
+  }
+  if ("displayName" in body) {
+    if (body.displayName === null || body.displayName === "") {
+      db.prepare(`UPDATE users SET display_name = NULL WHERE id = ?`).run(id);
+    } else if (typeof body.displayName === "string") {
+      const dn = body.displayName.trim().slice(0, 120);
+      db.prepare(`UPDATE users SET display_name = ? WHERE id = ?`).run(dn || null, id);
+    }
+  }
+  if ("avatarDataUrl" in body) {
+    const a = body.avatarDataUrl;
+    if (a === null || a === "") {
+      db.prepare(`UPDATE users SET avatar_data_url = NULL WHERE id = ?`).run(id);
+    } else if (typeof a === "string") {
+      const ok =
+        /^\s*data:image\/(jpeg|jpg|png|webp);base64,/i.test(a) &&
+        a.length > 0 &&
+        a.length <= MAX_AVATAR_DATA_URL_LEN;
+      if (!ok) {
+        reply.code(400);
+        return { error: "Avatar must be a JPEG, PNG, or WebP data URL under the size limit" };
+      }
+      db.prepare(`UPDATE users SET avatar_data_url = ? WHERE id = ?`).run(a.trim(), id);
+    }
   }
   if (typeof body.timezone === "string" && body.timezone.trim()) {
     db.prepare(`UPDATE users SET timezone = ? WHERE id = ?`).run(body.timezone.trim(), id);
@@ -617,7 +647,10 @@ app.patch("/api/users/:id", async (request, reply) => {
   const row = db
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir FROM users WHERE id = ?`,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
+              username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
+              (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword, is_admin AS isAdmin
+       FROM users WHERE id = ?`,
     )
     .get(id);
   return row;
