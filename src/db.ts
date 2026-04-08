@@ -187,6 +187,21 @@ const userColNames = new Set(
 if (!userColNames.has("task_nudge_days_after_air")) {
   db.exec(`ALTER TABLE users ADD COLUMN task_nudge_days_after_air INTEGER`);
 }
+if (!userColNames.has("username")) {
+  db.exec(`ALTER TABLE users ADD COLUMN username TEXT`);
+}
+if (!userColNames.has("password_hash")) {
+  db.exec(`ALTER TABLE users ADD COLUMN password_hash TEXT`);
+}
+if (!userColNames.has("is_admin")) {
+  db.exec(`ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0`);
+}
+
+try {
+  db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username_lower ON users(lower(username)) WHERE username IS NOT NULL`);
+} catch {
+  /* ignore if duplicate or unsupported */
+}
 
 const subColNames = new Set(
   (db.prepare(`PRAGMA table_info(show_subscriptions)`).all() as { name: string }[]).map((r) => r.name),

@@ -183,7 +183,10 @@
     <p class="sub">Usage and subscription sources (search vs recommended). <a href="/">← Main app</a></p>
 
     <section id="gateDisabled" class="hidden">
-      <p class="err">Admin is disabled. Set <span class="mono">AIRALERT_ADMIN_PASSWORD</span> on the server and redeploy.</p>
+      <p class="err" id="gateDisabledMsg">
+        No admin access from this browser. Sign in on the <a href="/">main app</a> with an admin account, or set
+        <span class="mono">AIRALERT_ADMIN_PASSWORD</span> and use the password form below when available.
+      </p>
     </section>
 
     <section id="loginPanel" class="hidden">
@@ -207,7 +210,9 @@
         <table>
           <thead>
             <tr>
+              <th>Username</th>
               <th>User id</th>
+              <th>Admin</th>
               <th>Created</th>
               <th>TZ</th>
               <th>Subs</th>
@@ -247,6 +252,14 @@
 
       const el = (id) => document.getElementById(id);
 
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
       function setVisible(id, on) {
         el(id).classList.toggle("hidden", !on);
       }
@@ -254,12 +267,14 @@
       function pillClass(from) {
         if (from === "search") return "search";
         if (from === "recommended") return "rec";
+        if (from === "admin") return "search";
         return "unk";
       }
 
       function pillLabel(from) {
         if (from === "search") return "search";
         if (from === "recommended") return "rec";
+        if (from === "admin") return "admin";
         return "legacy";
       }
 
@@ -293,8 +308,14 @@
           const tr = document.createElement("tr");
           tr.setAttribute("data-user", u.id);
           tr.innerHTML =
+            "<td>" +
+            escapeHtml(u.username || "—") +
+            "</td>" +
             "<td class=\"mono\">" +
             u.id +
+            "</td>" +
+            "<td>" +
+            (u.isAdmin ? "yes" : "—") +
             "</td>" +
             "<td>" +
             (u.createdAt || "—") +
@@ -323,7 +344,7 @@
           detailTr.className = "detail-row hidden";
           detailTr.setAttribute("data-detail-for", u.id);
           const detailTd = document.createElement("td");
-          detailTd.colSpan = 6;
+          detailTd.colSpan = 8;
           detailTd.textContent = "Loading…";
           detailTr.appendChild(detailTd);
           tbody.appendChild(detailTr);
@@ -379,20 +400,22 @@
 
       async function init() {
         const st = await api("/api/admin/status");
-        if (!st.configured) {
-          setVisible("gateDisabled", true);
-          return;
-        }
         if (st.authenticated) {
+          setVisible("gateDisabled", false);
+          setVisible("loginPanel", false);
           setVisible("dash", true);
           try {
             await loadDash();
           } catch (e) {
             el("dash").insertAdjacentHTML("afterbegin", "<p class=\"err\">" + (e.message || "Error") + "</p>");
           }
-        } else {
-          setVisible("loginPanel", true);
+          return;
         }
+        if (st.envPasswordLoginAvailable) {
+          setVisible("loginPanel", true);
+          return;
+        }
+        setVisible("gateDisabled", true);
       }
 
       el("loginForm").addEventListener("submit", async (ev) => {

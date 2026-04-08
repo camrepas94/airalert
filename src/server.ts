@@ -19,6 +19,7 @@ import { buildIcsCalendar, episodeUid } from "./ics.js";
 import { refreshAllSubscribedShows, runDailyNotifications, runTaskNudgeNotifications } from "./jobs.js";
 import { configureWebPush, getVapidPublicKey } from "./push.js";
 import { computeRecommendedShows } from "./recommend.js";
+import { hashPassword, verifyPassword } from "./password.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 const publicDir = path.join(process.cwd(), "public");
@@ -147,6 +148,27 @@ function adminSessionFromRequest(request: FastifyRequest): boolean {
   return verifyAdminSessionToken(raw, pw);
 }
 
+/** Env-password admin cookie or signed-in user with `is_admin`. */
+function isRequestAdmin(request: FastifyRequest): boolean {
+  if (adminSessionFromRequest(request)) return true;
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) return false;
+  const row = db.prepare(`SELECT is_admin FROM users WHERE id = ?`).get(sid) as { is_admin: number } | undefined;
+  return Boolean(row?.is_admin);
+}
+
+function assertSelfOrAdmin(request: FastifyRequest, reply: FastifyReply, userId: string): boolean {
+  if (isRequestAdmin(request)) return true;
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401).send({ error: "Sign in required" });
+    return false;
+  }
+  if (sid === userId) return true;
+  reply.code(403).send({ error: "Forbidden" });
+  return false;
+}
+
 function setAdminSessionCookie(reply: FastifyReply, request: FastifyRequest, token: string) {
   const sec = sessionCookieSecureSuffix(request);
   reply.header(
@@ -189,19 +211,49 @@ function createUserRecord(timezone: string, reminderHourLocal: number): {
   return { id, timezone, reminderHourLocal, calendarToken };
 }
 
+function createRegisteredUser(
+  username: string,
+  password: string,
+  timezone: string,
+  reminderHourLocal: number,
+  isAdmin: boolean,
+): { id: string; timezone: string; reminderHourLocal: number; calendarToken: string } {
+  const id = uuidv4();
+  const calendarToken = randomToken();
+  db.prepare(
+    `INSERT INTO users (id, timezone, reminder_hour_local, calendar_token, username, password_hash, is_admin)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  ).run(id, timezone, reminderHourLocal, calendarToken, username, hashPassword(password), isAdmin ? 1 : 0);
+  return { id, timezone, reminderHourLocal, calendarToken };
+}
+
+function ensureInitialAdminFromEnv(): void {
+  const u = process.env.AIRALERT_INITIAL_ADMIN_USERNAME?.trim();
+  const p = process.env.AIRALERT_INITIAL_ADMIN_PASSWORD?.trim();
+  if (!u || !p || p.length < 8) return;
+  const n = db.prepare(`SELECT COUNT(*) AS c FROM users WHERE is_admin = 1`).get() as { c: number };
+  if (Number(n.c) > 0) return;
+  try {
+    createRegisteredUser(u, p, "America/Los_Angeles", 8, true);
+    console.log("[airalert] Created first admin from AIRALERT_INITIAL_ADMIN_USERNAME / AIRALERT_INITIAL_ADMIN_PASSWORD");
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[airalert] Could not create initial admin user:", msg);
+  }
+}
+
+ensureInitialAdminFromEnv();
+
 app.get("/api/health", async () => ({
   ok: true,
   /** Open in a browser after deploy to confirm DB is on a volume (looksEphemeral should be false). */
   sqlite: getSqlitePersistenceInfo(),
 }));
 
-app.get("/api/admin/status", async (request) => {
-  const pw = adminPasswordConfigured();
-  if (!pw) {
-    return { configured: false, authenticated: false };
-  }
-  return { configured: true, authenticated: adminSessionFromRequest(request) };
-});
+app.get("/api/admin/status", async (request) => ({
+  authenticated: isRequestAdmin(request),
+  envPasswordLoginAvailable: Boolean(adminPasswordConfigured()),
+}));
 
 app.post("/api/admin/login", async (request, reply) => {
   const pw = adminPasswordConfigured();
@@ -227,11 +279,7 @@ app.post("/api/admin/logout", async (request, reply) => {
 });
 
 app.get("/api/admin/overview", async (request, reply) => {
-  if (!adminPasswordConfigured()) {
-    reply.code(404);
-    return { error: "Admin not configured" };
-  }
-  if (!adminSessionFromRequest(request)) {
+  if (!isRequestAdmin(request)) {
     reply.code(401);
     return { error: "Unauthorized" };
   }
@@ -239,6 +287,8 @@ app.get("/api/admin/overview", async (request, reply) => {
     .prepare(
       `SELECT
          u.id AS id,
+         u.username AS username,
+         u.is_admin AS isAdmin,
          u.created_at AS createdAt,
          u.timezone AS timezone,
          (SELECT COUNT(*) FROM show_subscriptions s WHERE s.user_id = u.id) AS subscriptionCount,
@@ -252,6 +302,8 @@ app.get("/api/admin/overview", async (request, reply) => {
     )
     .all() as {
     id: string;
+    username: string | null;
+    isAdmin: number;
     createdAt: string;
     timezone: string;
     subscriptionCount: number;
@@ -278,18 +330,14 @@ app.get("/api/admin/overview", async (request, reply) => {
 });
 
 app.get("/api/admin/users/:userId", async (request, reply) => {
-  if (!adminPasswordConfigured()) {
-    reply.code(404);
-    return { error: "Admin not configured" };
-  }
-  if (!adminSessionFromRequest(request)) {
+  if (!isRequestAdmin(request)) {
     reply.code(401);
     return { error: "Unauthorized" };
   }
   const { userId } = request.params as { userId: string };
   const user = db
     .prepare(
-      `SELECT id, timezone, reminder_hour_local AS reminderHourLocal,
+      `SELECT id, username, is_admin AS isAdmin, timezone, reminder_hour_local AS reminderHourLocal,
               task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt
        FROM users WHERE id = ?`,
     )
@@ -322,6 +370,83 @@ app.get("/api/admin/users/:userId", async (request, reply) => {
   };
 });
 
+app.patch("/api/admin/users/:userId", async (request, reply) => {
+  if (!isRequestAdmin(request)) {
+    reply.code(401);
+    return { error: "Unauthorized" };
+  }
+  const { userId } = request.params as { userId: string };
+  const body = (request.body ?? {}) as { isAdmin?: boolean };
+  const existing = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!existing) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  if (typeof body.isAdmin === "boolean") {
+    db.prepare(`UPDATE users SET is_admin = ? WHERE id = ?`).run(body.isAdmin ? 1 : 0, userId);
+  } else {
+    reply.code(400);
+    return { error: "Set isAdmin: true or false" };
+  }
+  const row = db
+    .prepare(
+      `SELECT id, username, is_admin AS isAdmin, timezone, reminder_hour_local AS reminderHourLocal,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt
+       FROM users WHERE id = ?`,
+    )
+    .get(userId);
+  return row;
+});
+
+app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
+  if (!isRequestAdmin(request)) {
+    reply.code(401);
+    return { error: "Unauthorized" };
+  }
+  const { userId } = request.params as { userId: string };
+  const body = (request.body ?? {}) as { tvmazeShowId?: number };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  if (typeof body.tvmazeShowId !== "number" || !Number.isInteger(body.tvmazeShowId)) {
+    reply.code(400);
+    return { error: "tvmazeShowId required" };
+  }
+  const show = await fetchShow(body.tvmazeShowId);
+  const id = uuidv4();
+  try {
+    db.prepare(
+      `INSERT INTO show_subscriptions (id, user_id, tvmaze_show_id, show_name, platform_note, added_from)
+       VALUES (?, ?, ?, ?, ?, 'admin')`,
+    ).run(id, userId, show.id, show.name, null);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    if (msg.includes("UNIQUE")) {
+      reply.code(409);
+      return { error: "User already subscribed to this show" };
+    }
+    throw e;
+  }
+  reply.code(201);
+  return { id, tvmazeShowId: show.id, showName: show.name, addedFrom: "admin" };
+});
+
+app.delete("/api/admin/subscriptions/:subscriptionId", async (request, reply) => {
+  if (!isRequestAdmin(request)) {
+    reply.code(401);
+    return { error: "Unauthorized" };
+  }
+  const { subscriptionId } = request.params as { subscriptionId: string };
+  const r = db.prepare(`DELETE FROM show_subscriptions WHERE id = ?`).run(subscriptionId);
+  if (r.changes === 0) {
+    reply.code(404);
+    return { error: "Not found" };
+  }
+  return { ok: true };
+});
+
 app.post("/api/users", async (request, reply) => {
   const body = (request.body ?? {}) as UserCreateInput;
   const { timezone, reminderHourLocal } = normalizeUserCreateInput(body);
@@ -340,6 +465,77 @@ app.post("/api/users/bootstrap", async (request, reply) => {
   return { ...created, reused: false };
 });
 
+app.post("/api/auth/register", async (request, reply) => {
+  const body = (request.body ?? {}) as UserCreateInput & { username?: string; password?: string };
+  const usernameRaw = typeof body.username === "string" ? body.username.trim() : "";
+  const password = typeof body.password === "string" ? body.password : "";
+  if (!/^[a-zA-Z0-9._-]{3,32}$/.test(usernameRaw)) {
+    reply.code(400);
+    return { error: "Username must be 3–32 characters (letters, numbers, . _ -)" };
+  }
+  if (password.length < 8) {
+    reply.code(400);
+    return { error: "Password must be at least 8 characters" };
+  }
+  const taken = db
+    .prepare(`SELECT id FROM users WHERE username IS NOT NULL AND lower(trim(username)) = lower(?)`)
+    .get(usernameRaw) as { id: string } | undefined;
+  if (taken) {
+    reply.code(409);
+    return { error: "Username already taken" };
+  }
+  const { timezone, reminderHourLocal } = normalizeUserCreateInput(body);
+  const sid = sessionUserIdFromRequest(request);
+
+  if (sid) {
+    const me = db
+      .prepare(`SELECT id, password_hash FROM users WHERE id = ?`)
+      .get(sid) as { id: string; password_hash: string | null } | undefined;
+    if (me?.password_hash) {
+      reply.code(409);
+      return { error: "Already signed in with an account. Sign out first to create another." };
+    }
+    if (me) {
+      db.prepare(
+        `UPDATE users SET username = ?, password_hash = ?, timezone = ?, reminder_hour_local = ? WHERE id = ?`,
+      ).run(usernameRaw, hashPassword(password), timezone, reminderHourLocal, sid);
+      setSessionCookie(reply, request, sid);
+      reply.code(201);
+      return { id: sid, username: usernameRaw, timezone, reminderHourLocal };
+    }
+  }
+
+  const created = createRegisteredUser(usernameRaw, password, timezone, reminderHourLocal, false);
+  setSessionCookie(reply, request, created.id);
+  reply.code(201);
+  return {
+    id: created.id,
+    username: usernameRaw,
+    timezone: created.timezone,
+    reminderHourLocal: created.reminderHourLocal,
+  };
+});
+
+app.post("/api/auth/login", async (request, reply) => {
+  const body = (request.body ?? {}) as { username?: string; password?: string };
+  const usernameRaw = typeof body.username === "string" ? body.username.trim() : "";
+  const password = typeof body.password === "string" ? body.password : "";
+  const row = db
+    .prepare(`SELECT id, password_hash FROM users WHERE username IS NOT NULL AND lower(trim(username)) = lower(?)`)
+    .get(usernameRaw) as { id: string; password_hash: string | null } | undefined;
+  if (!row?.password_hash || !verifyPassword(password, row.password_hash)) {
+    reply.code(401);
+    return { error: "Invalid username or password" };
+  }
+  setSessionCookie(reply, request, row.id);
+  return { ok: true, id: row.id };
+});
+
+app.post("/api/auth/logout", async (request, reply) => {
+  clearSessionCookie(reply, request);
+  return { ok: true };
+});
+
 /** Current browser session (cookie). Register before `/api/users/:id` so `me` is not parsed as an id. */
 app.get("/api/users/me", async (request, reply) => {
   const sid = sessionUserIdFromRequest(request);
@@ -350,7 +546,11 @@ app.get("/api/users/me", async (request, reply) => {
   const row = db
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt FROM users WHERE id = ?`,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
+              username,
+              (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword,
+              is_admin AS isAdmin
+       FROM users WHERE id = ?`,
     )
     .get(sid) as Record<string, unknown> | undefined;
   if (!row) {
@@ -369,10 +569,14 @@ app.post("/api/users/session/clear", async (request, reply) => {
 
 app.get("/api/users/:id", async (request, reply) => {
   const { id } = request.params as { id: string };
+  if (!assertSelfOrAdmin(request, reply, id)) return;
   const row = db
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt FROM users WHERE id = ?`,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
+              username, is_admin AS isAdmin,
+              (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword
+       FROM users WHERE id = ?`,
     )
     .get(id) as Record<string, unknown> | undefined;
   if (!row) {
@@ -384,6 +588,7 @@ app.get("/api/users/:id", async (request, reply) => {
 
 app.patch("/api/users/:id", async (request, reply) => {
   const { id } = request.params as { id: string };
+  if (!assertSelfOrAdmin(request, reply, id)) return;
   const body = (request.body ?? {}) as {
     timezone?: string;
     reminderHourLocal?: number;
@@ -645,6 +850,7 @@ app.get("/api/users/:userId/subscriptions", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
   const rows = db
     .prepare(
       `SELECT id, tvmaze_show_id AS tvmazeShowId, show_name AS showName,
@@ -754,6 +960,7 @@ app.get("/api/users/:userId/recommended-shows", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
   const rows = db
     .prepare(`SELECT tvmaze_show_id AS id FROM show_subscriptions WHERE user_id = ?`)
     .all(userId) as { id: number }[];
@@ -777,6 +984,7 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
   if (typeof body.tvmazeShowId !== "number" || !Number.isInteger(body.tvmazeShowId)) {
     reply.code(400);
     return { error: "tvmazeShowId required" };
@@ -806,11 +1014,15 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
 
 app.delete("/api/subscriptions/:subscriptionId", async (request, reply) => {
   const { subscriptionId } = request.params as { subscriptionId: string };
-  const r = db.prepare(`DELETE FROM show_subscriptions WHERE id = ?`).run(subscriptionId);
-  if (r.changes === 0) {
+  const sub = db
+    .prepare(`SELECT user_id FROM show_subscriptions WHERE id = ?`)
+    .get(subscriptionId) as { user_id: string } | undefined;
+  if (!sub) {
     reply.code(404);
     return { error: "Not found" };
   }
+  if (!assertSelfOrAdmin(request, reply, sub.user_id)) return;
+  db.prepare(`DELETE FROM show_subscriptions WHERE id = ?`).run(subscriptionId);
   return { ok: true };
 });
 
@@ -822,6 +1034,7 @@ app.post("/api/users/:userId/devices", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
   if (typeof body.platform !== "string" || !body.platform.trim()) {
     reply.code(400);
     return { error: "platform required" };
@@ -862,6 +1075,7 @@ app.post("/api/users/:userId/push-subscription", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
   if (!getVapidPublicKey()) {
     reply.code(503);
     return { error: "Push not configured on server (missing VAPID keys)" };
@@ -902,6 +1116,7 @@ app.get("/api/users/:userId/watch-tasks", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
   const rows = db
     .prepare(
       `SELECT id, tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId,
@@ -923,6 +1138,7 @@ app.patch("/api/users/:userId/watch-tasks/:taskId", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
   const task = db
     .prepare(`SELECT id FROM watch_tasks WHERE id = ? AND user_id = ?`)
     .get(taskId, userId);
@@ -956,6 +1172,7 @@ app.get("/api/users/:userId/notifications", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
   const rows = db
     .prepare(
       `SELECT id, show_name AS showName, episode_label AS episodeLabel, airdate, channel, created_at AS createdAt
@@ -972,6 +1189,7 @@ app.get("/api/users/:userId/upcoming", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
   const subs = db
     .prepare(`SELECT tvmaze_show_id AS tvmazeShowId, show_name AS showName FROM show_subscriptions WHERE user_id = ?`)
     .all(userId) as { tvmazeShowId: number; showName: string }[];

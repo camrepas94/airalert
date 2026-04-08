@@ -1043,6 +1043,78 @@
         box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.52) inset, 0 0 28px 3px rgba(167, 139, 250, 0.5),
           0 0 60px 0 rgba(124, 92, 255, 0.28), 0 0 70px -4px rgba(34, 211, 238, 0.14), 0 8px 22px rgba(0, 0, 0, 0.45);
       }
+      .tab-btn.active[data-tab="admin"] {
+        background: linear-gradient(180deg, rgba(251, 191, 36, 0.22) 0%, rgba(245, 158, 11, 0.07) 100%);
+        box-shadow: 0 0 0 1px rgba(252, 211, 77, 0.38) inset, 0 0 20px 2px rgba(245, 158, 11, 0.28),
+          0 0 44px 0 rgba(251, 191, 36, 0.12), 0 8px 20px rgba(0, 0, 0, 0.42);
+      }
+      .tab-btn.active[data-tab="admin"]:hover:not(:disabled) {
+        box-shadow: 0 0 0 1px rgba(252, 211, 77, 0.48) inset, 0 0 24px 3px rgba(245, 158, 11, 0.34),
+          0 0 52px 0 rgba(251, 191, 36, 0.16), 0 8px 22px rgba(0, 0, 0, 0.45);
+      }
+      .admin-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 0.5rem;
+      }
+      .admin-wrap table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.78rem;
+      }
+      .admin-wrap th,
+      .admin-wrap td {
+        text-align: left;
+        padding: 0.4rem 0.35rem;
+        border-bottom: 1px solid rgba(130, 200, 255, 0.12);
+        vertical-align: top;
+      }
+      .admin-wrap th {
+        color: var(--neon-cyan);
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .admin-wrap tr[data-auser]:hover {
+        background: rgba(34, 211, 238, 0.06);
+      }
+      .admin-wrap tr[data-auser] {
+        cursor: pointer;
+      }
+      .admin-detail td {
+        background: rgba(0, 0, 0, 0.25);
+        font-size: 0.78rem;
+      }
+      .admin-pill {
+        display: inline-block;
+        padding: 0.1rem 0.35rem;
+        border-radius: 6px;
+        font-size: 0.68rem;
+        font-weight: 600;
+        margin-right: 0.2rem;
+      }
+      .admin-pill.search {
+        background: rgba(91, 156, 255, 0.22);
+        color: #b8d4ff;
+      }
+      .admin-pill.rec {
+        background: rgba(232, 121, 249, 0.2);
+        color: #f5c2ff;
+      }
+      .admin-pill.adm {
+        background: rgba(245, 158, 11, 0.22);
+        color: #fde68a;
+      }
+      .admin-pill.unk {
+        background: rgba(138, 155, 184, 0.2);
+        color: var(--muted);
+      }
+      #tabBtnAdmin {
+        display: none;
+      }
+      #tabBtnAdmin.visible {
+        display: flex;
+      }
       .tab-btn:focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: 2px;
@@ -1302,6 +1374,9 @@
             <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="add" id="tabBtnAdd">Add a Show</button>
             <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="shows" id="tabBtnShows">Your Shows</button>
             <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="tasks" id="tabBtnTasks">Tasks</button>
+            <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="admin" id="tabBtnAdmin">
+              Admin
+            </button>
           </div>
         </nav>
       </header>
@@ -1382,6 +1457,58 @@
             <p class="profile-jump">
               <a href="#section-push">Episode alerts: turn on push ↓</a>
             </p>
+          </div>
+        </section>
+
+        <section class="panel-rail-magenta" aria-label="Account">
+          <button type="button" class="fold-toggle" id="foldAccountBtn" aria-expanded="false" aria-controls="foldAccountBody">
+            <span class="fold-title">Account</span>
+            <span class="fold-chev" aria-hidden="true">▼</span>
+          </button>
+          <div class="fold-body" id="foldAccountBody" hidden>
+            <p class="muted" style="margin-top: 0; font-size: 0.85rem">
+              A username and password tie this browser session to your saved shows and tasks. You can still use the app as a
+              guest without an account (list stays on this device only).
+            </p>
+            <div id="accountGuest">
+              <div class="row" style="margin-top: 0.5rem">
+                <div style="flex: 1 1 100%">
+                  <label for="regUsername">New username</label>
+                  <input id="regUsername" type="text" autocomplete="username" maxlength="32" placeholder="3–32 chars: letters, numbers, . _ -" />
+                </div>
+                <div>
+                  <label for="regPassword">Password</label>
+                  <input id="regPassword" type="password" autocomplete="new-password" minlength="8" />
+                </div>
+                <div>
+                  <label for="regPassword2">Confirm password</label>
+                  <input id="regPassword2" type="password" autocomplete="new-password" minlength="8" />
+                </div>
+              </div>
+              <button type="button" id="regBtn" style="margin-top: 0.65rem">Create account</button>
+              <p class="muted" style="margin: 1rem 0 0.35rem; font-size: 0.82rem">Already have an account?</p>
+              <div class="row">
+                <div>
+                  <label for="loginUsername">Username</label>
+                  <input id="loginUsername" type="text" autocomplete="username" />
+                </div>
+                <div>
+                  <label for="loginPassword">Password</label>
+                  <input id="loginPassword" type="password" autocomplete="current-password" />
+                </div>
+              </div>
+              <button type="button" id="loginBtn" style="margin-top: 0.65rem">Sign in</button>
+            </div>
+            <div id="accountSignedIn" hidden>
+              <p style="margin-top: 0.35rem">
+                Signed in as <strong id="accountUsernameLabel"></strong>
+              </p>
+              <button type="button" class="secondary" id="signOutAccountBtn">Sign out of account</button>
+              <p class="muted" style="font-size: 0.8rem; margin-top: 0.35rem">
+                You’ll get a new guest profile on this device, or sign in again to restore your list.
+              </p>
+            </div>
+            <p class="msg err" id="accountErr" style="margin-top: 0.5rem"></p>
           </div>
         </section>
 
@@ -1499,6 +1626,34 @@
           </p>
           <ul class="tasks-list" id="tasksList"></ul>
           <p class="muted" id="tasksEmpty" style="display: none">No tasks yet. After a subscribed show has an episode on today’s date, it will show up here.</p>
+        </section>
+      </div>
+
+      <div id="tab-admin" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnAdmin">
+        <section class="panel-rail-cyan" aria-label="Admin">
+          <h2 style="margin-top: 0">Admin</h2>
+          <p class="muted" style="font-size: 0.85rem">
+            Manage all users, override show lists, and grant admin access. The standalone page
+            <a href="/admin.html">/admin.html</a> still works if you use an env password.
+          </p>
+          <button type="button" class="secondary" id="adminRefreshBtn">Refresh</button>
+          <p class="muted" id="adminTotals" style="margin: 0.65rem 0; font-size: 0.82rem"></p>
+          <div class="admin-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>User id</th>
+                  <th>Adm</th>
+                  <th>Subs</th>
+                  <th>S / R / ?</th>
+                  <th>Tasks ✓</th>
+                </tr>
+              </thead>
+              <tbody id="adminUserRows"></tbody>
+            </table>
+          </div>
+          <p class="msg err" id="adminErr" style="display: none; margin-top: 0.5rem"></p>
         </section>
       </div>
     </main>
@@ -1818,6 +1973,12 @@
         await loadNotifs(id);
         loadRecommended(id);
         await loadTasks(id);
+        try {
+          const me = await api("/api/users/me");
+          applyMeToUI(me);
+        } catch {
+          applyMeToUI(null);
+        }
         return id;
       }
 
@@ -1827,6 +1988,219 @@
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;");
+      }
+
+      function truthyBit(v) {
+        return v === true || v === 1;
+      }
+
+      function applyMeToUI(me) {
+        const tabBtn = document.getElementById("tabBtnAdmin");
+        const guest = document.getElementById("accountGuest");
+        const signed = document.getElementById("accountSignedIn");
+        if (!tabBtn || !guest || !signed) return;
+        if (me && truthyBit(me.isAdmin)) {
+          tabBtn.classList.add("visible");
+        } else {
+          tabBtn.classList.remove("visible");
+        }
+        if (me && (me.username || truthyBit(me.hasPassword))) {
+          guest.hidden = true;
+          signed.hidden = false;
+          const lab = document.getElementById("accountUsernameLabel");
+          if (lab) lab.textContent = me.username || "account";
+        } else {
+          guest.hidden = false;
+          signed.hidden = true;
+        }
+      }
+
+      function adminPillClass(from) {
+        if (from === "search") return "search";
+        if (from === "recommended") return "rec";
+        if (from === "admin") return "adm";
+        return "unk";
+      }
+
+      function adminPillLabel(from) {
+        if (from === "search") return "search";
+        if (from === "recommended") return "rec";
+        if (from === "admin") return "admin";
+        return "legacy";
+      }
+
+      async function loadAdminOverview() {
+        const errEl = document.getElementById("adminErr");
+        const totalsEl = document.getElementById("adminTotals");
+        if (!errEl || !totalsEl) return;
+        errEl.style.display = "none";
+        errEl.textContent = "";
+        try {
+          const data = await api("/api/admin/overview");
+          const t = data.totals;
+          totalsEl.innerHTML =
+            "<strong>" +
+            t.users +
+            "</strong> users · <strong>" +
+            t.subscriptions +
+            "</strong> subs · search <strong>" +
+            t.fromSearch +
+            "</strong> · rec <strong>" +
+            t.fromRecommended +
+            "</strong> · tasks <strong>" +
+            t.tasksCompleted +
+            "/" +
+            t.tasksTotal +
+            "</strong>";
+          const tbody = document.getElementById("adminUserRows");
+          if (!tbody) return;
+          tbody.innerHTML = "";
+          for (const u of data.users) {
+            const tr = document.createElement("tr");
+            tr.setAttribute("data-auser", u.id);
+            tr.innerHTML =
+              "<td>" +
+              escapeHtml(u.username || "—") +
+              "</td><td class=\"mono\" style=\"font-size:0.7rem;word-break:break-all\">" +
+              escapeHtml(u.id) +
+              "</td><td>" +
+              (u.isAdmin ? "Y" : "—") +
+              "</td><td>" +
+              u.subscriptionCount +
+              "</td><td>" +
+              u.fromSearchCount +
+              "/" +
+              u.fromRecommendedCount +
+              "/" +
+              u.fromUnknownCount +
+              "</td><td>" +
+              u.tasksCompleted +
+              "/" +
+              u.tasksTotal +
+              "</td>";
+            tbody.appendChild(tr);
+            const dtr = document.createElement("tr");
+            dtr.className = "admin-detail hidden";
+            const td = document.createElement("td");
+            td.colSpan = 6;
+            td.textContent = "…";
+            dtr.appendChild(td);
+            tbody.appendChild(dtr);
+
+            async function fillAdminDetail() {
+              td.innerHTML = "Loading…";
+              try {
+                const d = await api("/api/admin/users/" + encodeURIComponent(u.id));
+                const subs = d.subscriptions || [];
+                const ua = d.user || {};
+                const isAdm = truthyBit(ua.isAdmin);
+                let html =
+                  "<div style='margin-bottom:0.5rem'><label><input type='checkbox' id=\"admToggle_" +
+                  u.id +
+                  "\" " +
+                  (isAdm ? "checked" : "") +
+                  "/> Admin access</label></div>";
+                html +=
+                  "<div style='margin:0.5rem 0'><strong>Add show (TVMaze id)</strong> " +
+                  "<input type='number' id=\"admAddShow_" +
+                  u.id +
+                  "\" min='1' style='width:5rem;margin-left:0.35rem'/> " +
+                  "<button type='button' class='secondary' id=\"admAddBtn_" +
+                  u.id +
+                  "\">Add</button></div>";
+                html += "<div><strong>Shows</strong></div><ul style='margin:0.25rem 0 0 1rem'>";
+                for (const s of subs) {
+                  const af = s.addedFrom || "";
+                  html +=
+                    "<li style='margin:0.2rem 0'><span class=\"admin-pill " +
+                    adminPillClass(af) +
+                    "\">" +
+                    adminPillLabel(af) +
+                    "</span> " +
+                    escapeHtml(s.showName) +
+                    " <span class='muted'>(" +
+                    s.tvmazeShowId +
+                    ")</span> <button type='button' class='danger adm-rm' data-subid=\"" +
+                    escapeHtml(s.id) +
+                    "\">Remove</button></li>";
+                }
+                if (!subs.length) html += "<li class='muted'>No shows.</li>";
+                html += "</ul>";
+                td.innerHTML = html;
+                const cb = document.getElementById("admToggle_" + u.id);
+                if (cb) {
+                  cb.addEventListener("change", async () => {
+                    try {
+                      await api("/api/admin/users/" + encodeURIComponent(u.id), {
+                        method: "PATCH",
+                        body: JSON.stringify({ isAdmin: cb.checked }),
+                      });
+                      showToast(cb.checked ? "Admin granted" : "Admin revoked");
+                      await loadAdminOverview();
+                      try {
+                        const me = await api("/api/users/me");
+                        applyMeToUI(me);
+                      } catch {
+                        /* ignore */
+                      }
+                    } catch (e) {
+                      showToast(e.message || "Failed");
+                      cb.checked = !cb.checked;
+                    }
+                  });
+                }
+                const addBtn = document.getElementById("admAddBtn_" + u.id);
+                const addIn = document.getElementById("admAddShow_" + u.id);
+                if (addBtn && addIn) {
+                  addBtn.addEventListener("click", async () => {
+                    const n = Number(addIn.value);
+                    if (!Number.isInteger(n) || n < 1) {
+                      showToast("Enter a valid TVMaze show id");
+                      return;
+                    }
+                    try {
+                      await api("/api/admin/users/" + encodeURIComponent(u.id) + "/subscriptions", {
+                        method: "POST",
+                        body: JSON.stringify({ tvmazeShowId: n }),
+                      });
+                      showToast("Show added");
+                      await loadAdminOverview();
+                    } catch (e) {
+                      showToast(e.message || "Add failed");
+                    }
+                  });
+                }
+                td.querySelectorAll("button.adm-rm").forEach((b) => {
+                  b.addEventListener("click", async (ev) => {
+                    ev.stopPropagation();
+                    const sid = b.getAttribute("data-subid");
+                    if (!sid) return;
+                    try {
+                      await api("/api/admin/subscriptions/" + encodeURIComponent(sid), { method: "DELETE" });
+                      showToast("Removed");
+                      await loadAdminOverview();
+                    } catch (e) {
+                      showToast(e.message || "Remove failed");
+                    }
+                  });
+                });
+              } catch (e) {
+                td.textContent = e.message || "Load failed";
+              }
+            }
+
+            tr.addEventListener("click", async () => {
+              const wasOpen = !dtr.classList.contains("hidden");
+              document.querySelectorAll(".admin-detail").forEach((r) => r.classList.add("hidden"));
+              if (wasOpen) return;
+              dtr.classList.remove("hidden");
+              await fillAdminDetail();
+            });
+          }
+        } catch (e) {
+          errEl.textContent = e.message || "Admin load failed";
+          errEl.style.display = "block";
+        }
       }
 
       function formatAirDate(airdate, airtime) {
@@ -2453,6 +2827,9 @@
           const id = resolveUserId();
           if (id) loadTasks(id);
         }
+        if (name === "admin") {
+          loadAdminOverview();
+        }
       }
 
       function normalizeVapidPublicKeyClient(raw) {
@@ -2634,6 +3011,12 @@
       (async function init() {
         const userId = await ensureUser();
         appUserId = userId;
+        try {
+          const me = await api("/api/users/me");
+          applyMeToUI(me);
+        } catch {
+          applyMeToUI(null);
+        }
         await loadUser(userId);
         await loadSubs(userId);
         await loadNotifs(userId);
@@ -2641,7 +3024,10 @@
         renderRecentChips();
         loadTasks(userId);
 
-        document.getElementById("saveProfile").onclick = () => saveProfile(userId);
+        document.getElementById("saveProfile").onclick = () => {
+          const uid = resolveUserId();
+          if (uid) saveProfile(uid);
+        };
         document.getElementById("newDeviceListBtn").onclick = async () => {
           await recreateUserSession();
           showToast("Fresh list on this device.");
@@ -2658,7 +3044,10 @@
           }
         };
 
-        document.getElementById("enablePushBtn").onclick = () => registerWebPush(userId);
+        document.getElementById("enablePushBtn").onclick = () => {
+          const uid = resolveUserId();
+          if (uid) registerWebPush(uid);
+        };
 
         document.getElementById("modalClose").onclick = () => closeShowModal();
         document.getElementById("showModal").addEventListener("click", (e) => {
@@ -2683,14 +3072,118 @@
             msg.textContent = jobLine;
             out.style.display = "block";
             out.textContent = JSON.stringify(data, null, 2);
-            await loadNotifs(userId);
-            await loadSubs(userId);
-            await loadTasks(userId);
+            const uid = resolveUserId();
+            if (uid) {
+              await loadNotifs(uid);
+              await loadSubs(uid);
+              await loadTasks(uid);
+            }
           } catch (e) {
             msg.textContent = e.message;
             msg.classList.add("err");
           }
         };
+
+        const accountErr = document.getElementById("accountErr");
+        function clearAccountErr() {
+          if (accountErr) {
+            accountErr.textContent = "";
+            accountErr.classList.remove("err");
+          }
+        }
+
+        document.getElementById("regBtn").addEventListener("click", async () => {
+          clearAccountErr();
+          const p1 = document.getElementById("regPassword").value;
+          const p2 = document.getElementById("regPassword2").value;
+          if (p1 !== p2) {
+            accountErr.textContent = "Passwords do not match.";
+            accountErr.classList.add("err");
+            return;
+          }
+          try {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            await api("/api/auth/register", {
+              method: "POST",
+              body: JSON.stringify({
+                username: document.getElementById("regUsername").value.trim(),
+                password: p1,
+                timezone: tz,
+              }),
+            });
+            document.getElementById("regUsername").value = "";
+            document.getElementById("regPassword").value = "";
+            document.getElementById("regPassword2").value = "";
+            const me = await api("/api/users/me");
+            applyMeToUI(me);
+            appUserId = me.id;
+            localStorage.setItem(LS_USER, me.id);
+            await loadUser(me.id);
+            await loadSubs(me.id);
+            await loadNotifs(me.id);
+            loadRecommended(me.id);
+            await loadTasks(me.id);
+            showToast("Account created");
+          } catch (e) {
+            accountErr.textContent = e.message || "Register failed";
+            accountErr.classList.add("err");
+          }
+        });
+
+        document.getElementById("loginBtn").addEventListener("click", async () => {
+          clearAccountErr();
+          try {
+            await api("/api/auth/login", {
+              method: "POST",
+              body: JSON.stringify({
+                username: document.getElementById("loginUsername").value.trim(),
+                password: document.getElementById("loginPassword").value,
+              }),
+            });
+            document.getElementById("loginPassword").value = "";
+            const me = await api("/api/users/me");
+            applyMeToUI(me);
+            appUserId = me.id;
+            localStorage.setItem(LS_USER, me.id);
+            await loadUser(me.id);
+            await loadSubs(me.id);
+            await loadNotifs(me.id);
+            loadRecommended(me.id);
+            await loadTasks(me.id);
+            showToast("Signed in");
+          } catch (e) {
+            accountErr.textContent = e.message || "Sign in failed";
+            accountErr.classList.add("err");
+          }
+        });
+
+        document.getElementById("signOutAccountBtn").addEventListener("click", async () => {
+          clearAccountErr();
+          try {
+            await api("/api/auth/logout", { method: "POST" });
+          } catch {
+            /* ignore */
+          }
+          localStorage.removeItem(LS_USER);
+          appUserId = null;
+          const id = await ensureUser();
+          appUserId = id;
+          try {
+            const me = await api("/api/users/me");
+            applyMeToUI(me);
+          } catch {
+            applyMeToUI(null);
+          }
+          await loadUser(id);
+          await loadSubs(id);
+          await loadNotifs(id);
+          loadRecommended(id);
+          await loadTasks(id);
+          showToast("Signed out");
+        });
+
+        const ar = document.getElementById("adminRefreshBtn");
+        if (ar) ar.addEventListener("click", () => loadAdminOverview());
       })();
     </script>
   </body>
