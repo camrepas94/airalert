@@ -801,6 +801,71 @@
       .modal-backdrop.open {
         display: flex;
       }
+      .modal-backdrop.account-prompt-backdrop {
+        z-index: 60;
+        align-items: center;
+      }
+      .account-prompt-panel {
+        max-width: 420px;
+        max-height: none;
+        padding: 1.15rem 1.2rem 1.25rem;
+      }
+      .account-prompt-panel h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.15rem;
+        font-weight: 700;
+        line-height: 1.3;
+        background: linear-gradient(105deg, var(--accent-hot) 0%, var(--neon-cyan) 50%, #f0abfc 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .account-prompt-panel .account-prompt-lead {
+        margin: 0 0 1rem;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+      .account-prompt-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .account-prompt-actions button {
+        width: 100%;
+        margin: 0;
+      }
+      .account-prompt-panel label {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+      }
+      .account-prompt-panel input[type="text"],
+      .account-prompt-panel input[type="password"] {
+        width: 100%;
+        margin-top: 0.25rem;
+        padding: 0.5rem 0.55rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.35);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.92rem;
+      }
+      .account-prompt-panel .account-prompt-row {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 0.75rem;
+      }
+      .account-prompt-panel .account-prompt-row button {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: auto;
+      }
       @media (min-width: 560px) {
         .modal-backdrop {
           align-items: center;
@@ -1658,6 +1723,54 @@
       </div>
     </main>
 
+    <div
+      class="modal-backdrop account-prompt-backdrop"
+      id="accountPromptModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="accountPromptHeading"
+    >
+      <div class="modal-panel account-prompt-panel">
+        <h3 id="accountPromptHeading">Save your shows &amp; tasks</h3>
+        <div id="accountPromptStepIntro">
+          <p class="account-prompt-lead">
+            Create a free account so your subscriptions and watch checklist follow you when you sign in on another device.
+            Or continue without an account — your list stays on this browser only.
+          </p>
+          <div class="account-prompt-actions">
+            <button type="button" id="accountPromptCreate">Create account</button>
+            <button type="button" class="secondary" id="accountPromptSignIn">Sign in</button>
+            <button type="button" class="secondary" id="accountPromptGuest">Continue as guest</button>
+          </div>
+        </div>
+        <div id="accountPromptStepRegister" hidden>
+          <p class="account-prompt-lead">Choose a username and password (8+ characters).</p>
+          <label for="apRegUsername">Username</label>
+          <input id="apRegUsername" type="text" autocomplete="username" maxlength="32" placeholder="3–32 letters, numbers, . _ -" />
+          <label for="apRegPassword">Password</label>
+          <input id="apRegPassword" type="password" autocomplete="new-password" minlength="8" />
+          <label for="apRegPassword2">Confirm password</label>
+          <input id="apRegPassword2" type="password" autocomplete="new-password" minlength="8" />
+          <div class="account-prompt-row">
+            <button type="button" id="apRegSubmit">Create account</button>
+            <button type="button" class="secondary" id="apRegBack">Back</button>
+          </div>
+        </div>
+        <div id="accountPromptStepLogin" hidden>
+          <p class="account-prompt-lead">Sign in with your existing username.</p>
+          <label for="apLoginUsername">Username</label>
+          <input id="apLoginUsername" type="text" autocomplete="username" />
+          <label for="apLoginPassword">Password</label>
+          <input id="apLoginPassword" type="password" autocomplete="current-password" />
+          <div class="account-prompt-row">
+            <button type="button" id="apLoginSubmit">Sign in</button>
+            <button type="button" class="secondary" id="apLoginBack">Back</button>
+          </div>
+        </div>
+        <p class="msg err" id="accountPromptErr" style="display: none; margin-top: 0.65rem"></p>
+      </div>
+    </div>
+
     <div class="modal-backdrop" id="showModal" role="dialog" aria-modal="true" aria-labelledby="modalShowTitle">
       <div class="modal-panel">
         <div class="modal-header">
@@ -1677,6 +1790,7 @@
 
     <script>
       const LS_USER = "airalert_user_id";
+      const LS_GUEST_PROMPT = "airalert_guest_prompt_dismissed";
       function apiOrigin() {
         if (window.location.protocol === "file:") {
           return "http://127.0.0.1:3000";
@@ -3008,11 +3122,74 @@
         if (uid) loadRecommended(uid);
       });
 
+      function accountIsRegistered(me) {
+        return !!(me && (me.username || truthyBit(me.hasPassword)));
+      }
+
+      function shouldShowAccountPrompt(me) {
+        if (localStorage.getItem(LS_GUEST_PROMPT) === "1") return false;
+        if (!me || !me.id) return false;
+        return !accountIsRegistered(me);
+      }
+
+      async function refreshAllForUserId(userId, me) {
+        if (me) applyMeToUI(me);
+        appUserId = userId;
+        localStorage.setItem(LS_USER, userId);
+        await loadUser(userId);
+        await loadSubs(userId);
+        await loadNotifs(userId);
+        loadRecommended(userId);
+        await loadTasks(userId);
+      }
+
+      function showAccountPromptStep(step) {
+        const intro = document.getElementById("accountPromptStepIntro");
+        const reg = document.getElementById("accountPromptStepRegister");
+        const log = document.getElementById("accountPromptStepLogin");
+        const err = document.getElementById("accountPromptErr");
+        if (intro) intro.hidden = step !== "intro";
+        if (reg) reg.hidden = step !== "register";
+        if (log) log.hidden = step !== "login";
+        if (err) {
+          err.textContent = "";
+          err.style.display = "none";
+          err.classList.remove("err");
+        }
+      }
+
+      function openAccountPromptModal() {
+        const el = document.getElementById("accountPromptModal");
+        if (!el) return;
+        showAccountPromptStep("intro");
+        el.classList.add("open");
+      }
+
+      function closeAccountPromptModal() {
+        const el = document.getElementById("accountPromptModal");
+        if (el) el.classList.remove("open");
+      }
+
+      function setAccountPromptErr(msg) {
+        const err = document.getElementById("accountPromptErr");
+        if (!err) return;
+        if (msg) {
+          err.textContent = msg;
+          err.style.display = "block";
+          err.classList.add("err");
+        } else {
+          err.textContent = "";
+          err.style.display = "none";
+          err.classList.remove("err");
+        }
+      }
+
       (async function init() {
         const userId = await ensureUser();
         appUserId = userId;
+        let me = null;
         try {
-          const me = await api("/api/users/me");
+          me = await api("/api/users/me");
           applyMeToUI(me);
         } catch {
           applyMeToUI(null);
@@ -3023,6 +3200,83 @@
         loadRecommended(userId);
         renderRecentChips();
         loadTasks(userId);
+
+        if (shouldShowAccountPrompt(me)) {
+          openAccountPromptModal();
+        }
+
+        const apModal = document.getElementById("accountPromptModal");
+        const apPanel = apModal && apModal.querySelector(".account-prompt-panel");
+        if (apPanel) {
+          apPanel.addEventListener("click", (ev) => ev.stopPropagation());
+        }
+
+        document.getElementById("accountPromptCreate").addEventListener("click", () => {
+          setAccountPromptErr("");
+          showAccountPromptStep("register");
+          document.getElementById("apRegUsername").focus();
+        });
+        document.getElementById("accountPromptSignIn").addEventListener("click", () => {
+          setAccountPromptErr("");
+          showAccountPromptStep("login");
+          document.getElementById("apLoginUsername").focus();
+        });
+        document.getElementById("accountPromptGuest").addEventListener("click", () => {
+          localStorage.setItem(LS_GUEST_PROMPT, "1");
+          closeAccountPromptModal();
+        });
+        document.getElementById("apRegBack").addEventListener("click", () => showAccountPromptStep("intro"));
+        document.getElementById("apLoginBack").addEventListener("click", () => showAccountPromptStep("intro"));
+
+        document.getElementById("apRegSubmit").addEventListener("click", async () => {
+          setAccountPromptErr("");
+          const p1 = document.getElementById("apRegPassword").value;
+          const p2 = document.getElementById("apRegPassword2").value;
+          if (p1 !== p2) {
+            setAccountPromptErr("Passwords do not match.");
+            return;
+          }
+          try {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            await api("/api/auth/register", {
+              method: "POST",
+              body: JSON.stringify({
+                username: document.getElementById("apRegUsername").value.trim(),
+                password: p1,
+                timezone: tz,
+              }),
+            });
+            document.getElementById("apRegUsername").value = "";
+            document.getElementById("apRegPassword").value = "";
+            document.getElementById("apRegPassword2").value = "";
+            const meNow = await api("/api/users/me");
+            await refreshAllForUserId(meNow.id, meNow);
+            closeAccountPromptModal();
+            showToast("Account created");
+          } catch (e) {
+            setAccountPromptErr(e.message || "Register failed");
+          }
+        });
+
+        document.getElementById("apLoginSubmit").addEventListener("click", async () => {
+          setAccountPromptErr("");
+          try {
+            await api("/api/auth/login", {
+              method: "POST",
+              body: JSON.stringify({
+                username: document.getElementById("apLoginUsername").value.trim(),
+                password: document.getElementById("apLoginPassword").value,
+              }),
+            });
+            document.getElementById("apLoginPassword").value = "";
+            const meNow = await api("/api/users/me");
+            await refreshAllForUserId(meNow.id, meNow);
+            closeAccountPromptModal();
+            showToast("Signed in");
+          } catch (e) {
+            setAccountPromptErr(e.message || "Sign in failed");
+          }
+        });
 
         document.getElementById("saveProfile").onclick = () => {
           const uid = resolveUserId();
@@ -3054,7 +3308,16 @@
           if (e.target.id === "showModal") closeShowModal();
         });
         document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") closeShowModal();
+          if (e.key !== "Escape") return;
+          const ap = document.getElementById("accountPromptModal");
+          if (ap && ap.classList.contains("open")) {
+            const reg = document.getElementById("accountPromptStepRegister");
+            const log = document.getElementById("accountPromptStepLogin");
+            if (reg && !reg.hidden) showAccountPromptStep("intro");
+            else if (log && !log.hidden) showAccountPromptStep("intro");
+            return;
+          }
+          closeShowModal();
         });
 
         document.getElementById("refreshData").onclick = async () => {
@@ -3115,14 +3378,7 @@
             document.getElementById("regPassword").value = "";
             document.getElementById("regPassword2").value = "";
             const me = await api("/api/users/me");
-            applyMeToUI(me);
-            appUserId = me.id;
-            localStorage.setItem(LS_USER, me.id);
-            await loadUser(me.id);
-            await loadSubs(me.id);
-            await loadNotifs(me.id);
-            loadRecommended(me.id);
-            await loadTasks(me.id);
+            await refreshAllForUserId(me.id, me);
             showToast("Account created");
           } catch (e) {
             accountErr.textContent = e.message || "Register failed";
@@ -3142,14 +3398,7 @@
             });
             document.getElementById("loginPassword").value = "";
             const me = await api("/api/users/me");
-            applyMeToUI(me);
-            appUserId = me.id;
-            localStorage.setItem(LS_USER, me.id);
-            await loadUser(me.id);
-            await loadSubs(me.id);
-            await loadNotifs(me.id);
-            loadRecommended(me.id);
-            await loadTasks(me.id);
+            await refreshAllForUserId(me.id, me);
             showToast("Signed in");
           } catch (e) {
             accountErr.textContent = e.message || "Sign in failed";
@@ -3159,6 +3408,7 @@
 
         document.getElementById("signOutAccountBtn").addEventListener("click", async () => {
           clearAccountErr();
+          localStorage.removeItem(LS_GUEST_PROMPT);
           try {
             await api("/api/auth/logout", { method: "POST" });
           } catch {
