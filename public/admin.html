@@ -39,14 +39,25 @@
         -webkit-tap-highlight-color: rgba(34, 211, 238, 0.15);
       }
       h1 {
-        margin: 0 0 0.25rem;
-        font-size: 1.35rem;
+        margin: 0 0 0.35rem;
+        font-size: 1.4rem;
         font-weight: 700;
+        line-height: 1.25;
+        letter-spacing: -0.02em;
       }
       .sub {
         color: var(--muted);
-        font-size: 0.88rem;
+        font-size: 0.9rem;
         margin: 0 0 1.25rem;
+        line-height: 1.55;
+        max-width: 40rem;
+      }
+      .page-lead {
+        font-size: 0.95rem;
+        color: var(--text);
+        line-height: 1.6;
+        margin: 0 0 1rem;
+        max-width: 42rem;
       }
       a {
         color: var(--accent);
@@ -58,6 +69,61 @@
         padding: 1.1rem 1.15rem;
         margin-bottom: 1rem;
         max-width: 1100px;
+      }
+      section h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.05rem;
+        font-weight: 650;
+        color: var(--text);
+      }
+      .help-card {
+        background: rgba(34, 211, 238, 0.07);
+        border: 1px solid rgba(34, 211, 238, 0.2);
+        border-radius: 12px;
+        padding: 0.9rem 1rem;
+        margin: 0 0 1rem;
+        font-size: 0.88rem;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+      .help-card strong {
+        color: #e0e8f4;
+      }
+      .help-card ol {
+        margin: 0.45rem 0 0;
+        padding-left: 1.25rem;
+      }
+      .help-card li {
+        margin: 0.35rem 0;
+      }
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(7.25rem, 1fr));
+        gap: 0.55rem;
+        margin: 0 0 1.1rem;
+      }
+      .stat-card {
+        background: rgba(0, 0, 0, 0.32);
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        border-radius: 12px;
+        padding: 0.65rem 0.6rem;
+        text-align: center;
+      }
+      .stat-card .stat-value {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1.2;
+      }
+      .stat-card .stat-label {
+        display: block;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        margin-top: 0.25rem;
+        line-height: 1.35;
       }
       label {
         display: block;
@@ -108,15 +174,7 @@
         margin-top: 0.5rem;
       }
       .totals {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem 1.25rem;
-        margin-bottom: 1rem;
-        font-size: 0.88rem;
-        color: var(--muted);
-      }
-      .totals strong {
-        color: var(--text);
+        margin-bottom: 0;
       }
       .scroll-hint {
         font-size: 0.75rem;
@@ -140,7 +198,20 @@
         width: 100%;
         min-width: 640px;
         border-collapse: collapse;
-        font-size: 0.82rem;
+        font-size: 0.88rem;
+        line-height: 1.45;
+      }
+      .admin-table caption {
+        caption-side: top;
+        text-align: left;
+        font-size: 0.8rem;
+        color: var(--muted);
+        padding: 0 0 0.5rem;
+        line-height: 1.45;
+      }
+      .admin-table tbody tr:nth-child(4n + 1),
+      .admin-table tbody tr:nth-child(4n + 2) {
+        background: rgba(255, 255, 255, 0.025);
       }
       table {
         width: 100%;
@@ -157,9 +228,10 @@
       th {
         color: var(--neon-cyan);
         font-weight: 600;
-        font-size: 0.72rem;
+        font-size: 0.74rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        line-height: 1.3;
       }
       tr[data-user]:hover {
         background: rgba(34, 211, 238, 0.06);
@@ -176,9 +248,10 @@
         }
       }
       tr.detail-row td {
-        background: rgba(0, 0, 0, 0.28);
-        padding: 0.85rem 0.65rem;
-        font-size: 0.88rem;
+        background: rgba(0, 0, 0, 0.35);
+        padding: 1rem 0.75rem;
+        font-size: 0.92rem;
+        line-height: 1.55;
       }
       .detail-admin-box {
         padding: 0.75rem 0.85rem;
@@ -285,8 +358,12 @@
     </style>
   </head>
   <body>
-    <h1>Airalert admin</h1>
-    <p class="sub">Usage and subscription sources (search vs recommended). <a href="/">← Main app</a></p>
+    <h1>Admin console</h1>
+    <p class="page-lead">
+      Signed-in admins and env-password access both land here. Use it to review usage, manage who can admin, and adjust
+      anyone’s show list.
+    </p>
+    <p class="sub"><a href="/">← Back to Airalert</a></p>
 
     <section id="gateDisabled" class="hidden">
       <p class="err" id="gateDisabledMsg">
@@ -296,11 +373,16 @@
     </section>
 
     <section id="loginPanel" class="hidden">
+      <h2>Sign in with server password</h2>
+      <p class="sub" style="margin-bottom: 0.75rem">
+        Enter the value from <span class="mono">AIRALERT_ADMIN_PASSWORD</span> on your host. (If you’re already logged into
+        the main app as an admin, you may not need this.)
+      </p>
       <form id="loginForm">
         <label for="pw">Admin password</label>
         <input type="password" id="pw" name="password" autocomplete="current-password" required />
         <div>
-          <button type="submit">Sign in</button>
+          <button type="submit">Unlock console</button>
         </div>
         <p class="err" id="loginErr" style="display: none"></p>
       </form>
@@ -308,16 +390,30 @@
 
     <section id="dash" class="hidden">
       <p class="dash-actions" style="margin-top: 0; display: flex; flex-wrap: wrap; gap: 0.5rem">
-        <button type="button" class="secondary" id="logoutBtn">Sign out</button>
+        <button type="button" class="secondary" id="logoutBtn">Sign out (env session)</button>
         <button type="button" class="secondary" id="refreshBtn">Refresh data</button>
       </p>
-      <div class="totals" id="totals"></div>
+
+      <div class="help-card">
+        <strong>Quick guide</strong>
+        <ol>
+          <li>Read the <strong>summary cards</strong> for totals across all users.</li>
+          <li>
+            <strong>Tap a row</strong> to open that person’s panel: turn <strong>Admin access</strong> on or off, add a show
+            (TVMaze ID), or remove subscriptions.
+          </li>
+          <li>On a phone, <strong>swipe the table sideways</strong> if columns don’t all fit.</li>
+        </ol>
+      </div>
+
+      <div class="totals stat-grid" id="totals"></div>
       <p class="scroll-hint">Swipe the table horizontally on a small screen.</p>
-      <p class="muted" style="font-size: 0.82rem; margin: 0 0 0.5rem">
-        <strong>Tip:</strong> Tap any user row to open <strong>Admin access</strong> (grant/revoke), add a show by TVMaze ID, or remove shows.
-      </p>
       <div class="table-wrap">
         <table class="admin-table">
+          <caption>
+            All users on this server. Columns <strong>S / R / ?</strong> count subscriptions added from search,
+            recommendations, or legacy/unknown.
+          </caption>
           <thead>
             <tr>
               <th>Username</th>
@@ -412,29 +508,26 @@
         return "legacy";
       }
 
+      function statCard(value, label) {
+        return (
+          "<div class=\"stat-card\"><span class=\"stat-value\">" +
+          value +
+          "</span><span class=\"stat-label\">" +
+          label +
+          "</span></div>"
+        );
+      }
+
       async function loadDash() {
         const data = await api("/api/admin/overview");
         const t = data.totals;
         el("totals").innerHTML =
-          "<span><strong>" +
-          t.users +
-          "</strong> users</span> · <span><strong>" +
-          t.subscriptions +
-          "</strong> show subscriptions</span> · " +
-          "<span>from search <strong>" +
-          t.fromSearch +
-          "</strong></span> · " +
-          "<span>from recommended <strong>" +
-          t.fromRecommended +
-          "</strong></span> · " +
-          "<span>unspecified <strong>" +
-          t.fromUnknown +
-          "</strong></span> · " +
-          "<span>tasks completed <strong>" +
-          t.tasksCompleted +
-          "</strong> / <strong>" +
-          t.tasksTotal +
-          "</strong></span>";
+          statCard(t.users, "Users") +
+          statCard(t.subscriptions, "Show subscriptions") +
+          statCard(t.fromSearch, "Added via search") +
+          statCard(t.fromRecommended, "Added via recommended") +
+          statCard(t.fromUnknown, "Unspecified source") +
+          statCard(t.tasksCompleted + " / " + t.tasksTotal, "Tasks done / total");
 
         const tbody = el("userRows");
         tbody.innerHTML = "";

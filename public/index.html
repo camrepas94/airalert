@@ -91,8 +91,59 @@
         padding: 0.35rem 1.1rem 3.5rem;
         padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
       }
-      .brand-heading {
+      .app-top-brand-row {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
         margin: 0 0 0.35rem;
+        line-height: 1;
+      }
+      .profile-home-btn {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0;
+        border: none;
+        border-radius: 12px;
+        background: rgba(8, 14, 28, 0.72);
+        -webkit-backdrop-filter: blur(12px) saturate(1.1);
+        backdrop-filter: blur(12px) saturate(1.1);
+        box-shadow: 0 0 0 1px rgba(130, 200, 255, 0.18) inset, 0 4px 16px rgba(0, 0, 0, 0.38);
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(108, 158, 248, 0.25);
+        transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+        color: inherit;
+      }
+      .profile-home-btn:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.07);
+        box-shadow: 0 0 0 1px rgba(142, 203, 255, 0.28) inset, 0 6px 18px rgba(0, 0, 0, 0.42);
+      }
+      .profile-home-btn.active {
+        color: #f8fbff;
+        animation: tab-glow-pulse 2.8s ease-in-out infinite;
+        background: linear-gradient(180deg, rgba(34, 211, 238, 0.28) 0%, rgba(34, 211, 238, 0.08) 100%);
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.45) inset, 0 0 22px 2px rgba(34, 211, 238, 0.42),
+          0 0 44px 0 rgba(34, 211, 238, 0.22), 0 0 60px -6px rgba(91, 156, 255, 0.12), 0 8px 20px rgba(0, 0, 0, 0.42);
+      }
+      .profile-home-btn.active:hover:not(:disabled) {
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.52) inset, 0 0 26px 3px rgba(34, 211, 238, 0.48),
+          0 0 52px 0 rgba(34, 211, 238, 0.26), 0 0 64px -4px rgba(91, 156, 255, 0.16), 0 8px 22px rgba(0, 0, 0, 0.45);
+      }
+      .profile-home-icon {
+        width: 1.35rem;
+        height: 1.35rem;
+        display: block;
+      }
+      .brand-heading {
+        margin: 0;
+        flex: 1;
+        min-width: 0;
         line-height: 1;
       }
       .brand-heading .brand-logo {
@@ -1024,9 +1075,9 @@
       }
       .tab-rail {
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.2rem;
-        padding: 0.35rem;
+        flex-wrap: nowrap;
+        gap: 0.12rem;
+        padding: 0.28rem;
         background: rgba(8, 12, 24, 0.65);
         border: 1px solid rgba(130, 200, 255, 0.14);
         border-radius: 14px;
@@ -1037,12 +1088,12 @@
       }
       .tab-btn {
         cursor: pointer;
-        flex: 1 1 auto;
+        flex: 1 1 0;
         min-width: 0;
         border: none;
         border-radius: 10px;
-        padding: 0.55rem 0.65rem;
-        font-size: 0.82rem;
+        padding: 0.52rem 0.2rem;
+        font-size: 0.78rem;
         font-weight: 600;
         font-family: inherit;
         background: transparent;
@@ -1051,6 +1102,39 @@
         touch-action: manipulation;
         -webkit-tap-highlight-color: rgba(108, 158, 248, 0.25);
         transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        line-height: 1.15;
+      }
+      .tab-label-short {
+        display: none;
+      }
+      .tab-label-long {
+        display: inline;
+      }
+      @media (max-width: 560px) {
+        .tab-label-long {
+          display: none;
+        }
+        .tab-label-short {
+          display: inline;
+        }
+        .tab-btn {
+          font-size: 0.7rem;
+          padding: 0.48rem 0.12rem;
+        }
+      }
+      @media (max-width: 360px) {
+        .tab-btn {
+          font-size: 0.64rem;
+          padding: 0.44rem 0.08rem;
+        }
+        .tab-rail {
+          gap: 0.06rem;
+          padding: 0.22rem;
+        }
       }
       .tab-btn:hover:not(:disabled) {
         color: var(--text);
@@ -1071,15 +1155,6 @@
       .tab-btn.active {
         color: #f8fbff;
         animation: tab-glow-pulse 2.8s ease-in-out infinite;
-      }
-      .tab-btn.active[data-tab="profile"] {
-        background: linear-gradient(180deg, rgba(34, 211, 238, 0.28) 0%, rgba(34, 211, 238, 0.08) 100%);
-        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.45) inset, 0 0 22px 2px rgba(34, 211, 238, 0.42),
-          0 0 44px 0 rgba(34, 211, 238, 0.22), 0 0 60px -6px rgba(91, 156, 255, 0.12), 0 8px 20px rgba(0, 0, 0, 0.42);
-      }
-      .tab-btn.active[data-tab="profile"]:hover:not(:disabled) {
-        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.52) inset, 0 0 26px 3px rgba(34, 211, 238, 0.48),
-          0 0 52px 0 rgba(34, 211, 238, 0.26), 0 0 64px -4px rgba(91, 156, 255, 0.16), 0 8px 22px rgba(0, 0, 0, 0.45);
       }
       .tab-btn.active[data-tab="add"] {
         background: linear-gradient(180deg, rgba(91, 156, 255, 0.32) 0%, rgba(91, 156, 255, 0.1) 100%);
@@ -1130,21 +1205,92 @@
       .admin-wrap th,
       .admin-wrap td {
         text-align: left;
-        padding: 0.4rem 0.35rem;
+        padding: 0.45rem 0.4rem;
         border-bottom: 1px solid rgba(130, 200, 255, 0.12);
         vertical-align: top;
+        font-size: 0.86rem;
       }
       .admin-wrap th {
         color: var(--neon-cyan);
-        font-size: 0.68rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
         letter-spacing: 0.04em;
+        line-height: 1.3;
       }
       .admin-wrap tr[data-auser]:hover {
         background: rgba(34, 211, 238, 0.06);
       }
       .admin-wrap tr[data-auser] {
         cursor: pointer;
+      }
+      .admin-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+        gap: 0.5rem;
+        margin: 0.75rem 0 1rem;
+      }
+      .admin-stat-card {
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        border-radius: 12px;
+        padding: 0.55rem 0.65rem;
+        text-align: center;
+      }
+      .admin-stat-card .admin-stat-value {
+        display: block;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1.2;
+      }
+      .admin-stat-card .admin-stat-label {
+        display: block;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin-top: 0.2rem;
+        line-height: 1.3;
+      }
+      .admin-help {
+        background: rgba(34, 211, 238, 0.06);
+        border: 1px solid rgba(34, 211, 238, 0.18);
+        border-radius: 12px;
+        padding: 0.75rem 0.9rem;
+        margin: 0 0 1rem;
+        font-size: 0.86rem;
+        line-height: 1.55;
+        color: var(--muted);
+      }
+      .admin-help strong {
+        color: var(--text);
+      }
+      .admin-help ol {
+        margin: 0.4rem 0 0;
+        padding-left: 1.2rem;
+      }
+      .admin-help li {
+        margin: 0.25rem 0;
+      }
+      .admin-wrap table tbody tr:nth-child(4n + 1),
+      .admin-wrap table tbody tr:nth-child(4n + 2) {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .admin-wrap table {
+        line-height: 1.45;
+      }
+      .admin-table-caption {
+        caption-side: top;
+        text-align: left;
+        font-size: 0.8rem;
+        color: var(--muted);
+        padding: 0 0 0.5rem;
+        line-height: 1.45;
+      }
+      @media (max-width: 560px) {
+        .scroll-hint-admin {
+          display: block !important;
+        }
       }
       .admin-detail td {
         background: rgba(0, 0, 0, 0.25);
@@ -1180,15 +1326,10 @@
       #tabBtnAdmin.visible {
         display: flex;
       }
-      .tab-btn:focus-visible {
+      .tab-btn:focus-visible,
+      .profile-home-btn:focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: 2px;
-      }
-      @media (max-width: 420px) {
-        .tab-btn {
-          font-size: 0.74rem;
-          padding: 0.5rem 0.4rem;
-        }
       }
       .tab-panel {
         display: none;
@@ -1238,6 +1379,17 @@
       .app-top.is-scrolled .brand-heading .brand-logo {
         height: 1.45rem;
         max-width: 10.5rem;
+      }
+      .app-top.is-scrolled .profile-home-btn {
+        width: 2.2rem;
+        height: 2.2rem;
+        min-width: 40px;
+        min-height: 40px;
+        border-radius: 10px;
+      }
+      .app-top.is-scrolled .profile-home-icon {
+        width: 1.15rem;
+        height: 1.15rem;
       }
       .app-top.is-scrolled .tab-nav {
         margin-bottom: 0.65rem;
@@ -1427,20 +1579,102 @@
     <div class="toast-root" id="toastRoot" aria-live="polite" aria-atomic="true"></div>
     <main>
       <header class="app-top" id="appTopBar">
-        <h1 class="brand-heading">
-          <img class="brand-logo" src="/logo.svg" width="212" height="36" alt="Airalert" />
-        </h1>
+        <div class="app-top-brand-row">
+          <button
+            type="button"
+            class="profile-home-btn"
+            id="tabBtnProfile"
+            aria-label="Your Profile"
+            aria-pressed="false"
+            aria-controls="tab-profile"
+            title="Your Profile"
+          >
+            <svg
+              class="profile-home-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="homeProfileStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#22d3ee" />
+                  <stop offset="55%" stop-color="#5b9cff" />
+                  <stop offset="100%" stop-color="#c084fc" />
+                </linearGradient>
+                <linearGradient id="homeProfileFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#0f1419" />
+                  <stop offset="100%" stop-color="#050508" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M12 3 4 10v11h5v-6h6v6h5V10l-8-7z"
+                fill="url(#homeProfileFill)"
+                fill-opacity="0.88"
+                stroke="url(#homeProfileStroke)"
+                stroke-width="1.55"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <h1 class="brand-heading">
+            <img class="brand-logo" src="/logo.svg" width="212" height="36" alt="Airalert" />
+          </h1>
+        </div>
 
         <nav class="tab-nav" role="tablist" aria-label="Main sections">
           <div class="tab-rail">
-            <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="profile" id="tabBtnProfile">
-              Your Profile
+            <button
+              type="button"
+              class="tab-btn active"
+              role="tab"
+              aria-selected="true"
+              data-tab="add"
+              id="tabBtnAdd"
+              aria-label="Add a Show"
+              title="Add a Show"
+            >
+              <span class="tab-label-long">Add a Show</span>
+              <span class="tab-label-short">Add</span>
             </button>
-            <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="add" id="tabBtnAdd">Add a Show</button>
-            <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="shows" id="tabBtnShows">Your Shows</button>
-            <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="tasks" id="tabBtnTasks">Tasks</button>
-            <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="admin" id="tabBtnAdmin">
-              Admin
+            <button
+              type="button"
+              class="tab-btn"
+              role="tab"
+              aria-selected="false"
+              data-tab="shows"
+              id="tabBtnShows"
+              aria-label="Your Shows"
+              title="Your Shows"
+            >
+              <span class="tab-label-long">Your Shows</span>
+              <span class="tab-label-short">Shows</span>
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              role="tab"
+              aria-selected="false"
+              data-tab="tasks"
+              id="tabBtnTasks"
+              aria-label="Tasks"
+              title="Tasks"
+            >
+              <span class="tab-label-long">Tasks</span>
+              <span class="tab-label-short">Tasks</span>
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              role="tab"
+              aria-selected="false"
+              data-tab="admin"
+              id="tabBtnAdmin"
+              aria-label="Admin"
+              title="Admin"
+            >
+              <span class="tab-label-long">Admin</span>
+              <span class="tab-label-short">Admin</span>
             </button>
           </div>
         </nav>
@@ -1454,7 +1688,7 @@
           </button>
           <div class="fold-body" id="foldHowToBody" hidden>
             <p class="how-to-lead muted">
-              Airalert opens on <strong>Add a Show</strong>. This guide lives on <strong>Your Profile</strong> — use the tabs at the top to switch anytime.
+              Airalert opens on <strong>Add a Show</strong>. This guide lives on <strong>Your Profile</strong> — tap the <strong>home</strong> icon in the header or use the tabs below to switch anytime.
             </p>
             <ol class="how-to-steps">
               <li>
@@ -1697,14 +1931,29 @@
       <div id="tab-admin" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnAdmin">
         <section class="panel-rail-cyan" aria-label="Admin">
           <h2 style="margin-top: 0">Admin</h2>
-          <p class="muted" style="font-size: 0.85rem">
-            Manage all users, override show lists, and grant admin access. The standalone page
-            <a href="/admin.html">/admin.html</a> still works if you use an env password.
+          <p class="muted" style="font-size: 0.88rem; line-height: 1.55; margin: 0 0 0.75rem">
+            View everyone using this server, how they added shows, and task activity. You can also open the full-page console at
+            <a href="/admin.html">/admin.html</a> (handy with an env admin password).
           </p>
-          <button type="button" class="secondary" id="adminRefreshBtn">Refresh</button>
-          <p class="muted" id="adminTotals" style="margin: 0.65rem 0; font-size: 0.82rem"></p>
+          <div class="admin-help">
+            <strong>How to use this tab</strong>
+            <ol>
+              <li>Scan the <strong>summary cards</strong> below for totals.</li>
+              <li><strong>Tap a user row</strong> to grant or revoke <strong>admin</strong>, add a show by TVMaze ID, or remove a subscription.</li>
+              <li>Use <strong>Refresh</strong> after changes to reload the list.</li>
+            </ol>
+          </div>
+          <button type="button" class="secondary" id="adminRefreshBtn">Refresh data</button>
+          <div id="adminTotals" class="admin-stats-grid" aria-live="polite"></div>
+          <p class="muted scroll-hint-admin" style="font-size: 0.75rem; margin: 0 0 0.35rem; display: none">
+            Swipe the table sideways on a narrow screen.
+          </p>
           <div class="admin-wrap">
             <table>
+              <caption class="admin-table-caption">
+                Tap a row for admin controls. <strong>S / R / ?</strong> = subscriptions from search, recommendations, or
+                unspecified.
+              </caption>
               <thead>
                 <tr>
                   <th>Username</th>
@@ -2152,20 +2401,22 @@
         try {
           const data = await api("/api/admin/overview");
           const t = data.totals;
+          function statCard(value, label) {
+            return (
+              "<div class=\"admin-stat-card\"><span class=\"admin-stat-value\">" +
+              value +
+              "</span><span class=\"admin-stat-label\">" +
+              label +
+              "</span></div>"
+            );
+          }
           totalsEl.innerHTML =
-            "<strong>" +
-            t.users +
-            "</strong> users · <strong>" +
-            t.subscriptions +
-            "</strong> subs · search <strong>" +
-            t.fromSearch +
-            "</strong> · rec <strong>" +
-            t.fromRecommended +
-            "</strong> · tasks <strong>" +
-            t.tasksCompleted +
-            "/" +
-            t.tasksTotal +
-            "</strong>";
+            statCard(t.users, "Users") +
+            statCard(t.subscriptions, "Show subs") +
+            statCard(t.fromSearch, "From search") +
+            statCard(t.fromRecommended, "From recommended") +
+            statCard(t.fromUnknown, "Unspecified") +
+            statCard(t.tasksCompleted + " / " + t.tasksTotal, "Tasks done / total");
           const tbody = document.getElementById("adminUserRows");
           if (!tbody) return;
           tbody.innerHTML = "";
@@ -2932,6 +3183,12 @@
           btn.classList.toggle("active", on);
           btn.setAttribute("aria-selected", on ? "true" : "false");
         });
+        const profileHomeBtn = document.getElementById("tabBtnProfile");
+        if (profileHomeBtn) {
+          const onProfile = name === "profile";
+          profileHomeBtn.classList.toggle("active", onProfile);
+          profileHomeBtn.setAttribute("aria-pressed", onProfile ? "true" : "false");
+        }
         if (name === "add") {
           renderRecentChips();
           const id = resolveUserId();
@@ -3042,6 +3299,7 @@
           setTab(btn.getAttribute("data-tab"));
         });
       });
+      document.getElementById("tabBtnProfile").addEventListener("click", () => setTab("profile"));
 
       document.getElementById("searchTitle").addEventListener("input", () => {
         syncSearchClearBtn();
