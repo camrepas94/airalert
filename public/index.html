@@ -2061,7 +2061,7 @@
         return appUserId || localStorage.getItem(LS_USER);
       }
 
-      function appendSearchResultCard(box, s, userId, err) {
+      function appendSearchResultCard(box, s, userId, err, addedFrom) {
         const card = document.createElement("div");
         card.className = "search-card";
         const inner = document.createElement("div");
@@ -2106,11 +2106,14 @@
         subBtn.textContent = "Subscribe";
         subBtn.addEventListener("click", async () => {
           subBtn.disabled = true;
-          const postSub = (uid) =>
-            api("/api/users/" + encodeURIComponent(uid) + "/subscriptions", {
+          const postSub = (uid) => {
+            const body = { tvmazeShowId: s.id };
+            if (addedFrom === "search" || addedFrom === "recommended") body.addedFrom = addedFrom;
+            return api("/api/users/" + encodeURIComponent(uid) + "/subscriptions", {
               method: "POST",
-              body: JSON.stringify({ tvmazeShowId: s.id }),
+              body: JSON.stringify(body),
             });
+          };
           let uid = resolveUserId();
           try {
             await postSub(uid);
@@ -2175,7 +2178,7 @@
             ".";
           box.innerHTML = "";
           for (const s of shows) {
-            appendSearchResultCard(box, s, userId, errEl);
+            appendSearchResultCard(box, s, userId, errEl, "recommended");
           }
         } catch (e) {
           if (reqId !== recommendedLoadRequestId) return;
@@ -2251,7 +2254,7 @@
 
         box.innerHTML = "";
         for (const s of slice) {
-          appendSearchResultCard(box, s, userId, err);
+          appendSearchResultCard(box, s, userId, err, "search");
         }
 
         pagEl.innerHTML = "";

@@ -453,7 +453,7 @@
           const postSub = (uid) =>
             api("/api/users/" + encodeURIComponent(uid) + "/subscriptions", {
               method: "POST",
-              body: JSON.stringify({ tvmazeShowId: s.id }),
+              body: JSON.stringify({ tvmazeShowId: s.id, addedFrom: "search" }),
             });
           try {
             await postSub(userId);

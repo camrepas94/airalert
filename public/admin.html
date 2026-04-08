@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>Airalert — Admin</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #050508;
+        --panel: rgba(10, 12, 20, 0.74);
+        --text: #f4f7fc;
+        --muted: #8a9bb8;
+        --accent: #5b9cff;
+        --neon-cyan: #22d3ee;
+        --neon-magenta: #e879f9;
+        --border: rgba(130, 200, 255, 0.11);
+        --danger: #ff7b86;
+        --font: "Inter", system-ui, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--font);
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        min-height: 100vh;
+        padding: 1rem 1.1rem 3rem;
+      }
+      h1 {
+        margin: 0 0 0.25rem;
+        font-size: 1.35rem;
+        font-weight: 700;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0 0 1.25rem;
+      }
+      a {
+        color: var(--accent);
+      }
+      section {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.1rem 1.15rem;
+        margin-bottom: 1rem;
+        max-width: 1100px;
+      }
+      label {
+        display: block;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin-bottom: 0.35rem;
+      }
+      input[type="password"],
+      input[type="text"] {
+        width: 100%;
+        max-width: 22rem;
+        padding: 0.55rem 0.65rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.35);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.95rem;
+      }
+      button {
+        font-family: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 10px;
+        padding: 0.55rem 1rem;
+        border: 1px solid rgba(130, 200, 255, 0.25);
+        background: linear-gradient(180deg, rgba(91, 156, 255, 0.35) 0%, rgba(91, 156, 255, 0.12) 100%);
+        color: var(--text);
+        margin-top: 0.65rem;
+        margin-right: 0.5rem;
+      }
+      button.secondary {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: var(--border);
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      .err {
+        color: var(--danger);
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+      }
+      .totals {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.25rem;
+        margin-bottom: 1rem;
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+      .totals strong {
+        color: var(--text);
+      }
+      .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.82rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 0.45rem 0.5rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      th {
+        color: var(--neon-cyan);
+        font-weight: 600;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      tr[data-user]:hover {
+        background: rgba(34, 211, 238, 0.06);
+      }
+      tr[data-user] {
+        cursor: pointer;
+      }
+      tr.detail-row td {
+        background: rgba(0, 0, 0, 0.28);
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+      }
+      .mono {
+        font-family: ui-monospace, monospace;
+        font-size: 0.76rem;
+        word-break: break-all;
+      }
+      .pill {
+        display: inline-block;
+        padding: 0.12rem 0.4rem;
+        border-radius: 6px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        margin-right: 0.25rem;
+      }
+      .pill.search {
+        background: rgba(91, 156, 255, 0.22);
+        color: #b8d4ff;
+      }
+      .pill.rec {
+        background: rgba(232, 121, 249, 0.2);
+        color: #f5c2ff;
+      }
+      .pill.unk {
+        background: rgba(138, 155, 184, 0.2);
+        color: var(--muted);
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Airalert admin</h1>
+    <p class="sub">Usage and subscription sources (search vs recommended). <a href="/">← Main app</a></p>
+
+    <section id="gateDisabled" class="hidden">
+      <p class="err">Admin is disabled. Set <span class="mono">AIRALERT_ADMIN_PASSWORD</span> on the server and redeploy.</p>
+    </section>
+
+    <section id="loginPanel" class="hidden">
+      <form id="loginForm">
+        <label for="pw">Admin password</label>
+        <input type="password" id="pw" name="password" autocomplete="current-password" required />
+        <div>
+          <button type="submit">Sign in</button>
+        </div>
+        <p class="err" id="loginErr" style="display: none"></p>
+      </form>
+    </section>
+
+    <section id="dash" class="hidden">
+      <p style="margin-top: 0">
+        <button type="button" class="secondary" id="logoutBtn">Sign out</button>
+        <button type="button" class="secondary" id="refreshBtn">Refresh data</button>
+      </p>
+      <div class="totals" id="totals"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>User id</th>
+              <th>Created</th>
+              <th>TZ</th>
+              <th>Subs</th>
+              <th>Search / Rec / ?</th>
+              <th>Tasks ✓ / total</th>
+            </tr>
+          </thead>
+          <tbody id="userRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <script>
+      async function api(path, opts) {
+        const res = await fetch(path, {
+          ...opts,
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+            ...(opts && opts.body ? { "Content-Type": "application/json" } : {}),
+            ...((opts && opts.headers) || {}),
+          },
+        });
+        const text = await res.text();
+        let data = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch {
+          throw new Error(res.ok ? "Invalid JSON" : res.statusText);
+        }
+        if (!res.ok) {
+          const msg = (data && data.error) || res.statusText || "Request failed";
+          throw new Error(msg);
+        }
+        return data;
+      }
+
+      const el = (id) => document.getElementById(id);
+
+      function setVisible(id, on) {
+        el(id).classList.toggle("hidden", !on);
+      }
+
+      function pillClass(from) {
+        if (from === "search") return "search";
+        if (from === "recommended") return "rec";
+        return "unk";
+      }
+
+      function pillLabel(from) {
+        if (from === "search") return "search";
+        if (from === "recommended") return "rec";
+        return "legacy";
+      }
+
+      async function loadDash() {
+        const data = await api("/api/admin/overview");
+        const t = data.totals;
+        el("totals").innerHTML =
+          "<span><strong>" +
+          t.users +
+          "</strong> users</span> · <span><strong>" +
+          t.subscriptions +
+          "</strong> show subscriptions</span> · " +
+          "<span>from search <strong>" +
+          t.fromSearch +
+          "</strong></span> · " +
+          "<span>from recommended <strong>" +
+          t.fromRecommended +
+          "</strong></span> · " +
+          "<span>unspecified <strong>" +
+          t.fromUnknown +
+          "</strong></span> · " +
+          "<span>tasks completed <strong>" +
+          t.tasksCompleted +
+          "</strong> / <strong>" +
+          t.tasksTotal +
+          "</strong></span>";
+
+        const tbody = el("userRows");
+        tbody.innerHTML = "";
+        for (const u of data.users) {
+          const tr = document.createElement("tr");
+          tr.setAttribute("data-user", u.id);
+          tr.innerHTML =
+            "<td class=\"mono\">" +
+            u.id +
+            "</td>" +
+            "<td>" +
+            (u.createdAt || "—") +
+            "</td>" +
+            "<td>" +
+            (u.timezone || "—") +
+            "</td>" +
+            "<td>" +
+            u.subscriptionCount +
+            "</td>" +
+            "<td>" +
+            u.fromSearchCount +
+            " / " +
+            u.fromRecommendedCount +
+            " / " +
+            u.fromUnknownCount +
+            "</td>" +
+            "<td>" +
+            u.tasksCompleted +
+            " / " +
+            u.tasksTotal +
+            "</td>";
+          tbody.appendChild(tr);
+
+          const detailTr = document.createElement("tr");
+          detailTr.className = "detail-row hidden";
+          detailTr.setAttribute("data-detail-for", u.id);
+          const detailTd = document.createElement("td");
+          detailTd.colSpan = 6;
+          detailTd.textContent = "Loading…";
+          detailTr.appendChild(detailTd);
+          tbody.appendChild(detailTr);
+
+          tr.addEventListener("click", async () => {
+            const open = !detailTr.classList.contains("hidden");
+            document.querySelectorAll(".detail-row").forEach((r) => r.classList.add("hidden"));
+            if (open) return;
+            detailTr.classList.remove("hidden");
+            detailTd.textContent = "Loading…";
+            try {
+              const d = await api("/api/admin/users/" + encodeURIComponent(u.id));
+              const subs = d.subscriptions || [];
+              const parts = [];
+              parts.push(
+                "<div style='margin-bottom:0.5rem'><strong>Tasks:</strong> " +
+                  d.tasks.completed +
+                  " completed, " +
+                  d.tasks.open +
+                  " open, " +
+                  d.tasks.total +
+                  " total</div>",
+              );
+              if (!subs.length) {
+                parts.push("<p class='muted' style='margin:0'>No subscriptions.</p>");
+              } else {
+                parts.push("<div><strong>Shows</strong> (source when added)</div><ul style='margin:0.35rem 0 0 1rem'>");
+                for (const s of subs) {
+                  const af = s.addedFrom || null;
+                  parts.push(
+                    "<li><span class=\"pill " +
+                      pillClass(af) +
+                      "\">" +
+                      pillLabel(af) +
+                      "</span> " +
+                      (s.showName || "") +
+                      " <span class='mono'>(" +
+                      s.tvmazeShowId +
+                      ")</span> — " +
+                      (s.createdAt || "") +
+                      "</li>",
+                  );
+                }
+                parts.push("</ul>");
+              }
+              detailTd.innerHTML = parts.join("");
+            } catch (e) {
+              detailTd.textContent = e.message || "Failed to load user.";
+            }
+          });
+        }
+      }
+
+      async function init() {
+        const st = await api("/api/admin/status");
+        if (!st.configured) {
+          setVisible("gateDisabled", true);
+          return;
+        }
+        if (st.authenticated) {
+          setVisible("dash", true);
+          try {
+            await loadDash();
+          } catch (e) {
+            el("dash").insertAdjacentHTML("afterbegin", "<p class=\"err\">" + (e.message || "Error") + "</p>");
+          }
+        } else {
+          setVisible("loginPanel", true);
+        }
+      }
+
+      el("loginForm").addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const err = el("loginErr");
+        err.style.display = "none";
+        try {
+          await api("/api/admin/login", {
+            method: "POST",
+            body: JSON.stringify({ password: el("pw").value }),
+          });
+          el("pw").value = "";
+          setVisible("loginPanel", false);
+          setVisible("dash", true);
+          await loadDash();
+        } catch (e) {
+          err.textContent = e.message || "Login failed";
+          err.style.display = "block";
+        }
+      });
+
+      el("logoutBtn").addEventListener("click", async () => {
+        await api("/api/admin/logout", { method: "POST" });
+        setVisible("dash", false);
+        setVisible("loginPanel", true);
+        el("userRows").innerHTML = "";
+        el("totals").innerHTML = "";
+      });
+
+      el("refreshBtn").addEventListener("click", async () => {
+        try {
+          await loadDash();
+        } catch (e) {
+          alert(e.message || "Refresh failed");
+        }
+      });
+
+      init().catch((e) => {
+        el("gateDisabled").classList.remove("hidden");
+        el("gateDisabled").innerHTML = "<p class=\"err\">" + (e.message || "Could not reach server") + "</p>";
+      });
+    </script>
+  </body>
+</html>

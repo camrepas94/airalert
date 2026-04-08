@@ -188,6 +188,13 @@ if (!userColNames.has("task_nudge_days_after_air")) {
   db.exec(`ALTER TABLE users ADD COLUMN task_nudge_days_after_air INTEGER`);
 }
 
+const subColNames = new Set(
+  (db.prepare(`PRAGMA table_info(show_subscriptions)`).all() as { name: string }[]).map((r) => r.name),
+);
+if (!subColNames.has("added_from")) {
+  db.exec(`ALTER TABLE show_subscriptions ADD COLUMN added_from TEXT`);
+}
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS watch_tasks (
     id TEXT PRIMARY KEY,

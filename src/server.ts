@@ -98,6 +98,68 @@ function sessionUserIdFromRequest(request: FastifyRequest): string | undefined {
   return raw.trim();
 }
 
+/** Admin UI + APIs; set `AIRALERT_ADMIN_PASSWORD` to enable. Session cookie is HMAC-signed, 7-day expiry. */
+const ADMIN_COOKIE = "airalert_admin_sess";
+
+function adminPasswordConfigured(): string | null {
+  const p = process.env.AIRALERT_ADMIN_PASSWORD?.trim();
+  return p && p.length > 0 ? p : null;
+}
+
+function adminSigningKey(password: string): Buffer {
+  return crypto.createHash("sha256").update(`airalert-admin-v1\x00${password}`, "utf8").digest();
+}
+
+function signAdminSessionToken(password: string): string {
+  const exp = Math.floor(Date.now() / 1000) + 7 * 86400;
+  const payload = Buffer.from(JSON.stringify({ exp }), "utf8").toString("base64url");
+  const sig = crypto.createHmac("sha256", adminSigningKey(password)).update(payload).digest("base64url");
+  return `${payload}.${sig}`;
+}
+
+function verifyAdminSessionToken(raw: string | undefined, password: string): boolean {
+  if (!raw || typeof raw !== "string" || !raw.includes(".")) return false;
+  const dot = raw.indexOf(".");
+  const payloadB64 = raw.slice(0, dot);
+  const sig = raw.slice(dot + 1);
+  const expectedSig = crypto.createHmac("sha256", adminSigningKey(password)).update(payloadB64).digest("base64url");
+  const a = Buffer.from(sig, "utf8");
+  const b = Buffer.from(expectedSig, "utf8");
+  if (a.length !== b.length) return false;
+  try {
+    if (!crypto.timingSafeEqual(a, b)) return false;
+  } catch {
+    return false;
+  }
+  try {
+    const payload = JSON.parse(Buffer.from(payloadB64, "base64url").toString("utf8")) as { exp?: number };
+    if (typeof payload.exp !== "number" || payload.exp < Math.floor(Date.now() / 1000)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function adminSessionFromRequest(request: FastifyRequest): boolean {
+  const pw = adminPasswordConfigured();
+  if (!pw) return false;
+  const raw = parseCookies(request.headers.cookie)[ADMIN_COOKIE];
+  return verifyAdminSessionToken(raw, pw);
+}
+
+function setAdminSessionCookie(reply: FastifyReply, request: FastifyRequest, token: string) {
+  const sec = sessionCookieSecureSuffix(request);
+  reply.header(
+    "Set-Cookie",
+    `${ADMIN_COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800${sec}`,
+  );
+}
+
+function clearAdminSessionCookie(reply: FastifyReply, request: FastifyRequest) {
+  const sec = sessionCookieSecureSuffix(request);
+  reply.header("Set-Cookie", `${ADMIN_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${sec}`);
+}
+
 function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -132,6 +194,133 @@ app.get("/api/health", async () => ({
   /** Open in a browser after deploy to confirm DB is on a volume (looksEphemeral should be false). */
   sqlite: getSqlitePersistenceInfo(),
 }));
+
+app.get("/api/admin/status", async (request) => {
+  const pw = adminPasswordConfigured();
+  if (!pw) {
+    return { configured: false, authenticated: false };
+  }
+  return { configured: true, authenticated: adminSessionFromRequest(request) };
+});
+
+app.post("/api/admin/login", async (request, reply) => {
+  const pw = adminPasswordConfigured();
+  if (!pw) {
+    reply.code(404);
+    return { error: "Admin not configured (set AIRALERT_ADMIN_PASSWORD)" };
+  }
+  const body = (request.body ?? {}) as { password?: string };
+  const attempt = typeof body.password === "string" ? body.password : "";
+  const ab = Buffer.from(attempt, "utf8");
+  const pb = Buffer.from(pw, "utf8");
+  if (ab.length !== pb.length || !crypto.timingSafeEqual(ab, pb)) {
+    reply.code(401);
+    return { error: "Invalid password" };
+  }
+  setAdminSessionCookie(reply, request, signAdminSessionToken(pw));
+  return { ok: true };
+});
+
+app.post("/api/admin/logout", async (request, reply) => {
+  clearAdminSessionCookie(reply, request);
+  return { ok: true };
+});
+
+app.get("/api/admin/overview", async (request, reply) => {
+  if (!adminPasswordConfigured()) {
+    reply.code(404);
+    return { error: "Admin not configured" };
+  }
+  if (!adminSessionFromRequest(request)) {
+    reply.code(401);
+    return { error: "Unauthorized" };
+  }
+  const rows = db
+    .prepare(
+      `SELECT
+         u.id AS id,
+         u.created_at AS createdAt,
+         u.timezone AS timezone,
+         (SELECT COUNT(*) FROM show_subscriptions s WHERE s.user_id = u.id) AS subscriptionCount,
+         (SELECT COUNT(*) FROM show_subscriptions s WHERE s.user_id = u.id AND s.added_from = 'recommended') AS fromRecommendedCount,
+         (SELECT COUNT(*) FROM show_subscriptions s WHERE s.user_id = u.id AND s.added_from = 'search') AS fromSearchCount,
+         (SELECT COUNT(*) FROM show_subscriptions s WHERE s.user_id = u.id AND (s.added_from IS NULL OR TRIM(s.added_from) = '')) AS fromUnknownCount,
+         (SELECT COUNT(*) FROM watch_tasks w WHERE w.user_id = u.id) AS tasksTotal,
+         (SELECT COUNT(*) FROM watch_tasks w WHERE w.user_id = u.id AND w.completed_at IS NOT NULL) AS tasksCompleted
+       FROM users u
+       ORDER BY datetime(u.created_at) DESC`,
+    )
+    .all() as {
+    id: string;
+    createdAt: string;
+    timezone: string;
+    subscriptionCount: number;
+    fromRecommendedCount: number;
+    fromSearchCount: number;
+    fromUnknownCount: number;
+    tasksTotal: number;
+    tasksCompleted: number;
+  }[];
+  const totals = rows.reduce(
+    (acc, r) => {
+      acc.users += 1;
+      acc.subscriptions += r.subscriptionCount;
+      acc.fromRecommended += r.fromRecommendedCount;
+      acc.fromSearch += r.fromSearchCount;
+      acc.fromUnknown += r.fromUnknownCount;
+      acc.tasksTotal += r.tasksTotal;
+      acc.tasksCompleted += r.tasksCompleted;
+      return acc;
+    },
+    { users: 0, subscriptions: 0, fromRecommended: 0, fromSearch: 0, fromUnknown: 0, tasksTotal: 0, tasksCompleted: 0 },
+  );
+  return { users: rows, totals };
+});
+
+app.get("/api/admin/users/:userId", async (request, reply) => {
+  if (!adminPasswordConfigured()) {
+    reply.code(404);
+    return { error: "Admin not configured" };
+  }
+  if (!adminSessionFromRequest(request)) {
+    reply.code(401);
+    return { error: "Unauthorized" };
+  }
+  const { userId } = request.params as { userId: string };
+  const user = db
+    .prepare(
+      `SELECT id, timezone, reminder_hour_local AS reminderHourLocal,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt
+       FROM users WHERE id = ?`,
+    )
+    .get(userId) as Record<string, unknown> | undefined;
+  if (!user) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const subscriptions = db
+    .prepare(
+      `SELECT id, tvmaze_show_id AS tvmazeShowId, show_name AS showName,
+              added_from AS addedFrom, created_at AS createdAt
+       FROM show_subscriptions WHERE user_id = ? ORDER BY datetime(created_at) DESC`,
+    )
+    .all(userId);
+  const taskRow = db
+    .prepare(
+      `SELECT
+         COUNT(*) AS total,
+         SUM(CASE WHEN completed_at IS NOT NULL THEN 1 ELSE 0 END) AS completed
+       FROM watch_tasks WHERE user_id = ?`,
+    )
+    .get(userId) as { total: number; completed: number | null };
+  const tasksTotal = Number(taskRow?.total ?? 0);
+  const tasksCompleted = Number(taskRow?.completed ?? 0);
+  return {
+    user,
+    subscriptions,
+    tasks: { total: tasksTotal, completed: tasksCompleted, open: tasksTotal - tasksCompleted },
+  };
+});
 
 app.post("/api/users", async (request, reply) => {
   const body = (request.body ?? {}) as UserCreateInput;
@@ -458,13 +647,15 @@ app.get("/api/users/:userId/subscriptions", async (request, reply) => {
   }
   const rows = db
     .prepare(
-      `SELECT id, tvmaze_show_id AS tvmazeShowId, show_name AS showName, created_at AS createdAt
+      `SELECT id, tvmaze_show_id AS tvmazeShowId, show_name AS showName,
+              added_from AS addedFrom, created_at AS createdAt
        FROM show_subscriptions WHERE user_id = ? ORDER BY created_at DESC`,
     )
     .all(userId) as {
     id: string;
     tvmazeShowId: number;
     showName: string;
+    addedFrom: string | null;
     createdAt: string;
   }[];
 
@@ -580,7 +771,7 @@ app.get("/api/users/:userId/recommended-shows", async (request, reply) => {
 
 app.post("/api/users/:userId/subscriptions", async (request, reply) => {
   const { userId } = request.params as { userId: string };
-  const body = (request.body ?? {}) as { tvmazeShowId?: number };
+  const body = (request.body ?? {}) as { tvmazeShowId?: number; addedFrom?: string };
   const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
   if (!u) {
     reply.code(404);
@@ -590,12 +781,17 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
     reply.code(400);
     return { error: "tvmazeShowId required" };
   }
+  let addedFrom: string | null = null;
+  if (body.addedFrom === "search" || body.addedFrom === "recommended") {
+    addedFrom = body.addedFrom;
+  }
   const show = await fetchShow(body.tvmazeShowId);
   const id = uuidv4();
   try {
     db.prepare(
-      `INSERT INTO show_subscriptions (id, user_id, tvmaze_show_id, show_name, platform_note) VALUES (?, ?, ?, ?, ?)`,
-    ).run(id, userId, show.id, show.name, null);
+      `INSERT INTO show_subscriptions (id, user_id, tvmaze_show_id, show_name, platform_note, added_from)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+    ).run(id, userId, show.id, show.name, null, addedFrom);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
     if (msg.includes("UNIQUE")) {
@@ -605,7 +801,7 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
     throw e;
   }
   reply.code(201);
-  return { id, tvmazeShowId: show.id, showName: show.name };
+  return { id, tvmazeShowId: show.id, showName: show.name, addedFrom };
 });
 
 app.delete("/api/subscriptions/:subscriptionId", async (request, reply) => {
@@ -890,6 +1086,13 @@ app.get("/index.html", async (_req, reply) => {
 app.get("/search-results.html", async (_req, reply) => {
   reply.header("Cache-Control", "no-store, max-age=0");
   reply.type("text/html; charset=utf-8").send(readPublicHtml("search-results.html"));
+});
+app.get("/admin.html", async (_req, reply) => {
+  reply.header("Cache-Control", "no-store, max-age=0");
+  reply.type("text/html; charset=utf-8").send(readPublicHtml("admin.html"));
+});
+app.get("/admin", async (_req, reply) => {
+  reply.redirect("/admin.html", 302);
 });
 
 app.get("/sw.js", async (_req, reply) => {
