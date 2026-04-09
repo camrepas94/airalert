@@ -331,6 +331,52 @@
       .detail-push-test button {
         margin-top: 0.35rem;
       }
+      .admin-genre-cell {
+        font-size: 0.68rem;
+        line-height: 1.55;
+        max-width: 12rem;
+        vertical-align: middle;
+      }
+      .admin-genre-bubbles-large {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin: 0.35rem 0 0.65rem;
+      }
+      .admin-genre-cell .admin-genre-bubble {
+        margin: 0.12rem 0.28rem 0.12rem 0;
+      }
+      .admin-genre-bubble {
+        display: inline-block;
+        padding: 0.22rem 0.55rem;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.72rem;
+        text-transform: capitalize;
+        color: #fff;
+        white-space: nowrap;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+      }
+      .admin-genre-bubble.bubble-g-blue {
+        background: linear-gradient(145deg, #3bc9ff 0%, #1c7ed6 45%, #0b4d8c 100%);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15) inset, 0 0 24px rgba(34, 180, 255, 0.55);
+      }
+      .admin-genre-bubble.bubble-g-magenta {
+        background: linear-gradient(145deg, #ff6b9d 0%, #e03169 48%, #9c1448 100%);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset, 0 0 24px rgba(255, 105, 180, 0.5);
+      }
+      .admin-genre-bubble.bubble-g-orange {
+        background: linear-gradient(145deg, #ffc078 0%, #fd7e14 45%, #c2410c 100%);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15) inset, 0 0 22px rgba(253, 158, 66, 0.55);
+      }
+      .admin-genre-bubble.bubble-g-cyan {
+        background: linear-gradient(145deg, #99f6ff 0%, #22d3ee 42%, #0b7285 100%);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2) inset, 0 0 22px rgba(34, 211, 238, 0.55);
+      }
+      .admin-genre-bubble.bubble-g-violet {
+        background: linear-gradient(145deg, #e9d5ff 0%, #a855f7 48%, #5b21b6 100%);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset, 0 0 24px rgba(168, 85, 247, 0.5);
+      }
       .detail-show-line {
         display: flex;
         flex-wrap: wrap;
@@ -420,14 +466,13 @@
         <button type="button" class="secondary" id="logoutBtn">Sign out (env session)</button>
         <button type="button" class="secondary" id="refreshBtn">Refresh data</button>
       </p>
-
       <div class="help-card">
         <strong>Quick guide</strong>
         <ol>
           <li>Read the <strong>summary cards</strong> for totals across all users.</li>
           <li>
-            <strong>Tap a row</strong> to open that person’s panel: turn <strong>Admin access</strong> on or off, add a show
-            (TVMaze ID), or remove subscriptions.
+            Open a <strong>user row</strong> in the table to manage access, shows, <strong>top genres</strong> (from TVMaze),
+            <strong>Test web push</strong>, and subscriptions.
           </li>
           <li>On a phone, <strong>swipe the table sideways</strong> if columns don’t all fit.</li>
         </ol>
@@ -451,6 +496,7 @@
               <th>Subs</th>
               <th>Search / Rec / ?</th>
               <th>Tasks ✓ / total</th>
+              <th>Top genres</th>
             </tr>
           </thead>
           <tbody id="userRows"></tbody>
@@ -535,6 +581,28 @@
         return "legacy";
       }
 
+      function prettyGenreLabel(g) {
+        return String(g)
+          .split(/\s+/)
+          .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : ""))
+          .join(" ");
+      }
+
+      function renderAdminGenreBubbles(genres) {
+        if (!genres || !genres.length) return "—";
+        const cls = ["bubble-g-cyan", "bubble-g-magenta", "bubble-g-orange", "bubble-g-blue", "bubble-g-violet"];
+        return genres
+          .map(
+            (g, i) =>
+              "<span class=\"admin-genre-bubble " +
+              cls[i % cls.length] +
+              "\">" +
+              escapeHtml(prettyGenreLabel(g)) +
+              "</span>",
+          )
+          .join("");
+      }
+
       function statCard(value, label) {
         return (
           "<div class=\"stat-card\"><span class=\"stat-value\">" +
@@ -591,6 +659,9 @@
             u.tasksCompleted +
             " / " +
             u.tasksTotal +
+            "</td>" +
+            "<td class=\"admin-genre-cell\">" +
+            renderAdminGenreBubbles(u.topGenres) +
             "</td>";
           tbody.appendChild(tr);
 
@@ -598,7 +669,7 @@
           detailTr.className = "detail-row hidden";
           detailTr.setAttribute("data-detail-for", u.id);
           const detailTd = document.createElement("td");
-          detailTd.colSpan = 8;
+          detailTd.colSpan = 9;
           detailTd.textContent = "Loading…";
           detailTr.appendChild(detailTd);
           tbody.appendChild(detailTr);
@@ -614,7 +685,26 @@
               const subs = d.subscriptions || [];
               const ua = d.user || {};
               const isAdm = truthyBit(ua.isAdmin);
-              let html =
+              const genreLine =
+                u.topGenres && u.topGenres.length
+                  ? "<div style='margin-bottom:0.85rem'><strong style='font-size:0.85rem'>Top genres (from subscriptions)</strong>" +
+                    "<div class=\"admin-genre-bubbles-large\">" +
+                    u.topGenres
+                      .map((g, gi) => {
+                        const cls = ["bubble-g-cyan", "bubble-g-magenta", "bubble-g-orange", "bubble-g-blue", "bubble-g-violet"];
+                        return (
+                          "<span class=\"admin-genre-bubble " +
+                          cls[gi % cls.length] +
+                          "\">" +
+                          escapeHtml(prettyGenreLabel(g)) +
+                          "</span>"
+                        );
+                      })
+                      .join("") +
+                    "</div></div>"
+                  : "";
+              let html = genreLine;
+              html +=
                 "<div class=\"detail-admin-box\">" +
                 "<strong>Admin access</strong>" +
                 "<label><input type=\"checkbox\" id=\"admToggle_" +
