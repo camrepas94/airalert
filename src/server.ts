@@ -17,8 +17,8 @@ import {
 import { normalizeEpisodeAirdate, safeTodayInTimeZone } from "./time.js";
 import { buildIcsCalendar, episodeUid } from "./ics.js";
 import { refreshAllSubscribedShows, runDailyNotifications, runTaskNudgeNotifications } from "./jobs.js";
-import { configureWebPush, getVapidPublicKey } from "./push.js";
-import { computeRecommendedShows } from "./recommend.js";
+import { configureWebPush, getVapidPublicKey, isWebPushConfigured, sendWebPushToUser } from "./push.js";
+import { computeRecommendedShows, computeTrendingShows } from "./recommend.js";
 import { hashPassword, verifyPassword } from "./password.js";
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -329,7 +329,91 @@ app.get("/api/admin/overview", async (request, reply) => {
     },
     { users: 0, subscriptions: 0, fromRecommended: 0, fromSearch: 0, fromUnknown: 0, tasksTotal: 0, tasksCompleted: 0 },
   );
-  return { users: rows, totals };
+  const userIds = rows.map((r) => r.id);
+  const genreMap = await topGenresForAdminUsers(userIds);
+  const usersOut = rows.map((r) => ({
+    ...r,
+    topGenres: genreMap.get(r.id) ?? [],
+  }));
+  return { users: usersOut, totals };
+});
+
+/** Top 5 genre keywords (lowercase) per user from subscribed shows’ TVMaze genres. */
+async function topGenresForAdminUsers(userIds: string[]): Promise<Map<string, string[]>> {
+  const out = new Map<string, string[]>();
+  for (const id of userIds) out.set(id, []);
+  if (userIds.length === 0) return out;
+
+  const placeholders = userIds.map(() => "?").join(",");
+  const subs = db
+    .prepare(`SELECT user_id, tvmaze_show_id FROM show_subscriptions WHERE user_id IN (${placeholders})`)
+    .all(...userIds) as { user_id: string; tvmaze_show_id: number }[];
+
+  const byUser = new Map<string, number[]>();
+  for (const s of subs) {
+    if (!byUser.has(s.user_id)) byUser.set(s.user_id, []);
+    byUser.get(s.user_id)!.push(s.tvmaze_show_id);
+  }
+
+  const uniqueShowIds = [...new Set(subs.map((s) => s.tvmaze_show_id))];
+  const showGenres = new Map<number, string[]>();
+  for (let i = 0; i < uniqueShowIds.length; i += 10) {
+    const chunk = uniqueShowIds.slice(i, i + 10);
+    const settled = await Promise.allSettled(chunk.map((id) => fetchShow(id)));
+    for (let j = 0; j < chunk.length; j++) {
+      const r = settled[j];
+      const id = chunk[j];
+      if (r.status === "fulfilled") {
+        showGenres.set(id, r.value.genres ?? []);
+      } else {
+        showGenres.set(id, []);
+      }
+    }
+  }
+
+  for (const uid of userIds) {
+    const counts = new Map<string, number>();
+    for (const sid of byUser.get(uid) ?? []) {
+      for (const g of showGenres.get(sid) ?? []) {
+        const k = g.trim().toLowerCase();
+        if (k.length < 2) continue;
+        counts.set(k, (counts.get(k) ?? 0) + 1);
+      }
+    }
+    const top = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 5)
+      .map(([g]) => g);
+    out.set(uid, top);
+  }
+  return out;
+}
+
+app.delete("/api/admin/users/:userId", async (request, reply) => {
+  if (!isRequestAdmin(request)) {
+    reply.code(401);
+    return { error: "Unauthorized" };
+  }
+  const { userId } = request.params as { userId: string };
+  const row = db
+    .prepare(`SELECT username, is_admin FROM users WHERE id = ?`)
+    .get(userId) as { username: string | null; is_admin: number } | undefined;
+  if (!row) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const un = row.username?.trim() ?? "";
+  if (un.length > 0) {
+    reply.code(400);
+    return { error: "Only guest accounts (no username) can be deleted here" };
+  }
+  const sid = sessionUserIdFromRequest(request);
+  if (sid === userId) {
+    reply.code(400);
+    return { error: "Cannot delete the account you are signed in as" };
+  }
+  db.prepare(`DELETE FROM users WHERE id = ?`).run(userId);
+  return { ok: true };
 });
 
 app.get("/api/admin/users/:userId", async (request, reply) => {
@@ -399,6 +483,34 @@ app.patch("/api/admin/users/:userId", async (request, reply) => {
     )
     .get(userId);
   return row;
+});
+
+app.post("/api/admin/users/:userId/test-push", async (request, reply) => {
+  if (!isRequestAdmin(request)) {
+    reply.code(401);
+    return { error: "Unauthorized" };
+  }
+  const { userId } = request.params as { userId: string };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  if (!isWebPushConfigured()) {
+    reply.code(503);
+    return { error: "Push not configured on server (missing VAPID keys)" };
+  }
+  const body = (request.body ?? {}) as { title?: string; body?: string };
+  const titleRaw = typeof body.title === "string" ? body.title.trim() : "";
+  const bodyRaw = typeof body.body === "string" ? body.body.trim() : "";
+  const title = titleRaw.slice(0, 200) || "Airalert test";
+  const text = bodyRaw.slice(0, 500) || "Test push from admin panel.";
+  const n = db.prepare(`SELECT COUNT(*) AS c FROM web_push_subscriptions WHERE user_id = ?`).get(userId) as { c: number };
+  if (n.c === 0) {
+    return { ok: true, sent: false, subscriptions: 0, message: "No registered push devices for this user." };
+  }
+  await sendWebPushToUser(userId, { title, body: text, url: "/" });
+  return { ok: true, sent: true, subscriptions: n.c };
 });
 
 app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
@@ -1009,6 +1121,29 @@ app.get("/api/users/:userId/recommended-shows", async (request, reply) => {
   }
 });
 
+app.get("/api/users/:userId/trending-shows", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
+  const rows = db
+    .prepare(`SELECT tvmaze_show_id AS id FROM show_subscriptions WHERE user_id = ?`)
+    .all(userId) as { id: number }[];
+  const ids = rows.map((r) => Number(r.id)).filter((n) => Number.isInteger(n) && n > 0);
+  try {
+    const shows = await computeTrendingShows(ids);
+    return { shows };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    app.log.error(err, "trending-shows failed");
+    reply.code(502);
+    return { error: msg };
+  }
+});
+
 app.post("/api/users/:userId/subscriptions", async (request, reply) => {
   const { userId } = request.params as { userId: string };
   const body = (request.body ?? {}) as { tvmazeShowId?: number; addedFrom?: string };
@@ -1023,7 +1158,7 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
     return { error: "tvmazeShowId required" };
   }
   let addedFrom: string | null = null;
-  if (body.addedFrom === "search" || body.addedFrom === "recommended") {
+  if (body.addedFrom === "search" || body.addedFrom === "recommended" || body.addedFrom === "trending") {
     addedFrom = body.addedFrom;
   }
   const show = await fetchShow(body.tvmazeShowId);

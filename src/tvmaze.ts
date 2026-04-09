@@ -96,6 +96,7 @@ type TvmazeShowListItem = {
   network?: { name: string } | null;
   webChannel?: { name: string } | null;
   image?: { medium?: string; original?: string } | null;
+  rating?: { average?: number | null } | null;
 };
 
 function listItemToSearchHit(show: TvmazeShowListItem): TvmazeShowSearch {
@@ -193,6 +194,53 @@ export async function scanShowsCatalogForGenreFit(
         const prev = out.get(show.id);
         if (!prev || fit > prev.genreFit) {
           out.set(show.id, { show, genreFit: fit });
+        }
+      }
+    }
+    await new Promise((r) => setTimeout(r, 6));
+  }
+
+  return out;
+}
+
+/**
+ * Like {@link scanShowsCatalogForGenreFit}, but scores by genre overlap × TVMaze rating (popular / well-known shows).
+ */
+export async function scanShowsCatalogForTrending(
+  userGenreWeights: Map<string, number>,
+  excludeIds: Set<number>,
+  opts: { pageRanges: [number, number][]; concurrency: number },
+): Promise<Map<number, { show: TvmazeShowListItem; trendScore: number }>> {
+  if (userGenreWeights.size === 0) return new Map();
+
+  const pages: number[] = [];
+  for (const [a, b] of opts.pageRanges) {
+    const lo = Math.min(a, b);
+    const hi = Math.max(a, b);
+    for (let p = lo; p <= hi; p++) pages.push(p);
+  }
+  const uniquePages = [...new Set(pages)].sort((x, y) => x - y);
+  const out = new Map<number, { show: TvmazeShowListItem; trendScore: number }>();
+
+  for (let i = 0; i < uniquePages.length; i += opts.concurrency) {
+    const batch = uniquePages.slice(i, i + opts.concurrency);
+    const settled = await Promise.allSettled(batch.map((page) => fetchShowsCatalogPage(page)));
+    for (const s of settled) {
+      if (s.status !== "fulfilled") continue;
+      for (const show of s.value) {
+        if (!show?.id || excludeIds.has(show.id)) continue;
+        let genreFit = 0;
+        for (const g of show.genres ?? []) {
+          const k = g.trim().toLowerCase();
+          if (k.length < 2) continue;
+          genreFit += userGenreWeights.get(k) ?? 0;
+        }
+        if (genreFit <= 0) continue;
+        const avg = typeof show.rating?.average === "number" && Number.isFinite(show.rating.average) ? show.rating.average : 0;
+        const trendScore = genreFit * (1 + Math.max(0, avg) / 10);
+        const prev = out.get(show.id);
+        if (!prev || trendScore > prev.trendScore) {
+          out.set(show.id, { show, trendScore });
         }
       }
     }

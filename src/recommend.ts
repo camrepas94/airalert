@@ -4,6 +4,7 @@ import {
   searchShowsPlain,
   fetchPreviousEpisodeAirdates,
   scanShowsCatalogForGenreFit,
+  scanShowsCatalogForTrending,
 } from "./tvmaze.js";
 
 type ShowDetail = Awaited<ReturnType<typeof fetchShow>>;
@@ -404,4 +405,53 @@ export async function computeRecommendedShows(subscribedShowIds: number[]): Prom
   });
 
   return { shows: shows.slice(0, 14), queriesUsed };
+}
+
+/**
+ * Popular catalog picks whose **genres** overlap your subscriptions, boosted by TVMaze rating.
+ */
+export async function computeTrendingShows(subscribedShowIds: number[]): Promise<RecommendedShowHit[]> {
+  const subSet = new Set(subscribedShowIds);
+  if (subscribedShowIds.length === 0) {
+    return [];
+  }
+
+  const details = await fetchShowDetailsForRecommend(subscribedShowIds);
+  if (details.length === 0) {
+    return [];
+  }
+
+  const userGenreWeights = buildUserGenreWeights(details);
+  if (userGenreWeights.size === 0) {
+    return [];
+  }
+
+  const catalogMatches = await scanShowsCatalogForTrending(userGenreWeights, subSet, {
+    pageRanges: [
+      [0, 26],
+      [45, 62],
+      [110, 128],
+    ],
+    concurrency: 8,
+  });
+
+  const sorted = [...catalogMatches.values()].sort((a, b) => b.trendScore - a.trendScore || a.show.name.localeCompare(b.show.name));
+  const top = sorted.slice(0, 22);
+
+  const hits: RecommendedShowHit[] = top.map(({ show, trendScore }) => ({
+    id: show.id,
+    name: show.name,
+    network: show.network?.name ?? show.webChannel?.name ?? null,
+    premiered: show.premiered ?? null,
+    image: show.image?.medium ?? null,
+    lastAiredDate: null,
+    matchScore: trendScore,
+  }));
+
+  const lastAiredById = await fetchPreviousEpisodeAirdates(hits.map((h) => h.id));
+
+  return hits.map((h) => ({
+    ...h,
+    lastAiredDate: lastAiredById.get(h.id) ?? null,
+  }));
 }

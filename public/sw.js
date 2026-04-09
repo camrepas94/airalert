@@ -1,22 +1,24 @@
 /* global self */
 
 self.addEventListener("push", (event) => {
-  let data = { title: "Airalert", body: "New episode reminder", url: "/" };
-  try {
-    if (event.data) {
-      const j = event.data.json();
-      if (j && typeof j === "object") {
-        data = { ...data, ...j };
-      }
-    }
-  } catch {
-    /* ignore */
-  }
   event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      data: { url: data.url || "/" },
-    }),
+    (async () => {
+      let data = { title: "Airalert", body: "New episode reminder", url: "/" };
+      try {
+        if (event.data) {
+          const j = await event.data.json();
+          if (j && typeof j === "object") {
+            data = { ...data, ...j };
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+      await self.registration.showNotification(data.title, {
+        body: data.body,
+        data: { url: data.url || "/" },
+      });
+    })(),
   );
 });
 

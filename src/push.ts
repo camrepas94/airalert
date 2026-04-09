@@ -65,6 +65,9 @@ export async function sendWebPushToUser(
       const status = typeof err === "object" && err !== null && "statusCode" in err ? (err as { statusCode?: number }).statusCode : undefined;
       if (status === 404 || status === 410) {
         db.prepare(`DELETE FROM web_push_subscriptions WHERE endpoint = ?`).run(row.endpoint);
+      } else {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.warn("[web-push] send failed", { userId, status, endpointPrefix: row.endpoint.slice(0, 48), message: msg });
       }
     }
   }

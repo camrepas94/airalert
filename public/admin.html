@@ -304,6 +304,33 @@
       .detail-add-show button {
         margin-top: 0;
       }
+      .detail-push-test {
+        padding: 0.75rem 0.85rem;
+        margin: 0 0 0.85rem;
+        border-radius: 12px;
+        border: 1px solid rgba(91, 156, 255, 0.28);
+        background: rgba(91, 156, 255, 0.07);
+      }
+      .detail-push-test strong {
+        display: block;
+        margin-bottom: 0.45rem;
+        font-size: 0.82rem;
+        color: #b8d4ff;
+        letter-spacing: 0.03em;
+      }
+      .detail-push-test p {
+        margin: 0 0 0.55rem;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+      .detail-push-test input[type="text"] {
+        max-width: 100%;
+        margin-bottom: 0.45rem;
+      }
+      .detail-push-test button {
+        margin-top: 0.35rem;
+      }
       .detail-show-line {
         display: flex;
         flex-wrap: wrap;
@@ -614,6 +641,25 @@
                 u.id +
                 "\">Add show</button>" +
                 "</div>" +
+                "<div class=\"detail-push-test\">" +
+                "<strong>Test web push</strong>" +
+                "<p>Sends to each device this user registered with <strong>Turn on push</strong> on the main app.</p>" +
+                "<label for=\"pushTitle_" +
+                u.id +
+                "\">Title</label>" +
+                "<input type=\"text\" id=\"pushTitle_" +
+                u.id +
+                "\" maxlength=\"200\" placeholder=\"Airalert test\" />" +
+                "<label for=\"pushBody_" +
+                u.id +
+                "\">Message</label>" +
+                "<input type=\"text\" id=\"pushBody_" +
+                u.id +
+                "\" maxlength=\"500\" placeholder=\"Hello from admin\" />" +
+                "<button type=\"button\" class=\"secondary\" id=\"pushTestBtn_" +
+                u.id +
+                "\">Send test push</button>" +
+                "</div>" +
                 "<div><strong>Shows</strong></div>";
               if (!subs.length) {
                 html += "<p class='muted' style='margin:0.35rem 0 0'>No subscriptions yet.</p>";
@@ -697,6 +743,35 @@
                   }
                 });
               });
+
+              const pushBtn = document.getElementById("pushTestBtn_" + u.id);
+              const pushTitleEl = document.getElementById("pushTitle_" + u.id);
+              const pushBodyEl = document.getElementById("pushBody_" + u.id);
+              if (pushBtn) {
+                pushBtn.addEventListener("click", async (ev) => {
+                  ev.stopPropagation();
+                  pushBtn.disabled = true;
+                  try {
+                    const payload = {
+                      title: pushTitleEl && pushTitleEl.value.trim() ? pushTitleEl.value.trim() : undefined,
+                      body: pushBodyEl && pushBodyEl.value.trim() ? pushBodyEl.value.trim() : undefined,
+                    };
+                    const out = await api("/api/admin/users/" + encodeURIComponent(u.id) + "/test-push", {
+                      method: "POST",
+                      body: JSON.stringify(payload),
+                    });
+                    if (out.sent) {
+                      showToast("Test push sent (" + out.subscriptions + " device(s))");
+                    } else {
+                      showToast(out.message || "No push devices for this user");
+                    }
+                  } catch (e) {
+                    showToast(e.message || "Test push failed");
+                  } finally {
+                    pushBtn.disabled = false;
+                  }
+                });
+              }
             } catch (e) {
               detailTd.textContent = e.message || "Failed to load user.";
             }

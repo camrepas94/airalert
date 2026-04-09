@@ -113,22 +113,18 @@
       .app-top-brand-row {
         display: flex;
         align-items: center;
-        gap: 0.55rem;
+        justify-content: space-between;
+        gap: 0.65rem;
+        width: 100%;
         margin: 0 0 0.35rem;
         line-height: 1;
       }
-      .app-top-header-spacer {
-        flex: 1;
-        min-width: 0;
-        pointer-events: none;
-      }
       .app-top-header-actions {
-        flex: 1;
+        flex-shrink: 0;
         display: flex;
         justify-content: flex-end;
         align-items: center;
         gap: 0.45rem;
-        min-width: 0;
       }
       .header-icon-btn {
         flex-shrink: 0;
@@ -203,21 +199,21 @@
       }
       .brand-heading {
         margin: 0;
-        flex: 0 0 auto;
+        flex: 0 1 auto;
         min-width: 0;
         line-height: 1;
         display: flex;
         align-items: center;
-        justify-content: center;
-        min-height: 2.6rem;
+        justify-content: flex-start;
+        min-height: 2.85rem;
         transform: translateZ(0);
         isolation: isolate;
       }
       .brand-heading .brand-logo {
         display: block;
-        height: 2rem;
+        height: 2.45rem;
         width: auto;
-        max-width: min(12rem, 76vw);
+        max-width: min(14.5rem, 82vw);
         opacity: 1;
         position: relative;
         z-index: 1;
@@ -225,8 +221,8 @@
       }
       @media (min-width: 400px) {
         .brand-heading .brand-logo {
-          height: 2.25rem;
-          max-width: 13rem;
+          height: 2.7rem;
+          max-width: 15rem;
         }
       }
       section {
@@ -261,6 +257,11 @@
         border-right-color: var(--neon-magenta);
         box-shadow: var(--shadow-lift), var(--shadow-card), var(--panel-glow-magenta);
       }
+      section.panel-rail-blue {
+        border-left-color: rgba(91, 156, 255, 0.85);
+        border-right-color: rgba(91, 156, 255, 0.85);
+        box-shadow: var(--shadow-lift), var(--shadow-card), var(--panel-glow-blue);
+      }
       section.push-section .push-btn {
         width: 100%;
         margin-top: 0.5rem;
@@ -282,6 +283,136 @@
         color: var(--accent-hot);
         margin: 0 0 0.75rem;
         font-weight: 600;
+      }
+      .section-header-highlight {
+        margin: 0 0 0.85rem;
+        padding: 0.55rem 0.85rem;
+        border-radius: 12px;
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        text-align: center;
+        color: #f0f9ff;
+        border: 1px solid rgba(34, 211, 238, 0.45);
+        background: linear-gradient(175deg, rgba(34, 211, 238, 0.14) 0%, rgba(8, 14, 28, 0.55) 100%);
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.1) inset, 0 0 24px 2px rgba(34, 211, 238, 0.22),
+          0 10px 32px rgba(0, 0, 0, 0.35);
+        text-shadow: 0 0 18px rgba(34, 211, 238, 0.35);
+      }
+      .section-header-highlight.header-magenta {
+        color: #fce7ff;
+        border-color: rgba(232, 121, 249, 0.5);
+        background: linear-gradient(175deg, rgba(232, 121, 249, 0.14) 0%, rgba(18, 10, 28, 0.55) 100%);
+        box-shadow: 0 0 0 1px rgba(232, 121, 249, 0.12) inset, 0 0 24px 2px rgba(232, 121, 249, 0.22),
+          0 10px 32px rgba(0, 0, 0, 0.35);
+        text-shadow: 0 0 18px rgba(232, 121, 249, 0.35);
+      }
+      .section-header-highlight.header-blue {
+        color: #e0f2ff;
+        border-color: rgba(91, 156, 255, 0.48);
+        background: linear-gradient(175deg, rgba(91, 156, 255, 0.14) 0%, rgba(8, 14, 28, 0.55) 100%);
+        box-shadow: 0 0 0 1px rgba(91, 156, 255, 0.12) inset, 0 0 24px 2px rgba(91, 156, 255, 0.2),
+          0 10px 32px rgba(0, 0, 0, 0.35);
+        text-shadow: 0 0 16px rgba(91, 156, 255, 0.32);
+      }
+      .section-header-highlight.header-gold {
+        color: #fffbeb;
+        border-color: rgba(251, 191, 36, 0.45);
+        background: linear-gradient(175deg, rgba(251, 191, 36, 0.12) 0%, rgba(18, 14, 8, 0.55) 100%);
+        box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.1) inset, 0 0 22px 2px rgba(251, 191, 36, 0.18),
+          0 10px 32px rgba(0, 0, 0, 0.35);
+        text-shadow: 0 0 14px rgba(251, 191, 36, 0.3);
+      }
+      button.fold-toggle.fold-toggle-highlight {
+        margin: 0 0 0.85rem;
+        padding: 0.55rem 0.85rem;
+        border-radius: 12px !important;
+        border: 1px solid rgba(232, 121, 249, 0.45) !important;
+        background: linear-gradient(175deg, rgba(232, 121, 249, 0.12) 0%, rgba(18, 10, 28, 0.5) 100%) !important;
+        box-shadow: 0 0 0 1px rgba(232, 121, 249, 0.1) inset, 0 0 22px 2px rgba(232, 121, 249, 0.2),
+          0 8px 28px rgba(0, 0, 0, 0.32);
+        color: #fce7ff !important;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-shadow: 0 0 14px rgba(232, 121, 249, 0.35);
+      }
+      button.fold-toggle.fold-toggle-cyan {
+        margin: 0 0 0.85rem;
+        padding: 0.55rem 0.85rem;
+        border-radius: 12px !important;
+        border: 1px solid rgba(34, 211, 238, 0.45) !important;
+        background: linear-gradient(175deg, rgba(34, 211, 238, 0.12) 0%, rgba(8, 14, 28, 0.5) 100%) !important;
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.1) inset, 0 0 22px 2px rgba(34, 211, 238, 0.2),
+          0 8px 28px rgba(0, 0, 0, 0.32);
+        color: #e0fdff !important;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
+      }
+      button.fold-toggle.fold-toggle-magenta {
+        margin: 0 0 0.85rem;
+        padding: 0.55rem 0.85rem;
+        border-radius: 12px !important;
+        border: 1px solid rgba(232, 121, 249, 0.48) !important;
+        background: linear-gradient(175deg, rgba(232, 121, 249, 0.12) 0%, rgba(18, 10, 28, 0.5) 100%) !important;
+        box-shadow: 0 0 0 1px rgba(232, 121, 249, 0.1) inset, 0 0 22px 2px rgba(232, 121, 249, 0.2),
+          0 8px 28px rgba(0, 0, 0, 0.32);
+        color: #fce7ff !important;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-shadow: 0 0 14px rgba(232, 121, 249, 0.35);
+      }
+      .section-header-highlight .search-hero-title {
+        font-size: 1.05rem;
+        filter: none;
+      }
+      .trending-scroll-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -0.35rem;
+        padding: 0.15rem 0.35rem 0.5rem;
+      }
+      .trending-scroll {
+        display: flex;
+        gap: 0.65rem;
+      }
+      .trending-scroll .search-card {
+        flex: 0 0 min(44vw, 11.5rem);
+        max-width: 11.5rem;
+        margin: 0;
+      }
+      .admin-genre-cell {
+        font-size: 0.68rem;
+        line-height: 1.5;
+        max-width: 11rem;
+      }
+      .admin-genre-bubble {
+        display: inline-block;
+        padding: 0.12rem 0.38rem;
+        border-radius: 999px;
+        margin: 0.08rem 0.12rem 0.08rem 0;
+        font-weight: 650;
+        font-size: 0.65rem;
+        text-transform: capitalize;
+        color: #fff;
+        white-space: nowrap;
+      }
+      .admin-genre-bubble.bubble-g-blue {
+        background: linear-gradient(180deg, #1c7ed6 0%, #1864ab 100%);
+        box-shadow: 0 0 12px rgba(28, 126, 214, 0.45);
+      }
+      .admin-genre-bubble.bubble-g-magenta {
+        background: linear-gradient(180deg, #e64980 0%, #a61e4d 100%);
+        box-shadow: 0 0 12px rgba(230, 73, 128, 0.45);
+      }
+      .admin-genre-bubble.bubble-g-orange {
+        background: linear-gradient(180deg, #fd7e14 0%, #d9480f 100%);
+        box-shadow: 0 0 12px rgba(253, 126, 20, 0.45);
+      }
+      .profile-identity-heading.section-header-highlight {
+        text-align: left;
+        margin-bottom: 1rem;
       }
       .visually-hidden {
         position: absolute;
@@ -383,15 +514,6 @@
       }
       .how-to-steps strong {
         color: var(--text);
-      }
-      .profile-identity-heading {
-        margin: 0 0 0.85rem;
-        font-size: 0.78rem;
-        letter-spacing: 0.12em;
-        font-weight: 750;
-        text-transform: uppercase;
-        color: #5ee9f7;
-        text-shadow: 0 0 20px rgba(34, 211, 238, 0.35);
       }
       section.profile-identity {
         border-left-color: var(--neon-cyan);
@@ -674,37 +796,6 @@
         border-radius: 10px;
         border: 1px solid var(--border-strong);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) inset;
-      }
-      .add-hero {
-        margin-bottom: 1rem;
-      }
-      .add-hero-card {
-        border-radius: 20px;
-        padding: 1.35rem 1.25rem 1.45rem;
-        text-align: center;
-        background: linear-gradient(160deg, rgba(16, 24, 48, 0.72) 0%, rgba(8, 12, 26, 0.88) 100%);
-        border: 1px solid rgba(130, 200, 255, 0.22);
-        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.08) inset, 0 20px 56px -20px rgba(34, 211, 238, 0.25),
-          0 24px 64px rgba(0, 0, 0, 0.45), var(--panel-glow-blue);
-        -webkit-backdrop-filter: blur(20px) saturate(1.15);
-        backdrop-filter: blur(20px) saturate(1.15);
-      }
-      .add-hero-logo {
-        display: block;
-        width: min(18rem, 88vw);
-        height: auto;
-        max-height: 3.4rem;
-        margin: 0 auto;
-        opacity: 1;
-        filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.35)) drop-shadow(0 0 40px rgba(91, 156, 255, 0.22));
-      }
-      .add-hero-tagline {
-        margin: 0.75rem 0 0;
-        font-size: 0.92rem;
-        line-height: 1.45;
-        max-width: 22rem;
-        margin-left: auto;
-        margin-right: auto;
       }
       .search-shell {
         position: relative;
@@ -1666,8 +1757,8 @@
         margin-top: 0.35rem;
       }
       .app-top.is-scrolled .brand-heading .brand-logo {
-        height: 1.45rem;
-        max-width: 10.5rem;
+        height: 1.7rem;
+        max-width: 11.5rem;
       }
       .app-top.is-scrolled .header-icon-btn {
         width: 2.2rem;
@@ -1870,9 +1961,8 @@
     <main>
       <header class="app-top" id="appTopBar">
         <div class="app-top-brand-row">
-          <div class="app-top-header-spacer" aria-hidden="true"></div>
           <h1 class="brand-heading">
-            <img class="brand-logo" src="/logo.svg" width="212" height="36" alt="Airalert" />
+            <img class="brand-logo" src="/logo.svg" width="240" height="41" alt="Airalert" />
           </h1>
           <div class="app-top-header-actions">
             <button
@@ -1935,10 +2025,10 @@
               aria-selected="true"
               data-tab="add"
               id="tabBtnAdd"
-              aria-label="Add a Show"
-              title="Add a Show"
+              aria-label="Add Shows"
+              title="Add Shows"
             >
-              <span class="tab-label-long">Add a Show</span>
+              <span class="tab-label-long">Add Shows</span>
               <span class="tab-label-short">Add</span>
             </button>
             <button
@@ -1948,11 +2038,11 @@
               aria-selected="false"
               data-tab="shows"
               id="tabBtnShows"
-              aria-label="Your Shows"
-              title="Your Shows"
+              aria-label="My List"
+              title="My List"
             >
-              <span class="tab-label-long">Your Shows</span>
-              <span class="tab-label-short">Shows</span>
+              <span class="tab-label-long">My List</span>
+              <span class="tab-label-short">List</span>
             </button>
             <button
               type="button"
@@ -1986,7 +2076,7 @@
 
       <div id="tab-profile" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnProfile">
         <section class="profile-identity panel-rail-cyan" aria-labelledby="profileIdentityHeading">
-          <h2 id="profileIdentityHeading" class="profile-identity-heading">Your profile</h2>
+          <h2 id="profileIdentityHeading" class="section-header-highlight profile-identity-heading">Your profile</h2>
           <div class="profile-identity-inner">
             <div class="profile-avatar-wrap">
               <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden />
@@ -2017,7 +2107,7 @@
         </section>
 
         <section class="panel-rail-cyan" aria-label="Reminders and timezone">
-          <button type="button" class="fold-toggle" id="foldProfileBtn" aria-expanded="false" aria-controls="foldProfileBody">
+          <button type="button" class="fold-toggle fold-toggle-cyan" id="foldProfileBtn" aria-expanded="false" aria-controls="foldProfileBody">
             <span class="fold-title">Reminders &amp; timezone</span>
             <span class="fold-chev" aria-hidden="true">▼</span>
           </button>
@@ -2057,7 +2147,7 @@
         </section>
 
         <section class="panel-rail-magenta" aria-label="Account">
-          <button type="button" class="fold-toggle" id="foldAccountBtn" aria-expanded="false" aria-controls="foldAccountBody">
+          <button type="button" class="fold-toggle fold-toggle-magenta" id="foldAccountBtn" aria-expanded="false" aria-controls="foldAccountBody">
             <span class="fold-title">Account</span>
             <span class="fold-chev" aria-hidden="true">▼</span>
           </button>
@@ -2109,35 +2199,30 @@
         </section>
 
         <section id="section-push" class="push-section" aria-labelledby="pushHeading">
-          <h2 id="pushHeading">Push notifications</h2>
+          <h2 id="pushHeading" class="section-header-highlight header-magenta">Push notifications</h2>
           <button type="button" class="secondary push-btn" id="enablePushBtn">Turn on push for this device</button>
           <p class="muted msg" id="pushMsg"></p>
         </section>
       </div>
 
       <div id="tab-add" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnAdd">
-        <section class="add-hero" aria-label="Airalert">
-          <div class="add-hero-card">
-            <img class="add-hero-logo" src="/logo.svg" width="280" height="48" alt="Airalert" />
-            <p class="add-hero-tagline muted">Track shows you love — search, subscribe, and never miss an air date.</p>
-          </div>
-        </section>
         <section class="search-shell" aria-label="Search and subscribe">
-          <div class="search-hero-head">
-            <svg class="search-hero-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <defs>
-                <linearGradient id="searchIconGrad" x1="4" y1="4" x2="20" y2="20">
-                  <stop stop-color="#22d3ee" />
-                  <stop offset="0.55" stop-color="#5b9cff" />
-                  <stop offset="1" stop-color="#c084fc" />
-                </linearGradient>
-              </defs>
-              <circle cx="11" cy="11" r="6.5" stroke="url(#searchIconGrad)" stroke-width="1.75" />
-              <path d="M16 16l4 4" stroke="url(#searchIconGrad)" stroke-width="1.75" stroke-linecap="round" />
-            </svg>
-            <h2 class="search-hero-title">Find a show</h2>
+          <div class="section-header-highlight">
+            <div class="search-hero-head" style="justify-content: center">
+              <svg class="search-hero-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                  <linearGradient id="searchIconGrad" x1="4" y1="4" x2="20" y2="20">
+                    <stop stop-color="#22d3ee" />
+                    <stop offset="0.55" stop-color="#5b9cff" />
+                    <stop offset="1" stop-color="#c084fc" />
+                  </linearGradient>
+                </defs>
+                <circle cx="11" cy="11" r="6.5" stroke="url(#searchIconGrad)" stroke-width="1.75" />
+                <path d="M16 16l4 4" stroke="url(#searchIconGrad)" stroke-width="1.75" stroke-linecap="round" />
+              </svg>
+              <h2 class="search-hero-title" style="margin: 0">Find a show</h2>
+            </div>
           </div>
-          <p class="search-hero-sub muted">Search TVMaze by title — live results as you type, or press Enter for a full search.</p>
           <div class="search-fields">
             <div>
               <label for="searchTitle">Show title</label>
@@ -2177,9 +2262,31 @@
           <div class="search-results" id="results"></div>
         </section>
 
+        <section class="trending-section panel-rail-cyan" aria-labelledby="trendingHeading">
+          <h2 id="trendingHeading" class="section-header-highlight">Trending shows</h2>
+          <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.75rem; line-height: 1.45">
+            Popular picks that match genres from <strong>My List</strong>. Add a few shows first if this is empty.
+          </p>
+          <p class="search-loading" id="trendingLoading" style="display: none">Loading trending…</p>
+          <p class="msg err" id="trendingErr"></p>
+          <div class="trending-scroll-wrap">
+            <div class="trending-scroll search-results" id="trendingList"></div>
+          </div>
+        </section>
+
+        <section class="panel-rail-cyan" aria-label="Refresh episode data">
+          <h2 class="section-header-highlight header-blue">Refresh data</h2>
+          <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.65rem; line-height: 1.45">
+            Pull TVMaze episode dates into the cache for <strong>My List</strong> (upcoming dates &amp; tasks update faster).
+          </p>
+          <button type="button" class="secondary" id="refreshData">Refresh Data</button>
+          <p class="muted msg" id="jobMsg"></p>
+          <pre id="jobOut" style="display: none"></pre>
+        </section>
+
         <section class="recommended-section panel-rail-magenta" aria-labelledby="recommendedHeading">
           <div class="recommended-fold-head">
-            <button type="button" class="fold-toggle" id="foldRecommendedBtn" aria-expanded="false" aria-controls="foldRecommendedBody">
+            <button type="button" class="fold-toggle fold-toggle-highlight" id="foldRecommendedBtn" aria-expanded="false" aria-controls="foldRecommendedBody">
               <span class="fold-title" id="recommendedHeading">Recommended for you</span>
               <span class="fold-chev" aria-hidden="true">▼</span>
             </button>
@@ -2197,41 +2304,23 @@
       </div>
 
       <div id="tab-shows" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnShows">
-        <section aria-label="Your shows">
-          <button type="button" class="fold-toggle" id="foldSubsBtn" aria-expanded="false" aria-controls="foldSubsBody">
-            <span class="fold-title">Your shows</span>
-            <span class="fold-chev" aria-hidden="true">▼</span>
-          </button>
-          <div class="fold-body" id="foldSubsBody" hidden>
-            <ul id="subs"></ul>
-            <div id="subsEmptyState" class="empty-state-card" style="display: none">
-              <div class="empty-state-icon" aria-hidden="true">📺</div>
-              <p class="empty-state-title">No shows yet</p>
-              <p class="empty-state-hint muted">Search by title and subscribe — your list will show up here.</p>
-              <button type="button" class="empty-state-cta" id="subsEmptyCta">Add a show</button>
-            </div>
+        <section class="panel-rail-blue" aria-label="Your shows">
+          <h2 class="section-header-highlight header-blue">Your shows</h2>
+          <ul id="subs"></ul>
+          <div id="subsEmptyState" class="empty-state-card" style="display: none">
+            <div class="empty-state-icon" aria-hidden="true">📺</div>
+            <p class="empty-state-title">No shows yet</p>
+            <p class="empty-state-hint muted">Search by title and subscribe — your list will show up here.</p>
+            <button type="button" class="empty-state-cta" id="subsEmptyCta">Add shows</button>
           </div>
-        </section>
-
-        <section class="panel-rail-cyan">
-          <h2>Upcoming</h2>
-          <button type="button" class="secondary" id="refreshData">Refresh Data</button>
-          <p class="muted msg" id="jobMsg"></p>
-          <pre id="jobOut" style="display: none"></pre>
-        </section>
-
-        <section class="panel-rail-magenta">
-          <h2>Notification log</h2>
-          <ul id="notifs"></ul>
-          <p class="muted" id="notifsEmpty">None yet. The hourly job records when an episode airs “today” in your timezone.</p>
         </section>
       </div>
 
       <div id="tab-tasks" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnTasks">
         <section aria-label="Watch checklist">
-          <h2>Watch checklist</h2>
+          <h2 class="section-header-highlight">Watch checklist</h2>
           <p class="muted" id="tasksIntro">
-            Episodes that <strong>air today</strong> (in your timezone) get a row here when the server runs its hourly job, or when you tap <strong>Refresh Data</strong> on <strong>Your Shows</strong>. Check off each one after you watch.
+            Episodes that <strong>air today</strong> (in your timezone) get a row here when the server runs its hourly job, or when you tap <strong>Refresh Data</strong> on <strong>Add Shows</strong>. Check off each one after you watch.
           </p>
           <ul class="tasks-list" id="tasksList"></ul>
           <p class="muted" id="tasksEmpty" style="display: none">No tasks yet. After a subscribed show has an episode on today’s date, it will show up here.</p>
@@ -2240,19 +2329,7 @@
 
       <div id="tab-admin" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnAdmin">
         <section class="panel-rail-cyan" aria-label="Admin">
-          <h2 style="margin-top: 0">Admin</h2>
-          <p class="muted" style="font-size: 0.88rem; line-height: 1.55; margin: 0 0 0.75rem">
-            View everyone using this server, how they added shows, and task activity. You can also open the full-page console at
-            <a href="/admin.html">/admin.html</a> (handy with an env admin password).
-          </p>
-          <div class="admin-help">
-            <strong>How to use this tab</strong>
-            <ol>
-              <li>Scan the <strong>summary cards</strong> below for totals.</li>
-              <li><strong>Tap a user row</strong> to grant or revoke <strong>admin</strong>, add a show by TVMaze ID, or remove a subscription.</li>
-              <li>Use <strong>Refresh</strong> after changes to reload the list.</li>
-            </ol>
-          </div>
+          <h2 class="section-header-highlight header-gold" style="margin-top: 0">Admin</h2>
           <button type="button" class="secondary" id="adminRefreshBtn">Refresh data</button>
           <div id="adminTotals" class="admin-stats-grid" aria-live="polite"></div>
           <p class="muted scroll-hint-admin" style="font-size: 0.75rem; margin: 0 0 0.35rem; display: none">
@@ -2261,8 +2338,7 @@
           <div class="admin-wrap">
             <table>
               <caption class="admin-table-caption">
-                Tap a row for admin controls. <strong>S / R / ?</strong> = subscriptions from search, recommendations, or
-                unspecified.
+                Tap a row for controls. <strong>S / R / ?</strong> = search / recommended / other. Guest-only accounts can be deleted.
               </caption>
               <thead>
                 <tr>
@@ -2272,6 +2348,8 @@
                   <th>Subs</th>
                   <th>S / R / ?</th>
                   <th>Tasks ✓</th>
+                  <th>Genres</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody id="adminUserRows"></tbody>
@@ -2344,17 +2422,17 @@
         </div>
         <div class="modal-body-scroll" id="quickStartHelpModalBody">
           <p class="how-to-lead muted">
-            Airalert opens on <strong>Add a Show</strong>. Open this guide anytime with the <strong>?</strong> button in the header. The <strong>home</strong> icon opens <strong>Your Profile</strong>; use the tabs below to switch sections.
+            Airalert opens on <strong>Add Shows</strong>. Open this guide anytime with the <strong>?</strong> button in the header. The <strong>home</strong> icon opens <strong>Your Profile</strong>; use the tabs below to switch sections.
           </p>
           <ol class="how-to-steps">
             <li>
-              <strong>Search and subscribe.</strong> On <strong>Add a Show</strong>, type a title — results update as you type, or press <strong>Enter</strong> for a full search (then <strong>Recent searches</strong> chips may appear). Tap <strong>Subscribe</strong> on a result card. Use <strong>×</strong> in the field to clear and search again. Your list is on <strong>Your Shows</strong> (expand <strong>Your shows</strong> there to see it). To browse episodes for a show you already follow, tap its title in that list to open details.
+              <strong>Search and subscribe.</strong> On <strong>Add Shows</strong>, type a title — results update as you type, or press <strong>Enter</strong> for a full search (then <strong>Recent searches</strong> chips may appear). <strong>Trending shows</strong> suggests popular titles in your genres. Tap <strong>Subscribe</strong> or <strong>Add show</strong> on a card. Your list is on <strong>My List</strong>. Tap a title there for episode details.
             </li>
             <li>
               <strong>Your profile card.</strong> On <strong>Your Profile</strong>, add a <strong>photo</strong>, <strong>display name</strong>, and use <strong>Save name &amp; photo</strong>. Open <strong>Reminders &amp; timezone</strong> to set <strong>timezone</strong> and <strong>reminder hour</strong>, then <strong>Save schedule &amp; timezone</strong>.
             </li>
             <li>
-              <strong>Recommended for you.</strong> Still on <strong>Add a Show</strong>, expand <strong>Recommended for you</strong> below the results (use <strong>Refresh</strong> if needed). Suggestions are weighted by <strong>genres</strong> from your subscriptions (plus shared networks when needed).
+              <strong>Recommended for you.</strong> Still on <strong>Add Shows</strong>, expand <strong>Recommended for you</strong> below (use <strong>Refresh</strong> if needed). Suggestions are weighted by <strong>genres</strong> from your subscriptions (plus shared networks when needed).
             </li>
             <li>
               <strong>Tasks.</strong> Open the <strong>Tasks</strong> tab: when an episode airs on its calendar day, it appears as a checklist item. Check it off when you’ve watched. Optional: on <strong>Your Profile</strong>, set a follow-up push (1, 3, or 7 days after air) if you still haven’t marked it watched — e.g. “Have you watched … yet?!”
@@ -2363,7 +2441,7 @@
               <strong>Optional — Push.</strong> On <strong>Your Profile</strong>, use <strong>Turn on push for this device</strong>. On iPhone, add Airalert to the Home Screen first for reliable delivery.
             </li>
             <li>
-              <strong>Refresh and log.</strong> On <strong>Your Shows</strong>, use <strong>Refresh Data</strong> (under <strong>Upcoming</strong>) to pull TVMaze data into the cache. <strong>Notification log</strong> lists what the hourly job recorded when an episode airs “today” in your timezone (entries are stored as dry-run; web push also fires when you’ve enabled it and the server sends a notification).
+              <strong>Refresh data.</strong> On <strong>Add Shows</strong>, use <strong>Refresh Data</strong> to pull TVMaze episode dates into the cache for <strong>My List</strong> and tasks.
             </li>
             <li>
               <strong>Own list per phone.</strong> If two devices show the same subscriptions unexpectedly, on <strong>one</strong> device use <strong>New list on this device</strong> under <strong>Reminders &amp; timezone</strong> (clears this browser’s session).
@@ -2682,7 +2760,7 @@
               lastAiredEpisode.label;
           } else {
             next.textContent = Number.isFinite(showId)
-              ? "No episode dates in cache — open Your Shows and tap Refresh Data."
+              ? "No episode dates in cache — open Add Shows and tap Refresh Data."
               : "Show details unavailable from subscription payload. Please refresh the app/server.";
           }
           left.appendChild(next);
@@ -2693,33 +2771,10 @@
             await api("/api/subscriptions/" + s.id, { method: "DELETE" });
             await loadSubs(userId);
             loadRecommended(userId);
+            loadTrendingShows(userId);
           };
           li.appendChild(left);
           li.appendChild(btn);
-          ul.appendChild(li);
-        }
-      }
-
-      async function loadNotifs(userId) {
-        const { notifications } = await api("/api/users/" + userId + "/notifications");
-        const ul = document.getElementById("notifs");
-        const empty = document.getElementById("notifsEmpty");
-        ul.innerHTML = "";
-        if (!notifications.length) {
-          empty.style.display = "block";
-          return;
-        }
-        empty.style.display = "none";
-        for (const n of notifications) {
-          const li = document.createElement("li");
-          li.innerHTML =
-            "<div><strong>" +
-            escapeHtml(n.showName) +
-            "</strong><div class=\"muted\">" +
-            escapeHtml(n.episodeLabel) +
-            " · " +
-            escapeHtml(n.airdate) +
-            "</div></div>";
           ul.appendChild(li);
         }
       }
@@ -2800,8 +2855,8 @@
         appUserId = id;
         await loadUser(id);
         await loadSubs(id);
-        await loadNotifs(id);
         loadRecommended(id);
+        loadTrendingShows(id);
         await loadTasks(id);
         try {
           const me = await api("/api/users/me");
@@ -2850,6 +2905,7 @@
       function adminPillClass(from) {
         if (from === "search") return "search";
         if (from === "recommended") return "rec";
+        if (from === "trending") return "rec";
         if (from === "admin") return "adm";
         return "unk";
       }
@@ -2857,8 +2913,31 @@
       function adminPillLabel(from) {
         if (from === "search") return "search";
         if (from === "recommended") return "rec";
+        if (from === "trending") return "trend";
         if (from === "admin") return "admin";
         return "legacy";
+      }
+
+      function prettyGenreLabel(g) {
+        return String(g)
+          .split(/\s+/)
+          .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : ""))
+          .join(" ");
+      }
+
+      function renderAdminGenreBubbles(genres) {
+        if (!genres || !genres.length) return "—";
+        const cls = ["bubble-g-blue", "bubble-g-magenta", "bubble-g-orange"];
+        return genres
+          .map(
+            (g, i) =>
+              "<span class=\"admin-genre-bubble " +
+              cls[i % 3] +
+              "\">" +
+              escapeHtml(prettyGenreLabel(g)) +
+              "</span>",
+          )
+          .join(" ");
       }
 
       async function loadAdminOverview() {
@@ -2892,6 +2971,7 @@
           for (const u of data.users) {
             const tr = document.createElement("tr");
             tr.setAttribute("data-auser", u.id);
+            const guest = !u.username || String(u.username).trim() === "";
             tr.innerHTML =
               "<td>" +
               escapeHtml(u.username || "—") +
@@ -2911,12 +2991,20 @@
               u.tasksCompleted +
               "/" +
               u.tasksTotal +
+              "</td><td class=\"admin-genre-cell\">" +
+              renderAdminGenreBubbles(u.topGenres) +
+              "</td><td>" +
+              (guest
+                ? "<button type=\"button\" class=\"danger adm-del-guest\" data-aid=\"" +
+                  escapeHtml(u.id) +
+                  "\">Delete</button>"
+                : "—") +
               "</td>";
             tbody.appendChild(tr);
             const dtr = document.createElement("tr");
             dtr.className = "admin-detail hidden";
             const td = document.createElement("td");
-            td.colSpan = 6;
+            td.colSpan = 8;
             td.textContent = "…";
             dtr.appendChild(td);
             tbody.appendChild(dtr);
@@ -3031,6 +3119,21 @@
               await fillAdminDetail();
             });
           }
+          tbody.querySelectorAll(".adm-del-guest").forEach((btn) => {
+            btn.addEventListener("click", async (ev) => {
+              ev.stopPropagation();
+              const aid = btn.getAttribute("data-aid");
+              if (!aid) return;
+              if (!confirm("Delete this guest account and all of its data? This cannot be undone.")) return;
+              try {
+                await api("/api/admin/users/" + encodeURIComponent(aid), { method: "DELETE" });
+                showToast("Deleted");
+                await loadAdminOverview();
+              } catch (e) {
+                showToast(e.message || "Delete failed");
+              }
+            });
+          });
         } catch (e) {
           errEl.textContent = e.message || "Admin load failed";
           errEl.style.display = "block";
@@ -3263,6 +3366,7 @@
       let activeSearchAbortController = null;
       let activeSearchRequestId = 0;
       let recommendedLoadRequestId = 0;
+      let trendingLoadRequestId = 0;
       let appUserId = null;
 
       function resolveUserId() {
@@ -3302,7 +3406,7 @@
         if (s.network) parts.push(s.network);
         if (s.premiered) parts.push(String(s.premiered).slice(0, 4));
         if (s.lastAiredDate) parts.push("Last aired " + s.lastAiredDate);
-        if (s.matchScore != null && Number(s.matchScore) > 1) {
+        if (addedFrom !== "trending" && s.matchScore != null && Number(s.matchScore) > 1) {
           parts.push("Suggested ×" + s.matchScore);
         }
         meta.textContent = parts.length ? parts.join(" · ") : "Network / year unknown";
@@ -3311,12 +3415,14 @@
         const subBtn = document.createElement("button");
         subBtn.type = "button";
         subBtn.className = "btn-subscribe-inline";
-        subBtn.textContent = "Subscribe";
+        subBtn.textContent = addedFrom === "trending" ? "+ Add show" : "Subscribe";
         subBtn.addEventListener("click", async () => {
           subBtn.disabled = true;
           const postSub = (uid) => {
             const body = { tvmazeShowId: s.id };
-            if (addedFrom === "search" || addedFrom === "recommended") body.addedFrom = addedFrom;
+            if (addedFrom === "search" || addedFrom === "recommended" || addedFrom === "trending") {
+              body.addedFrom = addedFrom;
+            }
             return api("/api/users/" + encodeURIComponent(uid) + "/subscriptions", {
               method: "POST",
               body: JSON.stringify(body),
@@ -3344,7 +3450,8 @@
           }
           await loadSubs(uid);
           loadRecommended(uid);
-          subBtn.textContent = "Subscribed";
+          loadTrendingShows(uid);
+          subBtn.textContent = addedFrom === "trending" ? "Added" : "Subscribed";
           card.style.opacity = "0.55";
           showToast("Subscribed");
         });
@@ -3394,6 +3501,37 @@
           errEl.textContent = e.message || "Could not load recommendations.";
           errEl.classList.add("err");
           hint.textContent = "Recommendations failed to load.";
+        }
+      }
+
+      async function loadTrendingShows(userId) {
+        const box = document.getElementById("trendingList");
+        const errEl = document.getElementById("trendingErr");
+        const loading = document.getElementById("trendingLoading");
+        if (!box || !errEl) return;
+        const reqId = ++trendingLoadRequestId;
+        errEl.textContent = "";
+        errEl.classList.remove("err");
+        box.innerHTML = "";
+        if (loading) loading.style.display = "block";
+        try {
+          const data = await api("/api/users/" + encodeURIComponent(userId) + "/trending-shows");
+          if (reqId !== trendingLoadRequestId) return;
+          const shows = data.shows || [];
+          if (loading) loading.style.display = "none";
+          if (!shows.length) {
+            box.innerHTML =
+              "<p class=\"muted\" style=\"margin:0;font-size:0.88rem\">Subscribe to a few shows first — we’ll match popular titles to your genres.</p>";
+            return;
+          }
+          for (const s of shows) {
+            appendSearchResultCard(box, s, userId, errEl, "trending");
+          }
+        } catch (e) {
+          if (reqId !== trendingLoadRequestId) return;
+          if (loading) loading.style.display = "none";
+          errEl.textContent = e.message || "Could not load trending.";
+          errEl.classList.add("err");
         }
       }
 
@@ -3684,7 +3822,10 @@
         if (name === "add") {
           renderRecentChips();
           const id = resolveUserId();
-          if (id) loadRecommended(id);
+          if (id) {
+            loadRecommended(id);
+            loadTrendingShows(id);
+          }
         }
         if (name === "tasks") {
           const id = resolveUserId();
@@ -3773,7 +3914,7 @@
             body: JSON.stringify(json),
           });
           pushMsg.textContent =
-            "Push enabled. When a show airs on your calendar day, you should get a banner (server checks on a schedule — use Refresh Data on Your Shows to test sooner).";
+            "Push enabled. When a show airs on your calendar day, you should get a banner (server checks on a schedule — use Refresh Data on Add Shows to test sooner).";
         } catch (e) {
           const msg = e && e.message ? String(e.message) : "";
           if (/invalid character/i.test(msg) || /not correctly encoded/i.test(msg) || /atob/i.test(msg)) {
@@ -3888,8 +4029,8 @@
         localStorage.setItem(LS_USER, userId);
         await loadUser(userId);
         await loadSubs(userId);
-        await loadNotifs(userId);
         loadRecommended(userId);
+        loadTrendingShows(userId);
         await loadTasks(userId);
       }
 
@@ -3946,8 +4087,8 @@
         }
         await loadUser(userId);
         await loadSubs(userId);
-        await loadNotifs(userId);
         loadRecommended(userId);
+        loadTrendingShows(userId);
         renderRecentChips();
         loadTasks(userId);
 
@@ -4125,7 +4266,6 @@
             out.textContent = JSON.stringify(data, null, 2);
             const uid = resolveUserId();
             if (uid) {
-              await loadNotifs(uid);
               await loadSubs(uid);
               await loadTasks(uid);
             }
@@ -4214,8 +4354,8 @@
           }
           await loadUser(id);
           await loadSubs(id);
-          await loadNotifs(id);
           loadRecommended(id);
+          loadTrendingShows(id);
           await loadTasks(id);
           showToast("Signed out");
         });
