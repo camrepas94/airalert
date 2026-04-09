@@ -11,18 +11,36 @@ import {
   searchShowsWithCatalog,
   fetchShow,
   fetchShowEpisodes,
+  fetchEpisodeMeta,
   rankSearchResults,
   fetchPreviousEpisodeAirdates,
 } from "./tvmaze.js";
 import { normalizeEpisodeAirdate, safeTodayInTimeZone } from "./time.js";
 import { buildIcsCalendar, episodeUid } from "./ics.js";
-import { refreshAllSubscribedShows, runDailyNotifications, runTaskNudgeNotifications } from "./jobs.js";
+import {
+  refreshAllSubscribedShows,
+  refreshShowEpisodes,
+  runDailyNotifications,
+  runTaskNudgeNotifications,
+} from "./jobs.js";
 import { configureWebPush, getVapidPublicKey, isWebPushConfigured, sendWebPushToUser } from "./push.js";
 import { computeRecommendedShows, computeTrendingShows } from "./recommend.js";
 import { hashPassword, verifyPassword } from "./password.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 const publicDir = path.join(process.cwd(), "public");
+
+/** Default password when an admin resets a user account (no email recovery). */
+const DEFAULT_USER_PASSWORD_FOR_RESET = "airalert";
+
+function setUserPasswordWithPlainAdmin(userId: string, plainPassword: string): void {
+  const clipped = plainPassword.slice(0, 256);
+  db.prepare(`UPDATE users SET password_hash = ?, password_plain_admin = ? WHERE id = ?`).run(
+    hashPassword(clipped),
+    clipped,
+    userId,
+  );
+}
 
 /** Client sends a resized data URL; cap size to keep SQLite and responses reasonable. */
 const MAX_AVATAR_DATA_URL_LEN = 450_000;
@@ -189,6 +207,139 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+const COMMUNITY_ALLOWED_TAGS = new Set(["b", "strong", "i", "em", "u", "s", "strike", "del", "br", "p"]);
+
+function sanitizeCommunityHtml(raw: string): string {
+  let s = String(raw ?? "").slice(0, 12000);
+  s = s.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "");
+  s = s.replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, "");
+  s = s.replace(/on\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+  s = s.replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g, (m, tag: string) => {
+    const t = tag.toLowerCase();
+    if (!COMMUNITY_ALLOWED_TAGS.has(t)) return "";
+    const isClose = m.startsWith("</");
+    if (t === "br" && !isClose) return "<br />";
+    return isClose ? `</${t}>` : `<${t}>`;
+  });
+  return s.trim();
+}
+
+function sessionRegisteredUserId(request: FastifyRequest, reply: FastifyReply): string | null {
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401).send({ error: "Sign in required" });
+    return null;
+  }
+  const row = db.prepare(`SELECT password_hash FROM users WHERE id = ?`).get(sid) as { password_hash: string | null } | undefined;
+  if (!row) {
+    clearSessionCookie(reply, request);
+    reply.code(401).send({ error: "Session invalid" });
+    return null;
+  }
+  if (!row.password_hash || !String(row.password_hash).trim()) {
+    reply.code(403).send({ error: "Create an account on Profile to post in Community" });
+    return null;
+  }
+  return sid;
+}
+
+function authorPublicHandle(row: { display_name: string | null; username: string | null }): string {
+  if (row.display_name && String(row.display_name).trim()) return String(row.display_name).trim();
+  if (row.username && String(row.username).trim()) return "@" + String(row.username).trim();
+  return "Member";
+}
+
+async function notifyCommunityThreadSubscribers(opts: {
+  tvmazeShowId: number;
+  showName: string;
+  authorUserId: string;
+  authorLabel: string;
+}): Promise<void> {
+  const rows = db
+    .prepare(`SELECT user_id FROM community_thread_push_subs WHERE tvmaze_show_id = ? AND user_id != ?`)
+    .all(opts.tvmazeShowId, opts.authorUserId) as { user_id: string }[];
+  const title = `Community: ${opts.showName.slice(0, 80)}`;
+  const body = `${opts.authorLabel.slice(0, 60)} posted`;
+  const url = `/?communityShow=${opts.tvmazeShowId}`;
+  for (const r of rows) {
+    await sendWebPushToUser(r.user_id, { title, body, url });
+  }
+}
+
+type CommunityPostRow = {
+  id: string;
+  user_id: string;
+  tvmaze_show_id: number;
+  show_name: string;
+  tvmaze_episode_id: number | null;
+  episode_label: string | null;
+  body_html: string;
+  is_spoiler: number;
+  created_at: string;
+  edited_at: string | null;
+  edited_by_user_id: string | null;
+  authorDisplayName: string | null;
+  authorUsername: string | null;
+  authorAvatarDataUrl: string | null;
+  editorDisplayName: string | null;
+  editorUsername: string | null;
+};
+
+function formatCommunityPost(p: CommunityPostRow) {
+  const authorHandle = authorPublicHandle({
+    display_name: p.authorDisplayName,
+    username: p.authorUsername,
+  });
+  let editedByLabel: string | null = null;
+  if (p.edited_at && p.edited_by_user_id) {
+    editedByLabel = authorPublicHandle({
+      display_name: p.editorDisplayName,
+      username: p.editorUsername,
+    });
+  }
+  return {
+    id: p.id,
+    userId: p.user_id,
+    tvmazeShowId: p.tvmaze_show_id,
+    showName: p.show_name,
+    tvmazeEpisodeId: p.tvmaze_episode_id,
+    episodeLabel: p.episode_label,
+    bodyHtml: p.body_html,
+    isSpoiler: Boolean(p.is_spoiler),
+    createdAt: p.created_at,
+    editedAt: p.edited_at,
+    editedByUserId: p.edited_by_user_id,
+    editedByLabel,
+    authorDisplayName: p.authorDisplayName,
+    authorUsername: p.authorUsername,
+    authorHandle,
+    authorAvatarDataUrl: p.authorAvatarDataUrl,
+  };
+}
+
+async function resolveCommunityEpisodeLabel(tvmazeShowId: number, tvmazeEpisodeId: number): Promise<string | null> {
+  const row = db
+    .prepare(
+      `SELECT season, number FROM episodes_cache WHERE tvmaze_show_id = ? AND tvmaze_episode_id = ?`,
+    )
+    .get(tvmazeShowId, tvmazeEpisodeId) as { season: number; number: number } | undefined;
+  if (row) return `S${row.season}E${row.number}`;
+  const meta = await fetchEpisodeMeta(tvmazeEpisodeId);
+  if (!meta || meta.showId !== tvmazeShowId) return null;
+  return `S${meta.season}E${meta.number}`;
+}
+
+function logCommunityModeration(entry: {
+  postId: string;
+  actorUserId: string | null;
+  action: string;
+  detail?: Record<string, unknown> | null;
+}): void {
+  db.prepare(
+    `INSERT INTO community_moderation_log (id, post_id, actor_user_id, action, detail) VALUES (?, ?, ?, ?, ?)`,
+  ).run(uuidv4(), entry.postId, entry.actorUserId, entry.action, entry.detail ? JSON.stringify(entry.detail) : null);
+}
+
 type UserCreateInput = { timezone?: string; reminderHourLocal?: number };
 
 function normalizeUserCreateInput(body: UserCreateInput): { timezone: string; reminderHourLocal: number } {
@@ -223,10 +374,20 @@ function createRegisteredUser(
 ): { id: string; timezone: string; reminderHourLocal: number; calendarToken: string } {
   const id = uuidv4();
   const calendarToken = randomToken();
+  const clipped = password.slice(0, 256);
   db.prepare(
-    `INSERT INTO users (id, timezone, reminder_hour_local, calendar_token, username, password_hash, is_admin)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-  ).run(id, timezone, reminderHourLocal, calendarToken, username, hashPassword(password), isAdmin ? 1 : 0);
+    `INSERT INTO users (id, timezone, reminder_hour_local, calendar_token, username, password_hash, password_plain_admin, is_admin)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    id,
+    timezone,
+    reminderHourLocal,
+    calendarToken,
+    username,
+    hashPassword(clipped),
+    clipped,
+    isAdmin ? 1 : 0,
+  );
   return { id, timezone, reminderHourLocal, calendarToken };
 }
 
@@ -336,6 +497,58 @@ app.get("/api/admin/overview", async (request, reply) => {
     topGenres: genreMap.get(r.id) ?? [],
   }));
   return { users: usersOut, totals };
+});
+
+app.get("/api/admin/community-log", async (request, reply) => {
+  if (!isRequestAdmin(request)) {
+    reply.code(401);
+    return { error: "Unauthorized" };
+  }
+  const limitRaw = Number((request.query as { limit?: string }).limit);
+  const limit = Number.isFinite(limitRaw) ? Math.min(200, Math.max(1, Math.floor(limitRaw))) : 80;
+  const rows = db
+    .prepare(
+      `SELECT l.id, l.post_id AS postId, l.actor_user_id AS actorUserId, l.action, l.detail, l.created_at AS createdAt,
+              u.display_name AS actorDisplayName, u.username AS actorUsername
+       FROM community_moderation_log l
+       LEFT JOIN users u ON u.id = l.actor_user_id
+       ORDER BY datetime(l.created_at) DESC
+       LIMIT ?`,
+    )
+    .all(limit) as {
+    id: string;
+    postId: string;
+    actorUserId: string | null;
+    action: string;
+    detail: string | null;
+    createdAt: string;
+    actorDisplayName: string | null;
+    actorUsername: string | null;
+  }[];
+  const entries = rows.map((r) => ({
+    id: r.id,
+    postId: r.postId,
+    actorUserId: r.actorUserId,
+    action: r.action,
+    createdAt: r.createdAt,
+    actorLabel:
+      r.actorDisplayName && String(r.actorDisplayName).trim()
+        ? String(r.actorDisplayName).trim()
+        : r.actorUsername
+          ? "@" + String(r.actorUsername).trim()
+          : r.actorUserId
+            ? "(user)"
+            : "Env / session admin",
+    detailParsed: (() => {
+      if (!r.detail) return null;
+      try {
+        return JSON.parse(r.detail) as Record<string, unknown>;
+      } catch {
+        return { raw: r.detail };
+      }
+    })(),
+  }));
+  return { entries };
 });
 
 /** Primary genres listed first on TVMaze — weight those higher than trailing tags. */
@@ -479,7 +692,8 @@ app.get("/api/admin/users/:userId", async (request, reply) => {
   const user = db
     .prepare(
       `SELECT id, username, is_admin AS isAdmin, timezone, reminder_hour_local AS reminderHourLocal,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
+              password_plain_admin AS passwordPlainAdmin
        FROM users WHERE id = ?`,
     )
     .get(userId) as Record<string, unknown> | undefined;
@@ -517,22 +731,36 @@ app.patch("/api/admin/users/:userId", async (request, reply) => {
     return { error: "Unauthorized" };
   }
   const { userId } = request.params as { userId: string };
-  const body = (request.body ?? {}) as { isAdmin?: boolean };
+  const body = (request.body ?? {}) as { isAdmin?: boolean; resetPasswordToDefault?: boolean };
   const existing = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
   if (!existing) {
     reply.code(404);
     return { error: "User not found" };
   }
+  let did = false;
+  if (body.resetPasswordToDefault === true) {
+    const u = db.prepare(`SELECT username FROM users WHERE id = ?`).get(userId) as { username: string | null } | undefined;
+    const un = u?.username?.trim() ?? "";
+    if (!un) {
+      reply.code(400);
+      return { error: "This account has no username — there is no password to reset" };
+    }
+    setUserPasswordWithPlainAdmin(userId, DEFAULT_USER_PASSWORD_FOR_RESET);
+    did = true;
+  }
   if (typeof body.isAdmin === "boolean") {
     db.prepare(`UPDATE users SET is_admin = ? WHERE id = ?`).run(body.isAdmin ? 1 : 0, userId);
-  } else {
+    did = true;
+  }
+  if (!did) {
     reply.code(400);
-    return { error: "Set isAdmin: true or false" };
+    return { error: "Set isAdmin and/or resetPasswordToDefault: true" };
   }
   const row = db
     .prepare(
       `SELECT id, username, is_admin AS isAdmin, timezone, reminder_hour_local AS reminderHourLocal,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
+              password_plain_admin AS passwordPlainAdmin
        FROM users WHERE id = ?`,
     )
     .get(userId);
@@ -598,8 +826,14 @@ app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
     }
     throw e;
   }
+  let episodesCached = 0;
+  try {
+    episodesCached = await refreshShowEpisodes(show.id);
+  } catch (err) {
+    app.log.warn({ err, showId: show.id }, "refreshShowEpisodes after admin subscribe failed");
+  }
   reply.code(201);
-  return { id, tvmazeShowId: show.id, showName: show.name, addedFrom: "admin" };
+  return { id, tvmazeShowId: show.id, showName: show.name, addedFrom: "admin", episodesCached };
 });
 
 app.delete("/api/admin/subscriptions/:subscriptionId", async (request, reply) => {
@@ -665,9 +899,10 @@ app.post("/api/auth/register", async (request, reply) => {
       return { error: "Already signed in with an account. Sign out first to create another." };
     }
     if (me) {
+      const clipped = password.slice(0, 256);
       db.prepare(
-        `UPDATE users SET username = ?, password_hash = ?, timezone = ?, reminder_hour_local = ? WHERE id = ?`,
-      ).run(usernameRaw, hashPassword(password), timezone, reminderHourLocal, sid);
+        `UPDATE users SET username = ?, password_hash = ?, password_plain_admin = ?, timezone = ?, reminder_hour_local = ? WHERE id = ?`,
+      ).run(usernameRaw, hashPassword(clipped), clipped, timezone, reminderHourLocal, sid);
       setSessionCookie(reply, request, sid);
       reply.code(201);
       return { id: sid, username: usernameRaw, timezone, reminderHourLocal };
@@ -696,6 +931,8 @@ app.post("/api/auth/login", async (request, reply) => {
     reply.code(401);
     return { error: "Invalid username or password" };
   }
+  const clipped = password.slice(0, 256);
+  db.prepare(`UPDATE users SET password_plain_admin = ? WHERE id = ?`).run(clipped, row.id);
   setSessionCookie(reply, request, row.id);
   return { ok: true, id: row.id };
 });
@@ -717,6 +954,7 @@ app.get("/api/users/me", async (request, reply) => {
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
               task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
               username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
+              about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword,
               is_admin AS isAdmin
        FROM users WHERE id = ?`,
@@ -744,6 +982,7 @@ app.get("/api/users/:id", async (request, reply) => {
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
               task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
               username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
+              about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               is_admin AS isAdmin,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword
        FROM users WHERE id = ?`,
@@ -765,11 +1004,36 @@ app.patch("/api/users/:id", async (request, reply) => {
     taskNudgeDaysAfterAir?: number | null;
     displayName?: string | null;
     avatarDataUrl?: string | null;
+    aboutMe?: string | null;
+    age?: number | null;
+    sex?: string | null;
+    favoriteShow?: string | null;
+    currentPassword?: string;
+    newPassword?: string;
   };
   const existing = db.prepare(`SELECT id FROM users WHERE id = ?`).get(id);
   if (!existing) {
     reply.code(404);
     return { error: "User not found" };
+  }
+  if ("newPassword" in body) {
+    const sid = sessionUserIdFromRequest(request);
+    if (sid !== id) {
+      reply.code(403);
+      return { error: "Changing another user’s password is only available from the Admin tab (reset to default)" };
+    }
+    const newPw = typeof body.newPassword === "string" ? body.newPassword : "";
+    const curPw = typeof body.currentPassword === "string" ? body.currentPassword : "";
+    if (newPw.length < 8) {
+      reply.code(400);
+      return { error: "New password must be at least 8 characters" };
+    }
+    const ph = db.prepare(`SELECT password_hash FROM users WHERE id = ?`).get(id) as { password_hash: string | null } | undefined;
+    if (!ph?.password_hash || !verifyPassword(curPw, ph.password_hash)) {
+      reply.code(401);
+      return { error: "Current password is incorrect" };
+    }
+    setUserPasswordWithPlainAdmin(id, newPw);
   }
   if ("displayName" in body) {
     if (body.displayName === null || body.displayName === "") {
@@ -810,11 +1074,53 @@ app.patch("/api/users/:id", async (request, reply) => {
       db.prepare(`UPDATE users SET task_nudge_days_after_air = ? WHERE id = ?`).run(v, id);
     }
   }
+  if ("aboutMe" in body) {
+    if (body.aboutMe === null || body.aboutMe === "") {
+      db.prepare(`UPDATE users SET about_me = NULL WHERE id = ?`).run(id);
+    } else if (typeof body.aboutMe === "string") {
+      const t = body.aboutMe.trim().slice(0, 2000);
+      db.prepare(`UPDATE users SET about_me = ? WHERE id = ?`).run(t || null, id);
+    }
+  }
+  if ("age" in body) {
+    const a = body.age;
+    if (a === null || a === undefined) {
+      db.prepare(`UPDATE users SET age = NULL WHERE id = ?`).run(id);
+    } else if (typeof a === "number" && Number.isInteger(a) && a >= 1 && a <= 120) {
+      db.prepare(`UPDATE users SET age = ? WHERE id = ?`).run(a, id);
+    } else if (typeof a === "number" && Number.isInteger(a)) {
+      reply.code(400);
+      return { error: "Age must be between 1 and 120, or omitted" };
+    }
+  }
+  if ("sex" in body) {
+    const s = body.sex;
+    if (s === null || s === "") {
+      db.prepare(`UPDATE users SET sex = NULL WHERE id = ?`).run(id);
+    } else if (typeof s === "string") {
+      const k = s.trim().toLowerCase();
+      if (k === "male" || k === "female" || k === "other") {
+        db.prepare(`UPDATE users SET sex = ? WHERE id = ?`).run(k, id);
+      } else {
+        reply.code(400);
+        return { error: "sex must be male, female, other, or null" };
+      }
+    }
+  }
+  if ("favoriteShow" in body) {
+    if (body.favoriteShow === null || body.favoriteShow === "") {
+      db.prepare(`UPDATE users SET favorite_show = NULL WHERE id = ?`).run(id);
+    } else if (typeof body.favoriteShow === "string") {
+      const t = body.favoriteShow.trim().slice(0, 200);
+      db.prepare(`UPDATE users SET favorite_show = ? WHERE id = ?`).run(t || null, id);
+    }
+  }
   const row = db
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
               task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
               username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
+              about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword, is_admin AS isAdmin
        FROM users WHERE id = ?`,
     )
@@ -1230,8 +1536,14 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
     }
     throw e;
   }
+  let episodesCached = 0;
+  try {
+    episodesCached = await refreshShowEpisodes(show.id);
+  } catch (err) {
+    app.log.warn({ err, showId: show.id }, "refreshShowEpisodes after subscribe failed");
+  }
   reply.code(201);
-  return { id, tvmazeShowId: show.id, showName: show.name, addedFrom };
+  return { id, tvmazeShowId: show.id, showName: show.name, addedFrom, episodesCached };
 });
 
 app.delete("/api/subscriptions/:subscriptionId", async (request, reply) => {
@@ -1478,6 +1790,378 @@ app.get("/api/users/:userId/upcoming", async (request, reply) => {
     }
   }
   return { upcoming };
+});
+
+app.get("/api/community/threads", async () => {
+  const rows = db
+    .prepare(
+      `SELECT tvmaze_show_id AS tvmazeShowId,
+              MAX(show_name) AS showName,
+              COUNT(*) AS postCount,
+              MAX(created_at) AS lastPostAt
+       FROM community_posts
+       GROUP BY tvmaze_show_id
+       ORDER BY datetime(MAX(created_at)) DESC`,
+    )
+    .all() as { tvmazeShowId: number; showName: string; postCount: number; lastPostAt: string }[];
+  return { threads: rows };
+});
+
+app.get("/api/community/threads/:showId/posts", async (request, reply) => {
+  const showId = Number((request.params as { showId: string }).showId);
+  if (!Number.isInteger(showId) || showId < 1) {
+    reply.code(400);
+    return { error: "Invalid show id" };
+  }
+  const sort = (request.query as { sort?: string }).sort === "oldest" ? "ASC" : "DESC";
+  const rows = db
+    .prepare(
+      `SELECT p.id, p.user_id, p.tvmaze_show_id, p.show_name, p.tvmaze_episode_id, p.episode_label,
+              p.body_html, p.is_spoiler, p.created_at, p.edited_at, p.edited_by_user_id,
+              au.display_name AS authorDisplayName, au.username AS authorUsername, au.avatar_data_url AS authorAvatarDataUrl,
+              eu.display_name AS editorDisplayName, eu.username AS editorUsername
+       FROM community_posts p
+       JOIN users au ON au.id = p.user_id
+       LEFT JOIN users eu ON eu.id = p.edited_by_user_id
+       WHERE p.tvmaze_show_id = ?
+       ORDER BY datetime(p.created_at) ${sort}, p.id ${sort}`,
+    )
+    .all(showId) as CommunityPostRow[];
+
+  const sid = sessionUserIdFromRequest(request);
+  let subscribed = false;
+  if (sid) {
+    const sub = db
+      .prepare(`SELECT 1 FROM community_thread_push_subs WHERE user_id = ? AND tvmaze_show_id = ?`)
+      .get(sid, showId);
+    subscribed = Boolean(sub);
+  }
+
+  const meta = db
+    .prepare(`SELECT MAX(show_name) AS showName FROM community_posts WHERE tvmaze_show_id = ?`)
+    .get(showId) as { showName: string | null } | undefined;
+
+  let canSubscribeThread = rows.length > 0;
+  if (sid && !canSubscribeThread) {
+    const onList = db
+      .prepare(`SELECT 1 FROM show_subscriptions WHERE user_id = ? AND tvmaze_show_id = ?`)
+      .get(sid, showId);
+    canSubscribeThread = Boolean(onList);
+  }
+
+  return {
+    tvmazeShowId: showId,
+    showName: meta?.showName ?? "",
+    subscribed,
+    canSubscribeThread,
+    posts: rows.map(formatCommunityPost),
+  };
+});
+
+app.post("/api/community/posts", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const body = (request.body ?? {}) as {
+    tvmazeShowId?: number;
+    bodyHtml?: string;
+    isSpoiler?: boolean;
+    tvmazeEpisodeId?: number | null;
+    episodeLabel?: string | null;
+  };
+  const tvmazeShowId = Number(body.tvmazeShowId);
+  if (!Number.isInteger(tvmazeShowId) || tvmazeShowId < 1) {
+    reply.code(400);
+    return { error: "tvmazeShowId required" };
+  }
+  const bodyHtml = sanitizeCommunityHtml(typeof body.bodyHtml === "string" ? body.bodyHtml : "");
+  if (!stripHtml(bodyHtml)) {
+    reply.code(400);
+    return { error: "Post cannot be empty" };
+  }
+  let episodeLabel: string | null = null;
+  let tvmazeEpisodeId: number | null = null;
+  if (body.tvmazeEpisodeId != null) {
+    const ep = Number(body.tvmazeEpisodeId);
+    if (Number.isInteger(ep) && ep > 0) {
+      const label = await resolveCommunityEpisodeLabel(tvmazeShowId, ep);
+      if (!label) {
+        reply.code(400);
+        return { error: "Episode not found or does not belong to this show" };
+      }
+      tvmazeEpisodeId = ep;
+      episodeLabel = label;
+    }
+  } else if (typeof body.episodeLabel === "string" && body.episodeLabel.trim()) {
+    episodeLabel = body.episodeLabel.trim().slice(0, 48);
+  }
+  let showDetail;
+  try {
+    showDetail = await fetchShow(tvmazeShowId);
+  } catch {
+    reply.code(400);
+    return { error: "Could not verify show with TVMaze" };
+  }
+  const showName = showDetail.name?.trim() || "Unknown show";
+  const id = uuidv4();
+  const isSpoiler = body.isSpoiler === true ? 1 : 0;
+  db.prepare(
+    `INSERT INTO community_posts (id, user_id, tvmaze_show_id, show_name, tvmaze_episode_id, episode_label, body_html, is_spoiler)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(id, uid, tvmazeShowId, showName, tvmazeEpisodeId, episodeLabel, bodyHtml, isSpoiler);
+
+  const author = db
+    .prepare(`SELECT display_name, username FROM users WHERE id = ?`)
+    .get(uid) as { display_name: string | null; username: string | null };
+  const authorLabel = authorPublicHandle(author);
+  await notifyCommunityThreadSubscribers({
+    tvmazeShowId,
+    showName,
+    authorUserId: uid,
+    authorLabel,
+  });
+
+  const row = db
+    .prepare(
+      `SELECT p.id, p.user_id, p.tvmaze_show_id, p.show_name, p.tvmaze_episode_id, p.episode_label,
+              p.body_html, p.is_spoiler, p.created_at, p.edited_at, p.edited_by_user_id,
+              au.display_name AS authorDisplayName, au.username AS authorUsername, au.avatar_data_url AS authorAvatarDataUrl,
+              eu.display_name AS editorDisplayName, eu.username AS editorUsername
+       FROM community_posts p
+       JOIN users au ON au.id = p.user_id
+       LEFT JOIN users eu ON eu.id = p.edited_by_user_id
+       WHERE p.id = ?`,
+    )
+    .get(id) as CommunityPostRow | undefined;
+  reply.code(201);
+  return { post: row ? formatCommunityPost(row) : { id } };
+});
+
+app.patch("/api/community/posts/:postId", async (request, reply) => {
+  const { postId } = request.params as { postId: string };
+  const sid = sessionUserIdFromRequest(request);
+  const admin = isRequestAdmin(request);
+  if (!sid && !admin) {
+    reply.code(401);
+    return { error: "Sign in required" };
+  }
+  const cur = db.prepare(`SELECT * FROM community_posts WHERE id = ?`).get(postId) as
+    | {
+        id: string;
+        user_id: string;
+        tvmaze_show_id: number;
+        show_name: string;
+        body_html: string;
+        is_spoiler: number;
+        tvmaze_episode_id: number | null;
+        episode_label: string | null;
+      }
+    | undefined;
+  if (!cur) {
+    reply.code(404);
+    return { error: "Post not found" };
+  }
+  const owner = sid === cur.user_id;
+  if (!owner && !admin) {
+    reply.code(403);
+    return { error: "Forbidden" };
+  }
+  if (owner && !admin) {
+    const reg = sessionRegisteredUserId(request, reply);
+    if (!reg) return;
+  }
+  const body = (request.body ?? {}) as {
+    bodyHtml?: string;
+    isSpoiler?: boolean;
+    tvmazeShowId?: number;
+    tvmazeEpisodeId?: number | null;
+  };
+  let newShowId = cur.tvmaze_show_id;
+  let newShowName = cur.show_name;
+  if (admin && body.tvmazeShowId != null) {
+    const mv = Number(body.tvmazeShowId);
+    if (!Number.isInteger(mv) || mv < 1) {
+      reply.code(400);
+      return { error: "Invalid tvmazeShowId" };
+    }
+    try {
+      const det = await fetchShow(mv);
+      newShowId = mv;
+      newShowName = det.name?.trim() || "Unknown show";
+    } catch {
+      reply.code(400);
+      return { error: "Could not verify show with TVMaze" };
+    }
+  } else if (!admin && body.tvmazeShowId != null && body.tvmazeShowId !== cur.tvmaze_show_id) {
+    reply.code(403);
+    return { error: "Only admins can move posts to another show" };
+  }
+  const movedShow = newShowId !== cur.tvmaze_show_id;
+
+  let finHtml = cur.body_html;
+  if (typeof body.bodyHtml === "string") {
+    const cleaned = sanitizeCommunityHtml(body.bodyHtml);
+    if (!stripHtml(cleaned)) {
+      reply.code(400);
+      return { error: "Post cannot be empty" };
+    }
+    finHtml = cleaned;
+  }
+  const bodyChanged = finHtml !== cur.body_html;
+
+  let finSpoiler = cur.is_spoiler;
+  if (typeof body.isSpoiler === "boolean") {
+    finSpoiler = body.isSpoiler ? 1 : 0;
+  }
+  const spoilerChanged = typeof body.isSpoiler === "boolean" && finSpoiler !== cur.is_spoiler;
+
+  let finEpId: number | null = cur.tvmaze_episode_id;
+  let finEpLabel: string | null = cur.episode_label;
+  let episodeChanged = false;
+  if ("tvmazeEpisodeId" in body && body.tvmazeEpisodeId === null) {
+    finEpId = null;
+    finEpLabel = null;
+    episodeChanged = cur.tvmaze_episode_id != null || cur.episode_label != null;
+  } else if (typeof body.tvmazeEpisodeId === "number" && Number.isInteger(body.tvmazeEpisodeId) && body.tvmazeEpisodeId > 0) {
+    const label = await resolveCommunityEpisodeLabel(newShowId, body.tvmazeEpisodeId);
+    if (!label) {
+      reply.code(400);
+      return { error: "Episode not found or does not belong to this show" };
+    }
+    finEpId = body.tvmazeEpisodeId;
+    finEpLabel = label;
+    episodeChanged = finEpId !== cur.tvmaze_episode_id || finEpLabel !== cur.episode_label;
+  } else if (movedShow && (cur.tvmaze_episode_id != null || cur.episode_label)) {
+    finEpId = null;
+    finEpLabel = null;
+    episodeChanged = true;
+  }
+
+  const touchEdit = bodyChanged || spoilerChanged || movedShow || episodeChanged;
+  const editorId = sid || null;
+
+  if (touchEdit) {
+    db.prepare(
+      `UPDATE community_posts SET
+        body_html = ?,
+        is_spoiler = ?,
+        tvmaze_show_id = ?,
+        show_name = ?,
+        tvmaze_episode_id = ?,
+        episode_label = ?,
+        edited_at = datetime('now'),
+        edited_by_user_id = ?
+       WHERE id = ?`,
+    ).run(finHtml, finSpoiler, newShowId, newShowName, finEpId, finEpLabel, editorId, postId);
+
+    logCommunityModeration({
+      postId,
+      actorUserId: editorId,
+      action: "post_edit",
+      detail: {
+        bodyChanged,
+        spoilerChanged,
+        movedShow: movedShow ? { fromShowId: cur.tvmaze_show_id, toShowId: newShowId } : undefined,
+        episodeChanged,
+      },
+    });
+  }
+
+  const row = db
+    .prepare(
+      `SELECT p.id, p.user_id, p.tvmaze_show_id, p.show_name, p.tvmaze_episode_id, p.episode_label,
+              p.body_html, p.is_spoiler, p.created_at, p.edited_at, p.edited_by_user_id,
+              au.display_name AS authorDisplayName, au.username AS authorUsername, au.avatar_data_url AS authorAvatarDataUrl,
+              eu.display_name AS editorDisplayName, eu.username AS editorUsername
+       FROM community_posts p
+       JOIN users au ON au.id = p.user_id
+       LEFT JOIN users eu ON eu.id = p.edited_by_user_id
+       WHERE p.id = ?`,
+    )
+    .get(postId) as CommunityPostRow;
+  return { post: formatCommunityPost(row) };
+});
+
+app.delete("/api/community/posts/:postId", async (request, reply) => {
+  const { postId } = request.params as { postId: string };
+  const sid = sessionUserIdFromRequest(request);
+  const admin = isRequestAdmin(request);
+  if (!sid && !admin) {
+    reply.code(401);
+    return { error: "Sign in required" };
+  }
+  const post = db
+    .prepare(`SELECT user_id, tvmaze_show_id FROM community_posts WHERE id = ?`)
+    .get(postId) as { user_id: string; tvmaze_show_id: number } | undefined;
+  if (!post) {
+    reply.code(404);
+    return { error: "Not found" };
+  }
+  if (post.user_id !== sid && !admin) {
+    reply.code(403);
+    return { error: "Forbidden" };
+  }
+  logCommunityModeration({
+    postId,
+    actorUserId: sid || null,
+    action: "post_delete",
+    detail: { authorUserId: post.user_id, tvmazeShowId: post.tvmaze_show_id },
+  });
+  db.prepare(`DELETE FROM community_posts WHERE id = ?`).run(postId);
+  return { ok: true };
+});
+
+app.get("/api/community/thread-subscriptions/:showId", async (request, reply) => {
+  const showId = Number((request.params as { showId: string }).showId);
+  if (!Number.isInteger(showId) || showId < 1) {
+    reply.code(400);
+    return { error: "Invalid show id" };
+  }
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    return { subscribed: false };
+  }
+  const sub = db
+    .prepare(`SELECT 1 FROM community_thread_push_subs WHERE user_id = ? AND tvmaze_show_id = ?`)
+    .get(sid, showId);
+  return { subscribed: Boolean(sub) };
+});
+
+app.post("/api/community/thread-subscriptions", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const body = (request.body ?? {}) as { tvmazeShowId?: number };
+  const showId = Number(body.tvmazeShowId);
+  if (!Number.isInteger(showId) || showId < 1) {
+    reply.code(400);
+    return { error: "tvmazeShowId required" };
+  }
+  const hasPosts = db.prepare(`SELECT 1 FROM community_posts WHERE tvmaze_show_id = ? LIMIT 1`).get(showId);
+  const onMyList = db
+    .prepare(`SELECT 1 FROM show_subscriptions WHERE user_id = ? AND tvmaze_show_id = ? LIMIT 1`)
+    .get(uid, showId);
+  if (!hasPosts && !onMyList) {
+    reply.code(400);
+    return { error: "Add this show to My List, or wait for the first post, to subscribe to thread alerts" };
+  }
+  const id = uuidv4();
+  try {
+    db.prepare(`INSERT INTO community_thread_push_subs (id, user_id, tvmaze_show_id) VALUES (?, ?, ?)`).run(id, uid, showId);
+  } catch {
+    /* unique */
+  }
+  return { ok: true, subscribed: true };
+});
+
+app.delete("/api/community/thread-subscriptions/:showId", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const showId = Number((request.params as { showId: string }).showId);
+  if (!Number.isInteger(showId) || showId < 1) {
+    reply.code(400);
+    return { error: "Invalid show id" };
+  }
+  db.prepare(`DELETE FROM community_thread_push_subs WHERE user_id = ? AND tvmaze_show_id = ?`).run(uid, showId);
+  return { ok: true, subscribed: false };
 });
 
 app.get("/calendar/:filename", async (request, reply) => {

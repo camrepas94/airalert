@@ -408,7 +408,8 @@ export async function computeRecommendedShows(subscribedShowIds: number[]): Prom
 }
 
 /**
- * Popular catalog picks whose **genres** overlap your subscriptions, boosted by TVMaze rating.
+ * Popular, **currently airing** catalog picks whose **genres** overlap your subscriptions,
+ * boosted by TVMaze rating (see {@link scanShowsCatalogForTrending} filters).
  */
 export async function computeTrendingShows(subscribedShowIds: number[]): Promise<RecommendedShowHit[]> {
   const subSet = new Set(subscribedShowIds);
@@ -428,15 +429,15 @@ export async function computeTrendingShows(subscribedShowIds: number[]): Promise
 
   const catalogMatches = await scanShowsCatalogForTrending(userGenreWeights, subSet, {
     pageRanges: [
-      [0, 26],
-      [45, 62],
-      [110, 128],
+      [0, 28],
+      [42, 66],
+      [100, 135],
     ],
     concurrency: 8,
   });
 
   const sorted = [...catalogMatches.values()].sort((a, b) => b.trendScore - a.trendScore || a.show.name.localeCompare(b.show.name));
-  const top = sorted.slice(0, 22);
+  const top = sorted.slice(0, 32);
 
   const hits: RecommendedShowHit[] = top.map(({ show, trendScore }) => ({
     id: show.id,

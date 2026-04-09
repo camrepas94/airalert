@@ -270,13 +270,191 @@
           opacity: 0.48;
         }
       }
+
+      .space-milky-rift,
+      .space-aurora,
+      .space-stars-deep {
+        position: fixed;
+        pointer-events: none;
+        z-index: -1;
+        opacity: 0;
+      }
+
+      .space-milky-rift {
+        inset: -42% -55% -32% -45%;
+        background: linear-gradient(
+          58deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.05) 18%,
+          rgba(196, 181, 253, 0.09) 38%,
+          rgba(167, 139, 250, 0.08) 52%,
+          rgba(91, 156, 255, 0.07) 68%,
+          transparent 100%
+        );
+        filter: blur(72px) saturate(1.45);
+        mix-blend-mode: screen;
+        animation: milky-rift-drift 200s linear infinite;
+        will-change: transform;
+      }
+      @keyframes milky-rift-drift {
+        0% {
+          transform: translate3d(6%, -2%, 0) rotate(18deg) scale(1.05);
+        }
+        50% {
+          transform: translate3d(-10%, 4%, 0) rotate(22deg) scale(1.12);
+        }
+        100% {
+          transform: translate3d(6%, -2%, 0) rotate(18deg) scale(1.05);
+        }
+      }
+
+      .space-aurora {
+        inset: 0;
+        overflow: hidden;
+      }
+      .space-aurora::before,
+      .space-aurora::after {
+        content: "";
+        position: absolute;
+        left: -40%;
+        width: 180%;
+        height: 42%;
+        border-radius: 50%;
+        filter: blur(48px);
+        mix-blend-mode: screen;
+        opacity: 0.55;
+      }
+      .space-aurora::before {
+        top: 4%;
+        background: linear-gradient(
+          102deg,
+          transparent 0%,
+          rgba(16, 185, 129, 0.11) 12%,
+          rgba(45, 212, 191, 0.14) 28%,
+          rgba(34, 211, 238, 0.12) 48%,
+          rgba(167, 139, 250, 0.1) 68%,
+          transparent 100%
+        );
+        animation: aurora-curtain 32s ease-in-out infinite;
+      }
+      .space-aurora::after {
+        top: 18%;
+        height: 38%;
+        background: linear-gradient(
+          118deg,
+          transparent 0%,
+          rgba(52, 211, 153, 0.08) 18%,
+          rgba(34, 197, 211, 0.11) 40%,
+          rgba(192, 132, 252, 0.12) 58%,
+          rgba(232, 121, 249, 0.09) 76%,
+          transparent 100%
+        );
+        animation: aurora-curtain 44s ease-in-out infinite reverse;
+        animation-delay: -18s;
+        opacity: 0.42;
+      }
+      @keyframes aurora-curtain {
+        0%,
+        100% {
+          transform: translate3d(-8%, 0, 0) skewX(-4deg) scaleY(1);
+          opacity: 0.38;
+        }
+        35% {
+          transform: translate3d(6%, 2%, 0) skewX(2deg) scaleY(1.06);
+          opacity: 0.62;
+        }
+        70% {
+          transform: translate3d(4%, -3%, 0) skewX(-2deg) scaleY(0.96);
+          opacity: 0.5;
+        }
+      }
+
+      .space-stars-deep {
+        inset: 0;
+        mix-blend-mode: screen;
+        background-image: radial-gradient(1px 1px at 7% 14%, rgba(255, 255, 255, 0.9), transparent),
+          radial-gradient(0.85px 0.85px at 19% 67%, rgba(230, 240, 255, 0.75), transparent),
+          radial-gradient(1.1px 1.1px at 31% 29%, rgba(255, 255, 255, 0.85), transparent),
+          radial-gradient(0.7px 0.7px at 44% 81%, rgba(220, 230, 255, 0.55), transparent),
+          radial-gradient(1px 1px at 56% 11%, rgba(255, 255, 255, 0.7), transparent),
+          radial-gradient(0.8px 0.8px at 68% 52%, rgba(250, 245, 255, 0.65), transparent),
+          radial-gradient(1.05px 1.05px at 79% 88%, rgba(255, 255, 255, 0.8), transparent),
+          radial-gradient(0.75px 0.75px at 91% 36%, rgba(210, 225, 255, 0.6), transparent),
+          radial-gradient(0.9px 0.9px at 12% 41%, rgba(255, 255, 255, 0.55), transparent),
+          radial-gradient(1px 1px at 27% 93%, rgba(236, 242, 255, 0.72), transparent),
+          radial-gradient(0.65px 0.65px at 51% 63%, rgba(255, 255, 255, 0.5), transparent),
+          radial-gradient(1.1px 1.1px at 73% 19%, rgba(255, 255, 255, 0.78), transparent),
+          radial-gradient(0.8px 0.8px at 86% 71%, rgba(230, 235, 255, 0.58), transparent),
+          radial-gradient(0.95px 0.95px at 4% 58%, rgba(255, 255, 255, 0.62), transparent),
+          radial-gradient(0.7px 0.7px at 96% 84%, rgba(255, 255, 255, 0.52), transparent);
+        background-repeat: repeat;
+        background-size: 320px 340px, 280px 300px, 360px 380px, 310px 290px, 400px 360px, 350px 320px, 330px 350px,
+          370px 310px, 290px 330px, 340px 400px, 380px 280px, 300px 360px, 410px 340px, 270px 310px, 390px 370px;
+        background-position: 0 0, 55px 40px, 120px 90px, 30px 200px, 200px 20px, 280px 160px, 90px 280px, 340px 60px,
+          10px 120px, 220px 240px, 150px 10px, 70px 310px, 310px 180px, 180px 70px, 40px 250px;
+        animation: nebula-stars-drift 140s linear infinite, nebula-stars-twinkle 5.8s ease-in-out infinite;
+      }
+      @keyframes nebula-stars-drift {
+        from {
+          background-position: 0 0, 55px 40px, 120px 90px, 30px 200px, 200px 20px, 280px 160px, 90px 280px, 340px 60px,
+            10px 120px, 220px 240px, 150px 10px, 70px 310px, 310px 180px, 180px 70px, 40px 250px;
+        }
+        to {
+          background-position: 320px 180px, 375px 220px, 440px 270px, 350px 380px, 520px 200px, 600px 340px, 410px 460px,
+            660px 240px, 330px 300px, 540px 420px, 470px 190px, 390px 490px, 630px 360px, 500px 250px, 360px 430px,
+            430px 620px;
+        }
+      }
+      @keyframes nebula-stars-twinkle {
+        0%,
+        100% {
+          opacity: 0.32;
+        }
+        40% {
+          opacity: 0.52;
+        }
+        65% {
+          opacity: 0.24;
+        }
+      }
+
+      html[data-theme="nebula"] .space-milky-way {
+        opacity: 0.86;
+        filter: blur(56px) saturate(1.52);
+      }
+      html[data-theme="nebula"] .space-milky-rift {
+        opacity: 0.62;
+      }
+      html[data-theme="nebula"] .space-aurora {
+        opacity: 1;
+      }
+      html[data-theme="nebula"] .space-stars-deep {
+        opacity: 0.44;
+      }
+      html[data-theme="nebula"] .space-sparkle-layer {
+        opacity: 0.46;
+      }
+
       @media (prefers-reduced-motion: reduce) {
         html::before {
           animation: none !important;
         }
         .space-milky-way,
-        .space-sparkle-layer {
+        .space-milky-rift,
+        .space-sparkle-layer,
+        .space-stars-deep {
           animation: none !important;
+        }
+        .space-aurora::before,
+        .space-aurora::after {
+          animation: none !important;
+        }
+        .section-header-highlight::before,
+        button.fold-toggle.fold-toggle-highlight::before,
+        button.fold-toggle.fold-toggle-cyan::before,
+        button.fold-toggle.fold-toggle-magenta::before {
+          animation: none !important;
+          opacity: 0.18;
         }
       }
 
@@ -622,22 +800,6 @@
         color: transparent;
         filter: drop-shadow(0 0 8px rgba(91, 156, 255, 0.5));
       }
-      .profile-home-btn.active {
-        color: #f8fbff;
-        animation: tab-glow-pulse 2.8s ease-in-out infinite;
-        background: linear-gradient(180deg, rgba(34, 211, 238, 0.28) 0%, rgba(34, 211, 238, 0.08) 100%);
-        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.45) inset, 0 0 22px 2px rgba(34, 211, 238, 0.42),
-          0 0 44px 0 rgba(34, 211, 238, 0.22), 0 0 60px -6px rgba(91, 156, 255, 0.12), 0 8px 20px rgba(0, 0, 0, 0.42);
-      }
-      .profile-home-btn.active:hover:not(:disabled) {
-        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.52) inset, 0 0 26px 3px rgba(34, 211, 238, 0.48),
-          0 0 52px 0 rgba(34, 211, 238, 0.26), 0 0 64px -4px rgba(91, 156, 255, 0.16), 0 8px 22px rgba(0, 0, 0, 0.45);
-      }
-      .profile-home-icon {
-        width: 1.35rem;
-        height: 1.35rem;
-        display: block;
-      }
       .brand-heading {
         margin: 0;
         flex: 0 1 auto;
@@ -725,6 +887,17 @@
         margin: 0 0 0.75rem;
         font-weight: 600;
       }
+      @keyframes galactic-header-shimmer {
+        0%,
+        100% {
+          transform: translateX(-10%) rotate(-7deg);
+          opacity: 0.22;
+        }
+        50% {
+          transform: translateX(10%) rotate(-7deg);
+          opacity: 0.42;
+        }
+      }
       .section-header-highlight.search-hero-unified h2.search-hero-heading {
         margin: 0;
         text-transform: uppercase;
@@ -732,93 +905,202 @@
         font-size: 0.78rem;
         font-weight: 750;
         color: inherit;
+        position: relative;
+        z-index: 1;
       }
       .section-header-highlight {
         margin: 0 0 0.85rem;
-        padding: 0.6rem 1rem;
-        border-radius: 14px;
-        font-size: 0.78rem;
+        padding: 0.68rem 1.15rem;
+        border-radius: 16px;
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        font-size: 0.76rem;
         font-weight: 750;
-        letter-spacing: 0.14em;
+        letter-spacing: 0.16em;
         text-transform: uppercase;
         text-align: center;
-        color: #f0f9ff;
-        border: 1px solid rgba(34, 211, 238, 0.42);
-        background: linear-gradient(165deg, rgba(34, 211, 238, 0.18) 0%, rgba(12, 20, 40, 0.45) 48%, rgba(6, 10, 22, 0.72) 100%);
-        -webkit-backdrop-filter: blur(18px) saturate(1.35);
-        backdrop-filter: blur(18px) saturate(1.35);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset, 0 0 0 1px rgba(34, 211, 238, 0.12) inset,
-          0 0 32px 2px rgba(34, 211, 238, 0.18), 0 12px 40px rgba(0, 0, 0, 0.45);
-        text-shadow: 0 0 20px rgba(34, 211, 238, 0.45), 0 0 1px rgba(0, 0, 0, 0.5);
+        color: #f5fbff;
+        border: 1px solid rgba(34, 211, 238, 0.38);
+        background: linear-gradient(
+          168deg,
+          rgba(34, 211, 238, 0.26) 0%,
+          rgba(124, 92, 255, 0.1) 28%,
+          rgba(20, 14, 36, 0.38) 52%,
+          rgba(6, 4, 18, 0.82) 100%
+        );
+        -webkit-backdrop-filter: blur(28px) saturate(1.55);
+        backdrop-filter: blur(28px) saturate(1.55);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.09) inset, 0 2px 0 rgba(255, 255, 255, 0.1) inset,
+          0 0 0 1px rgba(34, 211, 238, 0.1) inset, 0 0 52px 4px rgba(34, 211, 238, 0.16),
+          0 0 88px -12px rgba(167, 139, 250, 0.22), 0 16px 48px rgba(0, 0, 0, 0.42);
+        text-shadow: 0 0 32px rgba(34, 211, 238, 0.5), 0 0 56px rgba(91, 156, 255, 0.22), 0 1px 2px rgba(0, 0, 0, 0.65);
+      }
+      .section-header-highlight::before {
+        content: "";
+        position: absolute;
+        inset: -50% -15%;
+        background: linear-gradient(
+          118deg,
+          transparent 36%,
+          rgba(255, 255, 255, 0.2) 48%,
+          rgba(200, 230, 255, 0.1) 52%,
+          transparent 64%
+        );
+        transform: rotate(-7deg);
+        pointer-events: none;
+        mix-blend-mode: overlay;
+        animation: galactic-header-shimmer 9s ease-in-out infinite;
       }
       .section-header-highlight.header-magenta {
-        color: #fce7ff;
-        border-color: rgba(232, 121, 249, 0.5);
-        background: linear-gradient(165deg, rgba(232, 121, 249, 0.2) 0%, rgba(24, 12, 32, 0.5) 50%, rgba(10, 8, 18, 0.75) 100%);
-        -webkit-backdrop-filter: blur(18px) saturate(1.3);
-        backdrop-filter: blur(18px) saturate(1.3);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 0 0 1px rgba(232, 121, 249, 0.1) inset,
-          0 0 32px 2px rgba(232, 121, 249, 0.2), 0 12px 40px rgba(0, 0, 0, 0.45);
-        text-shadow: 0 0 20px rgba(232, 121, 249, 0.4), 0 0 1px rgba(0, 0, 0, 0.5);
+        color: #fef5ff;
+        border-color: rgba(232, 121, 249, 0.42);
+        background: linear-gradient(
+          168deg,
+          rgba(232, 121, 249, 0.28) 0%,
+          rgba(124, 58, 237, 0.12) 30%,
+          rgba(28, 12, 36, 0.42) 52%,
+          rgba(10, 6, 18, 0.84) 100%
+        );
+        -webkit-backdrop-filter: blur(28px) saturate(1.5);
+        backdrop-filter: blur(28px) saturate(1.5);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07) inset, 0 2px 0 rgba(255, 255, 255, 0.08) inset,
+          0 0 0 1px rgba(232, 121, 249, 0.12) inset, 0 0 56px 4px rgba(232, 121, 249, 0.18),
+          0 0 90px -10px rgba(91, 156, 255, 0.15), 0 16px 48px rgba(0, 0, 0, 0.42);
+        text-shadow: 0 0 32px rgba(232, 121, 249, 0.48), 0 0 48px rgba(168, 85, 247, 0.2), 0 1px 2px rgba(0, 0, 0, 0.65);
       }
       .section-header-highlight.header-blue {
-        color: #e0f2ff;
-        border-color: rgba(91, 156, 255, 0.48);
-        background: linear-gradient(165deg, rgba(91, 156, 255, 0.18) 0%, rgba(12, 22, 44, 0.48) 50%, rgba(6, 10, 22, 0.75) 100%);
-        -webkit-backdrop-filter: blur(18px) saturate(1.3);
-        backdrop-filter: blur(18px) saturate(1.3);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 0 0 1px rgba(91, 156, 255, 0.12) inset,
-          0 0 30px 2px rgba(91, 156, 255, 0.2), 0 12px 40px rgba(0, 0, 0, 0.45);
-        text-shadow: 0 0 18px rgba(91, 156, 255, 0.38), 0 0 1px rgba(0, 0, 0, 0.5);
+        color: #eef8ff;
+        border-color: rgba(91, 156, 255, 0.44);
+        background: linear-gradient(
+          168deg,
+          rgba(91, 156, 255, 0.24) 0%,
+          rgba(34, 211, 238, 0.08) 28%,
+          rgba(14, 20, 44, 0.4) 52%,
+          rgba(6, 8, 22, 0.84) 100%
+        );
+        -webkit-backdrop-filter: blur(28px) saturate(1.5);
+        backdrop-filter: blur(28px) saturate(1.5);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 2px 0 rgba(255, 255, 255, 0.09) inset,
+          0 0 0 1px rgba(91, 156, 255, 0.12) inset, 0 0 50px 4px rgba(91, 156, 255, 0.2),
+          0 0 80px -12px rgba(34, 211, 238, 0.14), 0 16px 48px rgba(0, 0, 0, 0.42);
+        text-shadow: 0 0 28px rgba(91, 156, 255, 0.42), 0 0 40px rgba(34, 211, 238, 0.2), 0 1px 2px rgba(0, 0, 0, 0.65);
       }
       .section-header-highlight.header-gold {
-        color: #fffbeb;
-        border-color: rgba(251, 191, 36, 0.45);
-        background: linear-gradient(165deg, rgba(251, 191, 36, 0.16) 0%, rgba(32, 24, 8, 0.5) 50%, rgba(12, 10, 6, 0.78) 100%);
-        -webkit-backdrop-filter: blur(18px) saturate(1.25);
-        backdrop-filter: blur(18px) saturate(1.25);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 0 0 1px rgba(251, 191, 36, 0.1) inset,
-          0 0 28px 2px rgba(251, 191, 36, 0.22), 0 12px 40px rgba(0, 0, 0, 0.45);
-        text-shadow: 0 0 16px rgba(251, 191, 36, 0.35), 0 0 1px rgba(0, 0, 0, 0.5);
+        color: #fffdf5;
+        border-color: rgba(251, 191, 36, 0.42);
+        background: linear-gradient(
+          168deg,
+          rgba(251, 191, 36, 0.22) 0%,
+          rgba(245, 158, 11, 0.08) 26%,
+          rgba(36, 28, 12, 0.42) 52%,
+          rgba(14, 10, 6, 0.86) 100%
+        );
+        -webkit-backdrop-filter: blur(28px) saturate(1.45);
+        backdrop-filter: blur(28px) saturate(1.45);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07) inset, 0 2px 0 rgba(255, 255, 255, 0.08) inset,
+          0 0 0 1px rgba(251, 191, 36, 0.12) inset, 0 0 48px 4px rgba(251, 191, 36, 0.2),
+          0 0 72px -8px rgba(252, 211, 77, 0.12), 0 16px 48px rgba(0, 0, 0, 0.42);
+        text-shadow: 0 0 26px rgba(251, 191, 36, 0.4), 0 0 36px rgba(252, 211, 77, 0.18), 0 1px 2px rgba(0, 0, 0, 0.65);
       }
       button.fold-toggle.fold-toggle-highlight {
         margin: 0 0 0.85rem;
-        padding: 0.55rem 0.85rem;
-        border-radius: 12px !important;
-        border: 1px solid rgba(232, 121, 249, 0.45) !important;
-        background: linear-gradient(175deg, rgba(232, 121, 249, 0.12) 0%, rgba(18, 10, 28, 0.5) 100%) !important;
-        box-shadow: 0 0 0 1px rgba(232, 121, 249, 0.1) inset, 0 0 22px 2px rgba(232, 121, 249, 0.2),
-          0 8px 28px rgba(0, 0, 0, 0.32);
+        padding: 0.62rem 1rem;
+        border-radius: 14px !important;
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        border: 1px solid rgba(232, 121, 249, 0.4) !important;
+        background: linear-gradient(175deg, rgba(232, 121, 249, 0.18) 0%, rgba(24, 10, 32, 0.45) 42%, rgba(10, 6, 16, 0.72) 100%) !important;
+        -webkit-backdrop-filter: blur(22px) saturate(1.45);
+        backdrop-filter: blur(22px) saturate(1.45);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07) inset, 0 2px 0 rgba(255, 255, 255, 0.06) inset,
+          0 0 36px 2px rgba(232, 121, 249, 0.22), 0 10px 36px rgba(0, 0, 0, 0.35);
         color: #fce7ff !important;
         font-weight: 750;
         letter-spacing: 0.12em;
-        text-shadow: 0 0 14px rgba(232, 121, 249, 0.35);
+        text-shadow: 0 0 18px rgba(232, 121, 249, 0.4), 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+      button.fold-toggle.fold-toggle-highlight::before {
+        content: "";
+        position: absolute;
+        inset: -40% -10%;
+        background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.14) 50%, transparent 60%);
+        opacity: 0.35;
+        pointer-events: none;
+        mix-blend-mode: overlay;
+        animation: galactic-header-shimmer 10s ease-in-out infinite;
+      }
+      button.fold-toggle.fold-toggle-highlight .fold-title,
+      button.fold-toggle.fold-toggle-highlight .fold-chev {
+        position: relative;
+        z-index: 1;
       }
       button.fold-toggle.fold-toggle-cyan {
         margin: 0 0 0.85rem;
-        padding: 0.55rem 0.85rem;
-        border-radius: 12px !important;
-        border: 1px solid rgba(34, 211, 238, 0.45) !important;
-        background: linear-gradient(175deg, rgba(34, 211, 238, 0.12) 0%, rgba(8, 14, 28, 0.5) 100%) !important;
-        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.1) inset, 0 0 22px 2px rgba(34, 211, 238, 0.2),
-          0 8px 28px rgba(0, 0, 0, 0.32);
-        color: #e0fdff !important;
+        padding: 0.62rem 1rem;
+        border-radius: 14px !important;
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        border: 1px solid rgba(34, 211, 238, 0.4) !important;
+        background: linear-gradient(175deg, rgba(34, 211, 238, 0.16) 0%, rgba(8, 16, 32, 0.45) 42%, rgba(6, 8, 18, 0.74) 100%) !important;
+        -webkit-backdrop-filter: blur(22px) saturate(1.45);
+        backdrop-filter: blur(22px) saturate(1.45);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07) inset, 0 2px 0 rgba(255, 255, 255, 0.06) inset,
+          0 0 36px 2px rgba(34, 211, 238, 0.22), 0 10px 36px rgba(0, 0, 0, 0.35);
+        color: #e8fdff !important;
         font-weight: 750;
         letter-spacing: 0.12em;
-        text-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
+        text-shadow: 0 0 18px rgba(34, 211, 238, 0.4), 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+      button.fold-toggle.fold-toggle-cyan::before {
+        content: "";
+        position: absolute;
+        inset: -40% -10%;
+        background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.14) 50%, transparent 60%);
+        opacity: 0.35;
+        pointer-events: none;
+        mix-blend-mode: overlay;
+        animation: galactic-header-shimmer 10s ease-in-out infinite;
+      }
+      button.fold-toggle.fold-toggle-cyan .fold-title,
+      button.fold-toggle.fold-toggle-cyan .fold-chev {
+        position: relative;
+        z-index: 1;
       }
       button.fold-toggle.fold-toggle-magenta {
         margin: 0 0 0.85rem;
-        padding: 0.55rem 0.85rem;
-        border-radius: 12px !important;
-        border: 1px solid rgba(232, 121, 249, 0.48) !important;
-        background: linear-gradient(175deg, rgba(232, 121, 249, 0.12) 0%, rgba(18, 10, 28, 0.5) 100%) !important;
-        box-shadow: 0 0 0 1px rgba(232, 121, 249, 0.1) inset, 0 0 22px 2px rgba(232, 121, 249, 0.2),
-          0 8px 28px rgba(0, 0, 0, 0.32);
+        padding: 0.62rem 1rem;
+        border-radius: 14px !important;
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        border: 1px solid rgba(232, 121, 249, 0.42) !important;
+        background: linear-gradient(175deg, rgba(232, 121, 249, 0.16) 0%, rgba(22, 10, 30, 0.45) 42%, rgba(10, 6, 16, 0.74) 100%) !important;
+        -webkit-backdrop-filter: blur(22px) saturate(1.45);
+        backdrop-filter: blur(22px) saturate(1.45);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07) inset, 0 2px 0 rgba(255, 255, 255, 0.06) inset,
+          0 0 36px 2px rgba(232, 121, 249, 0.22), 0 10px 36px rgba(0, 0, 0, 0.35);
         color: #fce7ff !important;
         font-weight: 750;
         letter-spacing: 0.12em;
-        text-shadow: 0 0 14px rgba(232, 121, 249, 0.35);
+        text-shadow: 0 0 18px rgba(232, 121, 249, 0.4), 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+      button.fold-toggle.fold-toggle-magenta::before {
+        content: "";
+        position: absolute;
+        inset: -40% -10%;
+        background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.14) 50%, transparent 60%);
+        opacity: 0.35;
+        pointer-events: none;
+        mix-blend-mode: overlay;
+        animation: galactic-header-shimmer 10s ease-in-out infinite;
+      }
+      button.fold-toggle.fold-toggle-magenta .fold-title,
+      button.fold-toggle.fold-toggle-magenta .fold-chev {
+        position: relative;
+        z-index: 1;
       }
       .add-shows-hero-bar {
         margin-bottom: 0.75rem;
@@ -852,6 +1134,8 @@
         margin: 0;
         justify-content: center;
         gap: 0.6rem;
+        position: relative;
+        z-index: 1;
       }
       .search-hero-heading {
         margin: 0;
@@ -863,11 +1147,8 @@
         color: inherit;
         text-shadow: inherit;
       }
-      .list-refresh-panel {
-        margin-bottom: 1rem;
-      }
-      .list-refresh-panel button {
-        margin-top: 0.35rem;
+      .home-refresh-section .add-shows-refresh-panel {
+        margin-bottom: 0.5rem;
       }
       .trending-scroll-wrap {
         overflow-x: auto;
@@ -1174,22 +1455,17 @@
       .profile-identity-actions button {
         margin: 0;
       }
-      section.panel-rail-cyan h2,
-      section.panel-rail-cyan .fold-toggle {
+      section.panel-rail-cyan .fold-toggle:not(.fold-toggle-cyan):not(.fold-toggle-magenta):not(.fold-toggle-highlight) {
         color: #5ee9f7;
       }
-      section.panel-rail-cyan .fold-toggle:hover:not(:disabled) {
+      section.panel-rail-cyan .fold-toggle:not(.fold-toggle-cyan):not(.fold-toggle-magenta):not(.fold-toggle-highlight):hover:not(:disabled) {
         color: #cffafe;
       }
-      section.panel-rail-magenta h2,
-      section.panel-rail-magenta .fold-toggle {
+      section.panel-rail-magenta .fold-toggle:not(.fold-toggle-cyan):not(.fold-toggle-magenta):not(.fold-toggle-highlight) {
         color: #f0abfc;
       }
-      section.panel-rail-magenta .fold-toggle:hover:not(:disabled) {
+      section.panel-rail-magenta .fold-toggle:not(.fold-toggle-cyan):not(.fold-toggle-magenta):not(.fold-toggle-highlight):hover:not(:disabled) {
         color: #fae8ff;
-      }
-      section.push-section h2 {
-        color: #f0abfc;
       }
 
       label {
@@ -1200,7 +1476,8 @@
       }
       input[type="text"],
       input[type="number"],
-      select {
+      select,
+      textarea {
         width: 100%;
         padding: 0.6rem 0.75rem;
         border-radius: 10px;
@@ -1212,8 +1489,14 @@
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35) inset;
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
       }
+      textarea {
+        min-height: 5.5rem;
+        resize: vertical;
+        line-height: 1.45;
+      }
       input:focus,
-      select:focus {
+      select:focus,
+      textarea:focus {
         outline: none;
         border-color: rgba(34, 211, 238, 0.45);
         box-shadow: 0 0 0 3px rgba(91, 156, 255, 0.22), 0 0 20px -4px rgba(34, 211, 238, 0.2),
@@ -1342,6 +1625,60 @@
       .task-meta {
         font-size: 0.78rem;
         margin-top: 0.25rem;
+      }
+      .tasks-stats-section {
+        margin: 0 0 1rem;
+      }
+      .tasks-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.5rem;
+      }
+      @media (max-width: 380px) {
+        .tasks-stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .tasks-stat-card {
+        background: rgba(0, 0, 0, 0.22);
+        border: 1px solid rgba(196, 181, 253, 0.2);
+        border-radius: 12px;
+        padding: 0.55rem 0.6rem;
+        text-align: center;
+      }
+      .tasks-stat-card .tasks-stat-value {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: 750;
+        color: var(--text);
+        line-height: 1.15;
+        font-variant-numeric: tabular-nums;
+      }
+      .tasks-stat-card .tasks-stat-label {
+        display: block;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        margin-top: 0.25rem;
+        line-height: 1.35;
+      }
+      .tasks-stats-hint {
+        font-size: 0.76rem;
+        margin: 0.55rem 0 0;
+        line-height: 1.45;
+        opacity: 0.92;
+      }
+      .tasks-open-empty {
+        margin: 0 0 0.85rem;
+        font-size: 0.84rem;
+        line-height: 1.45;
+      }
+      #foldTasksCompletedBtn {
+        margin-top: 0.35rem;
+      }
+      #foldTasksCompletedBody .tasks-list {
+        margin-top: 0.35rem;
       }
       .search-results button {
         width: 100%;
@@ -1743,12 +2080,18 @@
       .account-prompt-panel h3 {
         margin: 0 0 0.5rem;
         font-size: 1.15rem;
-        font-weight: 700;
+        font-weight: 750;
         line-height: 1.3;
-        background: linear-gradient(105deg, var(--accent-hot) 0%, var(--neon-cyan) 50%, #f0abfc 100%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
+        letter-spacing: 0.02em;
+        padding: 0.55rem 0.75rem;
+        border-radius: 12px;
+        border: 1px solid rgba(34, 211, 238, 0.28);
+        background: linear-gradient(165deg, rgba(34, 211, 238, 0.14) 0%, rgba(124, 92, 255, 0.08) 38%, rgba(12, 10, 24, 0.78) 100%);
+        -webkit-backdrop-filter: blur(18px) saturate(1.35);
+        backdrop-filter: blur(18px) saturate(1.35);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset, 0 0 36px rgba(34, 211, 238, 0.12);
+        color: #f2fbff;
+        text-shadow: 0 0 22px rgba(34, 211, 238, 0.38), 0 0 36px rgba(167, 139, 250, 0.12), 0 1px 2px rgba(0, 0, 0, 0.5);
       }
       .account-prompt-panel .account-prompt-lead {
         margin: 0 0 1rem;
@@ -1839,19 +2182,24 @@
         justify-content: space-between;
         gap: 0.75rem;
         flex-shrink: 0;
-        padding: 0.85rem 1rem 0.75rem;
-        border-bottom: 1px solid rgba(130, 200, 255, 0.14);
+        padding: 0.9rem 1.05rem 0.8rem;
+        border-bottom: 1px solid rgba(130, 200, 255, 0.16);
+        background: linear-gradient(180deg, rgba(30, 18, 48, 0.55) 0%, rgba(10, 12, 24, 0.25) 100%);
+        -webkit-backdrop-filter: blur(20px) saturate(1.35);
+        backdrop-filter: blur(20px) saturate(1.35);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07) inset, 0 12px 40px -20px rgba(34, 211, 238, 0.12);
       }
       .quickstart-help-head h3 {
         margin: 0;
         font-size: 1.08rem;
         font-weight: 750;
         line-height: 1.25;
-        background: linear-gradient(105deg, #5ee9f7 0%, #7dd3fc 45%, #5b9cff 100%);
+        letter-spacing: 0.02em;
+        background: linear-gradient(105deg, #7af5ff 0%, #a5d8ff 38%, #7c9cff 72%, #e9d5ff 100%);
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
-        filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.25));
+        filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.35)) drop-shadow(0 0 28px rgba(167, 139, 250, 0.2));
       }
       .quickstart-help-panel .modal-body-scroll {
         padding-top: 0.65rem;
@@ -1881,8 +2229,13 @@
         display: flex;
         gap: 0.75rem;
         align-items: flex-start;
-        padding: 1rem 1rem 0.75rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 1rem 1rem 0.85rem;
+        border-bottom: 1px solid rgba(130, 200, 255, 0.12);
+        background: linear-gradient(180deg, rgba(28, 16, 42, 0.5) 0%, rgba(8, 10, 20, 0.22) 100%);
+        -webkit-backdrop-filter: blur(22px) saturate(1.35);
+        backdrop-filter: blur(22px) saturate(1.35);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 20px 48px -24px rgba(34, 211, 238, 0.1);
+        border-radius: 18px 18px 0 0;
       }
       .modal-poster-slot {
         flex-shrink: 0;
@@ -1914,12 +2267,14 @@
       .modal-title-block h3 {
         margin: 0 0 0.35rem;
         font-size: 1.1rem;
-        font-weight: 650;
+        font-weight: 700;
         line-height: 1.25;
-        background: linear-gradient(105deg, var(--accent-hot) 0%, var(--neon-cyan) 48%, #f0abfc 100%);
+        letter-spacing: 0.01em;
+        background: linear-gradient(105deg, #b8e8ff 0%, var(--neon-cyan) 35%, #93c5fd 65%, #f0abfc 100%);
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
+        filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.28)) drop-shadow(0 0 24px rgba(232, 121, 249, 0.15));
       }
       .modal-stats {
         font-size: 0.8rem;
@@ -1973,12 +2328,21 @@
         margin-bottom: 1rem;
       }
       .season-block h4 {
-        margin: 0 0 0.45rem;
-        font-size: 0.8rem;
+        margin: 0 0 0.5rem;
+        font-size: 0.72rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--muted);
-        font-weight: 600;
+        letter-spacing: 0.1em;
+        font-weight: 700;
+        padding: 0.38rem 0.65rem;
+        border-radius: 10px;
+        display: inline-block;
+        color: #e0f2ff;
+        border: 1px solid rgba(91, 156, 255, 0.22);
+        background: linear-gradient(165deg, rgba(91, 156, 255, 0.12) 0%, rgba(14, 12, 28, 0.65) 100%);
+        -webkit-backdrop-filter: blur(12px) saturate(1.2);
+        backdrop-filter: blur(12px) saturate(1.2);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 0 20px rgba(34, 211, 238, 0.08);
+        text-shadow: 0 0 12px rgba(91, 156, 255, 0.25);
       }
       .ep-table {
         width: 100%;
@@ -2016,12 +2380,14 @@
         display: flex;
         flex-wrap: nowrap;
         gap: 0.12rem;
-        padding: 0.28rem;
-        background: rgba(8, 12, 24, 0.65);
-        border: 1px solid rgba(130, 200, 255, 0.14);
-        border-radius: 14px;
-        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07) inset, 0 0 32px -8px rgba(34, 211, 238, 0.1),
-          0 0 48px -12px rgba(124, 92, 255, 0.08);
+        padding: 0.32rem;
+        background: linear-gradient(180deg, rgba(48, 22, 72, 0.38) 0%, rgba(20, 12, 36, 0.28) 48%, rgba(12, 8, 24, 0.55) 100%);
+        border: 1px solid rgba(167, 139, 250, 0.26);
+        border-radius: 15px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07) inset, 0 2px 0 rgba(255, 255, 255, 0.05) inset,
+          0 0 40px -6px rgba(34, 211, 238, 0.12), 0 0 56px -12px rgba(232, 121, 249, 0.08);
+        -webkit-backdrop-filter: blur(26px) saturate(1.4);
+        backdrop-filter: blur(26px) saturate(1.4);
         -webkit-transform: translateZ(0);
         transform: translateZ(0);
       }
@@ -2114,6 +2480,24 @@
       .tab-btn.active[data-tab="tasks"]:hover:not(:disabled) {
         box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.52) inset, 0 0 28px 3px rgba(167, 139, 250, 0.5),
           0 0 60px 0 rgba(124, 92, 255, 0.28), 0 0 70px -4px rgba(34, 211, 238, 0.14), 0 8px 22px rgba(0, 0, 0, 0.45);
+      }
+      .tab-btn.active[data-tab="community"] {
+        background: linear-gradient(180deg, rgba(34, 211, 238, 0.22) 0%, rgba(91, 156, 255, 0.1) 100%);
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.42) inset, 0 0 22px 2px rgba(34, 211, 238, 0.35),
+          0 0 48px 0 rgba(91, 156, 255, 0.18), 0 8px 20px rgba(0, 0, 0, 0.42);
+      }
+      .tab-btn.active[data-tab="community"]:hover:not(:disabled) {
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.52) inset, 0 0 28px 3px rgba(34, 211, 238, 0.42),
+          0 0 56px 0 rgba(91, 156, 255, 0.22), 0 8px 22px rgba(0, 0, 0, 0.45);
+      }
+      .tab-btn.active[data-tab="profile"] {
+        background: linear-gradient(180deg, rgba(91, 156, 255, 0.22) 0%, rgba(124, 58, 237, 0.12) 100%);
+        box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.42) inset, 0 0 22px 2px rgba(91, 156, 255, 0.38),
+          0 0 48px 0 rgba(124, 92, 255, 0.18), 0 0 56px -6px rgba(34, 211, 238, 0.1), 0 8px 20px rgba(0, 0, 0, 0.42);
+      }
+      .tab-btn.active[data-tab="profile"]:hover:not(:disabled) {
+        box-shadow: 0 0 0 1px rgba(186, 230, 253, 0.5) inset, 0 0 28px 3px rgba(91, 156, 255, 0.48),
+          0 0 58px 0 rgba(124, 92, 255, 0.24), 0 0 66px -4px rgba(34, 211, 238, 0.14), 0 8px 22px rgba(0, 0, 0, 0.45);
       }
       .tab-btn.active[data-tab="admin"] {
         background: linear-gradient(180deg, rgba(251, 191, 36, 0.22) 0%, rgba(245, 158, 11, 0.07) 100%);
@@ -2272,6 +2656,440 @@
         display: block;
       }
 
+      .community-root {
+        position: relative;
+        padding-bottom: 2.5rem;
+      }
+      .community-list-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.35rem;
+      }
+      .header-cyan-glow {
+        margin-bottom: 0 !important;
+      }
+      .community-live-badge {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        color: #4ade80;
+        text-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
+      }
+      .community-lead {
+        font-size: 0.88rem;
+        line-height: 1.55;
+        margin: 0 0 1rem;
+      }
+      .community-fab-plus {
+        position: fixed;
+        bottom: max(1.25rem, env(safe-area-inset-bottom));
+        right: max(1rem, env(safe-area-inset-right));
+        z-index: 35;
+        width: 3.25rem;
+        height: 3.25rem;
+        border-radius: 50%;
+        font-size: 1.75rem;
+        font-weight: 300;
+        line-height: 1;
+        padding: 0;
+        margin: 0;
+        min-height: unset;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(165deg, rgba(34, 211, 238, 0.45) 0%, rgba(91, 156, 255, 0.25) 100%);
+        border: 1px solid rgba(34, 211, 238, 0.45);
+        box-shadow: 0 4px 24px rgba(34, 211, 238, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+        color: #ecfeff;
+      }
+      .community-fab-plus {
+        display: none;
+      }
+      #tab-community.active .community-fab-plus {
+        display: flex;
+      }
+      .community-thread-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+      }
+      .community-thread-card {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0.85rem 1rem;
+        border-radius: 14px;
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        background: rgba(0, 0, 0, 0.28);
+        -webkit-backdrop-filter: blur(14px) saturate(1.15);
+        backdrop-filter: blur(14px) saturate(1.15);
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .community-thread-card:hover {
+        border-color: rgba(34, 211, 238, 0.28);
+        background: rgba(34, 211, 238, 0.06);
+      }
+      .community-thread-card-title {
+        font-weight: 700;
+        font-size: 1rem;
+        margin: 0 0 0.25rem;
+      }
+      .community-thread-card-meta {
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .community-thread-view.hidden {
+        display: none !important;
+      }
+      .community-list-view.hidden {
+        display: none !important;
+      }
+      .community-thread-toolbar {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+        margin-bottom: 0.75rem;
+      }
+      .community-back-btn {
+        align-self: flex-start;
+        margin-top: 0;
+      }
+      .community-thread-title {
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 750;
+        line-height: 1.25;
+      }
+      .community-subscribe-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.86rem;
+        color: var(--muted);
+        cursor: pointer;
+        margin-top: 0.35rem;
+      }
+      .community-subscribe-wrap input {
+        width: 1.1rem;
+        height: 1.1rem;
+        accent-color: var(--neon-cyan);
+      }
+      .community-thread-controls {
+        margin-bottom: 0.85rem;
+      }
+      .community-sort-label {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .community-sort-select {
+        padding: 0.45rem 0.65rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.35);
+        color: var(--text);
+        font-size: 0.88rem;
+        min-height: 44px;
+      }
+      .community-post-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+      }
+      .community-post-card {
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        border-radius: 14px;
+        padding: 0.85rem 1rem;
+        background: rgba(4, 8, 18, 0.4);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+      }
+      .community-post-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.65rem;
+        margin-bottom: 0.5rem;
+      }
+      .community-post-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        background: rgba(130, 200, 255, 0.15);
+      }
+      .community-post-avatar-ph {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: linear-gradient(145deg, rgba(34, 211, 238, 0.35), rgba(91, 156, 255, 0.2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #e0f2fe;
+      }
+      .community-post-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .community-post-author {
+        font-weight: 700;
+        font-size: 0.95rem;
+      }
+      .community-post-time {
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .community-ep-pill {
+        display: inline-block;
+        margin-top: 0.2rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        background: rgba(100, 116, 139, 0.25);
+        color: #cbd5e1;
+      }
+      .community-post-body {
+        font-size: 0.92rem;
+        line-height: 1.55;
+        word-break: break-word;
+      }
+      .community-post-body.is-spoiler:not(.is-revealed) {
+        filter: blur(7px);
+        user-select: none;
+        cursor: pointer;
+        min-height: 2.5rem;
+      }
+      .community-spoiler-tap {
+        font-size: 0.78rem;
+        color: var(--neon-cyan);
+        margin-top: 0.35rem;
+      }
+      .community-post-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-top: 0.65rem;
+      }
+      .community-post-actions button {
+        margin: 0;
+        min-height: 40px;
+        font-size: 0.82rem;
+        padding: 0.45rem 0.75rem;
+      }
+      .community-edited-line {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 0.35rem;
+      }
+      .community-composer-wrap {
+        border-top: 1px solid rgba(130, 200, 255, 0.12);
+        padding-top: 1rem;
+      }
+      .community-post-as {
+        font-size: 0.88rem;
+        margin: 0 0 0.5rem;
+      }
+      .community-format-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-bottom: 0.45rem;
+      }
+      .community-fmt-btn {
+        margin: 0 !important;
+        min-height: 40px !important;
+        padding: 0.35rem 0.65rem !important;
+        font-size: 0.82rem !important;
+      }
+      .community-composer {
+        min-height: 6.5rem;
+        max-height: 14rem;
+        overflow-y: auto;
+        padding: 0.65rem 0.75rem;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.4);
+        color: var(--text);
+        font-size: 16px;
+        line-height: 1.5;
+        outline: none;
+      }
+      .community-composer:empty::before {
+        content: attr(data-placeholder);
+        color: var(--muted);
+        pointer-events: none;
+      }
+      .community-composer-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1rem;
+        align-items: center;
+        margin: 0.65rem 0;
+      }
+      .community-ep-label {
+        flex: 1 1 10rem;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        margin: 0;
+      }
+      .community-ep-label input,
+      .community-episode-select {
+        margin-top: 0.35rem;
+        width: 100%;
+        max-width: 22rem;
+        min-height: 44px;
+        font-size: 16px;
+        padding: 0.45rem 0.55rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.35);
+        color: var(--text);
+      }
+      .admin-community-log {
+        list-style: none;
+        margin: 0 0 1rem;
+        padding: 0.5rem 0.65rem;
+        border-radius: 12px;
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        background: rgba(0, 0, 0, 0.22);
+        font-size: 0.8rem;
+        line-height: 1.45;
+        color: var(--muted);
+        max-height: 14rem;
+        overflow-y: auto;
+      }
+      .admin-community-log strong {
+        color: #fde68a;
+      }
+      .community-spoiler-label {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.86rem;
+        cursor: pointer;
+        margin: 0;
+      }
+      .community-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 120;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      }
+      .community-modal[hidden] {
+        display: none !important;
+      }
+      .community-modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
+      }
+      .community-modal-panel {
+        position: relative;
+        width: 100%;
+        max-width: 28rem;
+        max-height: min(85vh, 32rem);
+        overflow-y: auto;
+        margin: auto;
+        padding: 1.1rem 1.15rem 1.25rem;
+        border-radius: 18px 18px 0 0;
+        background: linear-gradient(180deg, rgba(18, 16, 32, 0.98) 0%, rgba(10, 8, 20, 0.98) 100%);
+        border: 1px solid rgba(34, 211, 238, 0.2);
+        border-bottom: none;
+        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+      }
+      @media (min-width: 520px) {
+        .community-modal {
+          align-items: center;
+        }
+        .community-modal-panel {
+          border-radius: 18px;
+          border: 1px solid rgba(34, 211, 238, 0.2);
+        }
+      }
+      .community-modal-title {
+        margin: 0 0 0.5rem;
+        font-size: 1.1rem;
+      }
+      .community-modal-search {
+        width: 100%;
+        min-height: 44px;
+        margin-bottom: 0.65rem;
+        font-size: 16px;
+      }
+      .community-modal-results {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        max-height: 12rem;
+        overflow-y: auto;
+        margin-bottom: 0.75rem;
+      }
+      .community-modal-pick {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0.65rem 0.75rem;
+        border-radius: 12px;
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        background: rgba(0, 0, 0, 0.3);
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+      }
+      .community-modal-pick:hover {
+        border-color: rgba(34, 211, 238, 0.35);
+      }
+      .community-modal-close {
+        margin-top: 0;
+      }
+      .community-admin-move {
+        margin-top: 0.85rem;
+        padding-top: 0.85rem;
+        border-top: 1px dashed rgba(251, 191, 36, 0.25);
+      }
+      .community-admin-move input {
+        width: 100%;
+        max-width: 12rem;
+        min-height: 44px;
+        margin: 0.35rem 0;
+        font-size: 16px;
+      }
+      .community-modal-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.85rem;
+      }
+      .community-modal-actions button {
+        margin: 0;
+      }
+
       .app-top {
         position: sticky;
         top: 0;
@@ -2279,12 +3097,20 @@
         margin: 0 -1.1rem;
         padding: 0.65rem 1.1rem 0.5rem;
         padding-top: max(0.65rem, env(safe-area-inset-top, 0px));
-        background: rgba(8, 2, 14, 0.22);
-        -webkit-backdrop-filter: blur(22px) saturate(1.2);
-        backdrop-filter: blur(22px) saturate(1.2);
-        border-bottom: 1px solid rgba(192, 132, 252, 0.12);
-        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
-        transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, padding 0.22s ease;
+        background: linear-gradient(
+          180deg,
+          rgba(96, 40, 130, 0.14) 0%,
+          rgba(36, 14, 52, 0.07) 42%,
+          rgba(14, 6, 24, 0.05) 100%
+        );
+        -webkit-backdrop-filter: blur(32px) saturate(1.35);
+        backdrop-filter: blur(32px) saturate(1.35);
+        border-bottom: 1px solid rgba(192, 132, 252, 0.14);
+        box-shadow: 0 4px 28px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, padding 0.22s ease,
+          -webkit-backdrop-filter 0.22s ease, backdrop-filter 0.22s ease;
       }
       .app-top::after {
         content: "";
@@ -2296,11 +3122,16 @@
         pointer-events: none;
       }
       .app-top.is-scrolled {
-        background: rgba(8, 2, 18, 0.58);
-        -webkit-backdrop-filter: blur(26px) saturate(1.22);
-        backdrop-filter: blur(26px) saturate(1.22);
-        border-bottom-color: rgba(192, 132, 252, 0.2);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+        background: linear-gradient(
+          180deg,
+          rgba(88, 36, 118, 0.28) 0%,
+          rgba(28, 10, 42, 0.14) 45%,
+          rgba(12, 5, 22, 0.1) 100%
+        );
+        -webkit-backdrop-filter: blur(36px) saturate(1.38);
+        backdrop-filter: blur(36px) saturate(1.38);
+        border-bottom-color: rgba(192, 132, 252, 0.22);
+        box-shadow: 0 8px 36px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         padding-top: max(0.4rem, env(safe-area-inset-top, 0px));
         padding-bottom: 0.35rem;
       }
@@ -2318,10 +3149,6 @@
         min-width: 40px;
         min-height: 40px;
         border-radius: 10px;
-      }
-      .app-top.is-scrolled .profile-home-icon {
-        width: 1.15rem;
-        height: 1.15rem;
       }
       .app-top.is-scrolled .tab-nav {
         margin-bottom: 0.65rem;
@@ -2510,6 +3337,9 @@
   <body>
     <div class="bg-mesh-mid" aria-hidden="true"></div>
     <div class="space-milky-way" aria-hidden="true"></div>
+    <div class="space-milky-rift" aria-hidden="true"></div>
+    <div class="space-aurora" aria-hidden="true"></div>
+    <div class="space-stars-deep" aria-hidden="true"></div>
     <div class="space-sparkle-layer" aria-hidden="true"></div>
     <div class="toast-root" id="toastRoot" aria-live="polite" aria-atomic="true"></div>
     <main>
@@ -2529,43 +3359,6 @@
               title="Quick start"
             >
               <span class="help-quickstart-char" aria-hidden="true">?</span>
-            </button>
-            <button
-              type="button"
-              class="header-icon-btn profile-home-btn"
-              id="tabBtnProfile"
-              aria-label="Your Profile"
-              aria-pressed="false"
-              aria-controls="tab-profile"
-              title="Your Profile"
-            >
-              <svg
-                class="profile-home-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-              >
-                <defs>
-                  <linearGradient id="homeProfileStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#22d3ee" />
-                    <stop offset="55%" stop-color="#5b9cff" />
-                    <stop offset="100%" stop-color="#c084fc" />
-                  </linearGradient>
-                  <linearGradient id="homeProfileFill" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#0f1419" />
-                    <stop offset="100%" stop-color="#050508" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M12 3 4 10v11h5v-6h6v6h5V10l-8-7z"
-                  fill="url(#homeProfileFill)"
-                  fill-opacity="0.88"
-                  stroke="url(#homeProfileStroke)"
-                  stroke-width="1.55"
-                  stroke-linejoin="round"
-                />
-              </svg>
             </button>
           </div>
         </div>
@@ -2613,6 +3406,30 @@
               class="tab-btn"
               role="tab"
               aria-selected="false"
+              data-tab="community"
+              id="tabBtnCommunity"
+              aria-label="Community"
+              title="Community"
+            >
+              <span class="tab-label">Community</span>
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              role="tab"
+              aria-selected="false"
+              data-tab="profile"
+              id="tabBtnProfile"
+              aria-label="Profile"
+              title="Profile"
+            >
+              <span class="tab-label">Profile</span>
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              role="tab"
+              aria-selected="false"
               data-tab="admin"
               id="tabBtnAdmin"
               aria-label="Admin"
@@ -2623,6 +3440,291 @@
           </div>
         </nav>
       </header>
+
+      <div id="tab-add" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnAdd">
+        <section class="home-refresh-section panel-rail-cyan" aria-label="Refresh episode cache">
+          <h2 class="section-header-highlight header-blue">Refresh data</h2>
+          <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.65rem; line-height: 1.45">
+            Update TVMaze episode dates in the server cache so <strong>My List</strong> air dates and <strong>Tasks</strong> stay current. New shows refresh automatically when you add them; use this to refresh everything.
+          </p>
+          <div class="add-shows-refresh-panel" aria-label="Refresh all subscribed shows">
+            <button type="button" class="secondary" id="refreshData">Refresh Data</button>
+            <p class="muted msg" id="jobMsg" style="margin: 0; font-size: 0.8rem; line-height: 1.4"></p>
+            <pre id="jobOut" style="display: none; margin: 0; font-size: 0.72rem"></pre>
+          </div>
+        </section>
+        <section class="search-shell" aria-label="Search and subscribe">
+          <div class="add-shows-hero-bar">
+            <div class="section-header-highlight search-hero-unified" aria-labelledby="searchHeroHeading">
+              <div class="search-hero-head">
+                <svg class="search-hero-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="searchIconGrad" x1="4" y1="4" x2="20" y2="20">
+                      <stop stop-color="#22d3ee" />
+                      <stop offset="0.55" stop-color="#5b9cff" />
+                      <stop offset="1" stop-color="#c084fc" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="11" cy="11" r="6.5" stroke="url(#searchIconGrad)" stroke-width="1.75" />
+                  <path d="M16 16l4 4" stroke="url(#searchIconGrad)" stroke-width="1.75" stroke-linecap="round" />
+                </svg>
+                <h2 class="search-hero-heading" id="searchHeroHeading">Find a show</h2>
+              </div>
+            </div>
+          </div>
+          <div class="search-fields">
+            <div>
+              <label for="searchTitle">Show title</label>
+              <div class="search-input-wrap search-input-hero">
+                <input id="searchTitle" type="text" placeholder="Search shows by title…" autocomplete="off" />
+                <button type="button" class="search-clear-btn" id="searchClearBtn" hidden aria-label="Clear search">×</button>
+              </div>
+            </div>
+          </div>
+          <div id="recentChipsWrap" class="recent-chips-wrap" hidden>
+            <p class="recent-chips-label muted">Recent searches</p>
+            <div class="recent-chips" id="recentChips" role="list"></div>
+          </div>
+          <div id="searchLoadingBar" class="search-loading-bar" hidden>
+            <div class="search-loading-bar-fill" aria-hidden="true"></div>
+            <span class="search-loading-bar-text">Searching TVMaze &amp; catalog…</span>
+          </div>
+          <p class="msg err" id="searchErr"></p>
+          <div id="searchPostToolbar" class="search-post-toolbar">
+            <div class="search-post-field">
+              <label for="searchNetworkFilter">Filter by network</label>
+              <select id="searchNetworkFilter" aria-label="Filter results by network">
+                <option value="">All networks</option>
+              </select>
+            </div>
+            <div class="search-post-field">
+              <label for="searchPageSize">Results per page</label>
+              <select id="searchPageSize" aria-label="Results per page">
+                <option value="10">10</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+            <div class="search-pagination" id="searchPagination"></div>
+          </div>
+          <p class="muted search-fullpage-link" id="searchFullPageLink" style="display: none"></p>
+          <div class="search-results" id="results"></div>
+        </section>
+
+        <section class="trending-section panel-rail-cyan" aria-labelledby="trendingHeading">
+          <h2 id="trendingHeading" class="section-header-highlight">Trending shows</h2>
+          <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.75rem; line-height: 1.45">
+            <strong>Running</strong> shows with solid TVMaze ratings, matched to genres from <strong>My List</strong>. Add a few shows first if this is empty.
+          </p>
+          <p class="search-loading" id="trendingLoading" style="display: none">Loading trending…</p>
+          <p class="msg err" id="trendingErr"></p>
+          <div class="trending-scroll-wrap">
+            <div class="trending-scroll search-results" id="trendingList"></div>
+          </div>
+        </section>
+
+        <section class="recommended-section panel-rail-magenta" aria-labelledby="recommendedHeading">
+          <div class="recommended-fold-head">
+            <button type="button" class="fold-toggle fold-toggle-highlight" id="foldRecommendedBtn" aria-expanded="false" aria-controls="foldRecommendedBody">
+              <span class="fold-title" id="recommendedHeading">Recommended for you</span>
+              <span class="fold-chev" aria-hidden="true">▼</span>
+            </button>
+            <button type="button" class="secondary" id="recommendedRefreshBtn">Refresh</button>
+          </div>
+          <div class="fold-body" id="foldRecommendedBody" hidden>
+            <p class="muted" id="recommendedHint">
+              Subscribe to a few shows above — we scan TVMaze’s catalog for <strong>real genre tags</strong> (not just titles), blend in search for your top genres, and boost shows on networks you already watch.
+            </p>
+            <p class="search-loading" id="recommendedLoading" style="display: none">Loading suggestions…</p>
+            <p class="msg err" id="recommendedErr"></p>
+            <div class="search-results" id="recommendedList"></div>
+          </div>
+        </section>
+      </div>
+
+      <div id="tab-shows" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnShows">
+        <section class="panel-rail-blue" aria-label="Your shows">
+          <h2 class="section-header-highlight header-blue">Your shows</h2>
+          <ul id="subs"></ul>
+          <div id="subsEmptyState" class="empty-state-card" style="display: none">
+            <div class="empty-state-icon" aria-hidden="true">📺</div>
+            <p class="empty-state-title">No shows yet</p>
+            <p class="empty-state-hint muted">Search by title and subscribe — your list will show up here.</p>
+            <button type="button" class="empty-state-cta" id="subsEmptyCta">Add shows</button>
+          </div>
+        </section>
+      </div>
+
+      <div id="tab-tasks" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnTasks">
+        <section class="panel-rail-magenta" aria-label="Watch checklist">
+          <h2 class="section-header-highlight">Watch checklist</h2>
+          <div class="tasks-stats-section" id="tasksStatsSection" aria-live="polite">
+            <div class="tasks-stats-grid">
+              <div class="tasks-stat-card">
+                <span class="tasks-stat-value" id="tasksStatShows">0</span>
+                <span class="tasks-stat-label">Shows on checklist</span>
+              </div>
+              <div class="tasks-stat-card">
+                <span class="tasks-stat-value" id="tasksStatOpen">0</span>
+                <span class="tasks-stat-label">Episodes to watch</span>
+              </div>
+              <div class="tasks-stat-card">
+                <span class="tasks-stat-value" id="tasksStatCompleted">0</span>
+                <span class="tasks-stat-label">Episodes completed</span>
+              </div>
+            </div>
+            <p class="muted tasks-stats-hint" id="tasksStatsHint">
+              Counts cover every episode task in your list (server keeps up to 120). A good base for achievements later.
+            </p>
+          </div>
+          <p class="muted" id="tasksIntro">
+            Episodes that <strong>air today</strong> (in your timezone) get a row here when the server runs its hourly job, when you add a show, or when you tap <strong>Refresh Data</strong> on the <strong>Add Shows</strong> home tab. Check off each one after you watch.
+          </p>
+          <ul class="tasks-list" id="tasksList"></ul>
+          <p class="muted tasks-open-empty" id="tasksOpenEmpty" hidden>All caught up — nothing left on your open list. Expand <strong>Completed</strong> below to see what you’ve already checked off.</p>
+          <p class="muted" id="tasksEmpty" style="display: none">No tasks yet. After a subscribed show has an episode on today’s date, it will show up here.</p>
+          <div id="tasksCompletedFoldWrap">
+            <button
+              type="button"
+              class="fold-toggle fold-toggle-magenta"
+              id="foldTasksCompletedBtn"
+              aria-expanded="false"
+              aria-controls="foldTasksCompletedBody"
+            >
+              <span class="fold-title">Completed <span class="tasks-completed-badge" id="tasksCompletedBadge">(0)</span></span>
+              <span class="fold-chev" aria-hidden="true">▼</span>
+            </button>
+            <div class="fold-body" id="foldTasksCompletedBody" hidden>
+              <p class="muted tasks-open-empty" id="tasksCompletedEmpty" hidden style="margin-top: 0">No completed episode tasks yet.</p>
+              <ul class="tasks-list" id="tasksListCompleted"></ul>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div id="tab-community" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnCommunity">
+        <section class="panel-rail-cyan community-root" aria-label="Community">
+          <div class="community-list-view" id="communityListView">
+            <div class="community-list-head">
+              <h2 class="section-header-highlight header-cyan-glow" style="margin-top: 0">Community</h2>
+              <span class="community-live-badge" aria-hidden="true">● LIVE</span>
+            </div>
+            <p class="muted community-lead">
+              Discuss shows with other fans. Threads are grouped by show — start one with <strong>+</strong> if it’s not listed yet.
+            </p>
+            <button type="button" class="community-fab-plus" id="communityNewThreadBtn" title="New discussion">+</button>
+            <div id="communityThreadsLoading" class="muted community-loading" hidden>Loading threads…</div>
+            <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
+            <ul class="community-thread-list" id="communityThreadList"></ul>
+            <p class="muted community-empty" id="communityThreadsEmpty" hidden>No discussions yet. Tap + to pick a show and write the first post.</p>
+          </div>
+          <div class="community-thread-view hidden" id="communityThreadView">
+            <div class="community-thread-toolbar">
+              <button type="button" class="secondary community-back-btn" id="communityBackBtn">← Threads</button>
+              <div class="community-thread-title-wrap">
+                <h2 class="community-thread-title" id="communityThreadTitle">—</h2>
+                <label class="community-subscribe-wrap">
+                  <input type="checkbox" id="communitySubscribeCb" />
+                  <span>Notify on new posts (push)</span>
+                </label>
+              </div>
+            </div>
+            <p class="muted community-thread-hint" id="communitySubscribeHint" hidden>
+              Use <strong>Turn on push</strong> in Profile first. You can subscribe if this show is on <strong>My List</strong> (even before the first post) or once someone has posted.
+            </p>
+            <div class="community-thread-controls">
+              <label class="community-sort-label">
+                Sort
+                <select id="communitySortSelect" class="community-sort-select">
+                  <option value="newest">Newest</option>
+                  <option value="oldest">Oldest</option>
+                </select>
+              </label>
+            </div>
+            <p class="muted community-loading" id="communityPostsLoading" hidden>Loading posts…</p>
+            <p class="err" id="communityPostsErr" style="display: none"></p>
+            <div class="community-post-feed" id="communityPostFeed"></div>
+            <div class="community-composer-wrap" id="communityComposerWrap">
+              <p class="muted community-post-as" id="communityPostAsLine" hidden>Post as <strong id="communityPostAsName">—</strong></p>
+              <p class="muted community-guest-hint" id="communityGuestHint" hidden>
+                <a href="#" id="communityGoProfileLink">Create an account on Profile</a> to post and subscribe to threads.
+              </p>
+              <div class="community-format-bar" id="communityFormatBar" hidden>
+                <button type="button" class="secondary community-fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>
+                <button type="button" class="secondary community-fmt-btn" data-cmd="italic" title="Italic"><i>I</i></button>
+                <button type="button" class="secondary community-fmt-btn" data-cmd="underline" title="Underline"><u>U</u></button>
+                <button type="button" class="secondary community-fmt-btn" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
+              </div>
+              <div
+                class="community-composer"
+                id="communityComposer"
+                contenteditable="true"
+                data-placeholder="What did you think of the latest episode?"
+                role="textbox"
+                aria-multiline="true"
+              ></div>
+              <div class="community-composer-meta">
+                <label class="community-ep-label" for="communityEpisodeSelect">
+                  Episode <span class="muted">(optional, from guide)</span>
+                  <select id="communityEpisodeSelect" class="community-episode-select">
+                    <option value="">General — whole show</option>
+                  </select>
+                </label>
+                <label class="community-spoiler-label">
+                  <input type="checkbox" id="communityComposerSpoiler" />
+                  Spoiler
+                </label>
+              </div>
+              <button type="button" id="communityPostSubmitBtn">Post</button>
+              <p class="muted msg" id="communityComposerMsg" style="margin-top: 0.5rem"></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div id="communityNewModal" class="community-modal" hidden aria-hidden="true">
+        <div class="community-modal-backdrop" data-close-community-modal></div>
+        <div class="community-modal-panel" role="dialog" aria-labelledby="communityModalTitle">
+          <h3 id="communityModalTitle" class="community-modal-title">Start a discussion</h3>
+          <p class="muted" style="margin: 0 0 0.65rem; font-size: 0.86rem">Search for a show, then open its thread to write the first post.</p>
+          <label for="communityModalSearch">Show title</label>
+          <input type="text" id="communityModalSearch" class="community-modal-search" placeholder="Search…" autocomplete="off" />
+          <div id="communityModalResults" class="community-modal-results"></div>
+          <button type="button" class="secondary community-modal-close" data-close-community-modal>Cancel</button>
+        </div>
+      </div>
+
+      <div id="communityEditModal" class="community-modal" hidden aria-hidden="true">
+        <div class="community-modal-backdrop" data-close-edit-modal></div>
+        <div class="community-modal-panel" role="dialog" aria-labelledby="communityEditModalTitle">
+          <h3 id="communityEditModalTitle" class="community-modal-title">Edit post</h3>
+          <div class="community-format-bar" id="communityEditFormatBar">
+            <button type="button" class="secondary community-fmt-btn" data-edit-cmd="bold"><b>B</b></button>
+            <button type="button" class="secondary community-fmt-btn" data-edit-cmd="italic"><i>I</i></button>
+            <button type="button" class="secondary community-fmt-btn" data-edit-cmd="underline"><u>U</u></button>
+            <button type="button" class="secondary community-fmt-btn" data-edit-cmd="strikeThrough"><s>S</s></button>
+          </div>
+          <div class="community-composer" id="communityEditBody" contenteditable="true" role="textbox" aria-multiline="true"></div>
+          <label class="community-spoiler-label" style="margin-top: 0.65rem">
+            <input type="checkbox" id="communityEditSpoiler" />
+            Mark as spoiler
+          </label>
+          <label class="community-ep-label" for="communityEditEpisodeSelect" style="margin-top: 0.65rem">
+            Episode <span class="muted">(optional)</span>
+            <select id="communityEditEpisodeSelect" class="community-episode-select"></select>
+          </label>
+          <div id="communityEditAdminMove" class="community-admin-move" hidden>
+            <label for="communityEditMoveShowId">Move to TVMaze show ID <span class="muted">(admin)</span></label>
+            <input type="number" id="communityEditMoveShowId" min="1" step="1" placeholder="Numeric ID" />
+                <button type="button" class="secondary" id="communityEditApplyMoveBtn">Move thread</button>
+          </div>
+          <div class="community-modal-actions">
+            <button type="button" id="communityEditSaveBtn">Save</button>
+            <button type="button" class="secondary" data-close-edit-modal>Cancel</button>
+          </div>
+          <p class="err" id="communityEditErr" style="display: none; margin-top: 0.5rem"></p>
+        </div>
+      </div>
 
       <div id="tab-profile" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnProfile">
         <section class="profile-identity panel-rail-cyan" aria-labelledby="profileIdentityHeading">
@@ -2656,11 +3758,32 @@
           </div>
         </section>
 
-        <section class="panel-rail-blue" aria-labelledby="appearanceHeading">
-          <h2 id="appearanceHeading" class="section-header-highlight header-blue" style="margin-top: 0">Appearance</h2>
-          <p class="muted" style="font-size: 0.85rem; margin: 0; line-height: 1.5">
-            Background: <strong>Nebula</strong> — deep magenta &amp; violet glass (fixed). Stars and Milky Way band animate subtly behind the UI.
+        <section class="panel-rail-magenta" aria-labelledby="profileAboutHeading">
+          <h2 id="profileAboutHeading" class="section-header-highlight header-magenta">About you</h2>
+          <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.85rem; line-height: 1.45">
+            Optional — stored on your account. You can clear any field by emptying it and saving.
           </p>
+          <label for="profileAboutMe">About me</label>
+          <textarea id="profileAboutMe" rows="4" maxlength="2000" placeholder="A few words about you…"></textarea>
+          <div class="row" style="margin-top: 0.65rem">
+            <div>
+              <label for="profileAge">Age</label>
+              <input id="profileAge" type="number" min="1" max="120" placeholder="—" inputmode="numeric" />
+            </div>
+            <div>
+              <label for="profileSex">Sex</label>
+              <select id="profileSex" aria-label="Sex">
+                <option value="">Prefer not to say</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <label for="profileFavoriteShow" style="margin-top: 0.65rem">Favorite show</label>
+          <input id="profileFavoriteShow" type="text" maxlength="200" placeholder="e.g. The Bear, Doctor Who…" autocomplete="off" />
+          <button type="button" id="saveProfileAboutBtn" style="margin-top: 0.75rem">Save about you</button>
+          <p class="muted msg" id="profileAboutMsg" style="margin-top: 0.5rem"></p>
         </section>
 
         <section class="panel-rail-cyan" aria-label="Reminders and timezone">
@@ -2746,10 +3869,27 @@
               <p style="margin-top: 0.35rem">
                 Signed in as <strong id="accountUsernameLabel"></strong>
               </p>
-              <button type="button" class="secondary" id="signOutAccountBtn">Sign out of account</button>
               <p class="muted" style="font-size: 0.8rem; margin-top: 0.35rem">
-                You’ll get a new guest profile on this device, or sign in again to restore your list.
+                Use <strong>Sign out</strong> below to end this session on this device. You can sign in again anytime.
               </p>
+              <div id="accountChangePassword" class="account-change-pw" hidden>
+                <strong style="font-size: 0.85rem">Change password</strong>
+                <div class="row" style="margin-top: 0.45rem">
+                  <div>
+                    <label for="acctCurPw">Current password</label>
+                    <input id="acctCurPw" type="password" autocomplete="current-password" />
+                  </div>
+                  <div>
+                    <label for="acctNewPw">New password</label>
+                    <input id="acctNewPw" type="password" autocomplete="new-password" minlength="8" />
+                  </div>
+                  <div>
+                    <label for="acctNewPw2">Confirm new</label>
+                    <input id="acctNewPw2" type="password" autocomplete="new-password" minlength="8" />
+                  </div>
+                </div>
+                <button type="button" class="secondary" id="acctUpdatePwBtn" style="margin-top: 0.5rem">Update password</button>
+              </div>
             </div>
             <p class="msg err" id="accountErr" style="margin-top: 0.5rem"></p>
           </div>
@@ -2761,135 +3901,13 @@
           <button type="button" class="secondary push-btn" id="testPushBtn">Send test notification</button>
           <p class="muted msg" id="pushMsg"></p>
         </section>
-      </div>
 
-      <div id="tab-add" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnAdd">
-        <section class="search-shell" aria-label="Search and subscribe">
-          <div class="add-shows-hero-bar">
-            <div class="section-header-highlight search-hero-unified" aria-labelledby="searchHeroHeading">
-              <div class="search-hero-head">
-                <svg class="search-hero-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <defs>
-                    <linearGradient id="searchIconGrad" x1="4" y1="4" x2="20" y2="20">
-                      <stop stop-color="#22d3ee" />
-                      <stop offset="0.55" stop-color="#5b9cff" />
-                      <stop offset="1" stop-color="#c084fc" />
-                    </linearGradient>
-                  </defs>
-                  <circle cx="11" cy="11" r="6.5" stroke="url(#searchIconGrad)" stroke-width="1.75" />
-                  <path d="M16 16l4 4" stroke="url(#searchIconGrad)" stroke-width="1.75" stroke-linecap="round" />
-                </svg>
-                <h2 class="search-hero-heading" id="searchHeroHeading">Find a show</h2>
-              </div>
-            </div>
-          </div>
-          <div class="add-shows-refresh-panel" aria-label="Refresh episode cache">
-            <button type="button" class="secondary" id="refreshData">Refresh Data</button>
-            <p class="muted msg" id="jobMsg" style="margin: 0; font-size: 0.8rem; line-height: 1.4"></p>
-            <pre id="jobOut" style="display: none; margin: 0; font-size: 0.72rem"></pre>
-          </div>
-          <p class="muted" style="font-size: 0.78rem; margin: 0 0 0.85rem; line-height: 1.45; opacity: 0.92">
-            Pulls TVMaze episode dates into the cache for <strong>My List</strong> and <strong>Tasks</strong> (same as <strong>Refresh Data</strong> on <strong>My List</strong>).
-          </p>
-          <div class="search-fields">
-            <div>
-              <label for="searchTitle">Show title</label>
-              <div class="search-input-wrap search-input-hero">
-                <input id="searchTitle" type="text" placeholder="Search shows by title…" autocomplete="off" />
-                <button type="button" class="search-clear-btn" id="searchClearBtn" hidden aria-label="Clear search">×</button>
-              </div>
-            </div>
-          </div>
-          <div id="recentChipsWrap" class="recent-chips-wrap" hidden>
-            <p class="recent-chips-label muted">Recent searches</p>
-            <div class="recent-chips" id="recentChips" role="list"></div>
-          </div>
-          <div id="searchLoadingBar" class="search-loading-bar" hidden>
-            <div class="search-loading-bar-fill" aria-hidden="true"></div>
-            <span class="search-loading-bar-text">Searching TVMaze &amp; catalog…</span>
-          </div>
-          <p class="msg err" id="searchErr"></p>
-          <div id="searchPostToolbar" class="search-post-toolbar">
-            <div class="search-post-field">
-              <label for="searchNetworkFilter">Filter by network</label>
-              <select id="searchNetworkFilter" aria-label="Filter results by network">
-                <option value="">All networks</option>
-              </select>
-            </div>
-            <div class="search-post-field">
-              <label for="searchPageSize">Results per page</label>
-              <select id="searchPageSize" aria-label="Results per page">
-                <option value="10">10</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-              </select>
-            </div>
-            <div class="search-pagination" id="searchPagination"></div>
-          </div>
-          <p class="muted search-fullpage-link" id="searchFullPageLink" style="display: none"></p>
-          <div class="search-results" id="results"></div>
-        </section>
-
-        <section class="trending-section panel-rail-cyan" aria-labelledby="trendingHeading">
-          <h2 id="trendingHeading" class="section-header-highlight">Trending shows</h2>
+        <section id="profileSignOutSection" class="panel-rail-blue profile-signout-section" hidden aria-label="Sign out">
+          <h2 class="section-header-highlight header-blue">Session</h2>
           <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.75rem; line-height: 1.45">
-            Popular picks that match genres from <strong>My List</strong>. Add a few shows first if this is empty.
+            Sign out ends your logged-in session on this browser. You’ll get a fresh guest list unless you sign in again.
           </p>
-          <p class="search-loading" id="trendingLoading" style="display: none">Loading trending…</p>
-          <p class="msg err" id="trendingErr"></p>
-          <div class="trending-scroll-wrap">
-            <div class="trending-scroll search-results" id="trendingList"></div>
-          </div>
-        </section>
-
-        <section class="recommended-section panel-rail-magenta" aria-labelledby="recommendedHeading">
-          <div class="recommended-fold-head">
-            <button type="button" class="fold-toggle fold-toggle-highlight" id="foldRecommendedBtn" aria-expanded="false" aria-controls="foldRecommendedBody">
-              <span class="fold-title" id="recommendedHeading">Recommended for you</span>
-              <span class="fold-chev" aria-hidden="true">▼</span>
-            </button>
-            <button type="button" class="secondary" id="recommendedRefreshBtn">Refresh</button>
-          </div>
-          <div class="fold-body" id="foldRecommendedBody" hidden>
-            <p class="muted" id="recommendedHint">
-              Subscribe to a few shows above — we scan TVMaze’s catalog for <strong>real genre tags</strong> (not just titles), blend in search for your top genres, and boost shows on networks you already watch.
-            </p>
-            <p class="search-loading" id="recommendedLoading" style="display: none">Loading suggestions…</p>
-            <p class="msg err" id="recommendedErr"></p>
-            <div class="search-results" id="recommendedList"></div>
-          </div>
-        </section>
-      </div>
-
-      <div id="tab-shows" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnShows">
-        <section class="panel-rail-cyan list-refresh-panel" aria-label="Refresh episode cache">
-          <h2 class="section-header-highlight header-blue">Refresh data</h2>
-          <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.5rem; line-height: 1.45">
-            Update TVMaze episode dates in the server cache so <strong>My List</strong> air dates and <strong>Tasks</strong> stay current.
-          </p>
-          <button type="button" class="secondary" id="refreshDataList">Refresh Data</button>
-          <p class="muted msg" id="jobMsgList" style="margin: 0.45rem 0 0; font-size: 0.8rem; line-height: 1.4"></p>
-        </section>
-        <section class="panel-rail-blue" aria-label="Your shows">
-          <h2 class="section-header-highlight header-blue">Your shows</h2>
-          <ul id="subs"></ul>
-          <div id="subsEmptyState" class="empty-state-card" style="display: none">
-            <div class="empty-state-icon" aria-hidden="true">📺</div>
-            <p class="empty-state-title">No shows yet</p>
-            <p class="empty-state-hint muted">Search by title and subscribe — your list will show up here.</p>
-            <button type="button" class="empty-state-cta" id="subsEmptyCta">Add shows</button>
-          </div>
-        </section>
-      </div>
-
-      <div id="tab-tasks" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnTasks">
-        <section aria-label="Watch checklist">
-          <h2 class="section-header-highlight">Watch checklist</h2>
-          <p class="muted" id="tasksIntro">
-            Episodes that <strong>air today</strong> (in your timezone) get a row here when the server runs its hourly job, or when you tap <strong>Refresh Data</strong> on <strong>Add Shows</strong> or <strong>My List</strong>. Check off each one after you watch.
-          </p>
-          <ul class="tasks-list" id="tasksList"></ul>
-          <p class="muted" id="tasksEmpty" style="display: none">No tasks yet. After a subscribed show has an episode on today’s date, it will show up here.</p>
+          <button type="button" class="secondary" id="signOutAccountBtn">Sign out</button>
         </section>
       </div>
 
@@ -2898,6 +3916,10 @@
           <h2 class="section-header-highlight header-gold" style="margin-top: 0">Admin</h2>
           <button type="button" class="secondary" id="adminRefreshBtn">Refresh data</button>
           <div id="adminTotals" class="admin-stats-grid" aria-live="polite"></div>
+          <h3 class="section-header-highlight header-gold" style="font-size: 0.88rem; margin: 1.25rem 0 0.5rem; letter-spacing: 0.06em">
+            Community moderation log
+          </h3>
+          <ul id="adminCommunityLog" class="admin-community-log"></ul>
           <p class="muted scroll-hint-admin" style="font-size: 0.75rem; margin: 0 0 0.35rem; display: none">
             Swipe the table sideways on a narrow screen.
           </p>
@@ -2988,26 +4010,26 @@
         </div>
         <div class="modal-body-scroll" id="quickStartHelpModalBody">
           <p class="how-to-lead muted">
-            Airalert opens on <strong>Add Shows</strong>. Open this guide anytime with the <strong>?</strong> button in the header. The <strong>home</strong> icon opens <strong>Your Profile</strong>; use the tabs below to switch sections.
+            Airalert opens on <strong>Add Shows</strong>. Open this guide anytime with the <strong>?</strong> button in the header. Use the <strong>Profile</strong> tab for your account, photo, and settings.
           </p>
           <ol class="how-to-steps">
             <li>
               <strong>Search and subscribe.</strong> On <strong>Add Shows</strong>, type a title — results update as you type, or press <strong>Enter</strong> for a full search (then <strong>Recent searches</strong> chips may appear). <strong>Trending shows</strong> suggests popular titles in your genres. Tap <strong>Subscribe</strong> or <strong>Add show</strong> on a card. Your list is on <strong>My List</strong>. Tap a title there for episode details.
             </li>
             <li>
-              <strong>Your profile card.</strong> On <strong>Your Profile</strong>, add a <strong>photo</strong>, <strong>display name</strong>, and use <strong>Save name &amp; photo</strong>. Open <strong>Reminders &amp; timezone</strong> to set <strong>timezone</strong> and <strong>reminder hour</strong>, then <strong>Save schedule &amp; timezone</strong>.
+              <strong>Profile tab.</strong> Add a <strong>photo</strong>, <strong>display name</strong>, and optional <strong>About you</strong> (bio, age, sex, favorite show); use <strong>Save name &amp; photo</strong> and <strong>Save about you</strong>. Open <strong>Reminders &amp; timezone</strong> for <strong>timezone</strong> and <strong>reminder hour</strong>, then <strong>Save schedule &amp; timezone</strong>. <strong>Sign out</strong> is at the bottom when you’re logged in.
             </li>
             <li>
               <strong>Recommended for you.</strong> Still on <strong>Add Shows</strong>, expand <strong>Recommended for you</strong> below (use <strong>Refresh</strong> if needed). Suggestions are weighted by <strong>genres</strong> from your subscriptions (plus shared networks when needed).
             </li>
             <li>
-              <strong>Tasks.</strong> Open the <strong>Tasks</strong> tab: when an episode airs on its calendar day, it appears as a checklist item. Check it off when you’ve watched. Optional: on <strong>Your Profile</strong>, set a follow-up push (1, 3, or 7 days after air) if you still haven’t marked it watched — e.g. “Have you watched … yet?!”
+              <strong>Tasks.</strong> Open the <strong>Tasks</strong> tab: stats at the top show how many shows and episodes are on your list; when an episode airs on its calendar day, it appears in the open list. Check it off when you’ve watched — it moves into <strong>Completed</strong> (collapsed by default). Optional: on the <strong>Profile</strong> tab, set a follow-up push (1, 3, or 7 days after air) if you still haven’t marked it watched — e.g. “Have you watched … yet?!”
             </li>
             <li>
-              <strong>Optional — Push.</strong> On <strong>Your Profile</strong>, use <strong>Turn on push for this device</strong>. On iPhone, add Airalert to the Home Screen first for reliable delivery.
+              <strong>Optional — Push.</strong> On the <strong>Profile</strong> tab, use <strong>Turn on push for this device</strong>. On iPhone, add Airalert to the Home Screen first for reliable delivery.
             </li>
             <li>
-              <strong>Refresh data.</strong> On <strong>Add Shows</strong>, use <strong>Refresh Data</strong> to pull TVMaze episode dates into the cache for <strong>My List</strong> and tasks.
+              <strong>Refresh data.</strong> On <strong>Add Shows</strong> (top of the home tab), use <strong>Refresh Data</strong> to refresh all subscribed shows; adding a show also caches that show’s episodes automatically.
             </li>
             <li>
               <strong>Own list per phone.</strong> If two devices show the same subscriptions unexpectedly, on <strong>one</strong> device use <strong>New list on this device</strong> under <strong>Reminders &amp; timezone</strong> (clears this browser’s session).
@@ -3179,6 +4201,14 @@
         if (un) un.textContent = (u && u.username) || "Guest";
         const ms = document.getElementById("profileMemberSince");
         if (ms) ms.textContent = formatMemberSince(u && u.createdAt);
+        const am = document.getElementById("profileAboutMe");
+        if (am) am.value = (u && u.aboutMe) || "";
+        const ag = document.getElementById("profileAge");
+        if (ag) ag.value = u && u.age != null && u.age !== "" ? String(u.age) : "";
+        const sx = document.getElementById("profileSex");
+        if (sx) sx.value = (u && u.sex) || "";
+        const fs = document.getElementById("profileFavoriteShow");
+        if (fs) fs.value = (u && u.favoriteShow) || "";
       }
 
       async function loadUser(userId) {
@@ -3211,6 +4241,48 @@
           await loadUser(userId);
           if (msg) msg.textContent = "Saved.";
           showToast("Profile updated");
+        } catch (e) {
+          if (msg) {
+            msg.textContent = e.message || "Could not save";
+            msg.classList.add("err");
+          }
+          showToast(e.message || "Could not save");
+        }
+      }
+
+      async function saveProfileAbout(userId) {
+        const msg = document.getElementById("profileAboutMsg");
+        if (msg) {
+          msg.textContent = "";
+          msg.classList.remove("err");
+        }
+        const ageRaw = document.getElementById("profileAge").value.trim();
+        const body = {
+          aboutMe: document.getElementById("profileAboutMe").value,
+          sex: document.getElementById("profileSex").value || null,
+          favoriteShow: document.getElementById("profileFavoriteShow").value.trim() || null,
+        };
+        if (ageRaw === "") {
+          body.age = null;
+        } else {
+          const n = Number(ageRaw);
+          if (!Number.isInteger(n) || n < 1 || n > 120) {
+            if (msg) {
+              msg.textContent = "Age must be a whole number from 1–120, or leave blank.";
+              msg.classList.add("err");
+            }
+            return;
+          }
+          body.age = n;
+        }
+        try {
+          await api("/api/users/" + encodeURIComponent(userId), {
+            method: "PATCH",
+            body: JSON.stringify(body),
+          });
+          await loadUser(userId);
+          if (msg) msg.textContent = "Saved.";
+          showToast("About you saved");
         } catch (e) {
           if (msg) {
             msg.textContent = e.message || "Could not save";
@@ -3345,67 +4417,145 @@
         }
       }
 
+      function sortTaskUlByAirdateDesc(ul) {
+        if (!ul) return;
+        const lis = Array.from(ul.querySelectorAll(":scope > li"));
+        lis.sort((a, b) => (b.dataset.airdate || "").localeCompare(a.dataset.airdate || ""));
+        lis.forEach((li) => ul.appendChild(li));
+      }
+
+      function taskShowKey(t) {
+        if (t.tvmazeShowId != null && t.tvmazeShowId !== "") return "s:" + String(t.tvmazeShowId);
+        return "n:" + String(t.showName || "");
+      }
+
+      function refreshTasksStatsFromDom() {
+        const openUl = document.getElementById("tasksList");
+        const doneUl = document.getElementById("tasksListCompleted");
+        const statShows = document.getElementById("tasksStatShows");
+        const statOpen = document.getElementById("tasksStatOpen");
+        const statCompleted = document.getElementById("tasksStatCompleted");
+        const badge = document.getElementById("tasksCompletedBadge");
+        const openEmpty = document.getElementById("tasksOpenEmpty");
+        const completedEmpty = document.getElementById("tasksCompletedEmpty");
+        const foldWrap = document.getElementById("tasksCompletedFoldWrap");
+        if (!openUl || !doneUl || !statShows || !statOpen || !statCompleted) return;
+        const openN = openUl.children.length;
+        const compN = doneUl.children.length;
+        const total = openN + compN;
+        const keys = new Set();
+        for (const ul of [openUl, doneUl]) {
+          for (const li of ul.children) {
+            const k = li.dataset.showKey;
+            if (k) keys.add(k);
+          }
+        }
+        statShows.textContent = String(keys.size);
+        statOpen.textContent = String(openN);
+        statCompleted.textContent = String(compN);
+        if (badge) badge.textContent = "(" + compN + ")";
+        if (openEmpty) {
+          openEmpty.hidden = !(total > 0 && openN === 0);
+        }
+        if (completedEmpty) {
+          completedEmpty.hidden = compN > 0;
+        }
+        if (foldWrap) {
+          foldWrap.style.display = total === 0 ? "none" : "";
+        }
+      }
+
+      function createTaskRow(userId, t) {
+        const li = document.createElement("li");
+        li.dataset.airdate = t.airdate || "";
+        li.dataset.showKey = taskShowKey(t);
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.className = "task-check";
+        cb.checked = Boolean(t.completedAt);
+        cb.setAttribute("aria-label", "Watched: " + t.showName);
+        const body = document.createElement("div");
+        body.className = "task-body" + (t.completedAt ? " done" : "");
+        const line = document.createElement("div");
+        line.className = "task-line";
+        line.innerHTML = "<strong>" + escapeHtml(t.showName) + "</strong> · " + escapeHtml(t.episodeLabel);
+        const meta = document.createElement("div");
+        meta.className = "task-meta muted";
+        meta.textContent =
+          "Aired " + t.airdate + (t.completedAt ? " · Marked watched" : "") + (t.nudgeSentAt ? " · Nudge sent" : "");
+        body.appendChild(line);
+        body.appendChild(meta);
+        const openUl = document.getElementById("tasksList");
+        const doneUl = document.getElementById("tasksListCompleted");
+        cb.addEventListener("change", async () => {
+          try {
+            await api(
+              "/api/users/" + encodeURIComponent(userId) + "/watch-tasks/" + encodeURIComponent(t.id),
+              {
+                method: "PATCH",
+                body: JSON.stringify({ completed: cb.checked }),
+              },
+            );
+            body.classList.toggle("done", cb.checked);
+            meta.textContent =
+              "Aired " +
+              t.airdate +
+              (cb.checked ? " · Marked watched" : "") +
+              (t.nudgeSentAt ? " · Nudge sent" : "");
+            const target = cb.checked ? doneUl : openUl;
+            if (target) target.appendChild(li);
+            sortTaskUlByAirdateDesc(openUl);
+            sortTaskUlByAirdateDesc(doneUl);
+            refreshTasksStatsFromDom();
+          } catch (e) {
+            cb.checked = !cb.checked;
+            showToast(e.message || "Could not update task");
+          }
+        });
+        li.appendChild(cb);
+        li.appendChild(body);
+        return li;
+      }
+
       async function loadTasks(userId) {
-        const ul = document.getElementById("tasksList");
+        const ulOpen = document.getElementById("tasksList");
+        const ulDone = document.getElementById("tasksListCompleted");
         const empty = document.getElementById("tasksEmpty");
-        if (!ul || !empty) return;
+        const openEmpty = document.getElementById("tasksOpenEmpty");
+        const foldBtn = document.getElementById("foldTasksCompletedBtn");
+        if (!ulOpen || !ulDone || !empty) return;
         try {
           const data = await api("/api/users/" + encodeURIComponent(userId) + "/watch-tasks");
           const tasks = data.tasks || [];
-          ul.innerHTML = "";
+          ulOpen.innerHTML = "";
+          ulDone.innerHTML = "";
+          if (openEmpty) openEmpty.hidden = true;
+          if (foldBtn) foldBtn.setAttribute("aria-expanded", "false");
+          const foldBody = document.getElementById("foldTasksCompletedBody");
+          if (foldBody) foldBody.hidden = true;
           if (!tasks.length) {
             empty.style.display = "block";
             empty.textContent =
               "No tasks yet. After a subscribed show has an episode on today’s date, it will show up here.";
+            refreshTasksStatsFromDom();
             return;
           }
           empty.style.display = "none";
           for (const t of tasks) {
-            const li = document.createElement("li");
-            const cb = document.createElement("input");
-            cb.type = "checkbox";
-            cb.className = "task-check";
-            cb.checked = Boolean(t.completedAt);
-            cb.setAttribute("aria-label", "Watched: " + t.showName);
-            const body = document.createElement("div");
-            body.className = "task-body" + (t.completedAt ? " done" : "");
-            const line = document.createElement("div");
-            line.className = "task-line";
-            line.innerHTML = "<strong>" + escapeHtml(t.showName) + "</strong> · " + escapeHtml(t.episodeLabel);
-            const meta = document.createElement("div");
-            meta.className = "task-meta muted";
-            meta.textContent =
-              "Aired " + t.airdate + (t.completedAt ? " · Marked watched" : "") + (t.nudgeSentAt ? " · Nudge sent" : "");
-            body.appendChild(line);
-            body.appendChild(meta);
-            cb.addEventListener("change", async () => {
-              try {
-                await api(
-                  "/api/users/" + encodeURIComponent(userId) + "/watch-tasks/" + encodeURIComponent(t.id),
-                  {
-                    method: "PATCH",
-                    body: JSON.stringify({ completed: cb.checked }),
-                  },
-                );
-                body.classList.toggle("done", cb.checked);
-                meta.textContent =
-                  "Aired " +
-                  t.airdate +
-                  (cb.checked ? " · Marked watched" : "") +
-                  (t.nudgeSentAt ? " · Nudge sent" : "");
-              } catch (e) {
-                cb.checked = !cb.checked;
-                showToast(e.message || "Could not update task");
-              }
-            });
-            li.appendChild(cb);
-            li.appendChild(body);
-            ul.appendChild(li);
+            const li = createTaskRow(userId, t);
+            if (t.completedAt) ulDone.appendChild(li);
+            else ulOpen.appendChild(li);
           }
+          sortTaskUlByAirdateDesc(ulOpen);
+          sortTaskUlByAirdateDesc(ulDone);
+          refreshTasksStatsFromDom();
         } catch (e) {
-          ul.innerHTML = "";
+          ulOpen.innerHTML = "";
+          ulDone.innerHTML = "";
           empty.style.display = "block";
           empty.textContent = e.message || "Could not load tasks.";
+          if (openEmpty) openEmpty.hidden = true;
+          refreshTasksStatsFromDom();
         }
       }
 
@@ -3446,6 +4596,11 @@
       }
 
       function applyMeToUI(me) {
+        sessionMeSnapshot = me;
+        const signOutSec = document.getElementById("profileSignOutSection");
+        if (signOutSec) {
+          signOutSec.hidden = !(me && (me.username || truthyBit(me.hasPassword)));
+        }
         const tabBtn = document.getElementById("tabBtnAdmin");
         const guest = document.getElementById("accountGuest");
         const signed = document.getElementById("accountSignedIn");
@@ -3460,6 +4615,8 @@
           signed.hidden = false;
           const lab = document.getElementById("accountUsernameLabel");
           if (lab) lab.textContent = me.username || "account";
+          const chPw = document.getElementById("accountChangePassword");
+          if (chPw) chPw.hidden = !truthyBit(me.hasPassword);
         } else {
           guest.hidden = false;
           signed.hidden = true;
@@ -3600,7 +4757,21 @@
                         .join("") +
                       "</div></div>"
                     : "";
-              let html = genreLine;
+              const hasAccount = ua.username && String(ua.username).trim();
+              const pwPlain = ua.passwordPlainAdmin != null ? String(ua.passwordPlainAdmin) : "";
+              const pwSupportBox = hasAccount
+                ? "<div style='margin:0 0 0.65rem 0;padding:0.5rem;border-radius:10px;border:1px solid rgba(245,158,11,0.35);background:rgba(245,158,11,0.08)'>" +
+                  "<strong style='font-size:0.82rem;color:#fde68a'>Password (support / troubleshooting)</strong>" +
+                  "<p class='mono' style='margin:0.35rem 0 0;font-size:0.85rem;word-break:break-all'>" +
+                  (pwPlain
+                    ? escapeHtml(pwPlain)
+                    : "— not recorded yet (user can sign in once, or use reset below)") +
+                  "</p>" +
+                  "<button type='button' class='secondary' id=\"admResetPw_" +
+                  u.id +
+                  "\" style='margin-top:0.45rem'>Reset password to <strong>airalert</strong></button></div>"
+                : "<p class='muted' style='margin:0 0 0.5rem;font-size:0.8rem'>Guest account — no password.</p>";
+              let html = genreLine + pwSupportBox;
               html +=
                   "<div style='margin-bottom:0.5rem'><label><input type='checkbox' id=\"admToggle_" +
                   u.id +
@@ -3653,6 +4824,28 @@
                     } catch (e) {
                       showToast(e.message || "Failed");
                       cb.checked = !cb.checked;
+                    }
+                  });
+                }
+                const resetPwBtn = document.getElementById("admResetPw_" + u.id);
+                if (resetPwBtn) {
+                  resetPwBtn.addEventListener("click", async (ev) => {
+                    ev.stopPropagation();
+                    if (
+                      !confirm(
+                        'Set this user\'s password to "airalert"? They should change it under Account after signing in.',
+                      )
+                    )
+                      return;
+                    try {
+                      await api("/api/admin/users/" + encodeURIComponent(u.id), {
+                        method: "PATCH",
+                        body: JSON.stringify({ resetPasswordToDefault: true }),
+                      });
+                      showToast("Password reset to airalert");
+                      await loadAdminOverview();
+                    } catch (e) {
+                      showToast(e.message || "Reset failed");
                     }
                   });
                 }
@@ -3719,6 +4912,49 @@
               }
             });
           });
+
+          const logHost = document.getElementById("adminCommunityLog");
+          if (logHost) {
+            try {
+              const logData = await api("/api/admin/community-log?limit=60");
+              const entries = logData.entries || [];
+              logHost.innerHTML = "";
+              if (!entries.length) {
+                const li = document.createElement("li");
+                li.style.margin = "0.2rem 0";
+                li.textContent = "No community moderation events logged yet.";
+                logHost.appendChild(li);
+              } else {
+                for (const ent of entries) {
+                  const li = document.createElement("li");
+                  li.style.margin = "0.4rem 0";
+                  li.style.lineHeight = "1.45";
+                  const det = ent.detailParsed;
+                  let detStr = "";
+                  if (det && typeof det === "object") {
+                    try {
+                      detStr = JSON.stringify(det);
+                    } catch {
+                      detStr = "";
+                    }
+                  }
+                  if (detStr.length > 200) detStr = detStr.slice(0, 200) + "…";
+                  li.innerHTML =
+                    "<strong>" +
+                    escapeHtml(ent.action) +
+                    "</strong> · post " +
+                    escapeHtml(String(ent.postId).slice(0, 10)) +
+                    "… · " +
+                    escapeHtml(ent.actorLabel || "—") +
+                    (ent.createdAt ? " · <span class=\"mono\">" + escapeHtml(ent.createdAt) + "</span>" : "") +
+                    (detStr ? "<br><span style=\"opacity:0.88\">" + escapeHtml(detStr) + "</span>" : "");
+                  logHost.appendChild(li);
+                }
+              }
+            } catch {
+              logHost.innerHTML = "<li style=\"margin:0.2rem 0\">Could not load community log.</li>";
+            }
+          }
         } catch (e) {
           errEl.textContent = e.message || "Admin load failed";
           errEl.style.display = "block";
@@ -3953,6 +5189,350 @@
       let recommendedLoadRequestId = 0;
       let trendingLoadRequestId = 0;
       let appUserId = null;
+      /** Last `/api/users/me` payload for Community + account checks (updated in applyMeToUI). */
+      let sessionMeSnapshot = null;
+
+      const communityState = {
+        view: "list",
+        showId: null,
+        showNameFallback: "",
+        sort: "newest",
+        editingPostId: null,
+        editingShowId: null,
+        modalSearchTimer: null,
+      };
+
+      async function populateCommunityEpisodeSelect(showId, selectEl, selectedTvmazeEpisodeId) {
+        if (!selectEl || showId == null) return;
+        selectEl.innerHTML = "";
+        const base = document.createElement("option");
+        base.value = "";
+        base.textContent = "General — whole show";
+        selectEl.appendChild(base);
+        const tzEl = document.getElementById("tz");
+        const tz = (tzEl && tzEl.value.trim()) || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        try {
+          const data = await api(
+            "/api/shows/" + encodeURIComponent(showId) + "/details?timezone=" + encodeURIComponent(tz),
+          );
+          const seasons = data.seasons || [];
+          for (const { season, episodes } of seasons) {
+            const og = document.createElement("optgroup");
+            og.label = "Season " + season;
+            for (const ep of episodes) {
+              const o = document.createElement("option");
+              o.value = String(ep.id);
+              o.textContent = "S" + season + "E" + ep.number + " · " + (ep.name || "TBA");
+              og.appendChild(o);
+            }
+            selectEl.appendChild(og);
+          }
+        } catch {
+          /* No episode cache yet — use Refresh Data on Add Shows, or post without episode */
+        }
+        if (selectedTvmazeEpisodeId != null && String(selectedTvmazeEpisodeId)) {
+          const v = String(selectedTvmazeEpisodeId);
+          if ([...selectEl.options].some((opt) => opt.value === v)) selectEl.value = v;
+        }
+      }
+
+      function formatCommunityRelativeTime(iso) {
+        if (!iso) return "";
+        const t = new Date(iso).getTime();
+        if (Number.isNaN(t)) return "";
+        const sec = Math.floor((Date.now() - t) / 1000);
+        if (sec < 10) return "just now";
+        if (sec < 60) return sec + "s ago";
+        const m = Math.floor(sec / 60);
+        if (m < 60) return m + "m ago";
+        const h = Math.floor(m / 60);
+        if (h < 48) return h + "h ago";
+        const d = Math.floor(h / 24);
+        return d + "d ago";
+      }
+
+      function accountDisplayForCommunity(me) {
+        if (!me) return "Guest";
+        if (me.displayName && String(me.displayName).trim()) return String(me.displayName).trim();
+        if (me.username) return "@" + me.username;
+        return "Member";
+      }
+
+      function openCommunityListView() {
+        communityState.view = "list";
+        communityState.showId = null;
+        communityState.showNameFallback = "";
+        const lv = document.getElementById("communityListView");
+        const tv = document.getElementById("communityThreadView");
+        if (lv) lv.classList.remove("hidden");
+        if (tv) tv.classList.add("hidden");
+        loadCommunityThreads();
+      }
+
+      async function loadCommunityThreads() {
+        const listEl = document.getElementById("communityThreadList");
+        const emptyEl = document.getElementById("communityThreadsEmpty");
+        const errEl = document.getElementById("communityThreadsErr");
+        const loadEl = document.getElementById("communityThreadsLoading");
+        if (!listEl) return;
+        if (errEl) {
+          errEl.style.display = "none";
+          errEl.textContent = "";
+        }
+        if (loadEl) loadEl.hidden = false;
+        try {
+          const data = await api("/api/community/threads");
+          const threads = data.threads || [];
+          listEl.innerHTML = "";
+          if (emptyEl) emptyEl.hidden = threads.length > 0;
+          for (const th of threads) {
+            const li = document.createElement("li");
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "community-thread-card";
+            btn.innerHTML =
+              "<div class=\"community-thread-card-title\">" +
+              escapeHtml(th.showName || "Show") +
+              "</div>" +
+              "<div class=\"community-thread-card-meta\">" +
+              th.postCount +
+              " post" +
+              (th.postCount === 1 ? "" : "s") +
+              " · active " +
+              formatCommunityRelativeTime(th.lastPostAt) +
+              "</div>";
+            btn.addEventListener("click", () => openCommunityThread(th.tvmazeShowId, th.showName));
+            li.appendChild(btn);
+            listEl.appendChild(li);
+          }
+        } catch (e) {
+          if (errEl) {
+            errEl.textContent = e.message || "Could not load threads";
+            errEl.style.display = "block";
+          }
+        } finally {
+          if (loadEl) loadEl.hidden = true;
+        }
+      }
+
+      async function openCommunityThread(showId, showNameFallback) {
+        communityState.view = "thread";
+        communityState.showId = showId;
+        communityState.showNameFallback = showNameFallback || "";
+        const lv = document.getElementById("communityListView");
+        const tv = document.getElementById("communityThreadView");
+        if (lv) lv.classList.add("hidden");
+        if (tv) tv.classList.remove("hidden");
+        const sortSel = document.getElementById("communitySortSelect");
+        if (sortSel) sortSel.value = communityState.sort;
+        await loadCommunityThreadPosts();
+        updateCommunityThreadUi();
+      }
+
+      function updateCommunityThreadUi() {
+        const reg = accountIsRegistered(sessionMeSnapshot);
+        const postAs = document.getElementById("communityPostAsName");
+        if (postAs) postAs.textContent = accountDisplayForCommunity(sessionMeSnapshot);
+        document.getElementById("communityPostAsLine").hidden = !reg;
+        document.getElementById("communityGuestHint").hidden = reg;
+        document.getElementById("communityFormatBar").hidden = !reg;
+        document.getElementById("communityPostSubmitBtn").disabled = !reg;
+        document.getElementById("communityComposer").contentEditable = reg ? "true" : "false";
+        if (!reg) document.getElementById("communityComposer").innerHTML = "";
+      }
+
+      async function loadCommunityThreadPosts() {
+        const showId = communityState.showId;
+        if (showId == null) return;
+        const feed = document.getElementById("communityPostFeed");
+        const errEl = document.getElementById("communityPostsErr");
+        const loadEl = document.getElementById("communityPostsLoading");
+        const titleEl = document.getElementById("communityThreadTitle");
+        const subCb = document.getElementById("communitySubscribeCb");
+        const subHint = document.getElementById("communitySubscribeHint");
+        if (errEl) {
+          errEl.style.display = "none";
+          errEl.textContent = "";
+        }
+        if (loadEl) loadEl.hidden = false;
+        try {
+          const data = await api(
+            "/api/community/threads/" + encodeURIComponent(showId) + "/posts?sort=" + encodeURIComponent(communityState.sort),
+          );
+          const posts = data.posts || [];
+          const showTitle = data.showName && data.showName.trim() ? data.showName : communityState.showNameFallback || "Discussion";
+          if (titleEl) titleEl.textContent = showTitle;
+          const canSub = data.canSubscribeThread === true;
+          if (subCb) {
+            subCb.checked = Boolean(data.subscribed);
+            subCb.disabled = !accountIsRegistered(sessionMeSnapshot) || !canSub;
+          }
+          if (subHint) subHint.hidden = !accountIsRegistered(sessionMeSnapshot);
+          feed.innerHTML = "";
+          for (const p of posts) {
+            feed.appendChild(renderCommunityPostCard(p));
+          }
+          await populateCommunityEpisodeSelect(showId, document.getElementById("communityEpisodeSelect"), null);
+        } catch (e) {
+          if (errEl) {
+            errEl.textContent = e.message || "Could not load posts";
+            errEl.style.display = "block";
+          }
+        } finally {
+          if (loadEl) loadEl.hidden = true;
+        }
+      }
+
+      function renderCommunityPostCard(p) {
+        const uid = resolveUserId();
+        const isOwner = uid && p.userId === uid;
+        const isAdmin = sessionMeSnapshot && truthyBit(sessionMeSnapshot.isAdmin);
+        const canMod = isOwner || isAdmin;
+        const wrap = document.createElement("article");
+        wrap.className = "community-post-card";
+        wrap.dataset.postId = p.id;
+        const head = document.createElement("div");
+        head.className = "community-post-head";
+        if (p.authorAvatarDataUrl) {
+          const img = document.createElement("img");
+          img.className = "community-post-avatar";
+          img.src = p.authorAvatarDataUrl;
+          img.alt = "";
+          head.appendChild(img);
+        } else {
+          const ph = document.createElement("div");
+          ph.className = "community-post-avatar-ph";
+          ph.textContent = (p.authorHandle || "?").charAt(0).toUpperCase();
+          head.appendChild(ph);
+        }
+        const meta = document.createElement("div");
+        meta.className = "community-post-meta";
+        const author = document.createElement("div");
+        author.className = "community-post-author";
+        author.textContent = p.authorHandle || "Member";
+        meta.appendChild(author);
+        const time = document.createElement("div");
+        time.className = "community-post-time";
+        time.textContent = formatCommunityRelativeTime(p.createdAt);
+        meta.appendChild(time);
+        if (p.episodeLabel) {
+          const pill = document.createElement("span");
+          pill.className = "community-ep-pill";
+          pill.textContent = p.episodeLabel;
+          meta.appendChild(pill);
+        }
+        head.appendChild(meta);
+        wrap.appendChild(head);
+        const body = document.createElement("div");
+        body.className = "community-post-body";
+        if (p.isSpoiler) body.classList.add("is-spoiler");
+        body.innerHTML = p.bodyHtml || "";
+        body.addEventListener("click", () => {
+          if (p.isSpoiler && body.classList.contains("is-spoiler") && !body.classList.contains("is-revealed")) {
+            body.classList.add("is-revealed");
+          }
+        });
+        wrap.appendChild(body);
+        if (p.isSpoiler) {
+          const tap = document.createElement("p");
+          tap.className = "community-spoiler-tap";
+          tap.textContent = "Tap blurred text to reveal spoiler";
+          wrap.appendChild(tap);
+        }
+        if (p.editedAt) {
+          const ed = document.createElement("p");
+          ed.className = "community-edited-line";
+          if (p.editedByLabel && p.editedByUserId && p.editedByUserId !== p.userId) {
+            ed.textContent = "Edited by " + p.editedByLabel;
+          } else {
+            ed.textContent = "Edited";
+          }
+          wrap.appendChild(ed);
+        }
+        if (canMod) {
+          const actions = document.createElement("div");
+          actions.className = "community-post-actions";
+          const editBtn = document.createElement("button");
+          editBtn.type = "button";
+          editBtn.className = "secondary";
+          editBtn.textContent = "Edit";
+          editBtn.addEventListener("click", () => void openCommunityEditModal(p));
+          actions.appendChild(editBtn);
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "danger";
+          delBtn.textContent = "Delete";
+          delBtn.addEventListener("click", async () => {
+            if (!confirm("Delete this post?")) return;
+            try {
+              await api("/api/community/posts/" + encodeURIComponent(p.id), { method: "DELETE" });
+              showToast("Post deleted");
+              await loadCommunityThreadPosts();
+              await loadCommunityThreads();
+            } catch (e) {
+              showToast(e.message || "Delete failed");
+            }
+          });
+          actions.appendChild(delBtn);
+          wrap.appendChild(actions);
+        }
+        return wrap;
+      }
+
+      async function openCommunityEditModal(p) {
+        communityState.editingPostId = p.id;
+        communityState.editingShowId = p.tvmazeShowId;
+        const modal = document.getElementById("communityEditModal");
+        const bodyEl = document.getElementById("communityEditBody");
+        const sp = document.getElementById("communityEditSpoiler");
+        const adminMove = document.getElementById("communityEditAdminMove");
+        const err = document.getElementById("communityEditErr");
+        if (err) {
+          err.style.display = "none";
+          err.textContent = "";
+        }
+        bodyEl.innerHTML = p.bodyHtml || "";
+        sp.checked = Boolean(p.isSpoiler);
+        const isAdmin = sessionMeSnapshot && truthyBit(sessionMeSnapshot.isAdmin);
+        adminMove.hidden = !isAdmin;
+        document.getElementById("communityEditMoveShowId").value = "";
+        await populateCommunityEpisodeSelect(p.tvmazeShowId, document.getElementById("communityEditEpisodeSelect"), p.tvmazeEpisodeId);
+        modal.hidden = false;
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeCommunityEditModal() {
+        communityState.editingPostId = null;
+        communityState.editingShowId = null;
+        const modal = document.getElementById("communityEditModal");
+        modal.hidden = true;
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      function openCommunityNewModal() {
+        const modal = document.getElementById("communityNewModal");
+        document.getElementById("communityModalSearch").value = "";
+        document.getElementById("communityModalResults").innerHTML = "";
+        modal.hidden = false;
+        modal.setAttribute("aria-hidden", "false");
+        document.getElementById("communityModalSearch").focus();
+      }
+
+      function closeCommunityNewModal() {
+        const modal = document.getElementById("communityNewModal");
+        modal.hidden = true;
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      function execCommunityFormat(cmd, el) {
+        if (!el) return;
+        el.focus();
+        try {
+          document.execCommand(cmd, false, null);
+        } catch {
+          /* ignore */
+        }
+      }
 
       function resolveUserId() {
         return appUserId || localStorage.getItem(LS_USER);
@@ -4406,12 +5986,6 @@
           btn.classList.toggle("active", on);
           btn.setAttribute("aria-selected", on ? "true" : "false");
         });
-        const profileHomeBtn = document.getElementById("tabBtnProfile");
-        if (profileHomeBtn) {
-          const onProfile = name === "profile";
-          profileHomeBtn.classList.toggle("active", onProfile);
-          profileHomeBtn.setAttribute("aria-pressed", onProfile ? "true" : "false");
-        }
         if (name === "add") {
           renderRecentChips();
           const id = resolveUserId();
@@ -4423,6 +5997,18 @@
         if (name === "tasks") {
           const id = resolveUserId();
           if (id) loadTasks(id);
+        }
+        if (name === "profile") {
+          const id = resolveUserId();
+          if (id) loadUser(id);
+        }
+        if (name === "community") {
+          if (communityState.view === "list") {
+            loadCommunityThreads();
+          } else if (communityState.showId != null) {
+            loadCommunityThreadPosts();
+            updateCommunityThreadUi();
+          }
         }
         if (name === "admin") {
           loadAdminOverview();
@@ -4525,7 +6111,197 @@
           setTab(btn.getAttribute("data-tab"));
         });
       });
-      document.getElementById("tabBtnProfile").addEventListener("click", () => setTab("profile"));
+
+      document.getElementById("communityBackBtn").addEventListener("click", () => openCommunityListView());
+      document.getElementById("communityNewThreadBtn").addEventListener("click", () => openCommunityNewModal());
+      document.querySelectorAll("[data-close-community-modal]").forEach((el) => {
+        el.addEventListener("click", () => closeCommunityNewModal());
+      });
+      document.querySelectorAll("[data-close-edit-modal]").forEach((el) => {
+        el.addEventListener("click", () => closeCommunityEditModal());
+      });
+      document.getElementById("communitySortSelect").addEventListener("change", (e) => {
+        communityState.sort = e.target.value === "oldest" ? "oldest" : "newest";
+        loadCommunityThreadPosts();
+      });
+      document.getElementById("communityFormatBar").addEventListener("click", (e) => {
+        const t = e.target.closest(".community-fmt-btn");
+        if (!t) return;
+        const cmd = t.getAttribute("data-cmd");
+        if (cmd) execCommunityFormat(cmd, document.getElementById("communityComposer"));
+      });
+      document.getElementById("communityEditFormatBar").addEventListener("click", (e) => {
+        const t = e.target.closest(".community-fmt-btn");
+        if (!t) return;
+        const cmd = t.getAttribute("data-edit-cmd");
+        if (cmd) execCommunityFormat(cmd, document.getElementById("communityEditBody"));
+      });
+      document.getElementById("communityPostSubmitBtn").addEventListener("click", async () => {
+        const showId = communityState.showId;
+        if (showId == null) return;
+        const composer = document.getElementById("communityComposer");
+        const msg = document.getElementById("communityComposerMsg");
+        const html = (composer.innerHTML || "").trim();
+        if (msg) {
+          msg.textContent = "";
+          msg.classList.remove("err");
+        }
+        if (!html || html === "<br>") {
+          if (msg) {
+            msg.textContent = "Write something first.";
+            msg.classList.add("err");
+          }
+          return;
+        }
+        try {
+          const epSel = document.getElementById("communityEpisodeSelect");
+          const epVal = epSel && epSel.value;
+          const postBody = {
+            tvmazeShowId: showId,
+            bodyHtml: html,
+            isSpoiler: document.getElementById("communityComposerSpoiler").checked,
+          };
+          if (epVal) postBody.tvmazeEpisodeId = Number(epVal);
+          await api("/api/community/posts", {
+            method: "POST",
+            body: JSON.stringify(postBody),
+          });
+          composer.innerHTML = "";
+          if (epSel) epSel.value = "";
+          document.getElementById("communityComposerSpoiler").checked = false;
+          showToast("Posted");
+          await loadCommunityThreadPosts();
+          await loadCommunityThreads();
+        } catch (e) {
+          if (msg) {
+            msg.textContent = e.message || "Could not post";
+            msg.classList.add("err");
+          }
+          showToast(e.message || "Could not post");
+        }
+      });
+      document.getElementById("communitySubscribeCb").addEventListener("change", async (e) => {
+        const showId = communityState.showId;
+        if (showId == null) return;
+        const on = e.target.checked;
+        try {
+          if (on) {
+            await api("/api/community/thread-subscriptions", {
+              method: "POST",
+              body: JSON.stringify({ tvmazeShowId: showId }),
+            });
+            showToast("You’ll get push when someone posts here");
+          } else {
+            await api("/api/community/thread-subscriptions/" + encodeURIComponent(showId), { method: "DELETE" });
+            showToast("Unsubscribed from thread alerts");
+          }
+        } catch (err) {
+          e.target.checked = !on;
+          showToast(err.message || "Could not update subscription");
+        }
+      });
+      document.getElementById("communityModalSearch").addEventListener("input", () => {
+        const inp = document.getElementById("communityModalSearch");
+        const box = document.getElementById("communityModalResults");
+        const q = inp.value.trim();
+        if (communityState.modalSearchTimer) clearTimeout(communityState.modalSearchTimer);
+        if (q.length < 2) {
+          box.innerHTML = "";
+          return;
+        }
+        communityState.modalSearchTimer = setTimeout(async () => {
+          try {
+            const qs = new URLSearchParams();
+            qs.set("title", q);
+            qs.set("limit", "30");
+            qs.set("fast", "true");
+            const { shows } = await api("/api/shows/search?" + qs.toString());
+            box.innerHTML = "";
+            for (const s of shows || []) {
+              const b = document.createElement("button");
+              b.type = "button";
+              b.className = "community-modal-pick";
+              b.textContent = s.name + (s.network ? " · " + s.network : "");
+              b.addEventListener("click", () => {
+                closeCommunityNewModal();
+                openCommunityThread(s.id, s.name);
+              });
+              box.appendChild(b);
+            }
+          } catch {
+            box.innerHTML = "";
+          }
+        }, 320);
+      });
+      document.getElementById("communityEditSaveBtn").addEventListener("click", async () => {
+        const id = communityState.editingPostId;
+        if (!id) return;
+        const bodyEl = document.getElementById("communityEditBody");
+        const err = document.getElementById("communityEditErr");
+        const html = (bodyEl.innerHTML || "").trim();
+        if (err) {
+          err.style.display = "none";
+          err.textContent = "";
+        }
+        if (!html || html === "<br>") {
+          if (err) {
+            err.textContent = "Post cannot be empty";
+            err.style.display = "block";
+          }
+          return;
+        }
+        try {
+          const edEp = document.getElementById("communityEditEpisodeSelect");
+          const epVal = edEp && edEp.value;
+          await api("/api/community/posts/" + encodeURIComponent(id), {
+            method: "PATCH",
+            body: JSON.stringify({
+              bodyHtml: html,
+              isSpoiler: document.getElementById("communityEditSpoiler").checked,
+              tvmazeEpisodeId: epVal === "" || epVal == null ? null : Number(epVal),
+            }),
+          });
+          closeCommunityEditModal();
+          showToast("Saved");
+          await loadCommunityThreadPosts();
+        } catch (e) {
+          if (err) {
+            err.textContent = e.message || "Save failed";
+            err.style.display = "block";
+          }
+        }
+      });
+      document.getElementById("communityEditApplyMoveBtn").addEventListener("click", async () => {
+        const id = communityState.editingPostId;
+        if (!id) return;
+        const raw = document.getElementById("communityEditMoveShowId").value.trim();
+        const n = Number(raw);
+        if (!Number.isInteger(n) || n < 1) {
+          showToast("Enter a valid TVMaze show ID");
+          return;
+        }
+        const err = document.getElementById("communityEditErr");
+        try {
+          await api("/api/community/posts/" + encodeURIComponent(id), {
+            method: "PATCH",
+            body: JSON.stringify({ tvmazeShowId: n }),
+          });
+          closeCommunityEditModal();
+          showToast("Post moved");
+          communityState.showId = n;
+          await loadCommunityThreadPosts();
+          await loadCommunityThreads();
+        } catch (e) {
+          if (err) {
+            err.textContent = e.message || "Move failed";
+            err.style.display = "block";
+          }
+        }
+      });
+      document.getElementById("communityGoProfileLink").addEventListener("click", (ev) => {
+        ev.preventDefault();
+        setTab("profile");
+      });
 
       document.getElementById("searchTitle").addEventListener("input", () => {
         syncSearchClearBtn();
@@ -4685,6 +6461,21 @@
         renderRecentChips();
         loadTasks(userId);
 
+        try {
+          const cq = new URLSearchParams(window.location.search);
+          const cshow = cq.get("communityShow");
+          if (cshow && /^\d+$/.test(cshow)) {
+            setTab("community");
+            openCommunityThread(Number(cshow), "");
+            const u = new URL(window.location.href);
+            u.searchParams.delete("communityShow");
+            const qs = u.searchParams.toString();
+            history.replaceState({}, "", u.pathname + (qs ? "?" + qs : "") + u.hash);
+          }
+        } catch {
+          /* ignore */
+        }
+
         if (shouldShowAccountPrompt(me)) {
           openAccountPromptModal();
         }
@@ -4769,6 +6560,10 @@
         document.getElementById("saveProfileInfoBtn").addEventListener("click", () => {
           const uid = resolveUserId();
           if (uid) saveProfileInfo(uid);
+        });
+        document.getElementById("saveProfileAboutBtn").addEventListener("click", () => {
+          const uid = resolveUserId();
+          if (uid) saveProfileAbout(uid);
         });
         document.getElementById("profileAvatarBtn").addEventListener("click", () => {
           document.getElementById("profileAvatarInput").click();
@@ -4867,14 +6662,11 @@
 
         async function runRefreshEpisodeJob() {
           const msg = document.getElementById("jobMsg");
-          const msgList = document.getElementById("jobMsgList");
           const out = document.getElementById("jobOut");
           const setStatus = (text, isErr) => {
-            [msg, msgList].forEach((el) => {
-              if (!el) return;
-              el.textContent = text;
-              el.classList.toggle("err", !!isErr);
-            });
+            if (!msg) return;
+            msg.textContent = text;
+            msg.classList.toggle("err", !!isErr);
           };
           setStatus("Running…", false);
           if (out) out.style.display = "none";
@@ -4901,8 +6693,6 @@
           }
         }
         document.getElementById("refreshData").onclick = () => runRefreshEpisodeJob();
-        const refreshListBtn = document.getElementById("refreshDataList");
-        if (refreshListBtn) refreshListBtn.onclick = () => runRefreshEpisodeJob();
 
         const accountErr = document.getElementById("accountErr");
         function clearAccountErr() {
@@ -4988,6 +6778,42 @@
           await loadTasks(id);
           showToast("Signed out");
         });
+
+        const acctPwBtn = document.getElementById("acctUpdatePwBtn");
+        if (acctPwBtn) {
+          acctPwBtn.addEventListener("click", async () => {
+            clearAccountErr();
+            const accountErr = document.getElementById("accountErr");
+            const cur = document.getElementById("acctCurPw");
+            const n1 = document.getElementById("acctNewPw");
+            const n2 = document.getElementById("acctNewPw2");
+            if (!cur || !n1 || !n2) return;
+            if (n1.value !== n2.value) {
+              if (accountErr) {
+                accountErr.textContent = "New passwords do not match.";
+                accountErr.classList.add("err");
+              }
+              return;
+            }
+            const me = sessionMeSnapshot;
+            if (!me || !me.id) return;
+            try {
+              await api("/api/users/" + encodeURIComponent(me.id), {
+                method: "PATCH",
+                body: JSON.stringify({ currentPassword: cur.value, newPassword: n1.value }),
+              });
+              cur.value = "";
+              n1.value = "";
+              n2.value = "";
+              showToast("Password updated");
+            } catch (e) {
+              if (accountErr) {
+                accountErr.textContent = e.message || "Could not update password";
+                accountErr.classList.add("err");
+              }
+            }
+          });
+        }
 
         const ar = document.getElementById("adminRefreshBtn");
         if (ar) ar.addEventListener("click", () => loadAdminOverview());

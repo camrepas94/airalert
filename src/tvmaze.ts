@@ -203,8 +203,15 @@ export async function scanShowsCatalogForGenreFit(
   return out;
 }
 
+/** TVMaze list `status`; only these count as “currently airing” for trending. */
+const TRENDING_AIRING_STATUSES = new Set(["running"]);
+
+/** Minimum TVMaze `rating.average` (0–10) so trending skews toward popular, not obscure catalog filler. */
+const TRENDING_MIN_RATING = 6.5;
+
 /**
  * Like {@link scanShowsCatalogForGenreFit}, but scores by genre overlap × TVMaze rating (popular / well-known shows).
+ * Only includes shows that are **currently airing** ({@link TRENDING_AIRING_STATUSES}) and meet a **minimum rating**.
  */
 export async function scanShowsCatalogForTrending(
   userGenreWeights: Map<string, number>,
@@ -229,6 +236,13 @@ export async function scanShowsCatalogForTrending(
       if (s.status !== "fulfilled") continue;
       for (const show of s.value) {
         if (!show?.id || excludeIds.has(show.id)) continue;
+        const statusNorm = (show.status ?? "").trim().toLowerCase();
+        if (!TRENDING_AIRING_STATUSES.has(statusNorm)) continue;
+
+        const avgRaw = show.rating?.average;
+        const avg = typeof avgRaw === "number" && Number.isFinite(avgRaw) ? avgRaw : null;
+        if (avg == null || avg < TRENDING_MIN_RATING) continue;
+
         let genreFit = 0;
         for (const g of show.genres ?? []) {
           const k = g.trim().toLowerCase();
@@ -236,7 +250,6 @@ export async function scanShowsCatalogForTrending(
           genreFit += userGenreWeights.get(k) ?? 0;
         }
         if (genreFit <= 0) continue;
-        const avg = typeof show.rating?.average === "number" && Number.isFinite(show.rating.average) ? show.rating.average : 0;
         const trendScore = genreFit * (1 + Math.max(0, avg) / 10);
         const prev = out.get(show.id);
         if (!prev || trendScore > prev.trendScore) {
@@ -366,6 +379,32 @@ export type TvmazeShowDetail = {
 export async function fetchShow(showId: number): Promise<TvmazeShowDetail> {
   const res = await fetch(`${BASE}/shows/${showId}`);
   return unwrap<TvmazeShowDetail>(res);
+}
+
+/** Single episode lookup; used to verify an episode belongs to a show when not in cache. */
+export async function fetchEpisodeMeta(
+  episodeId: number,
+): Promise<{ id: number; name: string; season: number; number: number; showId: number } | null> {
+  const res = await fetch(`${BASE}/episodes/${episodeId}`);
+  if (!res.ok) return null;
+  const data = (await res.json()) as {
+    id: number;
+    name: string;
+    season: number;
+    number: number;
+    _links?: { show?: { href?: string } };
+  };
+  const href = data._links?.show?.href ?? "";
+  const m = href.match(/\/shows\/(\d+)/);
+  const showId = m ? Number(m[1]) : NaN;
+  if (!Number.isInteger(showId) || showId < 1) return null;
+  return {
+    id: data.id,
+    name: data.name || "Episode",
+    season: data.season,
+    number: data.number,
+    showId,
+  };
 }
 
 /** Last aired calendar date (YYYY-MM-DD) from embedded previous episode, or null. */

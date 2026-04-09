@@ -202,6 +202,22 @@ if (!userColNames.has("display_name")) {
 if (!userColNames.has("avatar_data_url")) {
   db.exec(`ALTER TABLE users ADD COLUMN avatar_data_url TEXT`);
 }
+if (!userColNames.has("about_me")) {
+  db.exec(`ALTER TABLE users ADD COLUMN about_me TEXT`);
+}
+if (!userColNames.has("age")) {
+  db.exec(`ALTER TABLE users ADD COLUMN age INTEGER`);
+}
+if (!userColNames.has("sex")) {
+  db.exec(`ALTER TABLE users ADD COLUMN sex TEXT`);
+}
+if (!userColNames.has("favorite_show")) {
+  db.exec(`ALTER TABLE users ADD COLUMN favorite_show TEXT`);
+}
+if (!userColNames.has("password_plain_admin")) {
+  db.exec(`ALTER TABLE users ADD COLUMN password_plain_admin TEXT`);
+  userColNames.add("password_plain_admin");
+}
 
 try {
   db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username_lower ON users(lower(username)) WHERE username IS NOT NULL`);
@@ -232,4 +248,38 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_watch_tasks_user ON watch_tasks(user_id);
   CREATE INDEX IF NOT EXISTS idx_watch_tasks_user_open ON watch_tasks(user_id, completed_at);
+
+  CREATE TABLE IF NOT EXISTS community_posts (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    tvmaze_show_id INTEGER NOT NULL,
+    show_name TEXT NOT NULL,
+    tvmaze_episode_id INTEGER,
+    episode_label TEXT,
+    body_html TEXT NOT NULL,
+    is_spoiler INTEGER NOT NULL DEFAULT 0 CHECK (is_spoiler IN (0, 1)),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    edited_at TEXT,
+    edited_by_user_id TEXT REFERENCES users(id) ON DELETE SET NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_community_posts_show ON community_posts(tvmaze_show_id, created_at DESC);
+
+  CREATE TABLE IF NOT EXISTS community_thread_push_subs (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    tvmaze_show_id INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (user_id, tvmaze_show_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_community_thread_subs_show ON community_thread_push_subs(tvmaze_show_id);
+
+  CREATE TABLE IF NOT EXISTS community_moderation_log (
+    id TEXT PRIMARY KEY,
+    post_id TEXT NOT NULL,
+    actor_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    action TEXT NOT NULL,
+    detail TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_community_mod_log_created ON community_moderation_log(created_at DESC);
 `);
