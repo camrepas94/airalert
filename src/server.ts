@@ -3,6 +3,8 @@ import path from "node:path";
 import crypto from "node:crypto";
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import cors from "@fastify/cors";
+import websocket from "@fastify/websocket";
+import type { WebSocket } from "ws";
 import cron from "node-cron";
 import { v4 as uuidv4 } from "uuid";
 import "./db.js";
@@ -24,6 +26,19 @@ import {
   runTaskNudgeNotifications,
 } from "./jobs.js";
 import { configureWebPush, getVapidPublicKey, isWebPushConfigured, sendWebPushToUser } from "./push.js";
+import {
+  getOrCreateDmThread,
+  sendDmMessage,
+  getDmUnreadTotal,
+  markDmThreadRead,
+  listDmThreadsForUser,
+  listDmMessages,
+  registerDmSocket,
+  unregisterDmSocket,
+  enrichMessagesWithReadState,
+  getOtherParticipantLastReadAt,
+  handleDmClientSocketMessage,
+} from "./dm.js";
 import { computeRecommendedShows, computeTrendingShows } from "./recommend.js";
 import { hashPassword, verifyPassword } from "./password.js";
 
@@ -58,6 +73,8 @@ await app.register(cors, {
   origin: true,
   credentials: true,
 });
+
+await app.register(websocket);
 
 if (webPushReady) {
   app.log.info("Web Push: VAPID keys loaded");
@@ -222,6 +239,15 @@ function sanitizeCommunityHtml(raw: string): string {
     return isClose ? `</${t}>` : `<${t}>`;
   });
   return s.trim();
+}
+
+/** Registered account (password set); no reply side effects — use for WebSocket auth. */
+function getRegisteredSessionUserId(request: FastifyRequest): string | null {
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) return null;
+  const row = db.prepare(`SELECT password_hash FROM users WHERE id = ?`).get(sid) as { password_hash: string | null } | undefined;
+  if (!row?.password_hash || !String(row.password_hash).trim()) return null;
+  return sid;
 }
 
 function sessionRegisteredUserId(request: FastifyRequest, reply: FastifyReply): string | null {
@@ -490,13 +516,49 @@ app.get("/api/admin/overview", async (request, reply) => {
     },
     { users: 0, subscriptions: 0, fromRecommended: 0, fromSearch: 0, fromUnknown: 0, tasksTotal: 0, tasksCompleted: 0 },
   );
+
+  const communityPostsNow = db
+    .prepare(`SELECT COUNT(*) AS c FROM community_posts WHERE deleted_at IS NULL`)
+    .get() as { c: number };
+  const communityThreadsNow = db
+    .prepare(`SELECT COUNT(DISTINCT tvmaze_show_id) AS c FROM community_posts WHERE deleted_at IS NULL`)
+    .get() as { c: number };
+  const communityPosts24hAgo = db
+    .prepare(
+      `SELECT COUNT(*) AS c FROM community_posts
+       WHERE datetime(created_at) <= datetime('now', '-1 day')
+         AND (deleted_at IS NULL OR datetime(deleted_at) > datetime('now', '-1 day'))`,
+    )
+    .get() as { c: number };
+  const communityThreads24hAgo = db
+    .prepare(
+      `SELECT COUNT(DISTINCT tvmaze_show_id) AS c FROM community_posts
+       WHERE datetime(created_at) <= datetime('now', '-1 day')
+         AND (deleted_at IS NULL OR datetime(deleted_at) > datetime('now', '-1 day'))`,
+    )
+    .get() as { c: number };
+
+  const postCount = Number(communityPostsNow?.c) || 0;
+  const threadCount = Number(communityThreadsNow?.c) || 0;
+  const postsThen = Number(communityPosts24hAgo?.c) || 0;
+  const threadsThen = Number(communityThreads24hAgo?.c) || 0;
+
   const userIds = rows.map((r) => r.id);
   const genreMap = await topGenresForAdminUsers(userIds);
   const usersOut = rows.map((r) => ({
     ...r,
     topGenres: genreMap.get(r.id) ?? [],
   }));
-  return { users: usersOut, totals };
+  return {
+    users: usersOut,
+    totals,
+    community: {
+      postCount,
+      threadCount,
+      postDelta24h: postCount - postsThen,
+      threadDelta24h: threadCount - threadsThen,
+    },
+  };
 });
 
 app.get("/api/admin/community-log", async (request, reply) => {
@@ -548,7 +610,132 @@ app.get("/api/admin/community-log", async (request, reply) => {
       }
     })(),
   }));
-  return { entries };
+
+  const deletePostIds = [...new Set(rows.filter((row) => row.action === "post_delete").map((row) => row.postId))];
+  const restoreableIds = new Set<string>();
+  if (deletePostIds.length) {
+    const placeholders = deletePostIds.map(() => "?").join(",");
+    const stillDeleted = db
+      .prepare(
+        `SELECT id FROM community_posts WHERE id IN (${placeholders}) AND deleted_at IS NOT NULL`,
+      )
+      .all(...deletePostIds) as { id: string }[];
+    for (const s of stillDeleted) restoreableIds.add(s.id);
+  }
+
+  const entriesOut = entries.map((e) => ({
+    ...e,
+    canRestore: e.action === "post_delete" && restoreableIds.has(e.postId),
+  }));
+
+  return { entries: entriesOut };
+});
+
+app.post("/api/admin/community/posts/:postId/restore", async (request, reply) => {
+  if (!isRequestAdmin(request)) {
+    reply.code(401);
+    return { error: "Unauthorized" };
+  }
+  const { postId } = request.params as { postId: string };
+  const row = db
+    .prepare(`SELECT id, deleted_at FROM community_posts WHERE id = ?`)
+    .get(postId) as { id: string; deleted_at: string | null } | undefined;
+  if (!row) {
+    reply.code(404);
+    return { error: "Post not found (nothing to restore)" };
+  }
+  if (!row.deleted_at) {
+    reply.code(400);
+    return { error: "Post is not deleted" };
+  }
+  const actor = sessionUserIdFromRequest(request);
+  db.prepare(`UPDATE community_posts SET deleted_at = NULL WHERE id = ?`).run(postId);
+  logCommunityModeration({
+    postId,
+    actorUserId: actor ?? null,
+    action: "post_restore",
+    detail: {},
+  });
+  return { ok: true };
+});
+
+app.get("/api/admin/dm-log", async (request, reply) => {
+  if (!isRequestAdmin(request)) {
+    reply.code(401);
+    return { error: "Unauthorized" };
+  }
+  const limitRaw = Number((request.query as { limit?: string }).limit);
+  const limit = Number.isFinite(limitRaw) ? Math.min(500, Math.max(1, Math.floor(limitRaw))) : 200;
+  const offsetRaw = Number((request.query as { offset?: string }).offset);
+  const offset = Number.isFinite(offsetRaw) ? Math.max(0, Math.floor(offsetRaw)) : 0;
+
+  const totalRow = db.prepare(`SELECT COUNT(*) AS c FROM dm_messages`).get() as { c: number };
+  const total = Number(totalRow?.c) || 0;
+
+  const rows = db
+    .prepare(
+      `SELECT m.id AS messageId,
+              m.thread_id AS threadId,
+              m.sender_id AS senderId,
+              m.body,
+              m.created_at AS createdAt,
+              su.display_name AS senderDisplayName,
+              su.username AS senderUsername,
+              ru.display_name AS recipientDisplayName,
+              ru.username AS recipientUsername,
+              CASE WHEN m.sender_id = t.user_low THEN t.user_high ELSE t.user_low END AS recipientId
+       FROM dm_messages m
+       JOIN dm_threads t ON t.id = m.thread_id
+       JOIN users su ON su.id = m.sender_id
+       JOIN users ru ON ru.id = CASE WHEN m.sender_id = t.user_low THEN t.user_high ELSE t.user_low END
+       ORDER BY datetime(m.created_at) DESC, m.id DESC
+       LIMIT ? OFFSET ?`,
+    )
+    .all(limit, offset) as {
+    messageId: string;
+    threadId: string;
+    senderId: string;
+    body: string;
+    createdAt: string;
+    senderDisplayName: string | null;
+    senderUsername: string | null;
+    recipientDisplayName: string | null;
+    recipientUsername: string | null;
+    recipientId: string;
+  }[];
+
+  function userLabel(
+    displayName: string | null,
+    username: string | null,
+    id: string,
+  ): { label: string; username: string | null } {
+    if (displayName && String(displayName).trim()) {
+      return { label: String(displayName).trim(), username: username && String(username).trim() ? String(username).trim() : null };
+    }
+    if (username && String(username).trim()) {
+      return { label: "@" + String(username).trim(), username: String(username).trim() };
+    }
+    return { label: id, username: null };
+  }
+
+  const messages = rows.map((r) => {
+    const s = userLabel(r.senderDisplayName, r.senderUsername, r.senderId);
+    const rec = userLabel(r.recipientDisplayName, r.recipientUsername, r.recipientId);
+    return {
+      id: r.messageId,
+      threadId: r.threadId,
+      body: r.body,
+      createdAt: r.createdAt,
+      senderId: r.senderId,
+      senderLabel: s.label,
+      senderUsername: s.username,
+      recipientId: r.recipientId,
+      recipientLabel: rec.label,
+      recipientUsername: rec.username,
+    };
+  });
+
+  return { messages, total, limit, offset };
 });
 
 /** Primary genres listed first on TVMaze — weight those higher than trailing tags. */
@@ -1800,6 +1987,7 @@ app.get("/api/community/threads", async () => {
               COUNT(*) AS postCount,
               MAX(created_at) AS lastPostAt
        FROM community_posts
+       WHERE deleted_at IS NULL
        GROUP BY tvmaze_show_id
        ORDER BY datetime(MAX(created_at)) DESC`,
     )
@@ -1823,7 +2011,7 @@ app.get("/api/community/threads/:showId/posts", async (request, reply) => {
        FROM community_posts p
        JOIN users au ON au.id = p.user_id
        LEFT JOIN users eu ON eu.id = p.edited_by_user_id
-       WHERE p.tvmaze_show_id = ?
+       WHERE p.tvmaze_show_id = ? AND p.deleted_at IS NULL
        ORDER BY datetime(p.created_at) ${sort}, p.id ${sort}`,
     )
     .all(showId) as CommunityPostRow[];
@@ -1838,7 +2026,7 @@ app.get("/api/community/threads/:showId/posts", async (request, reply) => {
   }
 
   const meta = db
-    .prepare(`SELECT MAX(show_name) AS showName FROM community_posts WHERE tvmaze_show_id = ?`)
+    .prepare(`SELECT MAX(show_name) AS showName FROM community_posts WHERE tvmaze_show_id = ? AND deleted_at IS NULL`)
     .get(showId) as { showName: string | null } | undefined;
 
   let canSubscribeThread = rows.length > 0;
@@ -1944,7 +2132,7 @@ app.patch("/api/community/posts/:postId", async (request, reply) => {
     reply.code(401);
     return { error: "Sign in required" };
   }
-  const cur = db.prepare(`SELECT * FROM community_posts WHERE id = ?`).get(postId) as
+  const cur = db.prepare(`SELECT * FROM community_posts WHERE id = ? AND deleted_at IS NULL`).get(postId) as
     | {
         id: string;
         user_id: string;
@@ -2090,7 +2278,7 @@ app.delete("/api/community/posts/:postId", async (request, reply) => {
     return { error: "Sign in required" };
   }
   const post = db
-    .prepare(`SELECT user_id, tvmaze_show_id FROM community_posts WHERE id = ?`)
+    .prepare(`SELECT user_id, tvmaze_show_id FROM community_posts WHERE id = ? AND deleted_at IS NULL`)
     .get(postId) as { user_id: string; tvmaze_show_id: number } | undefined;
   if (!post) {
     reply.code(404);
@@ -2106,7 +2294,7 @@ app.delete("/api/community/posts/:postId", async (request, reply) => {
     action: "post_delete",
     detail: { authorUserId: post.user_id, tvmazeShowId: post.tvmaze_show_id },
   });
-  db.prepare(`DELETE FROM community_posts WHERE id = ?`).run(postId);
+  db.prepare(`UPDATE community_posts SET deleted_at = datetime('now') WHERE id = ?`).run(postId);
   return { ok: true };
 });
 
@@ -2135,7 +2323,9 @@ app.post("/api/community/thread-subscriptions", async (request, reply) => {
     reply.code(400);
     return { error: "tvmazeShowId required" };
   }
-  const hasPosts = db.prepare(`SELECT 1 FROM community_posts WHERE tvmaze_show_id = ? LIMIT 1`).get(showId);
+  const hasPosts = db
+    .prepare(`SELECT 1 FROM community_posts WHERE tvmaze_show_id = ? AND deleted_at IS NULL LIMIT 1`)
+    .get(showId);
   const onMyList = db
     .prepare(`SELECT 1 FROM show_subscriptions WHERE user_id = ? AND tvmaze_show_id = ? LIMIT 1`)
     .get(uid, showId);
@@ -2162,6 +2352,122 @@ app.delete("/api/community/thread-subscriptions/:showId", async (request, reply)
   }
   db.prepare(`DELETE FROM community_thread_push_subs WHERE user_id = ? AND tvmaze_show_id = ?`).run(uid, showId);
   return { ok: true, subscribed: false };
+});
+
+app.get("/api/dm/ws", { websocket: true }, (socket: WebSocket, request: FastifyRequest) => {
+  const uid = getRegisteredSessionUserId(request);
+  if (!uid) {
+    socket.close(4401, "Unauthorized");
+    return;
+  }
+  registerDmSocket(uid, socket);
+  socket.on("message", (data) => {
+    handleDmClientSocketMessage(uid, data);
+  });
+  socket.on("close", () => unregisterDmSocket(uid, socket));
+  socket.on("error", () => unregisterDmSocket(uid, socket));
+});
+
+app.get("/api/dm/unread", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  return { total: getDmUnreadTotal(uid) };
+});
+
+app.get("/api/dm/threads", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  return { threads: listDmThreadsForUser(uid) };
+});
+
+app.post("/api/dm/threads", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const body = (request.body ?? {}) as { otherUserId?: string };
+  const other = typeof body.otherUserId === "string" ? body.otherUserId.trim() : "";
+  if (!other || other === uid) {
+    reply.code(400);
+    return { error: "Invalid recipient" };
+  }
+  const exists = db.prepare(`SELECT 1 FROM users WHERE id = ?`).get(other);
+  if (!exists) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const threadId = getOrCreateDmThread(uid, other);
+  return { threadId };
+});
+
+app.get("/api/dm/threads/:threadId/messages", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { threadId } = request.params as { threadId: string };
+  const inThread = db
+    .prepare(`SELECT 1 FROM dm_threads WHERE id = ? AND (user_low = ? OR user_high = ?)`)
+    .get(threadId, uid, uid);
+  if (!inThread) {
+    reply.code(404);
+    return { error: "Thread not found" };
+  }
+  const q = request.query as { limit?: string; before?: string };
+  const limitRaw = Number(q.limit);
+  const limit = Number.isFinite(limitRaw) ? limitRaw : 50;
+  const beforeId = typeof q.before === "string" && q.before.trim() ? q.before.trim() : null;
+  const raw = listDmMessages(threadId, uid, limit, beforeId);
+  const chronological = raw.slice().reverse();
+  const otherLastReadAt = getOtherParticipantLastReadAt(threadId, uid);
+  const messages = enrichMessagesWithReadState(chronological, uid, otherLastReadAt);
+  return { messages, otherLastReadAt };
+});
+
+app.post("/api/dm/threads/:threadId/messages", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { threadId } = request.params as { threadId: string };
+  const body = (request.body ?? {}) as { body?: string };
+  const text = typeof body.body === "string" ? body.body : "";
+  const row = sendDmMessage(uid, threadId, text);
+  if (!row) {
+    reply.code(400);
+    return { error: "Could not send (empty message or no access)" };
+  }
+  return { message: row };
+});
+
+app.post("/api/dm/threads/:threadId/read", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { threadId } = request.params as { threadId: string };
+  const member = db
+    .prepare(`SELECT 1 FROM dm_threads WHERE id = ? AND (user_low = ? OR user_high = ?)`)
+    .get(threadId, uid, uid);
+  if (!member) {
+    reply.code(404);
+    return { error: "Thread not found" };
+  }
+  markDmThreadRead(threadId, uid);
+  return { ok: true };
+});
+
+/** Read-only profile for community member cards (no calendar token, timezone, or admin flags). */
+app.get("/api/community/users/:userId/profile", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  if (!userId || typeof userId !== "string" || userId.length > 80) {
+    reply.code(400);
+    return { error: "Invalid user id" };
+  }
+  const row = db
+    .prepare(
+      `SELECT id, display_name AS displayName, avatar_data_url AS avatarDataUrl, username,
+              about_me AS aboutMe, age, sex, favorite_show AS favoriteShow, created_at AS createdAt
+       FROM users WHERE id = ?`,
+    )
+    .get(userId) as Record<string, unknown> | undefined;
+  if (!row) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  return row;
 });
 
 app.get("/calendar/:filename", async (request, reply) => {

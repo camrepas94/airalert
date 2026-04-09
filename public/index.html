@@ -100,6 +100,7 @@
         box-sizing: border-box;
       }
       html {
+        height: 100%;
         min-height: 100%;
         background: var(--space-void);
         background-image: var(--space-gradient);
@@ -161,9 +162,13 @@
         background: transparent;
         color: var(--text);
         line-height: 1.5;
-        min-height: 100vh;
+        height: 100%;
+        min-height: 100%;
         position: relative;
         isolation: isolate;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
       }
       body::before,
       body::after {
@@ -726,8 +731,21 @@
         z-index: 0;
         max-width: 640px;
         margin: 0 auto;
-        padding: 0.35rem 1.1rem 3.5rem;
-        padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
+        padding: 0 1.1rem;
+        flex: 1 1 auto;
+        min-height: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .main-scroll {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior-y: contain;
+        padding-bottom: 3.5rem;
+        -webkit-overflow-scrolling: touch;
       }
       .app-top-brand-row {
         display: flex;
@@ -744,6 +762,157 @@
         justify-content: flex-end;
         align-items: center;
         gap: 0.45rem;
+      }
+      .header-inbox-wrap {
+        position: relative;
+        flex-shrink: 0;
+      }
+      .header-inbox-wrap .header-icon-btn {
+        position: relative;
+      }
+      .header-inbox-badge {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #f87171;
+        box-shadow: 0 0 0 2px rgba(8, 14, 28, 0.92);
+        pointer-events: none;
+      }
+      .dm-inbox-panel {
+        max-height: min(88dvh, 38rem) !important;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+      }
+      .dm-inbox-thread-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        max-height: min(58dvh, 22rem);
+        overflow-y: auto;
+        margin: 0.35rem 0 0.75rem;
+      }
+      .dm-inbox-thread-row {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        width: 100%;
+        text-align: left;
+        padding: 0.55rem 0.65rem;
+        border-radius: 11px;
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        background: rgba(0, 0, 0, 0.28);
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .dm-inbox-thread-row:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .dm-inbox-thread-preview {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.82rem;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .dm-inbox-unread-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #f87171;
+        flex-shrink: 0;
+      }
+      .dm-inbox-messages {
+        flex: 1;
+        min-height: 7rem;
+        max-height: min(46dvh, 19rem);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin: 0.45rem 0;
+        padding: 0.25rem 0;
+      }
+      .dm-inbox-bubble {
+        max-width: 90%;
+        padding: 0.45rem 0.65rem;
+        border-radius: 12px;
+        font-size: 0.86rem;
+        line-height: 1.45;
+        word-break: break-word;
+        white-space: pre-wrap;
+      }
+      .dm-inbox-bubble.me {
+        align-self: flex-end;
+        background: rgba(91, 156, 255, 0.22);
+        border: 1px solid rgba(91, 156, 255, 0.32);
+      }
+      .dm-inbox-bubble.them {
+        align-self: flex-start;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(130, 200, 255, 0.12);
+      }
+      .dm-inbox-msg-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 0.12rem;
+        max-width: 92%;
+        align-self: flex-start;
+      }
+      .dm-inbox-msg-wrap.is-me {
+        align-self: flex-end;
+        align-items: flex-end;
+      }
+      .dm-inbox-msg-wrap .dm-inbox-bubble {
+        max-width: 100%;
+      }
+      .dm-inbox-msg-wrap.is-me .dm-inbox-bubble.me {
+        align-self: flex-end;
+      }
+      .dm-inbox-read-receipt {
+        font-size: 0.68rem;
+        color: var(--muted);
+        opacity: 0;
+        min-height: 0.85rem;
+        line-height: 1.2;
+        padding-right: 0.15rem;
+      }
+      .dm-inbox-read-receipt.is-read {
+        opacity: 0.92;
+      }
+      .dm-inbox-typing-row {
+        min-height: 1.1rem;
+        font-size: 0.78rem;
+        color: var(--muted);
+        font-style: italic;
+        margin: 0 0 0.25rem;
+        padding: 0 0.15rem;
+      }
+      .dm-inbox-typing-row[hidden] {
+        display: none !important;
+      }
+      .dm-inbox-compose textarea {
+        width: 100%;
+        min-height: 3.2rem;
+        margin-bottom: 0.5rem;
+        padding: 0.55rem 0.65rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.35);
+        color: var(--text);
+        font: inherit;
+        font-size: 0.88rem;
+        resize: vertical;
+      }
+      .dm-inbox-back {
+        margin-bottom: 0.35rem;
       }
       .header-icon-btn {
         flex-shrink: 0;
@@ -2647,6 +2816,54 @@
         outline: 2px solid var(--accent);
         outline-offset: 2px;
       }
+      .header-menu-wrap {
+        position: relative;
+        flex-shrink: 0;
+      }
+      .header-icon-btn .header-icon-svg {
+        width: 1.32rem;
+        height: 1.32rem;
+        color: #dbeafe;
+        opacity: 0.92;
+      }
+      .header-dropdown {
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 0;
+        min-width: 12.5rem;
+        max-width: min(92vw, 17rem);
+        padding: 0.35rem;
+        border-radius: 12px;
+        background: linear-gradient(165deg, rgba(22, 32, 52, 0.97) 0%, rgba(10, 16, 32, 0.99) 100%);
+        border: 1px solid rgba(130, 200, 255, 0.28);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+        -webkit-backdrop-filter: blur(16px) saturate(1.2);
+        backdrop-filter: blur(16px) saturate(1.2);
+        z-index: 170;
+      }
+      .header-menu-item {
+        display: block;
+        width: 100%;
+        margin: 0;
+        padding: 0.52rem 0.72rem;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        font-size: 0.88rem;
+        font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .header-menu-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .header-menu-item:focus-visible {
+        outline: 2px solid rgba(34, 211, 238, 0.55);
+        outline-offset: 1px;
+      }
       .tab-panel {
         display: none;
         position: relative;
@@ -2824,6 +3041,30 @@
         gap: 0.65rem;
         margin-bottom: 0.5rem;
       }
+      button.community-post-author-hit.community-post-head {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        border: none;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        padding: 0.35rem 0.4rem;
+        margin-left: -0.4rem;
+        margin-right: -0.4rem;
+        border-radius: 12px;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(108, 158, 248, 0.2);
+        transition: background 0.15s ease;
+      }
+      button.community-post-author-hit.community-post-head:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      button.community-post-author-hit.community-post-head:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
       .community-post-avatar {
         width: 40px;
         height: 40px;
@@ -2894,6 +3135,62 @@
         min-height: 40px;
         font-size: 0.82rem;
         padding: 0.45rem 0.75rem;
+      }
+      .community-member-profile-inner {
+        margin: 0.5rem 0 1rem;
+      }
+      .community-member-profile-hero {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        margin-bottom: 1rem;
+      }
+      .community-member-profile-avatar-lg {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        background: rgba(130, 200, 255, 0.15);
+      }
+      .community-member-profile-avatar-ph-lg {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: linear-gradient(145deg, rgba(34, 211, 238, 0.35), rgba(91, 156, 255, 0.2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #e0f2fe;
+      }
+      .community-member-profile-hero-text {
+        flex: 1;
+        min-width: 0;
+      }
+      .community-member-profile-hero-text .profile-readonly-row {
+        margin-top: 0.35rem;
+      }
+      .community-member-profile-hero-text .profile-readonly-row:first-of-type {
+        margin-top: 0;
+      }
+      .community-member-profile-section-title {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+        color: var(--accent-hot);
+        margin: 1rem 0 0.5rem;
+      }
+      .community-member-profile-about {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin: 0 0 0.65rem;
+        color: var(--text);
       }
       .community-edited-line {
         font-size: 0.75rem;
@@ -2981,6 +3278,58 @@
       }
       .admin-community-log strong {
         color: #fde68a;
+      }
+      .admin-mod-log-details {
+        margin: 0 0 1rem;
+      }
+      .admin-mod-log-details > summary {
+        cursor: pointer;
+        list-style: none;
+        font-size: 0.88rem;
+        margin: 1.25rem 0 0.5rem;
+        letter-spacing: 0.06em;
+        font-weight: 700;
+        color: inherit;
+      }
+      .admin-mod-log-details > summary::-webkit-details-marker {
+        display: none;
+      }
+      .admin-mod-log-details > summary::before {
+        content: "▸";
+        display: inline-block;
+        margin-right: 0.35rem;
+        opacity: 0.75;
+        transform: rotate(0deg);
+        transition: transform 0.15s ease;
+      }
+      .admin-mod-log-details[open] > summary::before {
+        transform: rotate(90deg);
+      }
+      .admin-stat-trend {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        margin-top: 0.18rem;
+      }
+      .admin-stat-trend.up {
+        color: #4ade80;
+      }
+      .admin-stat-trend.down {
+        color: #f87171;
+      }
+      .admin-stat-trend.flat {
+        color: var(--muted);
+        opacity: 0.88;
+      }
+      .admin-stat-trend-hint {
+        font-weight: 500;
+        opacity: 0.75;
+        font-size: 0.62rem;
+      }
+      .admin-restore-post-btn {
+        margin: 0.35rem 0 0;
+        font-size: 0.78rem;
+        padding: 0.35rem 0.65rem;
       }
       .community-spoiler-label {
         display: flex;
@@ -3091,22 +3440,22 @@
       }
 
       .app-top {
-        position: sticky;
-        top: 0;
+        position: relative;
+        flex-shrink: 0;
         z-index: 40;
         margin: 0 -1.1rem;
         padding: 0.65rem 1.1rem 0.5rem;
         padding-top: max(0.65rem, env(safe-area-inset-top, 0px));
         background: linear-gradient(
           180deg,
-          rgba(96, 40, 130, 0.14) 0%,
-          rgba(36, 14, 52, 0.07) 42%,
-          rgba(14, 6, 24, 0.05) 100%
+          rgba(96, 40, 130, 0.1) 0%,
+          rgba(36, 14, 52, 0.05) 42%,
+          rgba(14, 6, 24, 0.03) 100%
         );
-        -webkit-backdrop-filter: blur(32px) saturate(1.35);
-        backdrop-filter: blur(32px) saturate(1.35);
-        border-bottom: 1px solid rgba(192, 132, 252, 0.14);
-        box-shadow: 0 4px 28px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        -webkit-backdrop-filter: blur(24px) saturate(1.25);
+        backdrop-filter: blur(24px) saturate(1.25);
+        border-bottom: 1px solid rgba(192, 132, 252, 0.12);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         -webkit-transform: translateZ(0);
         transform: translateZ(0);
         transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, padding 0.22s ease,
@@ -3124,14 +3473,14 @@
       .app-top.is-scrolled {
         background: linear-gradient(
           180deg,
-          rgba(88, 36, 118, 0.28) 0%,
-          rgba(28, 10, 42, 0.14) 45%,
-          rgba(12, 5, 22, 0.1) 100%
+          rgba(88, 36, 118, 0.16) 0%,
+          rgba(28, 10, 42, 0.08) 45%,
+          rgba(12, 5, 22, 0.05) 100%
         );
-        -webkit-backdrop-filter: blur(36px) saturate(1.38);
-        backdrop-filter: blur(36px) saturate(1.38);
-        border-bottom-color: rgba(192, 132, 252, 0.22);
-        box-shadow: 0 8px 36px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        -webkit-backdrop-filter: blur(28px) saturate(1.3);
+        backdrop-filter: blur(28px) saturate(1.3);
+        border-bottom-color: rgba(192, 132, 252, 0.18);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         padding-top: max(0.4rem, env(safe-area-inset-top, 0px));
         padding-bottom: 0.35rem;
       }
@@ -3349,6 +3698,93 @@
             <img class="brand-logo" src="/logo.svg" width="240" height="41" alt="Airalert" />
           </h1>
           <div class="app-top-header-actions">
+            <div class="header-menu-wrap">
+              <button
+                type="button"
+                class="header-icon-btn"
+                id="headerSettingsBtn"
+                aria-label="Settings"
+                aria-expanded="false"
+                aria-haspopup="true"
+                title="Settings"
+              >
+                <svg
+                  class="header-icon-svg"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"
+                  />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+              <div class="header-dropdown" id="headerSettingsDropdown" hidden role="menu" aria-label="Settings">
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuRefresh">Refresh data</button>
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuReminders">
+                  Reminders &amp; timezone
+                </button>
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuPush">Push notifications</button>
+              </div>
+            </div>
+            <div class="header-menu-wrap">
+              <button
+                type="button"
+                class="header-icon-btn"
+                id="headerProfileBtn"
+                aria-label="Profile menu"
+                aria-expanded="false"
+                aria-haspopup="true"
+                title="Profile"
+              >
+                <svg
+                  class="header-icon-svg"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                  />
+                </svg>
+              </button>
+              <div class="header-dropdown" id="headerProfileDropdown" hidden role="menu" aria-label="Profile">
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSession">Session (sign out)</button>
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuYourProfile">Your profile</button>
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuAbout">About you</button>
+              </div>
+            </div>
+            <div class="header-inbox-wrap" id="headerInboxWrap" hidden>
+              <button type="button" class="header-icon-btn" id="headerInboxBtn" aria-label="Messages inbox" title="Messages">
+                <svg
+                  class="header-icon-svg"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                  />
+                </svg>
+                <span class="header-inbox-badge" id="headerInboxBadge" hidden aria-hidden="true"></span>
+              </button>
+            </div>
             <button
               type="button"
               class="header-icon-btn help-quickstart-btn"
@@ -3441,6 +3877,7 @@
         </nav>
       </header>
 
+      <div class="main-scroll" id="mainScroll">
       <div id="tab-add" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnAdd">
         <section class="home-refresh-section panel-rail-cyan" aria-label="Refresh episode cache">
           <h2 class="section-header-highlight header-blue">Refresh data</h2>
@@ -3726,6 +4163,47 @@
         </div>
       </div>
 
+      <div id="communityMemberProfileModal" class="community-modal" hidden aria-hidden="true">
+        <div class="community-modal-backdrop" data-close-member-profile></div>
+        <div class="community-modal-panel community-member-profile-panel" role="dialog" aria-modal="true" aria-labelledby="communityMemberProfileHeading">
+          <h3 id="communityMemberProfileHeading" class="community-modal-title">Member profile</h3>
+          <div id="communityMemberProfileBody" class="community-member-profile-body"></div>
+          <button type="button" id="communityMemberProfileDmBtn" class="secondary" style="margin-top: 0.65rem; width: 100%">
+            Direct message
+          </button>
+          <p class="muted" id="communityMemberProfileDmHint" hidden style="margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.4">
+            Create an account on Profile to send direct messages.
+          </p>
+          <p class="err" id="communityMemberProfileErr" style="display: none; margin-top: 0.5rem"></p>
+          <button type="button" class="secondary community-modal-close" data-close-member-profile>Close</button>
+        </div>
+      </div>
+
+      <div id="dmInboxModal" class="community-modal dm-inbox-modal" hidden aria-hidden="true">
+        <div class="community-modal-backdrop" data-close-dm-inbox></div>
+        <div class="community-modal-panel dm-inbox-panel" role="dialog" aria-modal="true" aria-labelledby="dmInboxTitle">
+          <div id="dmInboxListView">
+            <h3 id="dmInboxTitle" class="community-modal-title">Messages</h3>
+            <div id="dmInboxThreadList" class="dm-inbox-thread-list"></div>
+            <p class="muted" id="dmInboxEmpty" hidden style="margin: 0; font-size: 0.84rem; line-height: 1.45">
+              No conversations yet. Open someone’s profile from Community and tap <strong>Direct message</strong>.
+            </p>
+          </div>
+          <div id="dmInboxThreadView" hidden>
+            <button type="button" class="secondary dm-inbox-back" id="dmInboxBackBtn">← Inbox</button>
+            <h3 id="dmInboxThreadTitle" class="community-modal-title">Chat</h3>
+            <div id="dmInboxMessages" class="dm-inbox-messages"></div>
+            <p id="dmInboxTypingRow" class="dm-inbox-typing-row" hidden aria-live="polite"></p>
+            <div class="dm-inbox-compose">
+              <textarea id="dmInboxInput" rows="2" maxlength="4000" placeholder="Write a message…"></textarea>
+              <button type="button" id="dmInboxSendBtn">Send</button>
+            </div>
+          </div>
+          <button type="button" class="secondary community-modal-close" data-close-dm-inbox style="margin-top: 0.5rem">Close</button>
+          <p class="err" id="dmInboxErr" style="display: none; margin-top: 0.5rem"></p>
+        </div>
+      </div>
+
       <div id="tab-profile" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnProfile">
         <section class="profile-identity panel-rail-cyan" aria-labelledby="profileIdentityHeading">
           <h2 id="profileIdentityHeading" class="section-header-highlight profile-identity-heading">Your profile</h2>
@@ -3916,10 +4394,22 @@
           <h2 class="section-header-highlight header-gold" style="margin-top: 0">Admin</h2>
           <button type="button" class="secondary" id="adminRefreshBtn">Refresh data</button>
           <div id="adminTotals" class="admin-stats-grid" aria-live="polite"></div>
+          <details class="admin-mod-log-details">
+            <summary class="section-header-highlight header-gold admin-mod-log-summary">
+              Community moderation log
+            </summary>
+            <p class="muted" style="font-size: 0.75rem; margin: 0 0 0.45rem; line-height: 1.45">
+              Expand to review actions. Use <strong>Restore post</strong> to undo a deletion (post must still be on the server).
+            </p>
+            <ul id="adminCommunityLog" class="admin-community-log"></ul>
+          </details>
           <h3 class="section-header-highlight header-gold" style="font-size: 0.88rem; margin: 1.25rem 0 0.5rem; letter-spacing: 0.06em">
-            Community moderation log
+            Direct messages (QA)
           </h3>
-          <ul id="adminCommunityLog" class="admin-community-log"></ul>
+          <p class="muted" style="font-size: 0.75rem; margin: 0 0 0.45rem; line-height: 1.45">
+            Newest DMs on this server for review. Full paging is on the standalone <a href="/admin.html">admin console</a>.
+          </p>
+          <ul id="adminDmLog" class="admin-community-log"></ul>
           <p class="muted scroll-hint-admin" style="font-size: 0.75rem; margin: 0 0 0.35rem; display: none">
             Swipe the table sideways on a narrow screen.
           </p>
@@ -3945,6 +4435,7 @@
           </div>
           <p class="msg err" id="adminErr" style="display: none; margin-top: 0.5rem"></p>
         </section>
+      </div>
       </div>
     </main>
 
@@ -4010,7 +4501,7 @@
         </div>
         <div class="modal-body-scroll" id="quickStartHelpModalBody">
           <p class="how-to-lead muted">
-            Airalert opens on <strong>Add Shows</strong>. Open this guide anytime with the <strong>?</strong> button in the header. Use the <strong>Profile</strong> tab for your account, photo, and settings.
+            Airalert opens on <strong>Add Shows</strong>. Header: <strong>gear</strong> for refresh, reminders &amp; timezone, and push; <strong>person</strong> for session, your profile, and about you; <strong>?</strong> opens this guide. The <strong>Profile</strong> tab still has the full page.
           </p>
           <ol class="how-to-steps">
             <li>
@@ -4595,8 +5086,451 @@
         return v === true || v === 1;
       }
 
+      const DM_THREAD_ID_RE =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+      let dmWebSocket = null;
+      let dmWebSocketReconnectTimer = null;
+      let dmInboxActiveThreadId = null;
+      let dmThreadPeerReadAt = null;
+      let dmTypingStopTimer = null;
+      let dmPeerTypingHideTimer = null;
+      let dmTypingTrueLastSent = 0;
+
+      function setDmInboxBadge(total) {
+        const b = document.getElementById("headerInboxBadge");
+        if (!b) return;
+        b.hidden = !total || total <= 0;
+      }
+
+      async function refreshDmUnread() {
+        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
+          setDmInboxBadge(0);
+          return;
+        }
+        try {
+          const r = await api("/api/dm/unread");
+          setDmInboxBadge(r.total || 0);
+        } catch {
+          /* ignore */
+        }
+      }
+
+      function disconnectDmWebSocket() {
+        if (dmWebSocketReconnectTimer) {
+          clearTimeout(dmWebSocketReconnectTimer);
+          dmWebSocketReconnectTimer = null;
+        }
+        if (dmWebSocket) {
+          try {
+            dmWebSocket.onclose = null;
+            dmWebSocket.close();
+          } catch {
+            /* ignore */
+          }
+          dmWebSocket = null;
+        }
+      }
+
+      function mergeDmPeerReadAt(current, incoming) {
+        if (!incoming) return current;
+        if (!current) return incoming;
+        return incoming > current ? incoming : current;
+      }
+
+      function sendDmTypingWs(typing) {
+        if (!dmWebSocket || dmWebSocket.readyState !== 1 || !dmInboxActiveThreadId) return;
+        try {
+          dmWebSocket.send(JSON.stringify({ type: "dm_typing", threadId: dmInboxActiveThreadId, typing: !!typing }));
+        } catch {
+          /* ignore */
+        }
+      }
+
+      function hideDmPeerTyping() {
+        const row = document.getElementById("dmInboxTypingRow");
+        if (row) {
+          row.hidden = true;
+          row.textContent = "";
+        }
+        if (dmPeerTypingHideTimer) {
+          clearTimeout(dmPeerTypingHideTimer);
+          dmPeerTypingHideTimer = null;
+        }
+      }
+
+      function scheduleDmPeerTypingHide() {
+        if (dmPeerTypingHideTimer) clearTimeout(dmPeerTypingHideTimer);
+        dmPeerTypingHideTimer = setTimeout(hideDmPeerTyping, 4500);
+      }
+
+      function applyDmReadReceiptsForPeerReadAt(peerReadAt) {
+        if (!peerReadAt) return;
+        dmThreadPeerReadAt = mergeDmPeerReadAt(dmThreadPeerReadAt, peerReadAt);
+        const at = dmThreadPeerReadAt;
+        if (!at) return;
+        const host = document.getElementById("dmInboxMessages");
+        if (!host) return;
+        host.querySelectorAll(".dm-inbox-msg-wrap.is-me").forEach((wrap) => {
+          const bubble = wrap.querySelector(".dm-inbox-bubble");
+          const rr = wrap.querySelector(".dm-inbox-read-receipt");
+          if (!bubble || !rr || !bubble.dataset.createdAt) return;
+          if (at >= bubble.dataset.createdAt) {
+            rr.textContent = "Read";
+            rr.classList.add("is-read");
+            rr.setAttribute("aria-label", "Read");
+          }
+        });
+      }
+
+      function handleDmSocketPayload(data) {
+        if (data.type === "dm_unread") setDmInboxBadge(data.total || 0);
+        if (data.type === "dm_thread_read" && data.threadId && data.readAt) {
+          if (dmInboxActiveThreadId === data.threadId) {
+            applyDmReadReceiptsForPeerReadAt(data.readAt);
+          }
+        }
+        if (data.type === "dm_typing" && data.threadId) {
+          const uid = resolveUserId();
+          if (uid && data.userId === uid) return;
+          const modal = document.getElementById("dmInboxModal");
+          const threadView = document.getElementById("dmInboxThreadView");
+          const row = document.getElementById("dmInboxTypingRow");
+          if (
+            !modal ||
+            modal.hidden ||
+            !threadView ||
+            threadView.hidden ||
+            dmInboxActiveThreadId !== data.threadId ||
+            !row
+          ) {
+            return;
+          }
+          if (data.typing) {
+            row.hidden = false;
+            row.textContent = "Typing…";
+            scheduleDmPeerTypingHide();
+          } else {
+            hideDmPeerTyping();
+          }
+        }
+        if (data.type === "dm_message" && data.message && data.threadId) {
+          const modal = document.getElementById("dmInboxModal");
+          const threadView = document.getElementById("dmInboxThreadView");
+          if (
+            modal &&
+            !modal.hidden &&
+            threadView &&
+            !threadView.hidden &&
+            dmInboxActiveThreadId === data.threadId
+          ) {
+            const uid = resolveUserId();
+            const isMe = Boolean(uid && data.message.senderId === uid);
+            const readKnown = isMe && dmThreadPeerReadAt && dmThreadPeerReadAt >= (data.message.createdAt || "");
+            appendDmBubbleIfNew(data.message, isMe, readKnown ? true : isMe ? false : undefined);
+            const sc = document.getElementById("dmInboxMessages");
+            if (sc) sc.scrollTop = sc.scrollHeight;
+          }
+          void refreshDmUnread();
+        }
+      }
+
+      function appendDmBubbleIfNew(msg, isMe, readOverride) {
+        const host = document.getElementById("dmInboxMessages");
+        if (!host || !msg || !msg.id) return;
+        if (host.querySelector("[data-msg-id=\"" + msg.id + "\"]")) return;
+        const wrap = document.createElement("div");
+        wrap.className = "dm-inbox-msg-wrap" + (isMe ? " is-me" : "");
+        wrap.dataset.msgId = msg.id;
+        const div = document.createElement("div");
+        div.className = "dm-inbox-bubble " + (isMe ? "me" : "them");
+        if (msg.createdAt) div.dataset.createdAt = msg.createdAt;
+        div.textContent = msg.body || "";
+        wrap.appendChild(div);
+        if (isMe) {
+          const rr = document.createElement("span");
+          rr.className = "dm-inbox-read-receipt";
+          let showRead = false;
+          if (readOverride !== undefined) showRead = !!readOverride;
+          else if (msg.readByRecipient) showRead = true;
+          if (showRead) {
+            rr.textContent = "Read";
+            rr.classList.add("is-read");
+            rr.setAttribute("aria-label", "Read");
+          }
+          wrap.appendChild(rr);
+        }
+        host.appendChild(wrap);
+      }
+
+      function ensureDmWebSocket() {
+        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) return;
+        if (dmWebSocket && dmWebSocket.readyState === 1) return;
+        disconnectDmWebSocket();
+        try {
+          const u = new URL("/", apiOrigin());
+          const wsProto = u.protocol === "https:" ? "wss:" : "ws:";
+          const wsUrl = wsProto + "//" + u.host + "/api/dm/ws";
+          dmWebSocket = new WebSocket(wsUrl);
+          dmWebSocket.onmessage = (ev) => {
+            try {
+              handleDmSocketPayload(JSON.parse(ev.data));
+            } catch {
+              /* ignore */
+            }
+          };
+          dmWebSocket.onclose = () => {
+            dmWebSocket = null;
+            if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot)) {
+              dmWebSocketReconnectTimer = setTimeout(ensureDmWebSocket, 3500);
+            }
+          };
+          dmWebSocket.onerror = () => {};
+        } catch {
+          /* ignore */
+        }
+      }
+
+      function closeDmInboxModalQuiet() {
+        const m = document.getElementById("dmInboxModal");
+        if (m) {
+          m.hidden = true;
+          m.setAttribute("aria-hidden", "true");
+        }
+        dmInboxActiveThreadId = null;
+        dmThreadPeerReadAt = null;
+        hideDmPeerTyping();
+        if (dmTypingStopTimer) {
+          clearTimeout(dmTypingStopTimer);
+          dmTypingStopTimer = null;
+        }
+      }
+
+      function closeDmInboxModal() {
+        sendDmTypingWs(false);
+        if (dmTypingStopTimer) {
+          clearTimeout(dmTypingStopTimer);
+          dmTypingStopTimer = null;
+        }
+        closeDmInboxModalQuiet();
+        const list = document.getElementById("dmInboxListView");
+        const tv = document.getElementById("dmInboxThreadView");
+        if (list) list.hidden = false;
+        if (tv) tv.hidden = true;
+        const err = document.getElementById("dmInboxErr");
+        if (err) {
+          err.textContent = "";
+          err.style.display = "none";
+        }
+      }
+
+      async function resolveDmThreadTitle(threadId) {
+        try {
+          const data = await api("/api/dm/threads");
+          const t = (data.threads || []).find((x) => x.threadId === threadId);
+          if (t) {
+            return communityAuthorLabelFromPublicProfile({
+              displayName: t.otherDisplayName,
+              username: t.otherUsername,
+            });
+          }
+        } catch {
+          /* ignore */
+        }
+        return "Chat";
+      }
+
+      async function openDmInboxModal(opts) {
+        closeHeaderMenus();
+        const m = document.getElementById("dmInboxModal");
+        if (!m) return;
+        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
+          showToast("Create an account on Profile to use messages.");
+          return;
+        }
+        const threadId = opts && opts.threadId;
+        const titleLabel = opts && opts.titleLabel;
+        const list = document.getElementById("dmInboxListView");
+        const tv = document.getElementById("dmInboxThreadView");
+        if (list) list.hidden = false;
+        if (tv) tv.hidden = true;
+        dmInboxActiveThreadId = null;
+        dmThreadPeerReadAt = null;
+        hideDmPeerTyping();
+        const err = document.getElementById("dmInboxErr");
+        if (err) {
+          err.textContent = "";
+          err.style.display = "none";
+        }
+        m.hidden = false;
+        m.setAttribute("aria-hidden", "false");
+        ensureDmWebSocket();
+        if (threadId && DM_THREAD_ID_RE.test(threadId)) {
+          const listPromise = renderDmThreadList();
+          const label = titleLabel || (await resolveDmThreadTitle(threadId));
+          await openDmThreadView(threadId, label);
+          await listPromise;
+        } else {
+          await renderDmThreadList();
+        }
+      }
+
+      async function renderDmThreadList() {
+        const host = document.getElementById("dmInboxThreadList");
+        const empty = document.getElementById("dmInboxEmpty");
+        if (!host) return;
+        host.innerHTML = "";
+        try {
+          const data = await api("/api/dm/threads");
+          const threads = data.threads || [];
+          if (empty) empty.hidden = threads.length > 0;
+          for (const t of threads) {
+            const label = communityAuthorLabelFromPublicProfile({
+              displayName: t.otherDisplayName,
+              username: t.otherUsername,
+            });
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "dm-inbox-thread-row";
+            const dot = t.unreadCount > 0 ? "<span class=\"dm-inbox-unread-dot\" aria-hidden=\"true\"></span>" : "<span style=\"width:8px;flex-shrink:0\"></span>";
+            const prev = t.lastBody ? escapeHtml(t.lastBody.slice(0, 80) + (t.lastBody.length > 80 ? "…" : "")) : "—";
+            btn.innerHTML =
+              dot +
+              "<span style=\"flex:1;min-width:0\"><strong style=\"display:block;font-size:0.92rem\">" +
+              escapeHtml(label) +
+              "</strong><span class=\"dm-inbox-thread-preview\">" +
+              prev +
+              "</span></span>";
+            btn.addEventListener("click", () => void openDmThreadView(t.threadId, label));
+            host.appendChild(btn);
+          }
+        } catch (e) {
+          if (empty) empty.hidden = true;
+          const err = document.getElementById("dmInboxErr");
+          if (err) {
+            err.textContent = e.message || "Could not load conversations";
+            err.style.display = "block";
+          }
+        }
+      }
+
+      async function openDmThreadView(threadId, titleLabel) {
+        sendDmTypingWs(false);
+        if (dmTypingStopTimer) {
+          clearTimeout(dmTypingStopTimer);
+          dmTypingStopTimer = null;
+        }
+        hideDmPeerTyping();
+        dmInboxActiveThreadId = threadId;
+        dmThreadPeerReadAt = null;
+        const list = document.getElementById("dmInboxListView");
+        const tv = document.getElementById("dmInboxThreadView");
+        const title = document.getElementById("dmInboxThreadTitle");
+        const host = document.getElementById("dmInboxMessages");
+        const err = document.getElementById("dmInboxErr");
+        if (err) {
+          err.textContent = "";
+          err.style.display = "none";
+        }
+        if (title) title.textContent = titleLabel || "Chat";
+        if (list) list.hidden = true;
+        if (tv) tv.hidden = false;
+        if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading…</p>";
+        try {
+          const data = await api("/api/dm/threads/" + encodeURIComponent(threadId) + "/messages?limit=80");
+          const msgs = data.messages || [];
+          dmThreadPeerReadAt = data.otherLastReadAt || null;
+          if (host) {
+            host.innerHTML = "";
+            const uid = resolveUserId();
+            for (const msg of msgs) {
+              appendDmBubbleIfNew(msg, Boolean(uid && msg.senderId === uid));
+            }
+            host.scrollTop = host.scrollHeight;
+          }
+          await api("/api/dm/threads/" + encodeURIComponent(threadId) + "/read", { method: "POST", body: "{}" });
+          void refreshDmUnread();
+        } catch (e) {
+          if (host) host.innerHTML = "";
+          if (err) {
+            err.textContent = e.message || "Could not load messages";
+            err.style.display = "block";
+          }
+        }
+      }
+
+      async function sendDmFromInbox() {
+        const threadId = dmInboxActiveThreadId;
+        const input = document.getElementById("dmInboxInput");
+        const err = document.getElementById("dmInboxErr");
+        if (!threadId || !input) return;
+        const body = input.value.trim();
+        if (!body) return;
+        if (err) {
+          err.textContent = "";
+          err.style.display = "none";
+        }
+        try {
+          sendDmTypingWs(false);
+          if (dmTypingStopTimer) {
+            clearTimeout(dmTypingStopTimer);
+            dmTypingStopTimer = null;
+          }
+          const out = await api("/api/dm/threads/" + encodeURIComponent(threadId) + "/messages", {
+            method: "POST",
+            body: JSON.stringify({ body }),
+          });
+          input.value = "";
+          if (out.message) {
+            const uid = resolveUserId();
+            appendDmBubbleIfNew(out.message, Boolean(uid && out.message.senderId === uid), false);
+            const sc = document.getElementById("dmInboxMessages");
+            if (sc) sc.scrollTop = sc.scrollHeight;
+          }
+        } catch (e) {
+          if (err) {
+            err.textContent = e.message || "Send failed";
+            err.style.display = "block";
+          }
+        }
+      }
+
+      async function startDirectMessageToUser(otherUserId, otherLabel) {
+        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
+          showToast("Create an account on Profile to send messages.");
+          return;
+        }
+        if (otherUserId === sessionMeSnapshot.id) return;
+        try {
+          const out = await api("/api/dm/threads", {
+            method: "POST",
+            body: JSON.stringify({ otherUserId }),
+          });
+          closeCommunityMemberProfile();
+          await openDmInboxModal({ threadId: out.threadId, titleLabel: otherLabel || "Chat" });
+        } catch (e) {
+          showToast(e.message || "Could not start chat");
+        }
+      }
+
+      function syncInboxChromeFromMe(me) {
+        const wrap = document.getElementById("headerInboxWrap");
+        if (!wrap) return;
+        if (me && accountIsRegistered(me)) {
+          wrap.hidden = false;
+          void refreshDmUnread();
+          ensureDmWebSocket();
+        } else {
+          wrap.hidden = true;
+          setDmInboxBadge(0);
+          closeDmInboxModalQuiet();
+          disconnectDmWebSocket();
+        }
+      }
+
       function applyMeToUI(me) {
         sessionMeSnapshot = me;
+        syncInboxChromeFromMe(me);
         const signOutSec = document.getElementById("profileSignOutSection");
         if (signOutSec) {
           signOutSec.hidden = !(me && (me.username || truthyBit(me.hasPassword)));
@@ -4672,11 +5606,40 @@
         try {
           const data = await api("/api/admin/overview");
           const t = data.totals;
+          const community = data.community || {
+            postCount: 0,
+            threadCount: 0,
+            postDelta24h: 0,
+            threadDelta24h: 0,
+          };
           function statCard(value, label) {
             return (
               "<div class=\"admin-stat-card\"><span class=\"admin-stat-value\">" +
               value +
               "</span><span class=\"admin-stat-label\">" +
+              label +
+              "</span></div>"
+            );
+          }
+          function statCardWith24hDelta(value, label, delta) {
+            let trendClass = "flat";
+            let trendText = "—";
+            if (delta > 0) {
+              trendClass = "up";
+              trendText = "↑ " + delta;
+            } else if (delta < 0) {
+              trendClass = "down";
+              trendText = "↓ " + Math.abs(delta);
+            }
+            return (
+              "<div class=\"admin-stat-card\"><span class=\"admin-stat-value\">" +
+              value +
+              "<span class=\"admin-stat-trend " +
+              trendClass +
+              "\">" +
+              trendText +
+              " <span class=\"admin-stat-trend-hint\">24h</span></span></span>" +
+              "<span class=\"admin-stat-label\">" +
               label +
               "</span></div>"
             );
@@ -4687,6 +5650,8 @@
             statCard(t.fromSearch, "From search") +
             statCard(t.fromRecommended, "From recommended") +
             statCard(t.fromUnknown, "Unspecified") +
+            statCardWith24hDelta(community.postCount, "Community posts", community.postDelta24h) +
+            statCardWith24hDelta(community.threadCount, "Community threads", community.threadDelta24h) +
             statCard(t.tasksCompleted + " / " + t.tasksTotal, "Tasks done / total");
           const tbody = document.getElementById("adminUserRows");
           if (!tbody) return;
@@ -4939,20 +5904,83 @@
                     }
                   }
                   if (detStr.length > 200) detStr = detStr.slice(0, 200) + "…";
-                  li.innerHTML =
+                  const head = document.createElement("div");
+                  head.innerHTML =
                     "<strong>" +
                     escapeHtml(ent.action) +
                     "</strong> · post " +
                     escapeHtml(String(ent.postId).slice(0, 10)) +
                     "… · " +
                     escapeHtml(ent.actorLabel || "—") +
-                    (ent.createdAt ? " · <span class=\"mono\">" + escapeHtml(ent.createdAt) + "</span>" : "") +
-                    (detStr ? "<br><span style=\"opacity:0.88\">" + escapeHtml(detStr) + "</span>" : "");
+                    (ent.createdAt ? " · <span class=\"mono\">" + escapeHtml(ent.createdAt) + "</span>" : "");
+                  li.appendChild(head);
+                  if (detStr) {
+                    const detEl = document.createElement("div");
+                    detEl.style.opacity = "0.88";
+                    detEl.textContent = detStr;
+                    li.appendChild(detEl);
+                  }
+                  if (ent.canRestore) {
+                    const restoreBtn = document.createElement("button");
+                    restoreBtn.type = "button";
+                    restoreBtn.className = "secondary admin-restore-post-btn";
+                    restoreBtn.textContent = "Restore post";
+                    restoreBtn.addEventListener("click", async (ev) => {
+                      ev.preventDefault();
+                      ev.stopPropagation();
+                      if (!confirm("Restore this post so it appears again in Community?")) return;
+                      try {
+                        await api("/api/admin/community/posts/" + encodeURIComponent(ent.postId) + "/restore", {
+                          method: "POST",
+                          body: "{}",
+                        });
+                        showToast("Post restored");
+                        await loadAdminOverview();
+                      } catch (e) {
+                        showToast(e.message || "Restore failed");
+                      }
+                    });
+                    li.appendChild(restoreBtn);
+                  }
                   logHost.appendChild(li);
                 }
               }
             } catch {
               logHost.innerHTML = "<li style=\"margin:0.2rem 0\">Could not load community log.</li>";
+            }
+          }
+
+          const dmHost = document.getElementById("adminDmLog");
+          if (dmHost) {
+            try {
+              const dmData = await api("/api/admin/dm-log?limit=60&offset=0");
+              const dms = dmData.messages || [];
+              dmHost.innerHTML = "";
+              if (!dms.length) {
+                const li = document.createElement("li");
+                li.style.margin = "0.2rem 0";
+                li.textContent = "No direct messages yet.";
+                dmHost.appendChild(li);
+              } else {
+                for (const m of dms) {
+                  const li = document.createElement("li");
+                  li.style.margin = "0.4rem 0";
+                  li.style.lineHeight = "1.45";
+                  li.innerHTML =
+                    "<strong>" +
+                    escapeHtml(m.senderLabel || m.senderId || "—") +
+                    "</strong> → <strong>" +
+                    escapeHtml(m.recipientLabel || m.recipientId || "—") +
+                    "</strong>" +
+                    (m.createdAt ? " · <span class=\"mono\">" + escapeHtml(m.createdAt) + "</span>" : "") +
+                    "<br><span style=\"opacity:0.92;word-break:break-word\">" +
+                    escapeHtml(m.body || "") +
+                    "</span>";
+                  dmHost.appendChild(li);
+                }
+              }
+            } catch {
+              dmHost.innerHTML = "<li style=\"margin:0.2rem 0\">Could not load DM log.</li>";
             }
           }
         } catch (e) {
@@ -5391,19 +6419,29 @@
         const wrap = document.createElement("article");
         wrap.className = "community-post-card";
         wrap.dataset.postId = p.id;
-        const head = document.createElement("div");
-        head.className = "community-post-head";
+        const authorHit = document.createElement("button");
+        authorHit.type = "button";
+        authorHit.className = "community-post-head community-post-author-hit";
+        authorHit.setAttribute(
+          "aria-label",
+          "View profile of " + (p.authorHandle || "member"),
+        );
+        authorHit.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          void openCommunityMemberProfile(p.userId);
+        });
         if (p.authorAvatarDataUrl) {
           const img = document.createElement("img");
           img.className = "community-post-avatar";
           img.src = p.authorAvatarDataUrl;
           img.alt = "";
-          head.appendChild(img);
+          authorHit.appendChild(img);
         } else {
           const ph = document.createElement("div");
           ph.className = "community-post-avatar-ph";
+          ph.setAttribute("aria-hidden", "true");
           ph.textContent = (p.authorHandle || "?").charAt(0).toUpperCase();
-          head.appendChild(ph);
+          authorHit.appendChild(ph);
         }
         const meta = document.createElement("div");
         meta.className = "community-post-meta";
@@ -5421,8 +6459,8 @@
           pill.textContent = p.episodeLabel;
           meta.appendChild(pill);
         }
-        head.appendChild(meta);
-        wrap.appendChild(head);
+        authorHit.appendChild(meta);
+        wrap.appendChild(authorHit);
         const body = document.createElement("div");
         body.className = "community-post-body";
         if (p.isSpoiler) body.classList.add("is-spoiler");
@@ -5477,6 +6515,174 @@
           wrap.appendChild(actions);
         }
         return wrap;
+      }
+
+      function communityAuthorLabelFromPublicProfile(d) {
+        if (d.displayName && String(d.displayName).trim()) return String(d.displayName).trim();
+        if (d.username && String(d.username).trim()) return "@" + String(d.username).trim();
+        return "Member";
+      }
+
+      function communityPublicSexLabel(sex) {
+        if (sex == null || sex === "") return "—";
+        const s = String(sex);
+        if (s === "male") return "Male";
+        if (s === "female") return "Female";
+        if (s === "other") return "Other";
+        return s;
+      }
+
+      function closeCommunityMemberProfile() {
+        const m = document.getElementById("communityMemberProfileModal");
+        if (m) {
+          m.hidden = true;
+          m.setAttribute("aria-hidden", "true");
+        }
+      }
+
+      async function openCommunityMemberProfile(userId) {
+        const modal = document.getElementById("communityMemberProfileModal");
+        const body = document.getElementById("communityMemberProfileBody");
+        const errEl = document.getElementById("communityMemberProfileErr");
+        const heading = document.getElementById("communityMemberProfileHeading");
+        if (!modal || !body) return;
+        modal.hidden = false;
+        modal.setAttribute("aria-hidden", "false");
+        if (errEl) {
+          errEl.textContent = "";
+          errEl.style.display = "none";
+        }
+        body.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading…</p>";
+        if (heading) heading.textContent = "Member profile";
+        const dmBtnLoad = document.getElementById("communityMemberProfileDmBtn");
+        const dmHintLoad = document.getElementById("communityMemberProfileDmHint");
+        if (dmBtnLoad) dmBtnLoad.hidden = true;
+        if (dmHintLoad) dmHintLoad.hidden = true;
+        modal.dataset.profileUserId = userId;
+        try {
+          const d = await api("/api/community/users/" + encodeURIComponent(userId) + "/profile");
+          const label = communityAuthorLabelFromPublicProfile(d);
+          if (heading) heading.textContent = label === "Member" ? "Member profile" : label + "'s profile";
+
+          const inner = document.createElement("div");
+          inner.className = "community-member-profile-inner";
+
+          const secYour = document.createElement("div");
+          secYour.className = "community-member-profile-section-title";
+          secYour.textContent = "Profile";
+          inner.appendChild(secYour);
+
+          const hero = document.createElement("div");
+          hero.className = "community-member-profile-hero";
+          if (d.avatarDataUrl && String(d.avatarDataUrl).trim()) {
+            const img = document.createElement("img");
+            img.className = "community-member-profile-avatar-lg";
+            img.src = String(d.avatarDataUrl);
+            img.alt = "";
+            hero.appendChild(img);
+          } else {
+            const ph = document.createElement("div");
+            ph.className = "community-member-profile-avatar-ph-lg";
+            ph.setAttribute("aria-hidden", "true");
+            ph.textContent = (label || "?").charAt(0).toUpperCase();
+            hero.appendChild(ph);
+          }
+          const heroText = document.createElement("div");
+          heroText.className = "community-member-profile-hero-text";
+
+          const rowDn = document.createElement("div");
+          rowDn.className = "profile-readonly-row";
+          rowDn.innerHTML =
+            "<span class=\"profile-readonly-label\">Display name</span><span class=\"profile-readonly-value\">" +
+            escapeHtml(label) +
+            "</span>";
+          heroText.appendChild(rowDn);
+
+          const rowSince = document.createElement("div");
+          rowSince.className = "profile-readonly-row";
+          rowSince.innerHTML =
+            "<span class=\"profile-readonly-label\">Member since</span><span class=\"profile-readonly-value\">" +
+            escapeHtml(formatMemberSince(d.createdAt)) +
+            "</span>";
+          heroText.appendChild(rowSince);
+
+          if (d.username && String(d.username).trim()) {
+            const rowUn = document.createElement("div");
+            rowUn.className = "profile-readonly-row";
+            rowUn.innerHTML =
+              "<span class=\"profile-readonly-label\">Username</span><span class=\"profile-readonly-value\">" +
+              escapeHtml(String(d.username).trim()) +
+              "</span>";
+            heroText.appendChild(rowUn);
+          }
+
+          hero.appendChild(heroText);
+          inner.appendChild(hero);
+
+          const secAbout = document.createElement("div");
+          secAbout.className = "community-member-profile-section-title";
+          secAbout.textContent = "About you";
+          inner.appendChild(secAbout);
+
+          const aboutP = document.createElement("p");
+          aboutP.className = "community-member-profile-about";
+          const aboutRaw = d.aboutMe != null && String(d.aboutMe).trim() ? String(d.aboutMe).trim() : "—";
+          aboutP.textContent = aboutRaw;
+          inner.appendChild(aboutP);
+
+          const rowAge = document.createElement("div");
+          rowAge.className = "profile-readonly-row";
+          const ageVal =
+            d.age != null && d.age !== "" && Number.isFinite(Number(d.age)) ? String(d.age) : "—";
+          rowAge.innerHTML =
+            "<span class=\"profile-readonly-label\">Age</span><span class=\"profile-readonly-value\">" +
+            escapeHtml(ageVal) +
+            "</span>";
+          inner.appendChild(rowAge);
+
+          const rowSex = document.createElement("div");
+          rowSex.className = "profile-readonly-row";
+          rowSex.innerHTML =
+            "<span class=\"profile-readonly-label\">Sex</span><span class=\"profile-readonly-value\">" +
+            escapeHtml(communityPublicSexLabel(d.sex)) +
+            "</span>";
+          inner.appendChild(rowSex);
+
+          const rowFav = document.createElement("div");
+          rowFav.className = "profile-readonly-row";
+          const fav =
+            d.favoriteShow != null && String(d.favoriteShow).trim() ? String(d.favoriteShow).trim() : "—";
+          rowFav.innerHTML =
+            "<span class=\"profile-readonly-label\">Favorite show</span><span class=\"profile-readonly-value\">" +
+            escapeHtml(fav) +
+            "</span>";
+          inner.appendChild(rowFav);
+
+          body.innerHTML = "";
+          body.appendChild(inner);
+          modal.dataset.profileLabel = label;
+          const dmBtn = document.getElementById("communityMemberProfileDmBtn");
+          const dmHint = document.getElementById("communityMemberProfileDmHint");
+          const selfId = sessionMeSnapshot && sessionMeSnapshot.id;
+          if (dmBtn && dmHint) {
+            if (userId === selfId) {
+              dmBtn.hidden = true;
+              dmHint.hidden = true;
+            } else if (!accountIsRegistered(sessionMeSnapshot)) {
+              dmBtn.hidden = true;
+              dmHint.hidden = false;
+            } else {
+              dmBtn.hidden = false;
+              dmHint.hidden = true;
+            }
+          }
+        } catch (e) {
+          body.innerHTML = "";
+          if (errEl) {
+            errEl.textContent = e.message || "Could not load profile";
+            errEl.style.display = "block";
+          }
+        }
       }
 
       async function openCommunityEditModal(p) {
@@ -5975,7 +7181,19 @@
         }
       }
 
+      function closeHeaderMenus() {
+        const sd = document.getElementById("headerSettingsDropdown");
+        const pd = document.getElementById("headerProfileDropdown");
+        const sb = document.getElementById("headerSettingsBtn");
+        const pb = document.getElementById("headerProfileBtn");
+        if (sd) sd.hidden = true;
+        if (pd) pd.hidden = true;
+        if (sb) sb.setAttribute("aria-expanded", "false");
+        if (pb) pb.setAttribute("aria-expanded", "false");
+      }
+
       function setTab(name) {
+        closeHeaderMenus();
         const qsm = document.getElementById("quickStartHelpModal");
         if (qsm && qsm.classList.contains("open")) closeQuickStartHelpModal();
         document.querySelectorAll(".tab-panel").forEach((el) => {
@@ -6119,6 +7337,63 @@
       });
       document.querySelectorAll("[data-close-edit-modal]").forEach((el) => {
         el.addEventListener("click", () => closeCommunityEditModal());
+      });
+      document.querySelectorAll("[data-close-member-profile]").forEach((el) => {
+        el.addEventListener("click", () => closeCommunityMemberProfile());
+      });
+      document.querySelectorAll("[data-close-dm-inbox]").forEach((el) => {
+        el.addEventListener("click", () => closeDmInboxModal());
+      });
+      document.getElementById("headerInboxBtn")?.addEventListener("click", () => void openDmInboxModal());
+      document.getElementById("dmInboxBackBtn")?.addEventListener("click", async () => {
+        sendDmTypingWs(false);
+        if (dmTypingStopTimer) {
+          clearTimeout(dmTypingStopTimer);
+          dmTypingStopTimer = null;
+        }
+        hideDmPeerTyping();
+        dmInboxActiveThreadId = null;
+        dmThreadPeerReadAt = null;
+        const list = document.getElementById("dmInboxListView");
+        const tv = document.getElementById("dmInboxThreadView");
+        if (list) list.hidden = false;
+        if (tv) tv.hidden = true;
+        await renderDmThreadList();
+        void refreshDmUnread();
+      });
+      document.getElementById("dmInboxSendBtn")?.addEventListener("click", () => void sendDmFromInbox());
+      document.getElementById("dmInboxInput")?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          void sendDmFromInbox();
+        }
+      });
+      document.getElementById("dmInboxInput")?.addEventListener("input", () => {
+        if (!dmInboxActiveThreadId) return;
+        const now = Date.now();
+        if (now - dmTypingTrueLastSent > 1800) {
+          sendDmTypingWs(true);
+          dmTypingTrueLastSent = now;
+        }
+        if (dmTypingStopTimer) clearTimeout(dmTypingStopTimer);
+        dmTypingStopTimer = setTimeout(() => {
+          sendDmTypingWs(false);
+          dmTypingStopTimer = null;
+        }, 2500);
+      });
+      document.getElementById("dmInboxInput")?.addEventListener("blur", () => {
+        sendDmTypingWs(false);
+        if (dmTypingStopTimer) {
+          clearTimeout(dmTypingStopTimer);
+          dmTypingStopTimer = null;
+        }
+      });
+      document.getElementById("communityMemberProfileDmBtn")?.addEventListener("click", () => {
+        const modal = document.getElementById("communityMemberProfileModal");
+        const id = modal && modal.dataset.profileUserId;
+        const lab = (modal && modal.dataset.profileLabel) || "Member";
+        if (!id) return;
+        void startDirectMessageToUser(id, lab);
       });
       document.getElementById("communitySortSelect").addEventListener("change", (e) => {
         communityState.sort = e.target.value === "oldest" ? "oldest" : "newest";
@@ -6344,13 +7619,14 @@
 
       (function setupAppTopScroll() {
         const bar = document.getElementById("appTopBar");
-        if (!bar) return;
+        const scrollEl = document.getElementById("mainScroll");
+        if (!bar || !scrollEl) return;
         let raf = false;
         function tick() {
           raf = false;
-          bar.classList.toggle("is-scrolled", window.scrollY > 28);
+          bar.classList.toggle("is-scrolled", scrollEl.scrollTop > 28);
         }
-        window.addEventListener(
+        scrollEl.addEventListener(
           "scroll",
           () => {
             if (!raf) {
@@ -6475,6 +7751,31 @@
         } catch {
           /* ignore */
         }
+
+        try {
+          const u2 = new URL(window.location.href);
+          const dmThreadParam = u2.searchParams.get("dmThread");
+          if (dmThreadParam && DM_THREAD_ID_RE.test(dmThreadParam)) {
+            void (async () => {
+              await openDmInboxModal({ threadId: dmThreadParam });
+              u2.searchParams.delete("dmThread");
+              const qs2 = u2.searchParams.toString();
+              history.replaceState({}, "", u2.pathname + (qs2 ? "?" + qs2 : "") + u2.hash);
+            })();
+          } else if (u2.searchParams.get("openInbox") === "1") {
+            void openDmInboxModal();
+            u2.searchParams.delete("openInbox");
+            const qs2 = u2.searchParams.toString();
+            history.replaceState({}, "", u2.pathname + (qs2 ? "?" + qs2 : "") + u2.hash);
+          }
+        } catch {
+          /* ignore */
+        }
+
+        setInterval(() => void refreshDmUnread(), 60000);
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") void refreshDmUnread();
+        });
 
         if (shouldShowAccountPrompt(me)) {
           openAccountPromptModal();
@@ -6633,6 +7934,7 @@
           if (e.target.id === "showModal") closeShowModal();
         });
         document.getElementById("quickStartHelpBtn").addEventListener("click", () => {
+          closeHeaderMenus();
           const el = document.getElementById("quickStartHelpModal");
           if (el && el.classList.contains("open")) closeQuickStartHelpModal();
           else openQuickStartHelpModal();
@@ -6644,6 +7946,7 @@
 
         document.addEventListener("keydown", (e) => {
           if (e.key !== "Escape") return;
+          closeHeaderMenus();
           const qs = document.getElementById("quickStartHelpModal");
           if (qs && qs.classList.contains("open")) {
             closeQuickStartHelpModal();
@@ -6655,6 +7958,16 @@
             const log = document.getElementById("accountPromptStepLogin");
             if (reg && !reg.hidden) showAccountPromptStep("intro");
             else if (log && !log.hidden) showAccountPromptStep("intro");
+            return;
+          }
+          const cmp = document.getElementById("communityMemberProfileModal");
+          if (cmp && !cmp.hidden) {
+            closeCommunityMemberProfile();
+            return;
+          }
+          const dmm = document.getElementById("dmInboxModal");
+          if (dmm && !dmm.hidden) {
+            closeDmInboxModal();
             return;
           }
           closeShowModal();
@@ -6693,6 +8006,91 @@
           }
         }
         document.getElementById("refreshData").onclick = () => runRefreshEpisodeJob();
+
+        function scrollToHeaderTarget(id) {
+          const el = document.getElementById(id);
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        function ensureFoldExpanded(toggleId) {
+          const btn = document.getElementById(toggleId);
+          if (!btn || btn.getAttribute("aria-expanded") === "true") return;
+          btn.click();
+        }
+
+        document.getElementById("headerSettingsBtn")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeQuickStartHelpModal();
+          const d = document.getElementById("headerSettingsDropdown");
+          const pd = document.getElementById("headerProfileDropdown");
+          const wasOpen = d && !d.hidden;
+          if (pd) pd.hidden = true;
+          document.getElementById("headerProfileBtn")?.setAttribute("aria-expanded", "false");
+          if (d) {
+            d.hidden = wasOpen;
+            document.getElementById("headerSettingsBtn")?.setAttribute("aria-expanded", d.hidden ? "false" : "true");
+          }
+        });
+        document.getElementById("headerProfileBtn")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeQuickStartHelpModal();
+          const d = document.getElementById("headerProfileDropdown");
+          const sd = document.getElementById("headerSettingsDropdown");
+          const wasOpen = d && !d.hidden;
+          if (sd) sd.hidden = true;
+          document.getElementById("headerSettingsBtn")?.setAttribute("aria-expanded", "false");
+          if (d) {
+            d.hidden = wasOpen;
+            document.getElementById("headerProfileBtn")?.setAttribute("aria-expanded", d.hidden ? "false" : "true");
+          }
+        });
+        document.addEventListener("click", (e) => {
+          const t = e.target;
+          if (t && typeof t.closest === "function" && t.closest(".header-menu-wrap")) return;
+          closeHeaderMenus();
+        });
+
+        document.getElementById("headerMenuRefresh")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeHeaderMenus();
+          setTab("add");
+          requestAnimationFrame(() => {
+            scrollToHeaderTarget("refreshData");
+            void runRefreshEpisodeJob();
+          });
+        });
+        document.getElementById("headerMenuReminders")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeHeaderMenus();
+          setTab("profile");
+          requestAnimationFrame(() => {
+            ensureFoldExpanded("foldProfileBtn");
+            requestAnimationFrame(() => scrollToHeaderTarget("foldProfileBtn"));
+          });
+        });
+        document.getElementById("headerMenuPush")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeHeaderMenus();
+          setTab("profile");
+          requestAnimationFrame(() => scrollToHeaderTarget("section-push"));
+        });
+        document.getElementById("headerMenuSession")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeHeaderMenus();
+          setTab("profile");
+          requestAnimationFrame(() => scrollToHeaderTarget("profileSignOutSection"));
+        });
+        document.getElementById("headerMenuYourProfile")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeHeaderMenus();
+          setTab("profile");
+          requestAnimationFrame(() => scrollToHeaderTarget("profileIdentityHeading"));
+        });
+        document.getElementById("headerMenuAbout")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeHeaderMenus();
+          setTab("profile");
+          requestAnimationFrame(() => scrollToHeaderTarget("profileAboutHeading"));
+        });
 
         const accountErr = document.getElementById("accountErr");
         function clearAccountErr() {

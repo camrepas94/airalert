@@ -282,4 +282,38 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
   CREATE INDEX IF NOT EXISTS idx_community_mod_log_created ON community_moderation_log(created_at DESC);
+
+  CREATE TABLE IF NOT EXISTS dm_threads (
+    id TEXT PRIMARY KEY,
+    user_low TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_high TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    last_message_at TEXT NOT NULL DEFAULT (datetime('now')),
+    CHECK (user_low < user_high),
+    UNIQUE (user_low, user_high)
+  );
+  CREATE INDEX IF NOT EXISTS idx_dm_threads_low ON dm_threads(user_low);
+  CREATE INDEX IF NOT EXISTS idx_dm_threads_high ON dm_threads(user_high);
+
+  CREATE TABLE IF NOT EXISTS dm_messages (
+    id TEXT PRIMARY KEY,
+    thread_id TEXT NOT NULL REFERENCES dm_threads(id) ON DELETE CASCADE,
+    sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    body TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_dm_messages_thread ON dm_messages(thread_id, created_at DESC);
+
+  CREATE TABLE IF NOT EXISTS dm_thread_reads (
+    thread_id TEXT NOT NULL REFERENCES dm_threads(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    last_read_at TEXT NOT NULL,
+    PRIMARY KEY (thread_id, user_id)
+  );
 `);
+
+const communityPostColNames = new Set(
+  (db.prepare(`PRAGMA table_info(community_posts)`).all() as { name: string }[]).map((r) => r.name),
+);
+if (!communityPostColNames.has("deleted_at")) {
+  db.exec(`ALTER TABLE community_posts ADD COLUMN deleted_at TEXT`);
+}
