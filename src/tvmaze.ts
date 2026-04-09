@@ -352,6 +352,8 @@ export async function fetchShowEpisodes(showId: number): Promise<TvmazeEpisode[]
 export type TvmazeShowDetail = {
   id: number;
   name: string;
+  /** TVMaze format: Reality, Scripted, Documentary, Animation, Talk Show, etc. */
+  type?: string | null;
   premiered?: string | null;
   status?: string | null;
   summary?: string | null;

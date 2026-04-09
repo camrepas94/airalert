@@ -338,7 +338,48 @@ app.get("/api/admin/overview", async (request, reply) => {
   return { users: usersOut, totals };
 });
 
-/** Top 5 genre keywords (lowercase) per user from subscribed shows’ TVMaze genres. */
+/** Primary genres listed first on TVMaze — weight those higher than trailing tags. */
+function adminGenrePositionWeight(index: number): number {
+  if (index === 0) return 3;
+  if (index === 1) return 2;
+  if (index === 2) return 1;
+  return 0.4;
+}
+
+/**
+ * TVMaze `type` (Reality, Scripted, …) is more reliable than genre tags alone.
+ * Scripted is too common to add — it would dominate every user.
+ */
+function adminShowFormatWeight(showType: string | null | undefined): { key: string | null; points: number } {
+  if (!showType || typeof showType !== "string") return { key: null, points: 0 };
+  const s = showType.trim().toLowerCase();
+  if (!s || s === "scripted") return { key: null, points: 0 };
+  const high = new Set([
+    "reality",
+    "documentary",
+    "animation",
+    "talk show",
+    "game show",
+    "news",
+    "sports",
+    "variety",
+    "panel show",
+    "award show",
+  ]);
+  const points = high.has(s) ? 3.5 : 1.1;
+  return { key: s, points };
+}
+
+function adminIsRealityFormat(showType: string | null | undefined, genres: string[]): boolean {
+  const t = showType?.trim().toLowerCase();
+  if (t === "reality") return true;
+  return genres.some((g) => g.trim().toLowerCase() === "reality");
+}
+
+/** Broad tags TVMaze often attaches to reality/unscripted shows; downweight when format is Reality. */
+const ADMIN_GENRE_DOWNWEIGHT_ON_REALITY = new Set(["comedy", "drama", "family"]);
+
+/** Top 5 format/genre labels per user: uses TVMaze `type`, position-weighted genres, and reality-aware damping. */
 async function topGenresForAdminUsers(userIds: string[]): Promise<Map<string, string[]>> {
   const out = new Map<string, string[]>();
   for (const id of userIds) out.set(id, []);
@@ -356,7 +397,7 @@ async function topGenresForAdminUsers(userIds: string[]): Promise<Map<string, st
   }
 
   const uniqueShowIds = [...new Set(subs.map((s) => s.tvmaze_show_id))];
-  const showGenres = new Map<number, string[]>();
+  const showMeta = new Map<number, { genres: string[]; type: string | null }>();
   for (let i = 0; i < uniqueShowIds.length; i += 10) {
     const chunk = uniqueShowIds.slice(i, i + 10);
     const settled = await Promise.allSettled(chunk.map((id) => fetchShow(id)));
@@ -364,9 +405,10 @@ async function topGenresForAdminUsers(userIds: string[]): Promise<Map<string, st
       const r = settled[j];
       const id = chunk[j];
       if (r.status === "fulfilled") {
-        showGenres.set(id, r.value.genres ?? []);
+        const v = r.value;
+        showMeta.set(id, { genres: v.genres ?? [], type: v.type ?? null });
       } else {
-        showGenres.set(id, []);
+        showMeta.set(id, { genres: [], type: null });
       }
     }
   }
@@ -374,11 +416,23 @@ async function topGenresForAdminUsers(userIds: string[]): Promise<Map<string, st
   for (const uid of userIds) {
     const counts = new Map<string, number>();
     for (const sid of byUser.get(uid) ?? []) {
-      for (const g of showGenres.get(sid) ?? []) {
-        const k = g.trim().toLowerCase();
-        if (k.length < 2) continue;
-        counts.set(k, (counts.get(k) ?? 0) + 1);
+      const meta = showMeta.get(sid);
+      if (!meta) continue;
+      const { genres, type } = meta;
+      const { key: formatKey, points: formatPts } = adminShowFormatWeight(type);
+      if (formatKey && formatPts > 0) {
+        counts.set(formatKey, (counts.get(formatKey) ?? 0) + formatPts);
       }
+      const realityFmt = adminIsRealityFormat(type, genres);
+      genres.forEach((g, i) => {
+        const k = g.trim().toLowerCase();
+        if (k.length < 2) return;
+        let w = adminGenrePositionWeight(i);
+        if (realityFmt && ADMIN_GENRE_DOWNWEIGHT_ON_REALITY.has(k)) {
+          w *= 0.12;
+        }
+        counts.set(k, (counts.get(k) ?? 0) + w);
+      });
     }
     const top = [...counts.entries()]
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
@@ -1267,6 +1321,32 @@ app.post("/api/users/:userId/push-subscription", async (request, reply) => {
   ).run(id, userId, endpoint, p256dh, auth);
   reply.code(201);
   return { ok: true };
+});
+
+/** Same as admin test push — caller must be the user or an admin. */
+app.post("/api/users/:userId/test-push", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
+  if (!isWebPushConfigured()) {
+    reply.code(503);
+    return { error: "Push not configured on server (missing VAPID keys)" };
+  }
+  const body = (request.body ?? {}) as { title?: string; body?: string };
+  const titleRaw = typeof body.title === "string" ? body.title.trim() : "";
+  const bodyRaw = typeof body.body === "string" ? body.body.trim() : "";
+  const title = titleRaw.slice(0, 200) || "Airalert test";
+  const text = bodyRaw.slice(0, 500) || "Test notification from your profile.";
+  const n = db.prepare(`SELECT COUNT(*) AS c FROM web_push_subscriptions WHERE user_id = ?`).get(userId) as { c: number };
+  if (n.c === 0) {
+    return { ok: true, sent: false, subscriptions: 0, message: "No registered push devices for this user." };
+  }
+  await sendWebPushToUser(userId, { title, body: text, url: "/" });
+  return { ok: true, sent: true, subscriptions: n.c };
 });
 
 /** Admin / dev: refresh episode cache + run notification pass. */
