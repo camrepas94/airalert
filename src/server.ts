@@ -20,7 +20,6 @@ import {
   fetchPerson,
 } from "./tvmaze.js";
 import {
-  calendarDateMinusDays,
   calendarDatePlusDays,
   normalizeEpisodeAirdate,
   safeTodayInTimeZone,
@@ -50,13 +49,16 @@ import {
   sendDmMessage,
   getDmUnreadTotal,
   markDmThreadRead,
-  listDmThreadsForUser,
+  listUnifiedDmThreadsForUser,
   listDmMessages,
   registerDmSocket,
   unregisterDmSocket,
   enrichMessagesWithReadState,
   getOtherParticipantLastReadAt,
   handleDmClientSocketMessage,
+  resolveDmThreadAccess,
+  createDmGroup,
+  renameDmGroup,
 } from "./dm.js";
 import {
   parseThreadLiveRoomQuery,
@@ -2700,8 +2702,6 @@ app.get("/api/users/:userId/upcoming", async (request, reply) => {
   return { upcoming };
 });
 
-const COMMUNITY_EPISODE_THREAD_DAYS = 120;
-
 type CommunityThreadListRow = {
   tvmazeShowId: number;
   showName: string;
@@ -2749,7 +2749,6 @@ function resolveCommunityShowName(showId: number, sessionUserId: string | undefi
 
 function buildCommunityThreadsForUser(userId: string, timezone: string): CommunityThreadListRow[] {
   const today = safeTodayInTimeZone(timezone);
-  const cutoff = calendarDateMinusDays(today, COMMUNITY_EPISODE_THREAD_DAYS);
 
   const subs = db
     .prepare(`SELECT tvmaze_show_id AS tvmazeShowId, show_name AS showName FROM show_subscriptions WHERE user_id = ?`)
@@ -2761,8 +2760,7 @@ function buildCommunityThreadsForUser(userId: string, timezone: string): Communi
      WHERE tvmaze_show_id = ?
        AND airdate IS NOT NULL AND TRIM(airdate) != ''
        AND date(airdate) IS NOT NULL
-       AND date(airdate) <= date(?)
-       AND date(airdate) >= date(?)`,
+       AND date(airdate) = date(?)`,
   );
 
   const statsStmt = db.prepare(
@@ -2773,7 +2771,7 @@ function buildCommunityThreadsForUser(userId: string, timezone: string): Communi
 
   const out: CommunityThreadListRow[] = [];
   for (const s of subs) {
-    const eps = epStmt.all(s.tvmazeShowId, today, cutoff) as {
+    const eps = epStmt.all(s.tvmazeShowId, today) as {
       tvmazeEpisodeId: number;
       name: string;
       season: number;
@@ -2828,6 +2826,7 @@ function buildCommunityThreadsForUser(userId: string, timezone: string): Communi
 }
 
 function buildCommunityThreadsForGuest(): CommunityThreadListRow[] {
+  const guestToday = safeTodayInTimeZone("America/Los_Angeles");
   const agg = db
     .prepare(
       `SELECT tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId,
@@ -2853,6 +2852,9 @@ function buildCommunityThreadsForGuest(): CommunityThreadListRow[] {
     const c = cacheStmt.get(r.tvmazeShowId, r.tvmazeEpisodeId) as
       | { name: string; season: number; number: number; airdate: string }
       | undefined;
+    const airdate = c?.airdate ?? null;
+    const episodeAirsToday = airdate != null && airdate === guestToday;
+    if (!episodeAirsToday) continue;
     const episodeLabel = c
       ? communityEpisodeThreadLabel(c.season, c.number, c.name)
       : `Episode ${r.tvmazeEpisodeId}`;
@@ -2861,10 +2863,10 @@ function buildCommunityThreadsForGuest(): CommunityThreadListRow[] {
       showName: r.showName,
       tvmazeEpisodeId: r.tvmazeEpisodeId,
       episodeLabel,
-      airdate: c?.airdate ?? null,
+      airdate,
       postCount: Number(r.postCount),
       lastPostAt: r.lastPostAt,
-      episodeAirsToday: false,
+      episodeAirsToday: true,
       threadKind: "episode",
     });
   }
@@ -3862,7 +3864,7 @@ app.get("/api/dm/unread", async (request, reply) => {
 app.get("/api/dm/threads", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
-  return { threads: listDmThreadsForUser(uid) };
+  return { threads: listUnifiedDmThreadsForUser(uid) };
 });
 
 app.post("/api/dm/threads", async (request, reply) => {
@@ -3883,14 +3885,43 @@ app.post("/api/dm/threads", async (request, reply) => {
   return { threadId };
 });
 
+app.post("/api/dm/groups", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const body = (request.body ?? {}) as { name?: string; memberUserIds?: unknown };
+  const name = typeof body.name === "string" ? body.name : "";
+  const rawIds = body.memberUserIds;
+  const memberUserIds = Array.isArray(rawIds) ? rawIds.filter((x): x is string => typeof x === "string") : [];
+  try {
+    const groupId = createDmGroup(uid, name, memberUserIds);
+    reply.code(201);
+    return { threadId: groupId, groupId };
+  } catch (e) {
+    reply.code(400);
+    return { error: e instanceof Error ? e.message : "Could not create group" };
+  }
+});
+
+app.patch("/api/dm/groups/:groupId", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { groupId } = request.params as { groupId: string };
+  const body = (request.body ?? {}) as { name?: string };
+  const name = typeof body.name === "string" ? body.name : "";
+  const ok = renameDmGroup(groupId, uid, name);
+  if (!ok) {
+    reply.code(404);
+    return { error: "Group not found or no access" };
+  }
+  return { ok: true };
+});
+
 app.get("/api/dm/threads/:threadId/messages", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   const { threadId } = request.params as { threadId: string };
-  const inThread = db
-    .prepare(`SELECT 1 FROM dm_threads WHERE id = ? AND (user_low = ? OR user_high = ?)`)
-    .get(threadId, uid, uid);
-  if (!inThread) {
+  const access = resolveDmThreadAccess(uid, threadId);
+  if (!access) {
     reply.code(404);
     return { error: "Thread not found" };
   }
@@ -3900,15 +3931,19 @@ app.get("/api/dm/threads/:threadId/messages", async (request, reply) => {
   const beforeId = typeof q.before === "string" && q.before.trim() ? q.before.trim() : null;
   const raw = listDmMessages(threadId, uid, limit, beforeId);
   const chronological = raw.slice().reverse();
-  const otherLastReadAt = getOtherParticipantLastReadAt(threadId, uid);
+  const otherLastReadAt = access === "direct" ? getOtherParticipantLastReadAt(threadId, uid) : null;
   const messages = enrichMessagesWithReadState(chronological, uid, otherLastReadAt);
-  return { messages, otherLastReadAt };
+  return { messages, otherLastReadAt, threadKind: access };
 });
 
 app.post("/api/dm/threads/:threadId/messages", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   const { threadId } = request.params as { threadId: string };
+  if (!resolveDmThreadAccess(uid, threadId)) {
+    reply.code(404);
+    return { error: "Thread not found" };
+  }
   const body = (request.body ?? {}) as { body?: string };
   const text = typeof body.body === "string" ? body.body : "";
   const row = sendDmMessage(uid, threadId, text);
@@ -3923,10 +3958,7 @@ app.post("/api/dm/threads/:threadId/read", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   const { threadId } = request.params as { threadId: string };
-  const member = db
-    .prepare(`SELECT 1 FROM dm_threads WHERE id = ? AND (user_low = ? OR user_high = ?)`)
-    .get(threadId, uid, uid);
-  if (!member) {
+  if (!resolveDmThreadAccess(uid, threadId)) {
     reply.code(404);
     return { error: "Thread not found" };
   }

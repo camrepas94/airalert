@@ -859,6 +859,66 @@
         box-shadow: 0 0 0 2px rgba(12, 20, 40, 0.95), 0 0 10px rgba(248, 113, 113, 0.75);
         pointer-events: none;
       }
+      /* Messages tab: galaxy wash + shared neon (cyan / blue / pink / purple) */
+      #tab-messages {
+        --dm-glow-layer: 0 0 20px -4px rgba(34, 211, 238, 0.38), 0 0 32px -6px rgba(91, 156, 255, 0.28),
+          0 0 36px -8px rgba(236, 72, 153, 0.32), 0 0 28px -5px rgba(168, 85, 247, 0.26);
+        --dm-glow-hover: 0 0 26px -3px rgba(34, 211, 238, 0.48), 0 0 40px -6px rgba(91, 156, 255, 0.36),
+          0 0 44px -7px rgba(236, 72, 153, 0.4), 0 0 34px -5px rgba(168, 85, 247, 0.34);
+        --dm-surface-fill: linear-gradient(165deg, rgba(8, 12, 28, 0.78) 0%, rgba(4, 8, 18, 0.85) 100%);
+        --dm-surface-edge: linear-gradient(
+          130deg,
+          rgba(34, 211, 238, 0.65) 0%,
+          rgba(91, 156, 255, 0.55) 32%,
+          rgba(236, 72, 153, 0.58) 66%,
+          rgba(168, 85, 247, 0.52) 100%
+        );
+        position: relative;
+        isolation: isolate;
+      }
+      #tab-messages.tab-panel.active::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        pointer-events: none;
+        border-radius: 0;
+        background: radial-gradient(ellipse 120% 90% at 10% 20%, rgba(76, 29, 149, 0.35) 0%, transparent 52%),
+          radial-gradient(ellipse 100% 80% at 92% 35%, rgba(219, 39, 119, 0.22) 0%, transparent 50%),
+          radial-gradient(ellipse 85% 70% at 48% 88%, rgba(14, 116, 144, 0.28) 0%, transparent 48%),
+          radial-gradient(ellipse 70% 50% at 72% 12%, rgba(37, 99, 235, 0.2) 0%, transparent 55%),
+          radial-gradient(ellipse 55% 40% at 35% 55%, rgba(255, 255, 255, 0.06) 0%, transparent 60%);
+        opacity: 0.92;
+      }
+      #tab-messages .dm-inbox-page-root.panel-rail-cyan {
+        position: relative;
+        z-index: 0;
+        overflow: visible;
+        background: rgba(4, 6, 18, 0.4);
+        -webkit-backdrop-filter: blur(12px) saturate(1.2);
+        backdrop-filter: blur(12px) saturate(1.2);
+        border-left-color: rgba(34, 211, 238, 0.55);
+        border-right-color: rgba(232, 121, 249, 0.42);
+        box-shadow: var(--shadow-lift), 0 0 0 1px rgba(255, 255, 255, 0.05) inset, var(--dm-glow-layer),
+          0 16px 48px rgba(0, 0, 0, 0.5);
+      }
+      #tab-messages .dm-inbox-page-root.panel-rail-cyan::before {
+        content: "";
+        position: absolute;
+        inset: -6px -4px -8px -4px;
+        z-index: -1;
+        border-radius: 18px;
+        pointer-events: none;
+        background: radial-gradient(ellipse 100% 85% at 18% 22%, rgba(109, 40, 217, 0.4) 0%, transparent 52%),
+          radial-gradient(ellipse 90% 75% at 86% 42%, rgba(236, 72, 153, 0.3) 0%, transparent 50%),
+          radial-gradient(ellipse 75% 60% at 52% 90%, rgba(34, 211, 238, 0.22) 0%, transparent 46%);
+        opacity: 0.85;
+      }
+      #tab-messages .dm-inbox-panel {
+        position: relative;
+        z-index: 0;
+        background: transparent;
+      }
       .dm-inbox-page-root {
         display: flex;
         flex-direction: column;
@@ -877,15 +937,373 @@
         flex: 1 1 auto;
         min-height: 0;
       }
+      .dm-inbox-layout {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        gap: 0.65rem;
+        flex: 1 1 auto;
+        min-height: 0;
+        width: 100%;
+      }
+      .dm-inbox-rail {
+        flex: 0 0 3.15rem;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.38rem;
+        padding: 0.4rem 0.28rem;
+        border-radius: 14px;
+        border: 1px solid transparent;
+        background: linear-gradient(rgba(6, 10, 26, 0.82), rgba(4, 8, 20, 0.88)) padding-box,
+          var(--dm-surface-edge, linear-gradient(130deg, rgba(34, 211, 238, 0.5), rgba(91, 156, 255, 0.45), rgba(236, 72, 153, 0.48), rgba(168, 85, 247, 0.42))) border-box;
+        background-clip: padding-box, border-box;
+        -webkit-backdrop-filter: blur(16px) saturate(1.25);
+        backdrop-filter: blur(16px) saturate(1.25);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), var(--dm-glow-layer, 0 8px 28px rgba(0, 0, 0, 0.45));
+      }
+      #tab-messages .dm-inbox-rail {
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), var(--dm-glow-layer);
+      }
+      .dm-inbox-rail-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        aspect-ratio: 1;
+        min-height: 44px;
+        padding: 0;
+        border-radius: 11px;
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        background: rgba(0, 0, 0, 0.22);
+        color: rgba(200, 218, 255, 0.82);
+        cursor: pointer;
+        touch-action: manipulation;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease, background 0.18s ease;
+      }
+      .dm-inbox-rail-btn:hover:not(:disabled) {
+        border-color: rgba(165, 215, 255, 0.38);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+      }
+      .dm-inbox-rail-btn--active {
+        border-color: rgba(34, 211, 238, 0.45);
+        color: var(--neon-cyan);
+        box-shadow: 0 0 22px -5px rgba(34, 211, 238, 0.5), 0 0 28px -6px rgba(236, 72, 153, 0.35),
+          0 0 24px -5px rgba(168, 85, 247, 0.3), inset 0 0 0 1px rgba(34, 211, 238, 0.12);
+        background: rgba(34, 211, 238, 0.08);
+      }
+      .dm-inbox-rail-btn svg {
+        width: 1.35rem;
+        height: 1.35rem;
+        flex-shrink: 0;
+        opacity: 0.95;
+      }
+      .dm-inbox-main {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      #tab-messages .dm-inbox-main {
+        background: transparent;
+      }
+      .dm-inbox-hub-scroll {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding-right: 0.1rem;
+      }
+      .dm-inbox-section {
+        margin-bottom: 1rem;
+        padding: 0.55rem 0.6rem 0.5rem;
+        border-radius: 16px;
+        border: 1px solid transparent;
+        background: var(--dm-surface-fill, linear-gradient(165deg, rgba(8, 12, 28, 0.55) 0%, rgba(4, 8, 18, 0.65) 100%)) padding-box,
+          var(--dm-surface-edge, linear-gradient(130deg, rgba(34, 211, 238, 0.45), rgba(91, 156, 255, 0.4), rgba(236, 72, 153, 0.42), rgba(168, 85, 247, 0.38))) border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: var(--dm-glow-layer, 0 4px 20px rgba(0, 0, 0, 0.35));
+      }
+      #tab-messages .dm-inbox-section {
+        box-shadow: var(--dm-glow-layer);
+      }
+      .dm-inbox-section:last-child {
+        margin-bottom: 0.35rem;
+      }
+      .dm-inbox-section-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.35rem 0.75rem;
+        margin-bottom: 0.4rem;
+      }
+      .dm-inbox-section-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: rgba(154, 184, 224, 0.82);
+      }
+      .dm-inbox-section-hint {
+        font-size: 0.72rem;
+        color: rgba(138, 155, 184, 0.65);
+      }
+      .dm-inbox-channel-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .dm-inbox-channel-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        text-align: left;
+        padding: 0.5rem 0.6rem;
+        border-radius: 11px;
+        border: 1px solid transparent;
+        background: linear-gradient(rgba(6, 10, 24, 0.75), rgba(4, 8, 20, 0.82)) padding-box,
+          var(--dm-surface-edge, linear-gradient(125deg, rgba(34, 211, 238, 0.5), rgba(91, 156, 255, 0.45), rgba(236, 72, 153, 0.48), rgba(168, 85, 247, 0.4))) border-box;
+        background-clip: padding-box, border-box;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        touch-action: manipulation;
+        box-shadow: var(--dm-glow-layer, none);
+      }
+      .dm-inbox-channel-row:hover {
+        background: linear-gradient(rgba(12, 18, 36, 0.82), rgba(8, 12, 28, 0.88)) padding-box,
+          var(--dm-surface-edge, linear-gradient(125deg, rgba(34, 211, 238, 0.65), rgba(91, 156, 255, 0.55), rgba(236, 72, 153, 0.58), rgba(168, 85, 247, 0.5))) border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: var(--dm-glow-hover, 0 0 20px rgba(34, 211, 238, 0.25));
+      }
+      .dm-inbox-channel-hash {
+        flex-shrink: 0;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--accent-hot);
+        opacity: 0.9;
+        width: 1rem;
+        text-align: center;
+      }
+      .dm-inbox-channel-name {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .dm-inbox-group-card {
+        border-radius: 12px;
+        border: 1px solid transparent;
+        background: linear-gradient(rgba(24, 8, 32, 0.55), rgba(8, 10, 28, 0.78)) padding-box,
+          var(--dm-surface-edge, linear-gradient(125deg, rgba(236, 72, 153, 0.55), rgba(168, 85, 247, 0.5), rgba(34, 211, 238, 0.45), rgba(91, 156, 255, 0.42))) border-box;
+        background-clip: padding-box, border-box;
+        padding: 0.75rem 0.85rem;
+        box-shadow: var(--dm-glow-layer, none);
+      }
+      .dm-inbox-group-avatars {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.55rem;
+      }
+      .dm-inbox-group-avatars span {
+        position: relative;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        margin-left: -10px;
+        border: 2px solid rgba(12, 18, 36, 0.95);
+        box-shadow: 0 0 14px rgba(34, 211, 238, 0.35), 0 0 12px rgba(236, 72, 153, 0.2);
+        z-index: 1;
+      }
+      .dm-inbox-group-avatars span:first-child {
+        margin-left: 0;
+      }
+      .dm-inbox-group-avatars span:nth-child(2) {
+        z-index: 2;
+      }
+      .dm-inbox-group-avatars span:nth-child(3) {
+        z-index: 3;
+      }
+      .dm-inbox-group-avatars .g1 {
+        background: linear-gradient(135deg, rgba(91, 156, 255, 0.85), rgba(34, 211, 238, 0.45));
+      }
+      .dm-inbox-group-avatars .g2 {
+        background: linear-gradient(135deg, rgba(232, 121, 249, 0.75), rgba(91, 156, 255, 0.4));
+      }
+      .dm-inbox-group-avatars .g3 {
+        background: linear-gradient(135deg, rgba(52, 211, 153, 0.65), rgba(34, 211, 238, 0.5));
+      }
+      .dm-inbox-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.45rem;
+      }
+      .dm-inbox-toolbar h2 {
+        margin: 0;
+        flex: 1 1 auto;
+        min-width: 5rem;
+      }
+      .dm-inbox-search-wrap {
+        flex: 3 1 10rem;
+        min-width: 0;
+      }
+      .dm-inbox-search {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.48rem 0.6rem;
+        border-radius: 10px;
+        border: 1px solid rgba(130, 200, 255, 0.18);
+        background: rgba(0, 0, 0, 0.38);
+        color: var(--text);
+        font: inherit;
+        font-size: 0.86rem;
+      }
+      .dm-inbox-search::placeholder {
+        color: rgba(138, 155, 184, 0.75);
+      }
+      .dm-inbox-new-chat-btn {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.55rem;
+        height: 2.55rem;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0;
+        border-radius: 12px;
+        border: 1px solid rgba(130, 200, 255, 0.26);
+        background: linear-gradient(
+          155deg,
+          rgba(255, 255, 255, 0.14) 0%,
+          rgba(120, 190, 255, 0.08) 38%,
+          rgba(12, 22, 48, 0.55) 100%
+        );
+        -webkit-backdrop-filter: blur(12px) saturate(1.2);
+        backdrop-filter: blur(12px) saturate(1.2);
+        color: var(--neon-cyan);
+        cursor: pointer;
+        touch-action: manipulation;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 1px rgba(34, 211, 238, 0.08),
+          0 4px 16px rgba(0, 0, 0, 0.4);
+      }
+      .dm-inbox-new-chat-btn:hover:not(:disabled) {
+        border-color: rgba(34, 211, 238, 0.45);
+        color: var(--accent-hot);
+      }
+      .dm-inbox-thread-title-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.45rem;
+        margin-top: 0.35rem;
+      }
+      .dm-inbox-thread-title-row h3 {
+        margin: 0;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .dm-inbox-rename-btn {
+        font-size: 0.78rem;
+        padding: 0.35rem 0.55rem;
+        margin: 0;
+      }
+      .dm-inbox-group-row .dm-inbox-group-meta {
+        font-size: 0.72rem;
+        color: rgba(232, 186, 255, 0.88);
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+      .dm-inbox-sender-tag {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: rgba(142, 203, 255, 0.95);
+        margin-bottom: 0.12rem;
+        padding-left: 0.1rem;
+      }
+      .dm-new-chat-modal .modal-panel {
+        max-width: 22rem;
+      }
+      .dm-new-chat-tabs {
+        display: flex;
+        gap: 0.35rem;
+        margin-bottom: 0.65rem;
+      }
+      .dm-new-chat-tabs button {
+        flex: 1;
+        margin: 0;
+        font-size: 0.82rem;
+      }
+      .dm-new-chat-tabs button.dm-new-chat-tab--on {
+        border-color: rgba(34, 211, 238, 0.45);
+        box-shadow: 0 0 18px -6px rgba(34, 211, 238, 0.35);
+      }
+      .dm-new-chat-member-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin: 0.45rem 0;
+        min-height: 1.5rem;
+      }
+      .dm-new-chat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.2rem 0.45rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        border: 1px solid rgba(232, 121, 249, 0.35);
+        background: rgba(232, 121, 249, 0.08);
+        color: var(--text);
+      }
+      .dm-new-chat-chip button {
+        margin: 0;
+        padding: 0 0.2rem;
+        min-height: auto;
+        font-size: 1rem;
+        line-height: 1;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .dm-new-chat-user-pick {
+        display: block;
+        width: 100%;
+        text-align: left;
+        margin: 0.25rem 0;
+        padding: 0.45rem 0.55rem;
+        border-radius: 10px;
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        background: rgba(0, 0, 0, 0.28);
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+      }
+      .dm-new-chat-user-pick:hover {
+        border-color: rgba(130, 200, 255, 0.32);
+        background: rgba(255, 255, 255, 0.05);
+      }
       .dm-inbox-thread-list {
         display: flex;
         flex-direction: column;
         gap: 0.4rem;
         flex: 1 1 auto;
         min-height: 0;
-        max-height: min(62dvh, 28rem);
-        overflow-y: auto;
-        margin: 0.35rem 0 0.75rem;
+        max-height: none;
+        overflow-y: visible;
+        margin: 0.35rem 0 0;
       }
       .dm-inbox-thread-row {
         display: flex;
@@ -895,15 +1313,21 @@
         text-align: left;
         padding: 0.55rem 0.65rem;
         border-radius: 11px;
-        border: 1px solid rgba(130, 200, 255, 0.14);
-        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid transparent;
+        background: linear-gradient(rgba(6, 10, 24, 0.72), rgba(4, 8, 20, 0.8)) padding-box,
+          var(--dm-surface-edge, linear-gradient(125deg, rgba(91, 156, 255, 0.48), rgba(34, 211, 238, 0.45), rgba(236, 72, 153, 0.5), rgba(168, 85, 247, 0.42))) border-box;
+        background-clip: padding-box, border-box;
         color: inherit;
         font: inherit;
         cursor: pointer;
         touch-action: manipulation;
+        box-shadow: var(--dm-glow-layer, none);
       }
       .dm-inbox-thread-row:hover {
-        background: rgba(255, 255, 255, 0.05);
+        background: linear-gradient(rgba(12, 16, 36, 0.82), rgba(8, 10, 26, 0.88)) padding-box,
+          var(--dm-surface-edge, linear-gradient(125deg, rgba(91, 156, 255, 0.62), rgba(34, 211, 238, 0.55), rgba(236, 72, 153, 0.58), rgba(168, 85, 247, 0.52))) border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: var(--dm-glow-hover, 0 0 18px rgba(91, 156, 255, 0.25));
       }
       .dm-inbox-thread-preview {
         flex: 1;
@@ -918,19 +1342,30 @@
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background: #f87171;
+        background: radial-gradient(circle at 30% 30%, #fecaca, #f87171 55%, #be123c);
         flex-shrink: 0;
+        box-shadow: 0 0 10px rgba(248, 113, 113, 0.65), 0 0 14px rgba(236, 72, 153, 0.45);
       }
       .dm-inbox-messages {
         flex: 1 1 auto;
         min-height: 10rem;
         max-height: min(52dvh, 26rem);
         overflow-y: auto;
+        overflow-x: hidden;
         display: flex;
         flex-direction: column;
         gap: 0.4rem;
         margin: 0.45rem 0;
-        padding: 0.25rem 0;
+        padding: 0.45rem 0.5rem;
+        border-radius: 14px;
+        border: 1px solid transparent;
+        background: linear-gradient(rgba(4, 8, 20, 0.45), rgba(2, 6, 16, 0.55)) padding-box,
+          var(--dm-surface-edge, linear-gradient(130deg, rgba(34, 211, 238, 0.35), rgba(91, 156, 255, 0.3), rgba(236, 72, 153, 0.35), rgba(168, 85, 247, 0.3))) border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.25), var(--dm-glow-layer, none);
+      }
+      #tab-messages .dm-inbox-messages {
+        box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.3), var(--dm-glow-layer);
       }
       .dm-inbox-bubble {
         max-width: 90%;
@@ -945,11 +1380,13 @@
         align-self: flex-end;
         background: rgba(91, 156, 255, 0.22);
         border: 1px solid rgba(91, 156, 255, 0.32);
+        box-shadow: 0 0 18px -4px rgba(91, 156, 255, 0.35), 0 0 22px -5px rgba(236, 72, 153, 0.22);
       }
       .dm-inbox-bubble.them {
         align-self: flex-start;
         background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(130, 200, 255, 0.12);
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        box-shadow: 0 0 16px -4px rgba(34, 211, 238, 0.2), 0 0 18px -5px rgba(168, 85, 247, 0.15);
       }
       .dm-inbox-msg-wrap {
         display: flex;
@@ -989,6 +1426,19 @@
       }
       .dm-inbox-typing-row[hidden] {
         display: none !important;
+      }
+      .dm-inbox-compose {
+        margin-top: 0.35rem;
+        padding: 0.55rem 0.6rem 0.45rem;
+        border-radius: 14px;
+        border: 1px solid transparent;
+        background: linear-gradient(rgba(6, 10, 24, 0.82), rgba(4, 8, 18, 0.92)) padding-box,
+          var(--dm-surface-edge, linear-gradient(125deg, rgba(34, 211, 238, 0.5), rgba(91, 156, 255, 0.45), rgba(236, 72, 153, 0.52), rgba(168, 85, 247, 0.45))) border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: var(--dm-glow-layer, 0 8px 24px rgba(0, 0, 0, 0.4));
+      }
+      #tab-messages .dm-inbox-compose {
+        box-shadow: var(--dm-glow-layer);
       }
       .dm-inbox-compose textarea {
         width: 100%;
@@ -1083,7 +1533,8 @@
         opacity: 1;
         position: relative;
         z-index: 1;
-        filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.45)) drop-shadow(0 0 28px rgba(91, 156, 255, 0.28));
+        filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.5)) drop-shadow(0 0 22px rgba(91, 156, 255, 0.32))
+          drop-shadow(0 0 30px rgba(167, 139, 250, 0.22)) drop-shadow(0 0 26px rgba(244, 114, 182, 0.18));
       }
       @media (min-width: 400px) {
         .brand-heading .brand-logo {
@@ -3725,8 +4176,7 @@
       }
       .community-show-composer-shell {
         position: relative;
-        z-index: 3;
-        margin: -1.65rem 0.35rem 0.75rem;
+        margin: 0.65rem 0.35rem 0.75rem;
         padding: 0;
       }
       .community-show-composer-shell .community-composer-wrap {
@@ -4811,39 +5261,61 @@
         }
       }
 
-      /* Member profile: sticky header + scroll body so dismiss is always visible */
-      .community-member-profile-panel.community-modal-panel {
+      /* Member profile: full-page surface (not a floating card) */
+      .community-modal.community-member-profile-fullpage {
+        align-items: stretch;
+        justify-content: stretch;
+        padding: 0;
+        background: linear-gradient(180deg, rgba(8, 10, 22, 0.97) 0%, rgba(4, 6, 14, 0.98) 55%, rgba(6, 8, 18, 0.99) 100%);
+      }
+      .community-member-profile-fullpage-backdrop {
+        display: none;
+      }
+      .community-member-profile-fullpage .community-member-profile-sheet-handle {
+        display: none;
+      }
+      .community-member-profile-fullpage .community-member-profile-panel.community-modal-panel {
         display: flex;
         flex-direction: column;
-        max-height: min(92dvh, 40rem);
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        min-height: 100dvh;
+        max-height: none;
+        margin: 0;
         padding: 0;
         overflow: hidden;
         cursor: default;
-        background: rgba(12, 14, 24, 0.94);
-        -webkit-backdrop-filter: blur(22px) saturate(1.1);
-        backdrop-filter: blur(22px) saturate(1.1);
-        border: 1px solid rgba(130, 200, 255, 0.12);
-        border-bottom: none;
-        box-shadow: 0 -6px 32px rgba(0, 0, 0, 0.4);
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
       }
-      @media (min-width: 520px) {
-        .community-member-profile-panel.community-modal-panel {
-          border-radius: 20px;
-          border-bottom: 1px solid rgba(130, 200, 255, 0.12);
-          box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
-        }
+      .community-member-profile-fullpage .community-member-profile-toolbar {
+        padding-top: calc(0.35rem + env(safe-area-inset-top));
+        padding-left: calc(1rem + env(safe-area-inset-left));
+        padding-right: calc(1rem + env(safe-area-inset-right));
+        background: linear-gradient(180deg, rgba(10, 12, 26, 0.92) 0%, rgba(10, 12, 26, 0.55) 100%);
+        border-bottom: 1px solid rgba(130, 200, 255, 0.1);
       }
-      .community-member-profile-sheet-handle {
-        flex-shrink: 0;
-        width: 2.25rem;
-        height: 4px;
-        margin: 0.5rem auto 0;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.14);
+      .community-member-profile-fullpage .community-member-profile-scroll {
+        flex: 1 1 auto;
+        min-height: 0;
+        padding: 0.75rem 0 calc(1.25rem + env(safe-area-inset-bottom));
       }
-      @media (min-width: 520px) {
-        .community-member-profile-sheet-handle {
-          display: none;
+      .community-member-profile-page-constrain {
+        width: 100%;
+        max-width: 26rem;
+        margin: 0 auto;
+        padding-left: calc(1.1rem + env(safe-area-inset-left));
+        padding-right: calc(1.1rem + env(safe-area-inset-right));
+        box-sizing: border-box;
+      }
+      @media (min-width: 640px) {
+        .community-member-profile-page-constrain {
+          max-width: 36rem;
         }
       }
       .community-member-profile-toolbar {
@@ -6057,9 +6529,14 @@
         </div>
       </div>
 
-      <div id="communityMemberProfileModal" class="community-modal" hidden aria-hidden="true">
-        <div class="community-modal-backdrop" data-close-member-profile></div>
-        <div class="community-modal-panel community-member-profile-panel" role="dialog" aria-modal="true" aria-labelledby="communityMemberProfileHeading">
+      <div id="communityMemberProfileModal" class="community-modal community-member-profile-fullpage" hidden aria-hidden="true">
+        <div class="community-modal-backdrop community-member-profile-fullpage-backdrop" data-close-member-profile aria-hidden="true"></div>
+        <div
+          class="community-modal-panel community-member-profile-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="communityMemberProfileHeading"
+        >
           <div class="community-member-profile-sheet-handle" aria-hidden="true"></div>
           <div class="community-member-profile-toolbar">
             <h3 id="communityMemberProfileHeading" class="community-member-profile-toolbar-title">Member profile</h3>
@@ -6067,20 +6544,22 @@
               type="button"
               class="community-member-profile-close-x"
               data-close-member-profile
-              aria-label="Close profile"
+              aria-label="Back"
             >
-              ×
+              ←
             </button>
           </div>
           <div class="community-member-profile-scroll">
-            <div id="communityMemberProfileBody" class="community-member-profile-body"></div>
-            <button type="button" id="communityMemberProfileDmBtn" class="secondary" style="margin-top: 0.65rem; width: 100%">
-              Direct message
-            </button>
-            <p class="muted" id="communityMemberProfileDmHint" hidden style="margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.4">
-              Create an account (profile icon → Your profile) to send direct messages.
-            </p>
-            <p class="err" id="communityMemberProfileErr" style="display: none; margin-top: 0.5rem"></p>
+            <div class="community-member-profile-page-constrain">
+              <div id="communityMemberProfileBody" class="community-member-profile-body"></div>
+              <button type="button" id="communityMemberProfileDmBtn" class="secondary" style="margin-top: 0.65rem; width: 100%">
+                Direct message
+              </button>
+              <p class="muted" id="communityMemberProfileDmHint" hidden style="margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.4">
+                Create an account (profile icon → Your profile) to send direct messages.
+              </p>
+              <p class="err" id="communityMemberProfileErr" style="display: none; margin-top: 0.5rem"></p>
+            </div>
           </div>
         </div>
       </div>
@@ -6100,19 +6579,194 @@
         </div>
       </div>
 
+      <div
+        class="modal-backdrop account-prompt-backdrop dm-new-chat-modal"
+        id="dmNewChatModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dmNewChatHeading"
+        hidden
+      >
+        <div class="modal-panel account-prompt-panel">
+          <h3 id="dmNewChatHeading">New chat</h3>
+          <div class="dm-new-chat-tabs" role="tablist" aria-label="Chat type">
+            <button type="button" class="secondary dm-new-chat-tab--on" id="dmNewChatTabDirect" role="tab" aria-selected="true">
+              Direct
+            </button>
+            <button type="button" class="secondary" id="dmNewChatTabGroup" role="tab" aria-selected="false">
+              Group
+            </button>
+          </div>
+          <div id="dmNewChatPanelDirect">
+            <label for="dmNewChatDirectSearch">Find someone</label>
+            <input
+              type="search"
+              id="dmNewChatDirectSearch"
+              class="dm-inbox-search"
+              style="width: 100%; box-sizing: border-box; margin-bottom: 0.35rem"
+              placeholder="Search by username…"
+              autocomplete="off"
+            />
+            <div id="dmNewChatDirectResults" style="max-height: 14rem; overflow-y: auto"></div>
+          </div>
+          <div id="dmNewChatPanelGroup" hidden>
+            <label for="dmNewChatGroupName">Group name</label>
+            <input
+              type="text"
+              id="dmNewChatGroupName"
+              maxlength="80"
+              class="dm-inbox-search"
+              style="width: 100%; box-sizing: border-box; margin-bottom: 0.45rem"
+              placeholder="Anything your group agrees on"
+              autocomplete="off"
+            />
+            <label for="dmNewChatGroupSearch">Add people</label>
+            <input
+              type="search"
+              id="dmNewChatGroupSearch"
+              class="dm-inbox-search"
+              style="width: 100%; box-sizing: border-box; margin-bottom: 0.35rem"
+              placeholder="Search by username…"
+              autocomplete="off"
+            />
+            <div id="dmNewChatGroupResults" style="max-height: 9rem; overflow-y: auto"></div>
+            <p class="muted" style="font-size: 0.72rem; margin: 0.35rem 0 0.2rem">In this chat</p>
+            <div id="dmNewChatGroupChips" class="dm-new-chat-member-chips"></div>
+            <button type="button" id="dmNewChatGroupCreateBtn" style="margin-top: 0.5rem; width: 100%">Create group</button>
+          </div>
+          <div class="account-prompt-row" style="margin-top: 0.65rem">
+            <button type="button" class="secondary" id="dmNewChatCloseBtn" style="width: 100%">Close</button>
+          </div>
+          <p class="msg err" id="dmNewChatErr" style="display: none; margin-top: 0.55rem"></p>
+        </div>
+      </div>
+
       <div id="tab-messages" class="tab-panel" role="tabpanel" aria-labelledby="dmInboxTitle">
         <section class="panel-rail-cyan dm-inbox-page-root" aria-label="Messages">
           <div class="dm-inbox-panel">
             <div id="dmInboxListView">
-              <h2 id="dmInboxTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Messages</h2>
-              <div id="dmInboxThreadList" class="dm-inbox-thread-list"></div>
-              <p class="muted" id="dmInboxEmpty" hidden style="margin: 0; font-size: 0.84rem; line-height: 1.45">
-                No conversations yet. Open someone’s profile from Community and tap <strong>Direct message</strong>.
-              </p>
+              <div class="dm-inbox-layout">
+                <nav class="dm-inbox-rail" aria-label="Inbox sections">
+                  <button
+                    type="button"
+                    class="dm-inbox-rail-btn dm-inbox-rail-btn--active"
+                    data-dm-rail="all"
+                    aria-pressed="true"
+                    title="All"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                      <rect x="3.5" y="3.5" width="7" height="7" rx="1.2" />
+                      <rect x="13.5" y="3.5" width="7" height="7" rx="1.2" />
+                      <rect x="3.5" y="13.5" width="7" height="7" rx="1.2" />
+                      <rect x="13.5" y="13.5" width="7" height="7" rx="1.2" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="dm-inbox-rail-btn"
+                    data-dm-rail="channels"
+                    aria-pressed="false"
+                    title="Channels"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                      <path d="M8 5h12M8 12h12M8 19h7" stroke-linecap="round" />
+                      <path d="M5.5 5h.01M5.5 12h.01M5.5 19h.01" stroke-linecap="round" stroke-width="2.2" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="dm-inbox-rail-btn"
+                    data-dm-rail="groups"
+                    aria-pressed="false"
+                    title="Groups"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                      <circle cx="9" cy="8" r="3" />
+                      <circle cx="17" cy="9" r="2.5" />
+                      <path
+                        d="M4.5 18.2c.4-2.5 2.6-4.2 5.1-4.2 1.5 0 2.8.6 3.7 1.6M14.2 16c1.6.4 2.8 1.7 3.2 3.3"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="dm-inbox-rail-btn"
+                    data-dm-rail="dms"
+                    aria-pressed="false"
+                    title="Direct messages"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                      <path
+                        d="M5 5.5h14a1 1 0 011 1v8.5a1 1 0 01-1 1h-5.2L9.5 19.5V16H5a1 1 0 01-1-1v-9a1 1 0 011-1z"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </nav>
+                <div class="dm-inbox-main">
+                  <div class="dm-inbox-toolbar">
+                    <h2 id="dmInboxTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Inbox</h2>
+                    <div class="dm-inbox-search-wrap">
+                      <label class="visually-hidden" for="dmInboxSearchInput">Search inbox</label>
+                      <input
+                        type="search"
+                        id="dmInboxSearchInput"
+                        class="dm-inbox-search"
+                        placeholder="Search channels, groups, chats…"
+                        autocomplete="off"
+                        enterkeyhint="search"
+                      />
+                    </div>
+                    <button type="button" class="dm-inbox-new-chat-btn" id="dmInboxNewChatBtn" title="New chat" aria-label="New chat">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M12 5v14M5 12h14" stroke-linecap="round" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="dm-inbox-hub-scroll">
+                    <section id="dmInboxSectionChannels" class="dm-inbox-section" aria-label="Channels">
+                      <div class="dm-inbox-section-head">
+                        <span class="dm-inbox-section-label">Channels</span>
+                        <span class="dm-inbox-section-hint">Show communities</span>
+                      </div>
+                      <div id="dmInboxChannelList" class="dm-inbox-channel-list"></div>
+                      <p class="muted" id="dmInboxChannelsEmpty" hidden style="margin: 0; font-size: 0.82rem; line-height: 1.45">
+                        Subscribe to shows on <strong>Add Shows</strong> to open a channel for each community thread.
+                      </p>
+                    </section>
+                    <section id="dmInboxSectionGroups" class="dm-inbox-section" aria-label="Group chats">
+                      <div class="dm-inbox-section-head">
+                        <span class="dm-inbox-section-label">Groups</span>
+                        <span class="dm-inbox-section-hint">Multi-member</span>
+                      </div>
+                      <div id="dmInboxGroupList" class="dm-inbox-thread-list"></div>
+                      <p class="muted" id="dmInboxGroupsEmpty" hidden style="margin: 0.35rem 0 0; font-size: 0.82rem; line-height: 1.45">
+                        No group chats yet. Tap <strong>+</strong> to start one and pick a name your crew will recognize.
+                      </p>
+                    </section>
+                    <section id="dmInboxSectionDms" class="dm-inbox-section" aria-labelledby="dmInboxDmsSectionLabel">
+                      <div class="dm-inbox-section-head">
+                        <span class="dm-inbox-section-label" id="dmInboxDmsSectionLabel">Direct messages</span>
+                        <span class="dm-inbox-section-hint">1:1</span>
+                      </div>
+                      <div id="dmInboxThreadList" class="dm-inbox-thread-list"></div>
+                      <p class="muted" id="dmInboxEmpty" hidden style="margin: 0; font-size: 0.84rem; line-height: 1.45">
+                        No conversations yet. Open someone’s profile from Community and tap <strong>Direct message</strong>.
+                      </p>
+                    </section>
+                  </div>
+                </div>
+              </div>
             </div>
             <div id="dmInboxThreadView" hidden>
               <button type="button" class="secondary dm-inbox-back" id="dmInboxBackBtn">← Inbox</button>
-              <h3 id="dmInboxThreadTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0.35rem">Chat</h3>
+              <div class="dm-inbox-thread-title-row">
+                <h3 id="dmInboxThreadTitle" class="section-header-highlight header-cyan-glow">Chat</h3>
+                <button type="button" class="secondary dm-inbox-rename-btn" id="dmInboxRenameGroupBtn" hidden>
+                  Rename
+                </button>
+              </div>
               <div id="dmInboxMessages" class="dm-inbox-messages"></div>
               <p id="dmInboxTypingRow" class="dm-inbox-typing-row" hidden aria-live="polite"></p>
               <div class="dm-inbox-compose">
@@ -7633,6 +8287,12 @@
       let dmWebSocketReconnectTimer = null;
       let dmInboxActiveThreadId = null;
       let dmThreadPeerReadAt = null;
+      /** Slack-style rail: all | channels | groups | dms */
+      let dmInboxRailFilter = "all";
+      let dmInboxThreadsCache = [];
+      let dmInboxActiveThreadKind = "direct";
+      let dmNewChatGroupMembers = [];
+      let dmNewChatSearchTimer = null;
       let dmTypingStopTimer = null;
       let dmPeerTypingHideTimer = null;
       let dmTypingTrueLastSent = 0;
@@ -7699,6 +8359,9 @@
         hideDmPeerTyping();
         dmInboxActiveThreadId = null;
         dmThreadPeerReadAt = null;
+        dmInboxActiveThreadKind = "direct";
+        const rb = document.getElementById("dmInboxRenameGroupBtn");
+        if (rb) rb.hidden = true;
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
         if (list) list.hidden = false;
@@ -7758,7 +8421,7 @@
       function handleDmSocketPayload(data) {
         if (data.type === "dm_unread") setDmInboxBadge(data.total || 0);
         if (data.type === "dm_thread_read" && data.threadId && data.readAt) {
-          if (dmInboxActiveThreadId === data.threadId) {
+          if (dmInboxActiveThreadId === data.threadId && dmInboxActiveThreadKind === "direct") {
             applyDmReadReceiptsForPeerReadAt(data.readAt);
           }
         }
@@ -7817,6 +8480,15 @@
         div.className = "dm-inbox-bubble " + (isMe ? "me" : "them");
         if (msg.createdAt) div.dataset.createdAt = msg.createdAt;
         div.textContent = msg.body || "";
+        if (!isMe && dmInboxActiveThreadKind === "group") {
+          const tag = document.createElement("div");
+          tag.className = "dm-inbox-sender-tag";
+          tag.textContent = communityAuthorLabelFromPublicProfile({
+            displayName: msg.senderDisplayName,
+            username: msg.senderUsername,
+          });
+          wrap.appendChild(tag);
+        }
         wrap.appendChild(div);
         if (isMe) {
           const rr = document.createElement("span");
@@ -7878,6 +8550,9 @@
           hideDmPeerTyping();
           dmInboxActiveThreadId = null;
           dmThreadPeerReadAt = null;
+          dmInboxActiveThreadKind = "direct";
+          const rb = document.getElementById("dmInboxRenameGroupBtn");
+          if (rb) rb.hidden = true;
           const list = document.getElementById("dmInboxListView");
           if (list) list.hidden = false;
           tv.hidden = true;
@@ -7886,7 +8561,7 @@
             err.textContent = "";
             err.style.display = "none";
           }
-          void renderDmThreadList();
+          void renderDmInboxHub();
           void refreshDmUnread();
           return;
         }
@@ -7894,10 +8569,119 @@
         setTab("community");
       }
 
+      function applyDmInboxRailFilter() {
+        const ch = document.getElementById("dmInboxSectionChannels");
+        const gr = document.getElementById("dmInboxSectionGroups");
+        const dm = document.getElementById("dmInboxSectionDms");
+        if (!ch || !gr || !dm) return;
+        const f = dmInboxRailFilter;
+        const show = (el, on) => {
+          el.hidden = !on;
+        };
+        if (f === "all") {
+          show(ch, true);
+          show(gr, true);
+          show(dm, true);
+        } else if (f === "channels") {
+          show(ch, true);
+          show(gr, false);
+          show(dm, false);
+        } else if (f === "groups") {
+          show(ch, false);
+          show(gr, true);
+          show(dm, false);
+        } else if (f === "dms") {
+          show(ch, false);
+          show(gr, false);
+          show(dm, true);
+        }
+        document.querySelectorAll("[data-dm-rail]").forEach((btn) => {
+          const on = btn.getAttribute("data-dm-rail") === f;
+          btn.classList.toggle("dm-inbox-rail-btn--active", on);
+          btn.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        applyDmInboxSearchFilter();
+      }
+
+      function applyDmInboxSearchFilter() {
+        const inp = document.getElementById("dmInboxSearchInput");
+        const q = (inp && inp.value.trim().toLowerCase()) || "";
+        document.querySelectorAll("[data-dm-search-text]").forEach((el) => {
+          const hay = el.getAttribute("data-dm-search-text") || "";
+          el.hidden = q.length > 0 && !hay.includes(q);
+        });
+      }
+
+      async function renderDmChannelsSection() {
+        const host = document.getElementById("dmInboxChannelList");
+        const empty = document.getElementById("dmInboxChannelsEmpty");
+        if (!host) return;
+        host.innerHTML = "";
+        const uid = resolveUserId();
+        if (!uid) {
+          if (empty) {
+            empty.hidden = false;
+            empty.innerHTML =
+              "Open the app with your profile to load show channels from <strong>My List</strong>.";
+          }
+          return;
+        }
+        try {
+          const data = await api("/api/users/" + encodeURIComponent(uid) + "/subscriptions");
+          const subscriptions = data.subscriptions || [];
+          if (empty) {
+            empty.hidden = subscriptions.length > 0;
+            if (subscriptions.length === 0) {
+              empty.innerHTML =
+                "Subscribe to shows on <strong>Add Shows</strong> to open a channel for each community thread.";
+            }
+          }
+          for (const s of subscriptions) {
+            const showId = Number(s.tvmazeShowId ?? s.tvmaze_show_id ?? s.showId);
+            if (!Number.isFinite(showId) || showId <= 0) continue;
+            const name = String(s.showName || s.show_name || "Show").trim() || "Show";
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "dm-inbox-channel-row";
+            btn.innerHTML =
+              "<span class=\"dm-inbox-channel-hash\" aria-hidden=\"true\">#</span>" +
+              "<span class=\"dm-inbox-channel-name\">" +
+              escapeHtml(name) +
+              "</span>";
+            btn.dataset.dmSearchText = ("#" + name + " channel " + showId).toLowerCase();
+            btn.addEventListener("click", () => {
+              setTab("community");
+              void openCommunityThread(showId, name, null, null);
+            });
+            host.appendChild(btn);
+          }
+        } catch {
+          if (empty) {
+            empty.hidden = false;
+            empty.textContent = "Could not load show channels.";
+          }
+        }
+      }
+
+      async function renderDmInboxHub() {
+        await renderDmChannelsSection();
+        await renderDmThreadList();
+        applyDmInboxRailFilter();
+      }
+
       async function resolveDmThreadTitle(threadId) {
+        const hit = dmInboxThreadsCache.find((x) => x.threadId === threadId);
+        if (hit && hit.kind === "group") return hit.groupName || "Group";
+        if (hit && hit.kind === "direct") {
+          return communityAuthorLabelFromPublicProfile({
+            displayName: hit.otherDisplayName,
+            username: hit.otherUsername,
+          });
+        }
         try {
           const data = await api("/api/dm/threads");
           const t = (data.threads || []).find((x) => x.threadId === threadId);
+          if (t && t.kind === "group") return t.groupName || "Group";
           if (t) {
             return communityAuthorLabelFromPublicProfile({
               displayName: t.otherDisplayName,
@@ -7908,6 +8692,20 @@
           /* ignore */
         }
         return "Chat";
+      }
+
+      async function resolveDmThreadKind(threadId) {
+        const hit = dmInboxThreadsCache.find((x) => x.threadId === threadId);
+        if (hit && hit.kind === "group") return "group";
+        if (hit && hit.kind === "direct") return "direct";
+        try {
+          const data = await api("/api/dm/threads");
+          const t = (data.threads || []).find((x) => x.threadId === threadId);
+          if (t && t.kind === "group") return "group";
+        } catch {
+          /* ignore */
+        }
+        return "direct";
       }
 
       async function openDmInboxModal(opts) {
@@ -7934,22 +8732,37 @@
         ensureDmWebSocket();
         if (threadId && DM_THREAD_ID_RE.test(threadId)) {
           const label = titleLabel || (await resolveDmThreadTitle(threadId));
-          await openDmThreadView(threadId, label);
+          const kind = await resolveDmThreadKind(threadId);
+          await openDmThreadView(threadId, label, kind);
         } else {
-          await renderDmThreadList();
+          dmInboxRailFilter = "all";
+          await renderDmInboxHub();
         }
       }
 
       async function renderDmThreadList() {
-        const host = document.getElementById("dmInboxThreadList");
-        const empty = document.getElementById("dmInboxEmpty");
-        if (!host) return;
-        host.innerHTML = "";
+        const hostDm = document.getElementById("dmInboxThreadList");
+        const hostGroup = document.getElementById("dmInboxGroupList");
+        const emptyDm = document.getElementById("dmInboxEmpty");
+        const emptyGroup = document.getElementById("dmInboxGroupsEmpty");
+        if (!hostDm || !hostGroup) return;
+        hostDm.innerHTML = "";
+        hostGroup.innerHTML = "";
         try {
           const data = await api("/api/dm/threads");
           const threads = data.threads || [];
-          if (empty) empty.hidden = threads.length > 0;
-          for (const t of threads) {
+          dmInboxThreadsCache = threads;
+          const directs = threads.filter((t) => t.kind !== "group");
+          const groups = threads.filter((t) => t.kind === "group");
+          if (emptyDm) {
+            const showDmEmpty = directs.length === 0 && (dmInboxRailFilter === "all" || dmInboxRailFilter === "dms");
+            emptyDm.hidden = !showDmEmpty;
+          }
+          if (emptyGroup) {
+            const showGEmpty = groups.length === 0 && (dmInboxRailFilter === "all" || dmInboxRailFilter === "groups");
+            emptyGroup.hidden = !showGEmpty;
+          }
+          for (const t of directs) {
             const label = communityAuthorLabelFromPublicProfile({
               displayName: t.otherDisplayName,
               username: t.otherUsername,
@@ -7966,11 +8779,36 @@
               "</strong><span class=\"dm-inbox-thread-preview\">" +
               prev +
               "</span></span>";
-            btn.addEventListener("click", () => void openDmThreadView(t.threadId, label));
-            host.appendChild(btn);
+            btn.dataset.dmSearchText = (label + " " + (t.lastBody || "")).toLowerCase();
+            btn.addEventListener("click", () => void openDmThreadView(t.threadId, label, "direct"));
+            hostDm.appendChild(btn);
+          }
+          for (const t of groups) {
+            const gname = String(t.groupName || "Group").trim() || "Group";
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "dm-inbox-thread-row dm-inbox-group-row";
+            const dot = t.unreadCount > 0 ? "<span class=\"dm-inbox-unread-dot\" aria-hidden=\"true\"></span>" : "<span style=\"width:8px;flex-shrink:0\"></span>";
+            const prev = t.lastBody ? escapeHtml(t.lastBody.slice(0, 80) + (t.lastBody.length > 80 ? "…" : "")) : "—";
+            const mc = typeof t.memberCount === "number" ? t.memberCount : 0;
+            btn.innerHTML =
+              dot +
+              "<span style=\"flex:1;min-width:0\"><strong style=\"display:block;font-size:0.92rem\">" +
+              escapeHtml(gname) +
+              "</strong><span class=\"dm-inbox-thread-preview\">" +
+              prev +
+              "</span></span>" +
+              "<span class=\"dm-inbox-group-meta\">" +
+              mc +
+              " members</span>";
+            btn.dataset.dmSearchText = (gname + " group " + (t.lastBody || "")).toLowerCase();
+            btn.addEventListener("click", () => void openDmThreadView(t.threadId, gname, "group"));
+            hostGroup.appendChild(btn);
           }
         } catch (e) {
-          if (empty) empty.hidden = true;
+          dmInboxThreadsCache = [];
+          if (emptyDm) emptyDm.hidden = true;
+          if (emptyGroup) emptyGroup.hidden = true;
           const err = document.getElementById("dmInboxErr");
           if (err) {
             err.textContent = e.message || "Could not load conversations";
@@ -7979,7 +8817,7 @@
         }
       }
 
-      async function openDmThreadView(threadId, titleLabel) {
+      async function openDmThreadView(threadId, titleLabel, kindHint) {
         sendDmTypingWs(false);
         if (dmTypingStopTimer) {
           clearTimeout(dmTypingStopTimer);
@@ -7988,22 +8826,28 @@
         hideDmPeerTyping();
         dmInboxActiveThreadId = threadId;
         dmThreadPeerReadAt = null;
+        dmInboxActiveThreadKind = kindHint === "group" ? "group" : "direct";
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
         const title = document.getElementById("dmInboxThreadTitle");
         const host = document.getElementById("dmInboxMessages");
         const err = document.getElementById("dmInboxErr");
+        const renameBtn = document.getElementById("dmInboxRenameGroupBtn");
         if (err) {
           err.textContent = "";
           err.style.display = "none";
         }
         if (title) title.textContent = titleLabel || "Chat";
+        if (renameBtn) renameBtn.hidden = dmInboxActiveThreadKind !== "group";
         if (list) list.hidden = true;
         if (tv) tv.hidden = false;
         if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading…</p>";
         try {
           const data = await api("/api/dm/threads/" + encodeURIComponent(threadId) + "/messages?limit=80");
           const msgs = data.messages || [];
+          if (data.threadKind === "group") dmInboxActiveThreadKind = "group";
+          else if (data.threadKind === "direct") dmInboxActiveThreadKind = "direct";
+          if (renameBtn) renameBtn.hidden = dmInboxActiveThreadKind !== "group";
           dmThreadPeerReadAt = data.otherLastReadAt || null;
           if (host) {
             host.innerHTML = "";
@@ -8056,6 +8900,195 @@
         } catch (e) {
           if (err) {
             err.textContent = e.message || "Send failed";
+            err.style.display = "block";
+          }
+        }
+      }
+
+      function closeDmNewChatModal() {
+        const m = document.getElementById("dmNewChatModal");
+        if (m) {
+          m.hidden = true;
+          m.classList.remove("open");
+        }
+        const err = document.getElementById("dmNewChatErr");
+        if (err) {
+          err.style.display = "none";
+          err.textContent = "";
+        }
+      }
+
+      function openDmNewChatModal() {
+        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
+          showToast("Create an account (profile → Your profile) to use messages.");
+          return;
+        }
+        dmNewChatGroupMembers = [];
+        const dSearch = document.getElementById("dmNewChatDirectSearch");
+        const gSearch = document.getElementById("dmNewChatGroupSearch");
+        const gName = document.getElementById("dmNewChatGroupName");
+        const dRes = document.getElementById("dmNewChatDirectResults");
+        const gRes = document.getElementById("dmNewChatGroupResults");
+        if (dSearch) dSearch.value = "";
+        if (gSearch) gSearch.value = "";
+        if (gName) gName.value = "";
+        if (dRes) dRes.innerHTML = "";
+        if (gRes) gRes.innerHTML = "";
+        renderDmNewChatGroupChips();
+        switchDmNewChatTab("direct");
+        const m = document.getElementById("dmNewChatModal");
+        if (m) {
+          m.hidden = false;
+          m.classList.add("open");
+        }
+      }
+
+      function switchDmNewChatTab(mode) {
+        const directTab = document.getElementById("dmNewChatTabDirect");
+        const groupTab = document.getElementById("dmNewChatTabGroup");
+        const panelD = document.getElementById("dmNewChatPanelDirect");
+        const panelG = document.getElementById("dmNewChatPanelGroup");
+        const on = mode === "group";
+        if (directTab) {
+          directTab.classList.toggle("dm-new-chat-tab--on", !on);
+          directTab.setAttribute("aria-selected", !on ? "true" : "false");
+        }
+        if (groupTab) {
+          groupTab.classList.toggle("dm-new-chat-tab--on", on);
+          groupTab.setAttribute("aria-selected", on ? "true" : "false");
+        }
+        if (panelD) panelD.hidden = on;
+        if (panelG) panelG.hidden = !on;
+      }
+
+      function renderDmNewChatGroupChips() {
+        const host = document.getElementById("dmNewChatGroupChips");
+        if (!host) return;
+        host.innerHTML = "";
+        for (const u of dmNewChatGroupMembers) {
+          const chip = document.createElement("span");
+          chip.className = "dm-new-chat-chip";
+          const lab = document.createElement("span");
+          lab.textContent = communityAuthorLabelFromPublicProfile({
+            displayName: u.displayName,
+            username: u.username,
+          });
+          const x = document.createElement("button");
+          x.type = "button";
+          x.setAttribute("aria-label", "Remove");
+          x.textContent = "×";
+          x.addEventListener("click", () => {
+            dmNewChatGroupMembers = dmNewChatGroupMembers.filter((z) => z.id !== u.id);
+            renderDmNewChatGroupChips();
+          });
+          chip.appendChild(lab);
+          chip.appendChild(x);
+          host.appendChild(chip);
+        }
+      }
+
+      function addDmNewChatGroupMember(row) {
+        const myId = sessionMeSnapshot && sessionMeSnapshot.id;
+        if (!row || !row.id || row.id === myId) return;
+        if (dmNewChatGroupMembers.some((x) => x.id === row.id)) return;
+        if (dmNewChatGroupMembers.length >= 49) {
+          showToast("You can add up to 49 other people (50 including you).");
+          return;
+        }
+        dmNewChatGroupMembers.push({
+          id: row.id,
+          username: row.username,
+          displayName: row.displayName,
+        });
+        renderDmNewChatGroupChips();
+        const gRes = document.getElementById("dmNewChatGroupResults");
+        if (gRes) gRes.innerHTML = "";
+        const inp = document.getElementById("dmNewChatGroupSearch");
+        if (inp) inp.value = "";
+      }
+
+      async function runDmNewChatUserSearch(q, target) {
+        const resultsEl =
+          target === "group"
+            ? document.getElementById("dmNewChatGroupResults")
+            : document.getElementById("dmNewChatDirectResults");
+        if (!resultsEl) return;
+        resultsEl.innerHTML = "";
+        const t = q.trim();
+        if (t.length < 1) return;
+        try {
+          const data = await api("/api/community/users/search?q=" + encodeURIComponent(t));
+          const users = data.users || [];
+          const myId = sessionMeSnapshot && sessionMeSnapshot.id;
+          let added = 0;
+          for (const u of users) {
+            if (u.id === myId) continue;
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "dm-new-chat-user-pick";
+            b.textContent = communityAuthorLabelFromPublicProfile({
+              displayName: u.displayName,
+              username: u.username,
+            });
+            b.addEventListener("click", () => {
+              if (target === "direct") {
+                closeDmNewChatModal();
+                void startDirectMessageToUser(u.id, b.textContent);
+              } else {
+                addDmNewChatGroupMember(u);
+              }
+            });
+            resultsEl.appendChild(b);
+            added += 1;
+          }
+          if (added === 0) {
+            resultsEl.innerHTML = "<p class=\"muted\" style=\"margin:0.35rem 0;font-size:0.82rem\">No matches.</p>";
+          }
+        } catch {
+          resultsEl.innerHTML = "<p class=\"err\" style=\"margin:0.35rem 0;font-size:0.82rem\">Search failed.</p>";
+        }
+      }
+
+      async function submitDmNewChatGroupCreate() {
+        const err = document.getElementById("dmNewChatErr");
+        const gName = document.getElementById("dmNewChatGroupName");
+        if (err) {
+          err.style.display = "none";
+          err.textContent = "";
+        }
+        const name = gName && gName.value.trim();
+        if (!name) {
+          if (err) {
+            err.textContent = "Enter a group name.";
+            err.style.display = "block";
+          }
+          return;
+        }
+        if (dmNewChatGroupMembers.length < 1) {
+          if (err) {
+            err.textContent = "Add at least one other person.";
+            err.style.display = "block";
+          }
+          return;
+        }
+        try {
+          const out = await api("/api/dm/groups", {
+            method: "POST",
+            body: JSON.stringify({
+              name,
+              memberUserIds: dmNewChatGroupMembers.map((x) => x.id),
+            }),
+          });
+          closeDmNewChatModal();
+          showToast("Group created");
+          dmInboxRailFilter = "all";
+          await renderDmInboxHub();
+          if (out.threadId) {
+            await openDmThreadView(out.threadId, name, "group");
+          }
+        } catch (e) {
+          if (err) {
+            err.textContent = e.message || "Could not create group";
             err.style.display = "block";
           }
         }
@@ -10655,13 +11688,25 @@
         lb.setAttribute("aria-hidden", "true");
       }
 
-      function closeCommunityMemberProfile() {
+      function actuallyCloseCommunityMemberProfile() {
         closeProfilePhotoLightbox();
         const m = document.getElementById("communityMemberProfileModal");
         if (m) {
           m.hidden = true;
           m.setAttribute("aria-hidden", "true");
+          m.dataset.historyPushed = "";
         }
+      }
+
+      function closeCommunityMemberProfile() {
+        const m = document.getElementById("communityMemberProfileModal");
+        if (!m || m.hidden) return;
+        if (m.dataset.historyPushed === "1") {
+          m.dataset.historyPushed = "";
+          history.back();
+          return;
+        }
+        actuallyCloseCommunityMemberProfile();
       }
 
       async function openCommunityMemberProfile(userId) {
@@ -10670,8 +11715,24 @@
         const errEl = document.getElementById("communityMemberProfileErr");
         const heading = document.getElementById("communityMemberProfileHeading");
         if (!modal || !body) return;
+        const wasAlreadyVisible = !modal.hidden;
         modal.hidden = false;
         modal.setAttribute("aria-hidden", "false");
+        if (!wasAlreadyVisible) {
+          try {
+            history.pushState({ airalertMemberProfile: true }, "", window.location.href);
+          } catch (_) {
+            /* ignore */
+          }
+          modal.dataset.historyPushed = "1";
+        } else {
+          try {
+            history.replaceState({ airalertMemberProfile: true }, "", window.location.href);
+          } catch (_) {
+            /* ignore */
+          }
+          modal.dataset.historyPushed = "1";
+        }
         if (errEl) {
           errEl.textContent = "";
           errEl.style.display = "none";
@@ -11650,7 +12711,7 @@
         if (name === "messages") {
           if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot)) {
             ensureDmWebSocket();
-            void renderDmThreadList();
+            void renderDmInboxHub();
           }
         }
         if (name === "admin") {
@@ -12039,6 +13100,45 @@
         el.addEventListener("click", () => closeCommunityMemberProfile());
       });
       document.getElementById("headerInboxBtn")?.addEventListener("click", () => void openDmInboxModal());
+      document.getElementById("dmInboxNewChatBtn")?.addEventListener("click", () => openDmNewChatModal());
+      document.getElementById("dmInboxSearchInput")?.addEventListener("input", () => applyDmInboxSearchFilter());
+      document.getElementById("dmNewChatCloseBtn")?.addEventListener("click", () => closeDmNewChatModal());
+      document.getElementById("dmNewChatModal")?.addEventListener("click", (e) => {
+        if (e.target === document.getElementById("dmNewChatModal")) closeDmNewChatModal();
+      });
+      document.getElementById("dmNewChatTabDirect")?.addEventListener("click", () => switchDmNewChatTab("direct"));
+      document.getElementById("dmNewChatTabGroup")?.addEventListener("click", () => switchDmNewChatTab("group"));
+      document.getElementById("dmNewChatGroupCreateBtn")?.addEventListener("click", () => void submitDmNewChatGroupCreate());
+      document.getElementById("dmNewChatDirectSearch")?.addEventListener("input", (e) => {
+        const v = e.target && e.target.value != null ? String(e.target.value) : "";
+        if (dmNewChatSearchTimer) clearTimeout(dmNewChatSearchTimer);
+        dmNewChatSearchTimer = setTimeout(() => void runDmNewChatUserSearch(v, "direct"), 300);
+      });
+      document.getElementById("dmNewChatGroupSearch")?.addEventListener("input", (e) => {
+        const v = e.target && e.target.value != null ? String(e.target.value) : "";
+        if (dmNewChatSearchTimer) clearTimeout(dmNewChatSearchTimer);
+        dmNewChatSearchTimer = setTimeout(() => void runDmNewChatUserSearch(v, "group"), 300);
+      });
+      document.getElementById("dmInboxRenameGroupBtn")?.addEventListener("click", async () => {
+        if (dmInboxActiveThreadKind !== "group" || !dmInboxActiveThreadId) return;
+        const titleEl = document.getElementById("dmInboxThreadTitle");
+        const cur = titleEl ? titleEl.textContent || "" : "";
+        const n = window.prompt("Group name", cur);
+        if (n == null) return;
+        const t = n.trim();
+        if (!t) return;
+        try {
+          await api("/api/dm/groups/" + encodeURIComponent(dmInboxActiveThreadId), {
+            method: "PATCH",
+            body: JSON.stringify({ name: t }),
+          });
+          if (titleEl) titleEl.textContent = t;
+          showToast("Group renamed");
+          void renderDmInboxHub();
+        } catch (e) {
+          showToast(e.message || "Rename failed");
+        }
+      });
       document.getElementById("dmInboxBackBtn")?.addEventListener("click", async () => {
         sendDmTypingWs(false);
         if (dmTypingStopTimer) {
@@ -12048,12 +13148,33 @@
         hideDmPeerTyping();
         dmInboxActiveThreadId = null;
         dmThreadPeerReadAt = null;
+        dmInboxActiveThreadKind = "direct";
+        const rb = document.getElementById("dmInboxRenameGroupBtn");
+        if (rb) rb.hidden = true;
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
         if (list) list.hidden = false;
         if (tv) tv.hidden = true;
-        await renderDmThreadList();
+        await renderDmInboxHub();
         void refreshDmUnread();
+      });
+      document.querySelectorAll("[data-dm-rail]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const f = btn.getAttribute("data-dm-rail");
+          if (f !== "all" && f !== "channels" && f !== "groups" && f !== "dms") return;
+          dmInboxRailFilter = f;
+          applyDmInboxRailFilter();
+          const empty = document.getElementById("dmInboxEmpty");
+          const host = document.getElementById("dmInboxThreadList");
+          if (empty && host && host.childElementCount === 0) {
+            empty.hidden = !(dmInboxRailFilter === "all" || dmInboxRailFilter === "dms");
+          }
+          const emptyG = document.getElementById("dmInboxGroupsEmpty");
+          const hostG = document.getElementById("dmInboxGroupList");
+          if (emptyG && hostG && hostG.childElementCount === 0) {
+            emptyG.hidden = !(dmInboxRailFilter === "all" || dmInboxRailFilter === "groups");
+          }
+        });
       });
       document.getElementById("dmInboxSendBtn")?.addEventListener("click", () => void sendDmFromInbox());
       document.getElementById("dmInboxInput")?.addEventListener("keydown", (e) => {

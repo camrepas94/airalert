@@ -321,6 +321,37 @@ db.exec(`
     last_read_at TEXT NOT NULL,
     PRIMARY KEY (thread_id, user_id)
   );
+
+  CREATE TABLE IF NOT EXISTS dm_group_threads (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    created_by TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    last_message_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS dm_group_members (
+    group_id TEXT NOT NULL REFERENCES dm_group_threads(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    joined_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (group_id, user_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_dm_group_members_user ON dm_group_members(user_id);
+
+  CREATE TABLE IF NOT EXISTS dm_group_messages (
+    id TEXT PRIMARY KEY,
+    group_id TEXT NOT NULL REFERENCES dm_group_threads(id) ON DELETE CASCADE,
+    sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    body TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_dm_group_messages_group ON dm_group_messages(group_id, created_at DESC);
+
+  CREATE TABLE IF NOT EXISTS dm_group_reads (
+    group_id TEXT NOT NULL REFERENCES dm_group_threads(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    last_read_at TEXT NOT NULL,
+    PRIMARY KEY (group_id, user_id)
+  );
 `);
 
 const communityPostColNames = new Set(
