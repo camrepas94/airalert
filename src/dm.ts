@@ -155,10 +155,17 @@ export function getOtherParticipantLastReadAt(threadId: string, meUserId: string
   return r?.lastReadAt ?? null;
 }
 
-/** True if the other participant's read cursor covers this outgoing message (SQLite datetime strings). */
+/** Parse server/SQLite datetime strings for ordering (handles space vs "T" separators). */
+function dmInstantMs(s: string): number {
+  const t = String(s).trim().replace(" ", "T");
+  const ms = Date.parse(t);
+  return Number.isFinite(ms) ? ms : 0;
+}
+
+/** True if the other participant's read cursor covers this outgoing message. */
 export function messageReadByRecipient(messageCreatedAt: string, otherLastReadAt: string | null): boolean {
   if (!otherLastReadAt) return false;
-  return otherLastReadAt >= messageCreatedAt;
+  return dmInstantMs(otherLastReadAt) >= dmInstantMs(messageCreatedAt);
 }
 
 export function enrichMessagesWithReadState(
@@ -212,11 +219,15 @@ export function sendDmMessage(senderId: string, threadId: string, body: string):
   if (!userHasActiveDmSocket(recipientId)) {
     const label = authorLabelForUser(senderId);
     const dmUrl = `/?dmThread=${encodeURIComponent(threadId)}`;
-    void sendWebPushToUser(recipientId, {
-      title: `Message from ${label}`,
-      body: text.length > 140 ? text.slice(0, 137) + "…" : text,
-      url: dmUrl,
-    });
+    void sendWebPushToUser(
+      recipientId,
+      {
+        title: `Message from ${label}`,
+        body: text.length > 140 ? text.slice(0, 137) + "…" : text,
+        url: dmUrl,
+      },
+      { kind: "dmMessage" },
+    );
   }
 
   return row;

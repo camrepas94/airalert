@@ -218,6 +218,12 @@ if (!userColNames.has("password_plain_admin")) {
   db.exec(`ALTER TABLE users ADD COLUMN password_plain_admin TEXT`);
   userColNames.add("password_plain_admin");
 }
+if (!userColNames.has("last_login_at")) {
+  db.exec(`ALTER TABLE users ADD COLUMN last_login_at TEXT`);
+}
+if (!userColNames.has("push_prefs_json")) {
+  db.exec(`ALTER TABLE users ADD COLUMN push_prefs_json TEXT`);
+}
 
 try {
   db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username_lower ON users(lower(username)) WHERE username IS NOT NULL`);
@@ -230,6 +236,12 @@ const subColNames = new Set(
 );
 if (!subColNames.has("added_from")) {
   db.exec(`ALTER TABLE show_subscriptions ADD COLUMN added_from TEXT`);
+}
+if (!subColNames.has("community_episodes_behind")) {
+  db.exec(`ALTER TABLE show_subscriptions ADD COLUMN community_episodes_behind INTEGER`);
+}
+if (!subColNames.has("binge_later")) {
+  db.exec(`ALTER TABLE show_subscriptions ADD COLUMN binge_later INTEGER NOT NULL DEFAULT 0`);
 }
 
 db.exec(`
@@ -317,3 +329,95 @@ const communityPostColNames = new Set(
 if (!communityPostColNames.has("deleted_at")) {
   db.exec(`ALTER TABLE community_posts ADD COLUMN deleted_at TEXT`);
 }
+
+const watchTaskColNames = new Set(
+  (db.prepare(`PRAGMA table_info(watch_tasks)`).all() as { name: string }[]).map((r) => r.name),
+);
+if (!watchTaskColNames.has("dismissed_at")) {
+  db.exec(`ALTER TABLE watch_tasks ADD COLUMN dismissed_at TEXT`);
+}
+
+try {
+  db.exec(
+    `CREATE INDEX IF NOT EXISTS idx_community_posts_show_episode ON community_posts(tvmaze_show_id, tvmaze_episode_id)`,
+  );
+} catch {
+  /* ignore */
+}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS community_episode_polls (
+    id TEXT PRIMARY KEY,
+    tvmaze_show_id INTEGER NOT NULL,
+    tvmaze_episode_id INTEGER NOT NULL,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    question TEXT NOT NULL,
+    options_json TEXT NOT NULL,
+    correct_option_index INTEGER,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    CHECK (correct_option_index IS NULL OR correct_option_index >= 0)
+  );
+  CREATE INDEX IF NOT EXISTS idx_community_episode_polls_show_ep ON community_episode_polls(tvmaze_show_id, tvmaze_episode_id);
+
+  CREATE TABLE IF NOT EXISTS community_episode_poll_votes (
+    poll_id TEXT NOT NULL REFERENCES community_episode_polls(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    option_index INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (poll_id, user_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_community_episode_poll_votes_poll ON community_episode_poll_votes(poll_id);
+
+  CREATE TABLE IF NOT EXISTS community_episode_ratings (
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    tvmaze_show_id INTEGER NOT NULL,
+    tvmaze_episode_id INTEGER NOT NULL,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (user_id, tvmaze_show_id, tvmaze_episode_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_community_episode_ratings_show ON community_episode_ratings(tvmaze_show_id);
+
+  CREATE TABLE IF NOT EXISTS user_person_follows (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    tvmaze_person_id INTEGER NOT NULL,
+    person_name TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (user_id, tvmaze_person_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_user_person_follows_user ON user_person_follows(user_id);
+  CREATE INDEX IF NOT EXISTS idx_user_person_follows_person ON user_person_follows(tvmaze_person_id);
+
+  CREATE TABLE IF NOT EXISTS person_credited_shows (
+    tvmaze_person_id INTEGER NOT NULL,
+    tvmaze_show_id INTEGER NOT NULL,
+    show_name TEXT,
+    first_seen_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (tvmaze_person_id, tvmaze_show_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS community_watch_challenges (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    summary TEXT,
+    tvmaze_target_show_id INTEGER NOT NULL,
+    target_show_name TEXT NOT NULL,
+    tvmaze_deadline_show_id INTEGER NOT NULL,
+    tvmaze_deadline_episode_id INTEGER NOT NULL,
+    deadline_show_name TEXT NOT NULL,
+    deadline_episode_label TEXT NOT NULL,
+    deadline_airdate TEXT NOT NULL,
+    created_by_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_community_watch_challenges_deadline ON community_watch_challenges(deadline_airdate);
+
+  CREATE TABLE IF NOT EXISTS community_watch_challenge_participants (
+    challenge_id TEXT NOT NULL REFERENCES community_watch_challenges(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    joined_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (challenge_id, user_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_watch_challenge_participants_user ON community_watch_challenge_participants(user_id);
+`);

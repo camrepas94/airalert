@@ -33,11 +33,76 @@ export function isWebPushConfigured(): boolean {
 
 type SubRow = { endpoint: string; p256dh: string; auth: string };
 
+/** Granular push toggles (stored in users.push_prefs_json). All default true when unset. */
+export type PushPrefs = {
+  episodeAirsToday: boolean;
+  dmMessage: boolean;
+  communityMention: boolean;
+  communityThreadNewPost: boolean;
+  taskStillWatching: boolean;
+  /** People you follow — new show on their TVMaze cast/crew credits */
+  personNewProject: boolean;
+};
+
+export const DEFAULT_PUSH_PREFS: PushPrefs = {
+  episodeAirsToday: true,
+  dmMessage: true,
+  communityMention: true,
+  communityThreadNewPost: true,
+  taskStillWatching: true,
+  personNewProject: true,
+};
+
+export function parsePushPrefsJson(raw: string | null | undefined): PushPrefs {
+  const base: PushPrefs = { ...DEFAULT_PUSH_PREFS };
+  if (!raw || !String(raw).trim()) return base;
+  try {
+    const o = JSON.parse(raw) as Record<string, unknown>;
+    if (typeof o !== "object" || o === null) return base;
+    for (const k of Object.keys(DEFAULT_PUSH_PREFS) as (keyof PushPrefs)[]) {
+      if (k in o) base[k] = o[k] !== false;
+    }
+    return base;
+  } catch {
+    return base;
+  }
+}
+
+export function getPushPrefsForUser(userId: string): PushPrefs {
+  const row = db
+    .prepare(`SELECT push_prefs_json FROM users WHERE id = ?`)
+    .get(userId) as { push_prefs_json: string | null } | undefined;
+  return parsePushPrefsJson(row?.push_prefs_json);
+}
+
+/** Merge partial client updates into stored JSON; unknown keys ignored. */
+export function mergePushPrefsFromJson(
+  existing: string | null | undefined,
+  patch: Partial<Record<keyof PushPrefs, boolean>> | null | undefined,
+): PushPrefs {
+  const base = parsePushPrefsJson(existing);
+  if (!patch || typeof patch !== "object") return base;
+  for (const k of Object.keys(DEFAULT_PUSH_PREFS) as (keyof PushPrefs)[]) {
+    if (Object.prototype.hasOwnProperty.call(patch, k) && typeof patch[k] === "boolean") {
+      base[k] = patch[k]!;
+    }
+  }
+  return base;
+}
+
+type SendOpts = { kind?: keyof PushPrefs };
+
 export async function sendWebPushToUser(
   userId: string,
   payload: { title: string; body: string; url?: string },
+  options?: SendOpts,
 ): Promise<void> {
   if (!isWebPushConfigured()) return;
+
+  if (options?.kind) {
+    const prefs = getPushPrefsForUser(userId);
+    if (!prefs[options.kind]) return;
+  }
 
   const rows = db
     .prepare(`SELECT endpoint, p256dh, auth FROM web_push_subscriptions WHERE user_id = ?`)

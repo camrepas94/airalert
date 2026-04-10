@@ -1,14 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { db } from "./db.js";
-import { fetchShowEpisodes } from "./tvmaze.js";
+import { fetchPersonShowCreditsMerged, fetchShowEpisodes } from "./tvmaze.js";
 import { normalizeEpisodeAirdate, safeTodayInTimeZone } from "./time.js";
-import { sendWebPushToUser } from "./push.js";
+import { getPushPrefsForUser, sendWebPushToUser } from "./push.js";
 
 type SubscriptionRow = {
   id: string;
   user_id: string;
   tvmaze_show_id: number;
   show_name: string;
+  binge_later: number | null;
 };
 
 type UserRow = {
@@ -83,7 +84,9 @@ export type DryRunNotification = {
  * Logs to DB (dry_run channel). Sends Web Push when VAPID is configured and the user has subscribed.
  */
 export async function runDailyNotifications(): Promise<DryRunNotification[]> {
-  const subs = db.prepare(`SELECT id, user_id, tvmaze_show_id, show_name FROM show_subscriptions`).all() as SubscriptionRow[];
+  const subs = db
+    .prepare(`SELECT id, user_id, tvmaze_show_id, show_name, binge_later FROM show_subscriptions`)
+    .all() as SubscriptionRow[];
 
   const users = new Map<string, UserRow>();
   for (const u of db.prepare(`SELECT id, timezone FROM users`).all() as UserRow[]) {
@@ -109,6 +112,7 @@ export async function runDailyNotifications(): Promise<DryRunNotification[]> {
   const created: DryRunNotification[] = [];
 
   for (const sub of subs) {
+    if (sub.binge_later === 1) continue;
     const user = users.get(sub.user_id);
     if (!user) continue;
     const today = safeTodayInTimeZone(user.timezone);
@@ -148,11 +152,15 @@ export async function runDailyNotifications(): Promise<DryRunNotification[]> {
           episode_label: episodeLabel,
           airdate: ep.airdate,
         });
-        await sendWebPushToUser(sub.user_id, {
-          title: sub.show_name,
-          body: `Airs today: ${episodeLabel}`,
-          url: "/",
-        });
+        await sendWebPushToUser(
+          sub.user_id,
+          {
+            title: sub.show_name,
+            body: `Airs today: ${episodeLabel}`,
+            url: `/?communityShow=${sub.tvmaze_show_id}&communityEpisode=${ep.tvmaze_episode_id}`,
+          },
+          { kind: "episodeAirsToday" },
+        );
       }
     }
   }
@@ -179,12 +187,17 @@ export async function runTaskNudgeNotifications(): Promise<number> {
     .all() as UserNudgeRow[];
 
   const selectDue = db.prepare(`
-    SELECT id, user_id, show_name, episode_label
-    FROM watch_tasks
-    WHERE user_id = ?
-      AND completed_at IS NULL
-      AND nudge_sent_at IS NULL
-      AND date(airdate, '+' || ? || ' days') = date(?)
+    SELECT w.id, w.user_id, w.show_name, w.episode_label
+    FROM watch_tasks w
+    WHERE w.user_id = ?
+      AND w.completed_at IS NULL
+      AND w.dismissed_at IS NULL
+      AND w.nudge_sent_at IS NULL
+      AND date(w.airdate, '+' || ? || ' days') = date(?)
+      AND NOT EXISTS (
+        SELECT 1 FROM show_subscriptions s
+        WHERE s.user_id = w.user_id AND s.tvmaze_show_id = w.tvmaze_show_id AND IFNULL(s.binge_later, 0) = 1
+      )
   `);
 
   const markNudged = db.prepare(`UPDATE watch_tasks SET nudge_sent_at = datetime('now') WHERE id = ? AND user_id = ?`);
@@ -201,15 +214,108 @@ export async function runTaskNudgeNotifications(): Promise<number> {
     }[];
 
     for (const row of rows) {
-      await sendWebPushToUser(row.user_id, {
-        title: "Still watching?",
-        body: `Have you watched ${row.show_name} yet?!`,
-        url: "/",
-      });
+      const prefs = getPushPrefsForUser(row.user_id);
+      if (!prefs.taskStillWatching) {
+        markNudged.run(row.id, row.user_id);
+        continue;
+      }
+      await sendWebPushToUser(
+        row.user_id,
+        {
+          title: "Still watching?",
+          body: `Have you watched ${row.show_name} yet?!`,
+          url: "/",
+        },
+        { kind: "taskStillWatching" },
+      );
       markNudged.run(row.id, row.user_id);
       sent += 1;
     }
   }
 
   return sent;
+}
+
+/** After a user follows someone, record all current TVMaze credits so we only notify on future additions. */
+export async function baselinePersonCreditsForPerson(personId: number): Promise<void> {
+  const credits = await fetchPersonShowCreditsMerged(personId);
+  const ins = db.prepare(
+    `INSERT OR IGNORE INTO person_credited_shows (tvmaze_person_id, tvmaze_show_id, show_name) VALUES (?, ?, ?)`,
+  );
+  const tx = db.transaction((rows: typeof credits) => {
+    for (const c of rows) ins.run(personId, c.tvmazeShowId, c.showName);
+  });
+  tx(credits);
+}
+
+export type PersonProjectNotificationSent = {
+  userId: string;
+  tvmazePersonId: number;
+  personName: string;
+  tvmazeShowId: number;
+  showName: string;
+};
+
+/**
+ * For each followed person, refresh cast+crew from TVMaze; when a new show appears in their credits,
+ * notify every user following that person.
+ */
+export async function runPersonNewProjectNotifications(): Promise<PersonProjectNotificationSent[]> {
+  const people = db
+    .prepare(`SELECT DISTINCT tvmaze_person_id FROM user_person_follows`)
+    .all() as { tvmaze_person_id: number }[];
+
+  const insertSnap = db.prepare(
+    `INSERT OR IGNORE INTO person_credited_shows (tvmaze_person_id, tvmaze_show_id, show_name) VALUES (?, ?, ?)`,
+  );
+
+  const out: PersonProjectNotificationSent[] = [];
+
+  for (const p of people) {
+    let credits: { tvmazeShowId: number; showName: string }[];
+    try {
+      credits = await fetchPersonShowCreditsMerged(p.tvmaze_person_id);
+    } catch (err) {
+      console.warn("[jobs] person credits fetch failed", p.tvmaze_person_id, err);
+      await new Promise((r) => setTimeout(r, 400));
+      continue;
+    }
+
+    const nameRow = db
+      .prepare(`SELECT person_name FROM user_person_follows WHERE tvmaze_person_id = ? LIMIT 1`)
+      .get(p.tvmaze_person_id) as { person_name: string } | undefined;
+    const personName = nameRow?.person_name?.trim() || "Someone";
+
+    for (const c of credits) {
+      const r = insertSnap.run(p.tvmaze_person_id, c.tvmazeShowId, c.showName);
+      if (r.changes === 0) continue;
+
+      const followers = db
+        .prepare(`SELECT user_id FROM user_person_follows WHERE tvmaze_person_id = ?`)
+        .all(p.tvmaze_person_id) as { user_id: string }[];
+
+      for (const f of followers) {
+        await sendWebPushToUser(
+          f.user_id,
+          {
+            title: `${personName} — new project`,
+            body: `${c.showName} is now on their TVMaze credits.`,
+            url: `/?communityShow=${c.tvmazeShowId}`,
+          },
+          { kind: "personNewProject" },
+        );
+        out.push({
+          userId: f.user_id,
+          tvmazePersonId: p.tvmaze_person_id,
+          personName,
+          tvmazeShowId: c.tvmazeShowId,
+          showName: c.showName,
+        });
+      }
+    }
+
+    await new Promise((res) => setTimeout(res, 200));
+  }
+
+  return out;
 }

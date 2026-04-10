@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no"
+    />
     <meta name="robots" content="noindex, nofollow" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,6 +31,13 @@
       * {
         box-sizing: border-box;
       }
+      html {
+        max-width: 100%;
+        overflow-x: hidden;
+        overscroll-behavior-x: none;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
       @media (prefers-reduced-motion: reduce) {
         h1::before {
           animation: none !important;
@@ -42,6 +52,10 @@
         color: var(--text);
         line-height: 1.5;
         min-height: 100vh;
+        max-width: 100%;
+        overflow-x: hidden;
+        overscroll-behavior-x: none;
+        touch-action: pan-y;
         padding: 0 max(0.75rem, env(safe-area-inset-left)) max(2rem, env(safe-area-inset-bottom))
           max(0.75rem, env(safe-area-inset-right));
         -webkit-tap-highlight-color: rgba(34, 211, 238, 0.15);
@@ -281,7 +295,50 @@
         line-height: 1.45;
         color: var(--muted);
         max-height: 14rem;
+        overflow-x: hidden;
         overflow-y: auto;
+      }
+      .admin-comm-log-entry {
+        margin: 0;
+        padding: 0.55rem 0;
+        border-bottom: 1px solid rgba(130, 200, 255, 0.1);
+      }
+      .admin-comm-log-entry:first-child {
+        padding-top: 0;
+      }
+      .admin-comm-log-entry:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+      .admin-comm-log-action strong {
+        color: #fde68a;
+      }
+      .admin-comm-log-post {
+        margin-top: 0.2rem;
+        font-family: ui-monospace, monospace;
+        font-size: 0.72rem;
+        word-break: break-all;
+        color: var(--muted);
+      }
+      .admin-comm-log-actor {
+        margin-top: 0.25rem;
+        font-size: 0.78rem;
+      }
+      .admin-comm-log-time {
+        margin-top: 0.15rem;
+        font-family: ui-monospace, monospace;
+        font-size: 0.72rem;
+        word-break: break-all;
+        opacity: 0.92;
+      }
+      .admin-comm-log-detail {
+        margin-top: 0.35rem;
+        font-size: 0.72rem;
+        line-height: 1.4;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+        opacity: 0.88;
       }
       .admin-console-comm-log strong {
         color: #fde68a;
@@ -438,6 +495,23 @@
         display: flex;
         flex-wrap: wrap;
         gap: 0.3rem;
+      }
+      .admin-user-card-login {
+        font-size: 0.78rem;
+        margin-top: 0.35rem;
+        line-height: 1.35;
+      }
+      .admin-user-detail-meta {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.55rem 0.75rem;
+        margin-bottom: 0.85rem;
+        font-size: 0.82rem;
+      }
+      @media (min-width: 520px) {
+        .admin-user-detail-meta {
+          grid-template-columns: 1fr 1fr;
+        }
       }
       .admin-user-card-detail {
         padding: 1rem 0.95rem 1.05rem;
@@ -698,10 +772,8 @@
         padding-top: 1.25rem;
         border-top: 1px solid rgba(120, 160, 220, 0.22);
       }
-      .admin-dm-section h2 {
-        font-size: 1.05rem;
-        margin: 0 0 0.35rem;
-        letter-spacing: 0.02em;
+      .admin-dm-section .admin-mod-log-details {
+        margin: 0;
       }
       .admin-dm-table-wrap {
         overflow: auto;
@@ -797,44 +869,66 @@
       <div class="totals stat-grid" id="totals"></div>
 
       <section class="admin-dm-section" aria-label="Direct messages QA">
-        <h2>Direct messages (QA)</h2>
-        <p class="sub" style="margin: 0 0 0.65rem; line-height: 1.45">
-          Every DM on this server for moderation and quality review. Treat as confidential user data.
-        </p>
-        <div class="admin-dm-pager" style="margin-bottom: 0.5rem">
-          <button type="button" class="secondary" id="dmLogRefreshBtn">Refresh DMs</button>
-          <button type="button" class="secondary" id="dmLogNewer" disabled>Newer</button>
-          <button type="button" class="secondary" id="dmLogOlder">Older</button>
-        </div>
-        <p class="sub" id="adminDmLogMeta" style="margin: 0 0 0.5rem; font-size: 0.78rem"></p>
-        <div class="admin-dm-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Sent at</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Message</th>
-              </tr>
-            </thead>
-            <tbody id="adminDmRows"></tbody>
-          </table>
-        </div>
+        <details class="admin-mod-log-details">
+          <summary>Direct messages (QA)</summary>
+          <p class="sub" style="margin: 0 0 0.65rem; line-height: 1.45">
+            Every DM on this server for moderation and quality review. Treat as confidential user data.
+          </p>
+          <div class="admin-dm-pager" style="margin-bottom: 0.5rem">
+            <button type="button" class="secondary" id="dmLogRefreshBtn">Refresh DMs</button>
+            <button type="button" class="secondary" id="dmLogNewer" disabled>Newer</button>
+            <button type="button" class="secondary" id="dmLogOlder">Older</button>
+          </div>
+          <p class="sub" id="adminDmLogMeta" style="margin: 0 0 0.5rem; font-size: 0.78rem"></p>
+          <div class="admin-dm-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sent at</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Message</th>
+                </tr>
+              </thead>
+              <tbody id="adminDmRows"></tbody>
+            </table>
+          </div>
+        </details>
       </section>
 
       <details class="admin-mod-log-details">
         <summary>Community moderation log</summary>
-        <p class="sub" style="margin: 0 0 0.55rem; line-height: 1.45">
-          Expand to review actions. <strong>Restore post</strong> undoes a soft-deleted post so it shows in Community again.
-        </p>
         <ul id="adminConsoleCommunityLog" class="admin-console-comm-log"></ul>
       </details>
 
-      <p class="admin-users-caption" id="usersCaption">
-        All users on this server. <strong>S / R / ?</strong> counts subscriptions from search, recommendations, or
-        legacy/unknown.
-      </p>
-      <div id="userCardList" class="admin-user-list" role="list"></div>
+      <details class="admin-mod-log-details">
+        <summary>Move a community post</summary>
+        <p class="sub" style="margin: 0 0 0.65rem; font-size: 0.84rem; line-height: 1.45">
+          When someone posts under the wrong show thread, move the post to the correct TVMaze show. Episode tags are cleared.
+          In the main app, admins with the Community tab can use <strong>Move to show…</strong> on the post instead.
+        </p>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.65rem; align-items: flex-end">
+          <div>
+            <label for="adminMovePostId">Post ID (UUID)</label><br />
+            <input type="text" id="adminMovePostId" style="min-width: 18rem; max-width: 100%" placeholder="Post id" autocomplete="off" />
+          </div>
+          <div>
+            <label for="adminMoveShowId">Destination TVMaze show ID</label><br />
+            <input type="number" id="adminMoveShowId" min="1" step="1" style="width: 9rem" placeholder="e.g. 82" />
+          </div>
+          <button type="button" id="adminMovePostSubmit">Move post</button>
+        </div>
+        <p class="msg" id="adminMovePostMsg" style="margin: 0.5rem 0 0; font-size: 0.84rem"></p>
+      </details>
+
+      <details class="admin-mod-log-details">
+        <summary>User accounts</summary>
+        <p class="admin-users-caption" id="usersCaption">
+          All users on this server. <strong>S / R / ?</strong> counts subscriptions from search, recommendations, or
+          legacy/unknown.
+        </p>
+        <div id="userCardList" class="admin-user-list" role="list"></div>
+      </details>
     </section>
     </div>
 
@@ -871,6 +965,17 @@
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;");
+      }
+
+      function formatAdminLastLogin(iso) {
+        if (iso == null || iso === "") return "Never";
+        try {
+          const d = new Date(iso);
+          if (Number.isNaN(d.getTime())) return String(iso);
+          return d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+        } catch {
+          return String(iso);
+        }
       }
 
       function setVisible(id, on) {
@@ -1067,8 +1172,7 @@
           }
           for (const ent of entries) {
             const li = document.createElement("li");
-            li.style.margin = "0.4rem 0";
-            li.style.lineHeight = "1.45";
+            li.className = "admin-comm-log-entry";
             const det = ent.detailParsed;
             let detStr = "";
             if (det && typeof det === "object") {
@@ -1079,19 +1183,27 @@
               }
             }
             if (detStr.length > 200) detStr = detStr.slice(0, 200) + "…";
-            const head = document.createElement("div");
-            head.innerHTML =
-              "<strong>" +
-              escapeHtml(ent.action) +
-              "</strong> · post " +
-              escapeHtml(String(ent.postId).slice(0, 10)) +
-              "… · " +
-              escapeHtml(ent.actorLabel || "—") +
-              (ent.createdAt ? " · <span class=\"mono\">" + escapeHtml(ent.createdAt) + "</span>" : "");
-            li.appendChild(head);
+            const actionRow = document.createElement("div");
+            actionRow.className = "admin-comm-log-action";
+            actionRow.innerHTML = "<strong>" + escapeHtml(ent.action) + "</strong>";
+            li.appendChild(actionRow);
+            const postRow = document.createElement("div");
+            postRow.className = "admin-comm-log-post";
+            postRow.textContent = "Post " + String(ent.postId || "");
+            li.appendChild(postRow);
+            const actorRow = document.createElement("div");
+            actorRow.className = "admin-comm-log-actor";
+            actorRow.textContent = "By " + (ent.actorLabel || "—");
+            li.appendChild(actorRow);
+            if (ent.createdAt) {
+              const timeRow = document.createElement("div");
+              timeRow.className = "admin-comm-log-time";
+              timeRow.textContent = ent.createdAt;
+              li.appendChild(timeRow);
+            }
             if (detStr) {
               const detEl = document.createElement("div");
-              detEl.style.opacity = "0.88";
+              detEl.className = "admin-comm-log-detail";
               detEl.textContent = detStr;
               li.appendChild(detEl);
             }
@@ -1158,6 +1270,7 @@
           summaryBtn.className = "admin-user-card-summary";
           summaryBtn.setAttribute("aria-expanded", "false");
           summaryBtn.setAttribute("aria-controls", detailId(u.id));
+          const lastLoginLabel = formatAdminLastLogin(u.lastLoginAt);
           summaryBtn.innerHTML =
             "<div class=\"admin-user-card-head\">" +
             "<div class=\"admin-user-card-name\">" +
@@ -1167,33 +1280,8 @@
             (u.isAdmin ? "<span class=\"pill adm\">admin</span>" : "") +
             "<span class=\"admin-user-card-chevron\" aria-hidden=\"true\">▼</span>" +
             "</div></div>" +
-            "<div class=\"admin-user-card-grid\">" +
-            "<div><strong>User id</strong><br><span class=\"mono\">" +
-            escapeHtml(String(u.id)) +
-            "</span></div>" +
-            "<div><strong>Created</strong><br>" +
-            escapeHtml(u.createdAt || "—") +
-            "</div>" +
-            "<div><strong>Timezone</strong><br>" +
-            escapeHtml(u.timezone || "—") +
-            "</div>" +
-            "<div><strong>Shows</strong><br>" +
-            u.subscriptionCount +
-            "</div>" +
-            "<div><strong>S / R / ?</strong><br>" +
-            u.fromSearchCount +
-            " / " +
-            u.fromRecommendedCount +
-            " / " +
-            u.fromUnknownCount +
-            "</div>" +
-            "<div><strong>Tasks ✓ / total</strong><br>" +
-            u.tasksCompleted +
-            " / " +
-            u.tasksTotal +
-            "</div></div>" +
-            "<div class=\"admin-user-card-genres\">" +
-            renderAdminGenreBubbles(u.topGenres) +
+            "<div class=\"admin-user-card-login muted\">Last login: " +
+            escapeHtml(lastLoginLabel) +
             "</div>";
 
           const detail = document.createElement("div");
@@ -1255,7 +1343,34 @@
                   u.id +
                   "\" style='margin-top:0.5rem'>Reset password to <strong>airalert</strong></button></div>"
                 : "<p class='muted' style='margin:0 0 0.65rem;font-size:0.82rem'>Guest account — no password.</p>";
-              let html = genreLine + pwSupportBox;
+              const metaBlock =
+                "<div class=\"admin-user-detail-meta\">" +
+                "<div><strong>User ID</strong><br><span class=\"mono\">" +
+                escapeHtml(String(u.id)) +
+                "</span></div>" +
+                "<div><strong>Created</strong><br>" +
+                escapeHtml(u.createdAt || "—") +
+                "</div>" +
+                "<div><strong>Timezone</strong><br>" +
+                escapeHtml(u.timezone || "—") +
+                "</div>" +
+                "<div><strong>Shows</strong><br>" +
+                u.subscriptionCount +
+                "</div>" +
+                "<div><strong>S / R / ?</strong><br>" +
+                u.fromSearchCount +
+                " / " +
+                u.fromRecommendedCount +
+                " / " +
+                u.fromUnknownCount +
+                "</div>" +
+                "<div><strong>Tasks ✓ / total</strong><br>" +
+                u.tasksCompleted +
+                " / " +
+                u.tasksTotal +
+                "</div>" +
+                "</div>";
+              let html = metaBlock + genreLine + pwSupportBox;
               html +=
                 "<div class=\"detail-admin-box\">" +
                 "<strong>Admin access</strong>" +
@@ -1270,6 +1385,8 @@
                 " completed · " +
                 d.tasks.open +
                 " open · " +
+                (d.tasks.skipped != null ? d.tasks.skipped : 0) +
+                " not watching · " +
                 d.tasks.total +
                 " total</div>" +
                 "<div class=\"detail-add-show\">" +
@@ -1535,6 +1652,50 @@
           alert(e.message || "Refresh failed");
         }
       });
+
+      const adminMoveBtn = el("adminMovePostSubmit");
+      if (adminMoveBtn) {
+        adminMoveBtn.addEventListener("click", async () => {
+          const postId = el("adminMovePostId")?.value.trim() ?? "";
+          const showRaw = el("adminMoveShowId")?.value.trim() ?? "";
+          const msg = el("adminMovePostMsg");
+          if (msg) {
+            msg.textContent = "";
+            msg.classList.remove("err");
+          }
+          if (postId.length < 20) {
+            if (msg) {
+              msg.textContent = "Paste the full post ID (UUID).";
+              msg.classList.add("err");
+            }
+            return;
+          }
+          const tvmazeShowId = Number(showRaw);
+          if (!Number.isInteger(tvmazeShowId) || tvmazeShowId < 1) {
+            if (msg) {
+              msg.textContent = "Enter a positive TVMaze show ID.";
+              msg.classList.add("err");
+            }
+            return;
+          }
+          try {
+            await api("/api/community/posts/" + encodeURIComponent(postId), {
+              method: "PATCH",
+              body: JSON.stringify({ tvmazeShowId }),
+            });
+            if (msg) {
+              msg.textContent = "Post moved.";
+              msg.classList.remove("err");
+            }
+            await loadDash();
+          } catch (e) {
+            if (msg) {
+              msg.textContent = e.message || "Move failed";
+              msg.classList.add("err");
+            }
+          }
+        });
+      }
 
       init().catch((e) => {
         el("gateDisabled").classList.remove("hidden");

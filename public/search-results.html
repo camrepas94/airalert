@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no"
+    />
     <title>Search results — Airalert</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -39,6 +42,11 @@
       }
       html {
         background: var(--bg);
+        max-width: 100%;
+        overflow-x: hidden;
+        overscroll-behavior-x: none;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
       }
       body {
         margin: 0;
@@ -47,6 +55,10 @@
         color: var(--text);
         line-height: 1.5;
         min-height: 100vh;
+        max-width: 100%;
+        overflow-x: hidden;
+        overscroll-behavior-x: none;
+        touch-action: pan-y;
         position: relative;
         isolation: isolate;
       }

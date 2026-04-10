@@ -24,6 +24,7 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = event.notification.data && event.notification.data.url ? event.notification.data.url : "/";
-  event.waitUntil(self.clients.openWindow(url));
+  const raw = event.notification.data && event.notification.data.url ? event.notification.data.url : "/";
+  const abs = new URL(raw, self.location.origin).href;
+  event.waitUntil(self.clients.openWindow(abs));
 });

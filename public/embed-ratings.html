@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Community episode ratings</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0e18;
+        --text: #e8f0ff;
+        --muted: #94a3b8;
+        --line: rgba(34, 211, 238, 0.55);
+        --dot: #5b9cff;
+        --font: system-ui, Segoe UI, Roboto, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--font);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        padding: 1rem;
+      }
+      .embed-wrap {
+        max-width: 720px;
+        margin: 0 auto;
+        border-radius: 14px;
+        border: 1px solid rgba(91, 156, 255, 0.25);
+        background: linear-gradient(180deg, rgba(8, 14, 28, 0.95), rgba(4, 8, 18, 0.98));
+        padding: 0.85rem 1rem 1rem;
+      }
+      h1 {
+        margin: 0 0 0.25rem;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+      .sub {
+        margin: 0 0 0.75rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .err {
+        color: #fca5a5;
+        font-size: 0.85rem;
+      }
+      #chartHost {
+        width: 100%;
+        overflow: hidden;
+      }
+      #chartHost svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      footer {
+        margin-top: 0.65rem;
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+      footer a {
+        color: #7dd3fc;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="embed-wrap">
+      <h1 id="titleHead">Community ratings</h1>
+      <p class="sub" id="subHead"></p>
+      <div id="chartHost"></div>
+      <p id="err" class="err" hidden></p>
+      <footer>
+        <a id="homeLink" href="/">Airalert</a> · community ratings
+      </footer>
+    </div>
+    <script>
+      function renderSentimentChartSvg(episodes, titleLine) {
+        const w = 640;
+        const h = 240;
+        const pad = { l: 34, r: 12, t: 8, b: 56 };
+        const innerW = w - pad.l - pad.r;
+        const innerH = h - pad.t - pad.b;
+        const n = Math.max(1, episodes.length);
+        const pts = episodes.map(function (e, i) {
+          const x = pad.l + (n === 1 ? innerW / 2 : (i / (n - 1)) * innerW);
+          const avg = e.avgRating;
+          const y = avg == null ? null : pad.t + innerH - ((avg - 1) / 4) * innerH;
+          return { x: x, y: y, avg: avg, label: e.label, count: e.ratingCount };
+        });
+        let seg = "";
+        for (let i = 0; i < pts.length - 1; i++) {
+          if (pts[i].y == null || pts[i + 1].y == null) continue;
+          seg +=
+            "M " +
+            pts[i].x.toFixed(1) +
+            " " +
+            pts[i].y.toFixed(1) +
+            " L " +
+            pts[i + 1].x.toFixed(1) +
+            " " +
+            pts[i + 1].y.toFixed(1) +
+            " ";
+        }
+        let circles = "";
+        let labels = "";
+        for (let i = 0; i < pts.length; i++) {
+          const p = pts[i];
+          if (p.y != null) {
+            const tip =
+              (p.label || "") +
+              ": " +
+              (p.avg != null ? String(p.avg) : "?") +
+              " avg · " +
+              String(p.count || 0) +
+              " votes";
+            circles +=
+              '<circle cx="' +
+              p.x.toFixed(1) +
+              '" cy="' +
+              p.y.toFixed(1) +
+              '" r="4" fill="#5b9cff" stroke="rgba(255,255,255,0.35)" stroke-width="1"><title>' +
+              tip.replace(/&/g, "&amp;").replace(/</g, "&lt;") +
+              "</title></circle>";
+          }
+          const lx = p.x;
+          const ly = h - 8;
+          labels +=
+            '<text x="' +
+            lx.toFixed(1) +
+            '" y="' +
+            ly +
+            '" fill="#94a3b8" font-size="9" text-anchor="middle" transform="rotate(-38 ' +
+            lx.toFixed(1) +
+            " " +
+            ly +
+            ')">' +
+            (p.label || "").replace(/&/g, "&amp;").replace(/</g, "&lt;") +
+            "</text>";
+        }
+        let yticks = "";
+        for (let s = 1; s <= 5; s++) {
+          const yy = pad.t + innerH - ((s - 1) / 4) * innerH;
+          yticks +=
+            '<line x1="' +
+            (pad.l - 4) +
+            '" y1="' +
+            yy.toFixed(1) +
+            '" x2="' +
+            pad.l +
+            '" y2="' +
+            yy.toFixed(1) +
+            '" stroke="#475569" stroke-width="1" />';
+          yticks +=
+            '<text x="' +
+            (pad.l - 8) +
+            '" y="' +
+            (yy + 3).toFixed(1) +
+            '" fill="#64748b" font-size="10" text-anchor="end">' +
+            String(s) +
+            "</text>";
+        }
+        const grid = [];
+        for (let g = 1; g <= 5; g++) {
+          const yy = pad.t + innerH - ((g - 1) / 4) * innerH;
+          grid.push(
+            '<line x1="' +
+              pad.l +
+              '" y1="' +
+              yy.toFixed(1) +
+              '" x2="' +
+              (w - pad.r) +
+              '" y2="' +
+              yy.toFixed(1) +
+              '" stroke="rgba(255,255,255,0.06)" stroke-width="1" />',
+          );
+        }
+        return (
+          '<svg viewBox="0 0 ' +
+          w +
+          " " +
+          h +
+          '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' +
+          (titleLine || "Ratings chart").replace(/"/g, "&quot;") +
+          '">' +
+          grid.join("") +
+          yticks +
+          '<path d="' +
+          seg.trim() +
+          '" fill="none" stroke="rgba(34, 211, 238, 0.75)" stroke-width="2" stroke-linecap="round" />' +
+          circles +
+          labels +
+          "</svg>"
+        );
+      }
+
+      (async function () {
+        const params = new URLSearchParams(location.search);
+        const showId = params.get("showId");
+        const season = params.get("season");
+        const errEl = document.getElementById("err");
+        const host = document.getElementById("chartHost");
+        const titleHead = document.getElementById("titleHead");
+        const subHead = document.getElementById("subHead");
+        const homeLink = document.getElementById("homeLink");
+        if (homeLink) homeLink.href = location.origin + "/";
+        if (!showId || !/^\d+$/.test(showId) || !season || !/^\d+$/.test(season)) {
+          errEl.hidden = false;
+          errEl.textContent = "Add ?showId=…&season=… to the URL.";
+          return;
+        }
+        try {
+          const res = await fetch(
+            location.origin +
+              "/api/community/shows/" +
+              encodeURIComponent(showId) +
+              "/episode-ratings-summary?season=" +
+              encodeURIComponent(season),
+          );
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Could not load");
+          const name = data.showName && String(data.showName).trim() ? data.showName : "Show";
+          titleHead.textContent = name + " — season " + String(season);
+          subHead.textContent = "Average 1–5 score per aired episode (this community only).";
+          const eps = data.episodes || [];
+          if (!eps.length) {
+            host.innerHTML = '<p class="sub">No aired episodes in cache for this season yet.</p>';
+            return;
+          }
+          host.innerHTML = renderSentimentChartSvg(eps, titleHead.textContent);
+        } catch (e) {
+          errEl.hidden = false;
+          errEl.textContent = e.message || "Error";
+        }
+      })();
+    </script>
+  </body>
+</html>

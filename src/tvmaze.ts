@@ -86,7 +86,7 @@ export async function searchShows(query: string): Promise<TvmazeShowSearch[]> {
   return unwrap<TvmazeShowSearch[]>(res);
 }
 
-type TvmazeShowListItem = {
+export type TvmazeShowListItem = {
   id: number;
   name: string;
   type?: string;
@@ -210,15 +210,25 @@ const TRENDING_AIRING_STATUSES = new Set(["running"]);
 const TRENDING_MIN_RATING = 6.5;
 
 /**
+ * When the user has subscription genres but a show does not overlap, still allow it as a
+ * “general population” pick if rating is strong enough.
+ */
+const TRENDING_GENERAL_MIN_RATING = 7.5;
+
+/**
  * Like {@link scanShowsCatalogForGenreFit}, but scores by genre overlap × TVMaze rating (popular / well-known shows).
- * Only includes shows that are **currently airing** ({@link TRENDING_AIRING_STATUSES}) and meet a **minimum rating**.
+ * Only includes shows that are **currently airing** ({@link TRENDING_AIRING_STATUSES}), **streaming**
+ * ({@link TvmazeShowListItem} has `webChannel`), and meet rating rules.
+ *
+ * If `userGenreWeights` is empty (no subscriptions / no genres), scores by rating alone so trending
+ * can still surface broadly popular streaming titles.
  */
 export async function scanShowsCatalogForTrending(
   userGenreWeights: Map<string, number>,
   excludeIds: Set<number>,
   opts: { pageRanges: [number, number][]; concurrency: number },
 ): Promise<Map<number, { show: TvmazeShowListItem; trendScore: number }>> {
-  if (userGenreWeights.size === 0) return new Map();
+  const hasUserGenres = userGenreWeights.size > 0;
 
   const pages: number[] = [];
   for (const [a, b] of opts.pageRanges) {
@@ -239,6 +249,10 @@ export async function scanShowsCatalogForTrending(
         const statusNorm = (show.status ?? "").trim().toLowerCase();
         if (!TRENDING_AIRING_STATUSES.has(statusNorm)) continue;
 
+        /** Trending is limited to streaming (web) shows — broadcast-only listings are excluded. */
+        const streaming = Boolean(show.webChannel?.name?.trim());
+        if (!streaming) continue;
+
         const avgRaw = show.rating?.average;
         const avg = typeof avgRaw === "number" && Number.isFinite(avgRaw) ? avgRaw : null;
         if (avg == null || avg < TRENDING_MIN_RATING) continue;
@@ -249,8 +263,17 @@ export async function scanShowsCatalogForTrending(
           if (k.length < 2) continue;
           genreFit += userGenreWeights.get(k) ?? 0;
         }
-        if (genreFit <= 0) continue;
-        const trendScore = genreFit * (1 + Math.max(0, avg) / 10);
+
+        let trendScore: number;
+        if (genreFit > 0) {
+          trendScore = genreFit * (1 + Math.max(0, avg) / 10);
+        } else if (hasUserGenres) {
+          if (avg < TRENDING_GENERAL_MIN_RATING) continue;
+          trendScore = avg * 1.15;
+        } else {
+          trendScore = avg * 1.25;
+        }
+
         const prev = out.get(show.id);
         if (!prev || trendScore > prev.trendScore) {
           out.set(show.id, { show, trendScore });
@@ -472,4 +495,84 @@ export async function fetchPreviousEpisodeAirdates(
     for (const [id, d] of results) out.set(id, d);
   }
   return out;
+}
+
+// --- People (cast / crew credits) ---
+
+export type TvmazePersonSearchHit = {
+  score?: number;
+  person: {
+    id: number;
+    name: string;
+    image?: { medium?: string; original?: string } | null;
+    country?: { name?: string } | null;
+  };
+};
+
+export async function searchPeople(query: string): Promise<TvmazePersonSearchHit[]> {
+  const q = encodeURIComponent(query.trim());
+  if (!q) return [];
+  const res = await fetch(`${BASE}/search/people?q=${q}`);
+  return unwrap<TvmazePersonSearchHit[]>(res);
+}
+
+export type TvmazePersonDetail = {
+  id: number;
+  name: string;
+  image?: { medium?: string; original?: string } | null;
+  country?: { name?: string } | null;
+};
+
+export async function fetchPerson(personId: number): Promise<TvmazePersonDetail> {
+  const res = await fetch(`${BASE}/people/${personId}`);
+  return unwrap<TvmazePersonDetail>(res);
+}
+
+type CreditRow = { _links?: { show?: { href?: string; name?: string } } };
+
+function parseShowIdFromHref(href: string | undefined): number | null {
+  if (!href) return null;
+  const m = href.match(/\/shows\/(\d+)/);
+  if (!m) return null;
+  const id = Number(m[1]);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
+function mergeCreditShowRows(rows: CreditRow[]): { tvmazeShowId: number; showName: string }[] {
+  const map = new Map<number, string>();
+  for (const r of rows) {
+    const href = r._links?.show?.href;
+    const name = (r._links?.show?.name ?? "").trim() || "Show";
+    const sid = parseShowIdFromHref(href);
+    if (sid != null && !map.has(sid)) map.set(sid, name);
+  }
+  return [...map.entries()].map(([tvmazeShowId, showName]) => ({ tvmazeShowId, showName }));
+}
+
+export async function fetchPersonCastCredits(personId: number): Promise<CreditRow[]> {
+  const res = await fetch(`${BASE}/people/${personId}/castcredits`);
+  if (res.status === 404) return [];
+  return unwrap<CreditRow[]>(res);
+}
+
+export async function fetchPersonCrewCredits(personId: number): Promise<CreditRow[]> {
+  const res = await fetch(`${BASE}/people/${personId}/crewcredits`);
+  if (res.status === 404) return [];
+  return unwrap<CreditRow[]>(res);
+}
+
+/** Distinct shows from TVMaze cast + crew credits (actors, writers, directors, etc.). */
+export async function fetchPersonShowCreditsMerged(
+  personId: number,
+): Promise<{ tvmazeShowId: number; showName: string }[]> {
+  const [cast, crew] = await Promise.all([
+    fetchPersonCastCredits(personId),
+    fetchPersonCrewCredits(personId),
+  ]);
+  const map = new Map<number, string>();
+  for (const x of mergeCreditShowRows(cast)) map.set(x.tvmazeShowId, x.showName);
+  for (const x of mergeCreditShowRows(crew)) {
+    if (!map.has(x.tvmazeShowId)) map.set(x.tvmazeShowId, x.showName);
+  }
+  return [...map.entries()].map(([tvmazeShowId, showName]) => ({ tvmazeShowId, showName }));
 }

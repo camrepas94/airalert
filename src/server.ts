@@ -16,16 +16,35 @@ import {
   fetchEpisodeMeta,
   rankSearchResults,
   fetchPreviousEpisodeAirdates,
+  searchPeople,
+  fetchPerson,
 } from "./tvmaze.js";
-import { normalizeEpisodeAirdate, safeTodayInTimeZone } from "./time.js";
+import {
+  calendarDateMinusDays,
+  calendarDatePlusDays,
+  normalizeEpisodeAirdate,
+  safeTodayInTimeZone,
+  sundayWeekStartContainingDate,
+  utcInstantForLocalCalendarDate,
+} from "./time.js";
 import { buildIcsCalendar, episodeUid } from "./ics.js";
 import {
   refreshAllSubscribedShows,
   refreshShowEpisodes,
   runDailyNotifications,
   runTaskNudgeNotifications,
+  baselinePersonCreditsForPerson,
+  runPersonNewProjectNotifications,
 } from "./jobs.js";
-import { configureWebPush, getVapidPublicKey, isWebPushConfigured, sendWebPushToUser } from "./push.js";
+import {
+  configureWebPush,
+  getVapidPublicKey,
+  isWebPushConfigured,
+  mergePushPrefsFromJson,
+  parsePushPrefsJson,
+  sendWebPushToUser,
+  type PushPrefs,
+} from "./push.js";
 import {
   getOrCreateDmThread,
   sendDmMessage,
@@ -39,6 +58,21 @@ import {
   getOtherParticipantLastReadAt,
   handleDmClientSocketMessage,
 } from "./dm.js";
+import {
+  parseThreadLiveRoomQuery,
+  registerCommunityThreadLiveSocket,
+  unregisterCommunityThreadLiveSocket,
+  handleCommunityThreadLiveMessage,
+  isEpisodeLiveAirNightWindow,
+} from "./communityLive.js";
+import {
+  episodeAirStartUtcMs,
+  isEpisodePollVotingOpen,
+  normalizePollOptions,
+  POLL_MAX_POLLS_PER_EPISODE,
+  POLL_MAX_QUESTION,
+} from "./episodePolls.js";
+import { episodeHasAiredUtc } from "./episodeRatings.js";
 import { computeRecommendedShows, computeTrendingShows } from "./recommend.js";
 import { hashPassword, verifyPassword } from "./password.js";
 
@@ -59,6 +93,14 @@ function setUserPasswordWithPlainAdmin(userId: string, plainPassword: string): v
 
 /** Client sends a resized data URL; cap size to keep SQLite and responses reasonable. */
 const MAX_AVATAR_DATA_URL_LEN = 450_000;
+
+function userJsonWithPushPrefs(row: Record<string, unknown>): Record<string, unknown> {
+  const out = { ...row };
+  const raw = out.push_prefs_json;
+  delete out.push_prefs_json;
+  out.pushPrefs = parsePushPrefsJson(typeof raw === "string" ? raw : null);
+  return out;
+}
 
 const webPushReady = configureWebPush();
 
@@ -280,15 +322,85 @@ async function notifyCommunityThreadSubscribers(opts: {
   showName: string;
   authorUserId: string;
   authorLabel: string;
+  tvmazeEpisodeId?: number | null;
+  episodeLabel?: string | null;
 }): Promise<void> {
   const rows = db
-    .prepare(`SELECT user_id FROM community_thread_push_subs WHERE tvmaze_show_id = ? AND user_id != ?`)
+    .prepare(
+      `SELECT c.user_id FROM community_thread_push_subs c
+       LEFT JOIN show_subscriptions s ON s.user_id = c.user_id AND s.tvmaze_show_id = c.tvmaze_show_id
+       WHERE c.tvmaze_show_id = ? AND c.user_id != ?
+         AND (s.binge_later IS NULL OR s.binge_later = 0)`,
+    )
     .all(opts.tvmazeShowId, opts.authorUserId) as { user_id: string }[];
-  const title = `Community: ${opts.showName.slice(0, 80)}`;
+  const shortEp =
+    opts.tvmazeEpisodeId != null && opts.episodeLabel
+      ? String(opts.episodeLabel).split("—")[0]?.trim() ?? "Episode"
+      : "";
+  const title =
+    opts.tvmazeEpisodeId != null
+      ? `Community · ${shortEp} · ${opts.showName.slice(0, 44)}`.slice(0, 88)
+      : `Community: ${opts.showName.slice(0, 80)}`;
   const body = `${opts.authorLabel.slice(0, 60)} posted`;
-  const url = `/?communityShow=${opts.tvmazeShowId}`;
+  const url =
+    opts.tvmazeEpisodeId != null
+      ? `/?communityShow=${opts.tvmazeShowId}&communityEpisode=${opts.tvmazeEpisodeId}`
+      : `/?communityShow=${opts.tvmazeShowId}`;
   for (const r of rows) {
-    await sendWebPushToUser(r.user_id, { title, body, url });
+    await sendWebPushToUser(r.user_id, { title, body, url }, { kind: "communityThreadNewPost" });
+  }
+}
+
+/** Lowercased usernames from @mentions in plain text (after stripping HTML). */
+function extractCommunityMentionUsernames(html: string): Set<string> {
+  const text = stripHtml(html);
+  const re = /@([a-zA-Z0-9._-]{3,32})/g;
+  const set = new Set<string>();
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    set.add(m[1].toLowerCase());
+  }
+  return set;
+}
+
+async function notifyCommunityMentionedUsers(opts: {
+  bodyHtml: string;
+  previousBodyHtml: string | null;
+  taggerUserId: string;
+  taggerLabel: string;
+  tvmazeShowId: number;
+  showName: string;
+  tvmazeEpisodeId?: number | null;
+}): Promise<void> {
+  const next = extractCommunityMentionUsernames(opts.bodyHtml);
+  const prev = opts.previousBodyHtml != null ? extractCommunityMentionUsernames(opts.previousBodyHtml) : new Set<string>();
+  const newly = [...next].filter((u) => !prev.has(u));
+  if (newly.length === 0) return;
+  const placeholders = newly.map(() => "?").join(", ");
+  const rows = db
+    .prepare(
+      `SELECT id, username FROM users
+       WHERE username IS NOT NULL AND TRIM(username) != ''
+         AND lower(trim(username)) IN (${placeholders})`,
+    )
+    .all(...newly) as { id: string; username: string }[];
+  const title = "You were mentioned";
+  const showBit = opts.showName.slice(0, 56);
+  const who = opts.taggerLabel.slice(0, 52);
+  const url =
+    opts.tvmazeEpisodeId != null
+      ? `/?communityShow=${opts.tvmazeShowId}&communityEpisode=${opts.tvmazeEpisodeId}`
+      : `/?communityShow=${opts.tvmazeShowId}`;
+  for (const r of rows) {
+    if (r.id === opts.taggerUserId) continue;
+    if (opts.tvmazeEpisodeId != null) {
+      const binge = db
+        .prepare(`SELECT binge_later FROM show_subscriptions WHERE user_id = ? AND tvmaze_show_id = ?`)
+        .get(r.id, opts.tvmazeShowId) as { binge_later: number | null } | undefined;
+      if (binge?.binge_later === 1) continue;
+    }
+    const body = `${who} tagged you in ${showBit}`;
+    await sendWebPushToUser(r.id, { title, body, url }, { kind: "communityMention" });
   }
 }
 
@@ -310,6 +422,43 @@ type CommunityPostRow = {
   editorDisplayName: string | null;
   editorUsername: string | null;
 };
+
+/** Newest-aired episode IDs the viewer has not "caught up" to yet (N episodes behind), or all aired if binge-later mode. */
+function getCatchUpAheadEpisodeIdSet(showId: number, userId: string, today: string): Set<number> | null {
+  const row = db
+    .prepare(
+      `SELECT community_episodes_behind AS n, binge_later AS bl FROM show_subscriptions WHERE user_id = ? AND tvmaze_show_id = ?`,
+    )
+    .get(userId, showId) as { n: number | null; bl: number | null } | undefined;
+  if (!row) return null;
+  if (row.bl === 1) {
+    const eps = db
+      .prepare(
+        `SELECT tvmaze_episode_id AS id FROM episodes_cache
+         WHERE tvmaze_show_id = ?
+           AND airdate IS NOT NULL AND TRIM(airdate) != ''
+           AND date(airdate) IS NOT NULL
+           AND date(airdate) <= date(?)`,
+      )
+      .all(showId, today) as { id: number }[];
+    return eps.length ? new Set(eps.map((e) => e.id)) : null;
+  }
+  const n = row.n;
+  if (n == null || n <= 0) return null;
+  const capped = Math.min(52, Math.max(1, Math.floor(Number(n))));
+  const eps = db
+    .prepare(
+      `SELECT tvmaze_episode_id AS id FROM episodes_cache
+       WHERE tvmaze_show_id = ?
+         AND airdate IS NOT NULL AND TRIM(airdate) != ''
+         AND date(airdate) IS NOT NULL
+         AND date(airdate) <= date(?)
+       ORDER BY date(airdate) DESC, season DESC, number DESC
+       LIMIT ?`,
+    )
+    .all(showId, today, capped) as { id: number }[];
+  return new Set(eps.map((e) => e.id));
+}
 
 function formatCommunityPost(p: CommunityPostRow) {
   const authorHandle = authorPublicHandle({
@@ -402,8 +551,8 @@ function createRegisteredUser(
   const calendarToken = randomToken();
   const clipped = password.slice(0, 256);
   db.prepare(
-    `INSERT INTO users (id, timezone, reminder_hour_local, calendar_token, username, password_hash, password_plain_admin, is_admin)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO users (id, timezone, reminder_hour_local, calendar_token, username, password_hash, password_plain_admin, is_admin, last_login_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
   ).run(
     id,
     timezone,
@@ -480,6 +629,7 @@ app.get("/api/admin/overview", async (request, reply) => {
          u.username AS username,
          u.is_admin AS isAdmin,
          u.created_at AS createdAt,
+         u.last_login_at AS lastLoginAt,
          u.timezone AS timezone,
          (SELECT COUNT(*) FROM show_subscriptions s WHERE s.user_id = u.id) AS subscriptionCount,
          (SELECT COUNT(*) FROM show_subscriptions s WHERE s.user_id = u.id AND s.added_from = 'recommended') AS fromRecommendedCount,
@@ -495,6 +645,7 @@ app.get("/api/admin/overview", async (request, reply) => {
     username: string | null;
     isAdmin: number;
     createdAt: string;
+    lastLoginAt: string | null;
     timezone: string;
     subscriptionCount: number;
     fromRecommendedCount: number;
@@ -843,6 +994,244 @@ async function topGenresForAdminUsers(userIds: string[]): Promise<Map<string, st
   return out;
 }
 
+function cmpAirdateStrings(a: string, b: string): number {
+  const na = String(a).trim().slice(0, 10);
+  const nb = String(b).trim().slice(0, 10);
+  if (na < nb) return -1;
+  if (na > nb) return 1;
+  return 0;
+}
+
+/** Episodes marked watched + shows on My List (share cards, profile summaries). */
+function getWatchSummaryCounts(userId: string): { episodesCompleted: number; showsTracked: number } {
+  const epRow = db
+    .prepare(`SELECT COUNT(*) AS c FROM watch_tasks WHERE user_id = ? AND completed_at IS NOT NULL`)
+    .get(userId) as { c: number } | undefined;
+  const subRow = db.prepare(`SELECT COUNT(*) AS c FROM show_subscriptions WHERE user_id = ?`).get(userId) as { c: number } | undefined;
+  return {
+    episodesCompleted: Number(epRow?.c ?? 0),
+    showsTracked: Number(subRow?.c ?? 0),
+  };
+}
+
+/** Public-safe watch stats for community profile (Letterboxd-style identity). */
+async function buildPublicProfileWatchStats(userId: string): Promise<{
+  episodesCompleted: number;
+  showsTracked: number;
+  topGenres: string[];
+  recentHistory: { showName: string; episodeLabel: string; completedAt: string }[];
+  currentlyWatching: {
+    tvmazeShowId: number;
+    showName: string;
+    nextEpisodeLabel: string;
+    nextAirdate: string | null;
+  }[];
+}> {
+  const { episodesCompleted, showsTracked } = getWatchSummaryCounts(userId);
+
+  const recentHistory = db
+    .prepare(
+      `SELECT show_name AS showName, episode_label AS episodeLabel, completed_at AS completedAt
+       FROM watch_tasks
+       WHERE user_id = ? AND completed_at IS NOT NULL
+       ORDER BY datetime(completed_at) DESC
+       LIMIT 20`,
+    )
+    .all(userId) as { showName: string; episodeLabel: string; completedAt: string }[];
+
+  const openRows = db
+    .prepare(
+      `SELECT tvmaze_show_id AS tvmazeShowId, show_name AS showName, episode_label AS episodeLabel, airdate
+       FROM watch_tasks
+       WHERE user_id = ?
+         AND completed_at IS NULL
+         AND dismissed_at IS NULL
+         AND airdate IS NOT NULL
+         AND TRIM(airdate) != ''
+         AND date(airdate) IS NOT NULL
+         AND date(airdate) <= date('now')`,
+    )
+    .all(userId) as { tvmazeShowId: number; showName: string; episodeLabel: string; airdate: string }[];
+
+  const byShow = new Map<number, { tvmazeShowId: number; showName: string; episodeLabel: string; airdate: string }>();
+  for (const r of openRows) {
+    const ex = byShow.get(r.tvmazeShowId);
+    if (!ex || cmpAirdateStrings(r.airdate, ex.airdate) < 0) {
+      byShow.set(r.tvmazeShowId, {
+        tvmazeShowId: r.tvmazeShowId,
+        showName: r.showName,
+        episodeLabel: r.episodeLabel,
+        airdate: r.airdate,
+      });
+    }
+  }
+
+  const currentlyWatching = [...byShow.values()]
+    .sort((a, b) => cmpAirdateStrings(b.airdate, a.airdate))
+    .slice(0, 8)
+    .map((x) => ({
+      tvmazeShowId: x.tvmazeShowId,
+      showName: x.showName,
+      nextEpisodeLabel: x.episodeLabel,
+      nextAirdate: x.airdate != null && String(x.airdate).trim() ? String(x.airdate).trim() : null,
+    }));
+
+  const genreMap = await topGenresForAdminUsers([userId]);
+  const topGenres = genreMap.get(userId) ?? [];
+
+  return {
+    episodesCompleted,
+    showsTracked,
+    topGenres,
+    recentHistory,
+    currentlyWatching,
+  };
+}
+
+/**
+ * Overlap of My List (Jaccard) + agreement on 1–5 episode ratings for the same episodes.
+ * Omitted when viewing your own profile, as a guest, or when there is no comparable data.
+ */
+function computeViewerShowCompatibility(
+  viewerId: string,
+  profileUserId: string,
+): {
+  percent: number;
+  showsInCommon: number;
+  mutualEpisodesRated: number;
+} | null {
+  if (viewerId === profileUserId) return null;
+
+  const countA = db
+    .prepare(`SELECT COUNT(*) AS c FROM show_subscriptions WHERE user_id = ?`)
+    .get(viewerId) as { c: number } | undefined;
+  const countB = db
+    .prepare(`SELECT COUNT(*) AS c FROM show_subscriptions WHERE user_id = ?`)
+    .get(profileUserId) as { c: number } | undefined;
+  const na = Number(countA?.c ?? 0);
+  const nb = Number(countB?.c ?? 0);
+
+  const interRow = db
+    .prepare(
+      `SELECT COUNT(*) AS c FROM show_subscriptions a
+       INNER JOIN show_subscriptions b ON a.tvmaze_show_id = b.tvmaze_show_id
+       WHERE a.user_id = ? AND b.user_id = ?`,
+    )
+    .get(viewerId, profileUserId) as { c: number } | undefined;
+  const intersection = Number(interRow?.c ?? 0);
+
+  const union = na + nb - intersection;
+  let subscriptionScore = 0;
+  if (union > 0) {
+    subscriptionScore = (intersection / union) * 100;
+  }
+
+  const ratingRows = db
+    .prepare(
+      `SELECT a.rating AS ra, b.rating AS rb
+       FROM community_episode_ratings a
+       INNER JOIN community_episode_ratings b
+         ON a.tvmaze_show_id = b.tvmaze_show_id AND a.tvmaze_episode_id = b.tvmaze_episode_id
+       WHERE a.user_id = ? AND b.user_id = ?`,
+    )
+    .all(viewerId, profileUserId) as { ra: number; rb: number }[];
+
+  let ratingsScore: number | null = null;
+  if (ratingRows.length > 0) {
+    let sum = 0;
+    for (const r of ratingRows) {
+      const ra = Number(r.ra);
+      const rb = Number(r.rb);
+      const diff = Math.abs(ra - rb);
+      sum += 1 - Math.min(4, diff) / 4;
+    }
+    ratingsScore = (sum / ratingRows.length) * 100;
+  }
+
+  if (union === 0 && ratingRows.length === 0) {
+    return null;
+  }
+
+  let percent: number;
+  if (ratingsScore != null && union > 0) {
+    percent = Math.round(0.5 * subscriptionScore + 0.5 * ratingsScore);
+  } else if (ratingsScore != null) {
+    percent = Math.round(ratingsScore);
+  } else {
+    percent = Math.round(subscriptionScore);
+  }
+
+  percent = Math.max(0, Math.min(100, percent));
+
+  return {
+    percent,
+    showsInCommon: intersection,
+    mutualEpisodesRated: ratingRows.length,
+  };
+}
+
+type ChallengeRow = {
+  id: string;
+  title: string;
+  summary: string | null;
+  tvmaze_target_show_id: number;
+  target_show_name: string;
+  tvmaze_deadline_show_id: number;
+  tvmaze_deadline_episode_id: number;
+  deadline_show_name: string;
+  deadline_episode_label: string;
+  deadline_airdate: string;
+  created_by_user_id: string | null;
+  created_at: string;
+};
+
+function countEligibleChallengeEpisodes(targetShowId: number, deadlineYmd: string): number {
+  const r = db
+    .prepare(
+      `SELECT COUNT(*) AS c FROM episodes_cache
+       WHERE tvmaze_show_id = ?
+         AND airdate IS NOT NULL AND TRIM(airdate) != ''
+         AND date(airdate) IS NOT NULL
+         AND date(airdate) <= date(?)`,
+    )
+    .get(targetShowId, deadlineYmd) as { c: number } | undefined;
+  return Number(r?.c ?? 0);
+}
+
+function countUserChallengeEpisodesCompleted(userId: string, targetShowId: number, deadlineYmd: string): number {
+  const r = db
+    .prepare(
+      `SELECT COUNT(DISTINCT w.tvmaze_episode_id) AS c
+       FROM watch_tasks w
+       INNER JOIN episodes_cache e ON e.tvmaze_show_id = w.tvmaze_show_id AND e.tvmaze_episode_id = w.tvmaze_episode_id
+       WHERE w.user_id = ? AND w.tvmaze_show_id = ?
+         AND w.completed_at IS NOT NULL
+         AND e.airdate IS NOT NULL AND TRIM(e.airdate) != ''
+         AND date(e.airdate) IS NOT NULL
+         AND date(e.airdate) <= date(?)`,
+    )
+    .get(userId, targetShowId, deadlineYmd) as { c: number } | undefined;
+  return Number(r?.c ?? 0);
+}
+
+function challengeProgressParts(
+  userId: string,
+  c: Pick<ChallengeRow, "tvmaze_target_show_id" | "deadline_airdate">,
+): { completed: number; eligible: number; percent: number; finished: boolean } {
+  const d = String(c.deadline_airdate).trim().slice(0, 10);
+  const eligible = countEligibleChallengeEpisodes(c.tvmaze_target_show_id, d);
+  const completed = countUserChallengeEpisodesCompleted(userId, c.tvmaze_target_show_id, d);
+  const percent = eligible > 0 ? Math.min(100, Math.round((completed / eligible) * 100)) : 0;
+  return { completed, eligible, percent, finished: eligible > 0 && completed >= eligible };
+}
+
+function challengeIsActive(deadlineAirdate: string): boolean {
+  const d = String(deadlineAirdate).trim().slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+  const row = db.prepare(`SELECT CASE WHEN date(?) >= date('now') THEN 1 ELSE 0 END AS ok`).get(d) as { ok: number } | undefined;
+  return row?.ok === 1;
+}
+
 app.delete("/api/admin/users/:userId", async (request, reply) => {
   if (!isRequestAdmin(request)) {
     reply.code(401);
@@ -879,7 +1268,8 @@ app.get("/api/admin/users/:userId", async (request, reply) => {
   const user = db
     .prepare(
       `SELECT id, username, is_admin AS isAdmin, timezone, reminder_hour_local AS reminderHourLocal,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, created_at AS createdAt,
+              last_login_at AS lastLoginAt,
               password_plain_admin AS passwordPlainAdmin
        FROM users WHERE id = ?`,
     )
@@ -888,6 +1278,7 @@ app.get("/api/admin/users/:userId", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
+  const userOut = userJsonWithPushPrefs(user);
   const subscriptions = db
     .prepare(
       `SELECT id, tvmaze_show_id AS tvmazeShowId, show_name AS showName,
@@ -899,16 +1290,23 @@ app.get("/api/admin/users/:userId", async (request, reply) => {
     .prepare(
       `SELECT
          COUNT(*) AS total,
-         SUM(CASE WHEN completed_at IS NOT NULL THEN 1 ELSE 0 END) AS completed
+         SUM(CASE WHEN completed_at IS NOT NULL THEN 1 ELSE 0 END) AS completed,
+         SUM(CASE WHEN dismissed_at IS NOT NULL AND completed_at IS NULL THEN 1 ELSE 0 END) AS skipped
        FROM watch_tasks WHERE user_id = ?`,
     )
-    .get(userId) as { total: number; completed: number | null };
+    .get(userId) as { total: number; completed: number | null; skipped: number | null };
   const tasksTotal = Number(taskRow?.total ?? 0);
   const tasksCompleted = Number(taskRow?.completed ?? 0);
+  const tasksSkipped = Number(taskRow?.skipped ?? 0);
   return {
-    user,
+    user: userOut,
     subscriptions,
-    tasks: { total: tasksTotal, completed: tasksCompleted, open: tasksTotal - tasksCompleted },
+    tasks: {
+      total: tasksTotal,
+      completed: tasksCompleted,
+      skipped: tasksSkipped,
+      open: tasksTotal - tasksCompleted - tasksSkipped,
+    },
   };
 });
 
@@ -946,12 +1344,12 @@ app.patch("/api/admin/users/:userId", async (request, reply) => {
   const row = db
     .prepare(
       `SELECT id, username, is_admin AS isAdmin, timezone, reminder_hour_local AS reminderHourLocal,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, created_at AS createdAt,
               password_plain_admin AS passwordPlainAdmin
        FROM users WHERE id = ?`,
     )
-    .get(userId);
-  return row;
+    .get(userId) as Record<string, unknown> | undefined;
+  return row ? userJsonWithPushPrefs(row) : row;
 });
 
 app.post("/api/admin/users/:userId/test-push", async (request, reply) => {
@@ -1088,7 +1486,7 @@ app.post("/api/auth/register", async (request, reply) => {
     if (me) {
       const clipped = password.slice(0, 256);
       db.prepare(
-        `UPDATE users SET username = ?, password_hash = ?, password_plain_admin = ?, timezone = ?, reminder_hour_local = ? WHERE id = ?`,
+        `UPDATE users SET username = ?, password_hash = ?, password_plain_admin = ?, timezone = ?, reminder_hour_local = ?, last_login_at = datetime('now') WHERE id = ?`,
       ).run(usernameRaw, hashPassword(clipped), clipped, timezone, reminderHourLocal, sid);
       setSessionCookie(reply, request, sid);
       reply.code(201);
@@ -1119,7 +1517,10 @@ app.post("/api/auth/login", async (request, reply) => {
     return { error: "Invalid username or password" };
   }
   const clipped = password.slice(0, 256);
-  db.prepare(`UPDATE users SET password_plain_admin = ? WHERE id = ?`).run(clipped, row.id);
+  db.prepare(`UPDATE users SET password_plain_admin = ?, last_login_at = datetime('now') WHERE id = ?`).run(
+    clipped,
+    row.id,
+  );
   setSessionCookie(reply, request, row.id);
   return { ok: true, id: row.id };
 });
@@ -1139,7 +1540,7 @@ app.get("/api/users/me", async (request, reply) => {
   const row = db
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, created_at AS createdAt,
               username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
               about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword,
@@ -1152,7 +1553,7 @@ app.get("/api/users/me", async (request, reply) => {
     reply.code(401);
     return { error: "Session invalid" };
   }
-  return row;
+  return { ...userJsonWithPushPrefs(row), watchSummary: getWatchSummaryCounts(sid) };
 });
 
 /** Clears the HttpOnly session cookie so the next bootstrap creates a fresh user on this device. */
@@ -1167,7 +1568,7 @@ app.get("/api/users/:id", async (request, reply) => {
   const row = db
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, created_at AS createdAt,
               username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
               about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               is_admin AS isAdmin,
@@ -1179,7 +1580,7 @@ app.get("/api/users/:id", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
-  return row;
+  return { ...userJsonWithPushPrefs(row), watchSummary: getWatchSummaryCounts(id) };
 });
 
 app.patch("/api/users/:id", async (request, reply) => {
@@ -1189,6 +1590,7 @@ app.patch("/api/users/:id", async (request, reply) => {
     timezone?: string;
     reminderHourLocal?: number;
     taskNudgeDaysAfterAir?: number | null;
+    pushPrefs?: Partial<PushPrefs>;
     displayName?: string | null;
     avatarDataUrl?: string | null;
     aboutMe?: string | null;
@@ -1261,6 +1663,13 @@ app.patch("/api/users/:id", async (request, reply) => {
       db.prepare(`UPDATE users SET task_nudge_days_after_air = ? WHERE id = ?`).run(v, id);
     }
   }
+  if ("pushPrefs" in body && body.pushPrefs !== null && typeof body.pushPrefs === "object") {
+    const cur = db.prepare(`SELECT push_prefs_json FROM users WHERE id = ?`).get(id) as
+      | { push_prefs_json: string | null }
+      | undefined;
+    const merged = mergePushPrefsFromJson(cur?.push_prefs_json, body.pushPrefs);
+    db.prepare(`UPDATE users SET push_prefs_json = ? WHERE id = ?`).run(JSON.stringify(merged), id);
+  }
   if ("aboutMe" in body) {
     if (body.aboutMe === null || body.aboutMe === "") {
       db.prepare(`UPDATE users SET about_me = NULL WHERE id = ?`).run(id);
@@ -1305,14 +1714,14 @@ app.patch("/api/users/:id", async (request, reply) => {
   const row = db
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, created_at AS createdAt,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, created_at AS createdAt,
               username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
               about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword, is_admin AS isAdmin
        FROM users WHERE id = ?`,
     )
-    .get(id);
-  return row;
+    .get(id) as Record<string, unknown> | undefined;
+  return row ? userJsonWithPushPrefs(row) : row;
 });
 
 app.get("/api/shows/search", async (request, reply) => {
@@ -1546,7 +1955,9 @@ app.get("/api/users/:userId/subscriptions", async (request, reply) => {
   const rows = db
     .prepare(
       `SELECT id, tvmaze_show_id AS tvmazeShowId, show_name AS showName,
-              added_from AS addedFrom, created_at AS createdAt
+              added_from AS addedFrom, created_at AS createdAt,
+              community_episodes_behind AS communityEpisodesBehind,
+              binge_later AS bingeLaterRaw
        FROM show_subscriptions WHERE user_id = ? ORDER BY created_at DESC`,
     )
     .all(userId) as {
@@ -1555,6 +1966,8 @@ app.get("/api/users/:userId/subscriptions", async (request, reply) => {
     showName: string;
     addedFrom: string | null;
     createdAt: string;
+    communityEpisodesBehind: number | null;
+    bingeLaterRaw: number | null;
   }[];
 
   const userRow = db.prepare(`SELECT timezone FROM users WHERE id = ?`).get(userId) as { timezone: string } | undefined;
@@ -1594,6 +2007,7 @@ app.get("/api/users/:userId/subscriptions", async (request, reply) => {
   `);
 
   const subscriptions = rows.map((row) => {
+    const { bingeLaterRaw, ...rest } = row;
     const next = nextStmt.get(row.tvmazeShowId, todayStr) as
       | { airdate: string; airtime: string; name: string; season: number; number: number }
       | undefined;
@@ -1607,7 +2021,8 @@ app.get("/api/users/:userId/subscriptions", async (request, reply) => {
         ? (tbaNextStmt.get(row.tvmazeShowId) as { name: string; season: number; number: number } | undefined)
         : undefined;
     return {
-      ...row,
+      ...rest,
+      bingeLater: bingeLaterRaw === 1,
       nextEpisode: next
         ? {
             airdate: next.airdate,
@@ -1645,6 +2060,114 @@ app.get("/api/users/:userId/subscriptions", async (request, reply) => {
   return { subscriptions };
 });
 
+function airtimeSortKey(airtime: string | null | undefined): number {
+  const s = (airtime ?? "").trim();
+  if (!s) return 99999;
+  const m = /^(\d{1,2}):(\d{2})$/.exec(s);
+  if (!m) return 99998;
+  const h = Number(m[1]);
+  const min = Number(m[2]);
+  if (!Number.isFinite(h) || !Number.isFinite(min)) return 99997;
+  return h * 60 + min;
+}
+
+/** Weekly TV-guide grid: episodes from My List whose airdate falls Sun–Sat in the user’s timezone week. */
+app.get("/api/users/:userId/week-guide", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
+  const userRow = db.prepare(`SELECT timezone FROM users WHERE id = ?`).get(userId) as { timezone: string } | undefined;
+  const tz = userRow?.timezone?.trim() || "America/Los_Angeles";
+  const q = request.query as { weekStart?: string };
+  let weekStart: string;
+  if (q.weekStart && /^\d{4}-\d{2}-\d{2}$/.test(String(q.weekStart).trim())) {
+    weekStart = sundayWeekStartContainingDate(String(q.weekStart).trim(), tz);
+  } else {
+    const today = safeTodayInTimeZone(tz);
+    weekStart = sundayWeekStartContainingDate(today, tz);
+  }
+  const weekEnd = calendarDatePlusDays(weekStart, 6);
+
+  type EpRow = {
+    tvmazeShowId: number;
+    showName: string;
+    tvmazeEpisodeId: number;
+    episodeName: string;
+    season: number;
+    number: number;
+    airdate: string;
+    airtime: string | null;
+    network: string | null;
+  };
+
+  const rows = db
+    .prepare(
+      `SELECT e.tvmaze_show_id AS tvmazeShowId, s.show_name AS showName,
+              e.tvmaze_episode_id AS tvmazeEpisodeId, e.name AS episodeName,
+              e.season AS season, e.number AS number,
+              date(e.airdate) AS airdate, e.airtime AS airtime, e.network AS network
+       FROM episodes_cache e
+       INNER JOIN show_subscriptions s ON s.tvmaze_show_id = e.tvmaze_show_id AND s.user_id = ?
+       WHERE date(e.airdate) >= date(?) AND date(e.airdate) <= date(?)
+         AND e.airdate IS NOT NULL AND trim(e.airdate) != ''
+       ORDER BY date(e.airdate), e.airtime, s.show_name`,
+    )
+    .all(userId, weekStart, weekEnd) as EpRow[];
+
+  const fmtWeekday = new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday: "short" });
+  const days: {
+    date: string;
+    weekdayLabel: string;
+    monthDayLabel: string;
+    episodes: {
+      tvmazeShowId: number;
+      showName: string;
+      tvmazeEpisodeId: number;
+      episodeName: string;
+      season: number;
+      number: number;
+      label: string;
+      airdate: string;
+      airtime: string | null;
+      network: string | null;
+      sortTime: number;
+    }[];
+  }[] = [];
+
+  for (let i = 0; i < 7; i++) {
+    const date = calendarDatePlusDays(weekStart, i);
+    const t = utcInstantForLocalCalendarDate(date, tz);
+    const weekdayLabel = fmtWeekday.format(new Date(t));
+    const monthDayLabel = new Intl.DateTimeFormat("en-US", { timeZone: tz, month: "short", day: "numeric" }).format(
+      new Date(t),
+    );
+    const eps = rows
+      .filter((r) => r.airdate === date)
+      .map((r) => ({
+        tvmazeShowId: r.tvmazeShowId,
+        showName: r.showName,
+        tvmazeEpisodeId: r.tvmazeEpisodeId,
+        episodeName: r.episodeName,
+        season: r.season,
+        number: r.number,
+        label: `S${r.season}E${r.number}`,
+        airdate: r.airdate,
+        airtime: r.airtime && String(r.airtime).trim() ? String(r.airtime).trim() : null,
+        network: r.network && String(r.network).trim() ? String(r.network).trim() : null,
+        sortTime: airtimeSortKey(r.airtime),
+      }))
+      .sort((a, b) => a.sortTime - b.sortTime || a.showName.localeCompare(b.showName));
+    days.push({ date, weekdayLabel, monthDayLabel, episodes: eps });
+  }
+
+  return {
+    timezone: tz,
+    weekStart,
+    weekEnd,
+    episodeCount: rows.length,
+    days,
+  };
+});
+
 app.get("/api/users/:userId/recommended-shows", async (request, reply) => {
   const { userId } = request.params as { userId: string };
   const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
@@ -1658,7 +2181,7 @@ app.get("/api/users/:userId/recommended-shows", async (request, reply) => {
     .all(userId) as { id: number }[];
   const ids = rows.map((r) => Number(r.id)).filter((n) => Number.isInteger(n) && n > 0);
   try {
-    const { shows, queriesUsed } = await computeRecommendedShows(ids);
+    const { shows, queriesUsed } = await computeRecommendedShows(userId, ids);
     return { shows, queriesUsed };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -1733,6 +2256,58 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
   return { id, tvmazeShowId: show.id, showName: show.name, addedFrom, episodesCached };
 });
 
+app.patch("/api/subscriptions/:subscriptionId", async (request, reply) => {
+  const { subscriptionId } = request.params as { subscriptionId: string };
+  const body = (request.body ?? {}) as { communityEpisodesBehind?: number | null; bingeLater?: boolean };
+  const sub = db
+    .prepare(`SELECT user_id FROM show_subscriptions WHERE id = ?`)
+    .get(subscriptionId) as { user_id: string } | undefined;
+  if (!sub) {
+    reply.code(404);
+    return { error: "Not found" };
+  }
+  if (!assertSelfOrAdmin(request, reply, sub.user_id)) return;
+  const hasEb = "communityEpisodesBehind" in body;
+  const hasBl = "bingeLater" in body;
+  if (!hasEb && !hasBl) {
+    reply.code(400);
+    return { error: "Set communityEpisodesBehind (0–52 or null) and/or bingeLater (boolean)" };
+  }
+  if (hasEb) {
+    const v = body.communityEpisodesBehind;
+    if (v === null) {
+      db.prepare(`UPDATE show_subscriptions SET community_episodes_behind = NULL WHERE id = ?`).run(subscriptionId);
+    } else if (typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= 52) {
+      db.prepare(`UPDATE show_subscriptions SET community_episodes_behind = ? WHERE id = ?`).run(v, subscriptionId);
+    } else {
+      reply.code(400);
+      return { error: "communityEpisodesBehind must be null or an integer from 0 to 52" };
+    }
+  }
+  if (hasBl) {
+    if (typeof body.bingeLater !== "boolean") {
+      reply.code(400);
+      return { error: "bingeLater must be boolean" };
+    }
+    db.prepare(`UPDATE show_subscriptions SET binge_later = ? WHERE id = ?`).run(body.bingeLater ? 1 : 0, subscriptionId);
+  }
+  const row = db
+    .prepare(
+      `SELECT id, tvmaze_show_id AS tvmazeShowId, community_episodes_behind AS communityEpisodesBehind,
+              binge_later AS bingeLaterRaw
+       FROM show_subscriptions WHERE id = ?`,
+    )
+    .get(subscriptionId) as
+    | { id: string; tvmazeShowId: number; communityEpisodesBehind: number | null; bingeLaterRaw: number | null }
+    | undefined;
+  if (!row) {
+    reply.code(404);
+    return { error: "Not found" };
+  }
+  const { bingeLaterRaw, ...rest } = row;
+  return { subscription: { ...rest, bingeLater: bingeLaterRaw === 1 } };
+});
+
 app.delete("/api/subscriptions/:subscriptionId", async (request, reply) => {
   const { subscriptionId } = request.params as { subscriptionId: string };
   const sub = db
@@ -1744,6 +2319,105 @@ app.delete("/api/subscriptions/:subscriptionId", async (request, reply) => {
   }
   if (!assertSelfOrAdmin(request, reply, sub.user_id)) return;
   db.prepare(`DELETE FROM show_subscriptions WHERE id = ?`).run(subscriptionId);
+  return { ok: true };
+});
+
+app.get("/api/people/search", async (request, reply) => {
+  const q = (request.query as { q?: string }).q?.trim() ?? "";
+  if (q.length < 2) {
+    reply.code(400);
+    return { error: "Enter at least 2 characters" };
+  }
+  try {
+    const raw = await searchPeople(q);
+    const hits = raw.slice(0, 25).map((h) => ({
+      id: h.person.id,
+      name: h.person.name,
+      image: h.person.image?.medium ?? h.person.image?.original ?? null,
+      country: h.person.country?.name ?? null,
+    }));
+    return { people: hits };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    reply.code(502);
+    return { error: msg };
+  }
+});
+
+app.get("/api/users/:userId/person-follows", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
+  const rows = db
+    .prepare(
+      `SELECT id, tvmaze_person_id AS tvmazePersonId, person_name AS personName, created_at AS createdAt
+       FROM user_person_follows WHERE user_id = ? ORDER BY created_at DESC`,
+    )
+    .all(userId) as { id: string; tvmazePersonId: number; personName: string; createdAt: string }[];
+  return { follows: rows };
+});
+
+app.post("/api/users/:userId/person-follows", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const body = (request.body ?? {}) as { tvmazePersonId?: number };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
+  if (typeof body.tvmazePersonId !== "number" || !Number.isInteger(body.tvmazePersonId) || body.tvmazePersonId < 1) {
+    reply.code(400);
+    return { error: "tvmazePersonId required" };
+  }
+  let person;
+  try {
+    person = await fetchPerson(body.tvmazePersonId);
+  } catch {
+    reply.code(404);
+    return { error: "Person not found on TVMaze" };
+  }
+  const id = uuidv4();
+  try {
+    db.prepare(
+      `INSERT INTO user_person_follows (id, user_id, tvmaze_person_id, person_name) VALUES (?, ?, ?, ?)`,
+    ).run(id, userId, person.id, person.name);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    if (msg.includes("UNIQUE")) {
+      reply.code(409);
+      return { error: "Already following" };
+    }
+    throw e;
+  }
+  try {
+    await baselinePersonCreditsForPerson(person.id);
+  } catch (err) {
+    app.log.warn({ err, personId: person.id }, "baselinePersonCreditsForPerson failed");
+  }
+  reply.code(201);
+  return {
+    id,
+    tvmazePersonId: person.id,
+    personName: person.name,
+  };
+});
+
+app.delete("/api/person-follows/:followId", async (request, reply) => {
+  const { followId } = request.params as { followId: string };
+  const row = db
+    .prepare(`SELECT user_id FROM user_person_follows WHERE id = ?`)
+    .get(followId) as { user_id: string } | undefined;
+  if (!row) {
+    reply.code(404);
+    return { error: "Not found" };
+  }
+  if (!assertSelfOrAdmin(request, reply, row.user_id)) return;
+  db.prepare(`DELETE FROM user_person_follows WHERE id = ?`).run(followId);
   return { ok: true };
 });
 
@@ -1852,8 +2526,15 @@ app.post("/api/users/:userId/test-push", async (request, reply) => {
 app.post("/api/jobs/run", async () => {
   const refreshed = await refreshAllSubscribedShows();
   const notifications = await runDailyNotifications();
+  const personProjectPushes = await runPersonNewProjectNotifications();
   const taskNudgesSent = await runTaskNudgeNotifications();
-  return { refreshed, notificationsCreated: notifications.length, notifications, taskNudgesSent };
+  return {
+    refreshed,
+    notificationsCreated: notifications.length,
+    notifications,
+    personProjectPushes,
+    taskNudgesSent,
+  };
 });
 
 app.get("/api/users/:userId/watch-tasks", async (request, reply) => {
@@ -1868,9 +2549,17 @@ app.get("/api/users/:userId/watch-tasks", async (request, reply) => {
     .prepare(
       `SELECT id, tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId,
               show_name AS showName, episode_label AS episodeLabel, airdate,
-              completed_at AS completedAt, nudge_sent_at AS nudgeSentAt, created_at AS createdAt
+              completed_at AS completedAt, dismissed_at AS dismissedAt,
+              nudge_sent_at AS nudgeSentAt, created_at AS createdAt
        FROM watch_tasks WHERE user_id = ?
-       ORDER BY (completed_at IS NULL) DESC, airdate DESC, created_at DESC
+       ORDER BY
+         CASE
+           WHEN completed_at IS NULL AND dismissed_at IS NULL THEN 0
+           WHEN completed_at IS NOT NULL THEN 1
+           ELSE 2
+         END,
+         airdate DESC,
+         created_at DESC
        LIMIT 120`,
     )
     .all(userId);
@@ -1879,7 +2568,7 @@ app.get("/api/users/:userId/watch-tasks", async (request, reply) => {
 
 app.patch("/api/users/:userId/watch-tasks/:taskId", async (request, reply) => {
   const { userId, taskId } = request.params as { userId: string; taskId: string };
-  const body = (request.body ?? {}) as { completed?: boolean };
+  const body = (request.body ?? {}) as { completed?: boolean; status?: string };
   const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
   if (!u) {
     reply.code(404);
@@ -1893,19 +2582,51 @@ app.patch("/api/users/:userId/watch-tasks/:taskId", async (request, reply) => {
     reply.code(404);
     return { error: "Task not found" };
   }
-  if (body.completed === true) {
-    db.prepare(`UPDATE watch_tasks SET completed_at = datetime('now') WHERE id = ? AND user_id = ?`).run(taskId, userId);
+  if (typeof body.status === "string") {
+    const s = body.status;
+    if (s === "watched") {
+      db
+        .prepare(
+          `UPDATE watch_tasks SET completed_at = datetime('now'), dismissed_at = NULL WHERE id = ? AND user_id = ?`,
+        )
+        .run(taskId, userId);
+    } else if (s === "skipped") {
+      db
+        .prepare(
+          `UPDATE watch_tasks SET dismissed_at = datetime('now'), completed_at = NULL, nudge_sent_at = NULL WHERE id = ? AND user_id = ?`,
+        )
+        .run(taskId, userId);
+    } else if (s === "open") {
+      db
+        .prepare(
+          `UPDATE watch_tasks SET completed_at = NULL, dismissed_at = NULL, nudge_sent_at = NULL WHERE id = ? AND user_id = ?`,
+        )
+        .run(taskId, userId);
+    } else {
+      reply.code(400);
+      return { error: "status must be open, watched, or skipped" };
+    }
+  } else if (body.completed === true) {
+    db
+      .prepare(
+        `UPDATE watch_tasks SET completed_at = datetime('now'), dismissed_at = NULL WHERE id = ? AND user_id = ?`,
+      )
+      .run(taskId, userId);
   } else if (body.completed === false) {
-    db.prepare(`UPDATE watch_tasks SET completed_at = NULL WHERE id = ? AND user_id = ?`).run(taskId, userId);
+    db
+      .prepare(
+        `UPDATE watch_tasks SET completed_at = NULL, dismissed_at = NULL, nudge_sent_at = NULL WHERE id = ? AND user_id = ?`,
+      )
+      .run(taskId, userId);
   } else {
     reply.code(400);
-    return { error: "Set completed: true or false" };
+    return { error: "Set completed: true or false, or status: open | watched | skipped" };
   }
   const row = db
     .prepare(
       `SELECT id, tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId,
               show_name AS showName, episode_label AS episodeLabel, airdate,
-              completed_at AS completedAt, nudge_sent_at AS nudgeSentAt
+              completed_at AS completedAt, dismissed_at AS dismissedAt, nudge_sent_at AS nudgeSentAt
        FROM watch_tasks WHERE id = ? AND user_id = ?`,
     )
     .get(taskId, userId);
@@ -1979,20 +2700,210 @@ app.get("/api/users/:userId/upcoming", async (request, reply) => {
   return { upcoming };
 });
 
-app.get("/api/community/threads", async () => {
-  const rows = db
+const COMMUNITY_EPISODE_THREAD_DAYS = 120;
+
+type CommunityThreadListRow = {
+  tvmazeShowId: number;
+  showName: string;
+  tvmazeEpisodeId: number | null;
+  episodeLabel: string;
+  airdate: string | null;
+  postCount: number;
+  lastPostAt: string | null;
+  episodeAirsToday: boolean;
+  threadKind: "episode" | "general";
+};
+
+function sortCommunityThreadRows(a: CommunityThreadListRow, b: CommunityThreadListRow): number {
+  if (a.episodeAirsToday !== b.episodeAirsToday) return a.episodeAirsToday ? -1 : 1;
+  if (a.airdate && b.airdate) {
+    const c = b.airdate.localeCompare(a.airdate);
+    if (c !== 0) return c;
+  } else if (a.airdate && !b.airdate) return -1;
+  else if (!a.airdate && b.airdate) return 1;
+  const ta = a.lastPostAt ? new Date(a.lastPostAt).getTime() : 0;
+  const tb = b.lastPostAt ? new Date(b.lastPostAt).getTime() : 0;
+  return tb - ta;
+}
+
+function communityEpisodeThreadLabel(season: number, number: number, name: string): string {
+  return `S${season}E${number} — ${name || "TBA"}`;
+}
+
+function communityThreadTitleDiscussion(season: number, number: number): string {
+  return `S${season}E${number} — Discussion`;
+}
+
+function resolveCommunityShowName(showId: number, sessionUserId: string | undefined): string {
+  if (sessionUserId) {
+    const sub = db
+      .prepare(`SELECT show_name AS showName FROM show_subscriptions WHERE user_id = ? AND tvmaze_show_id = ?`)
+      .get(sessionUserId, showId) as { showName: string } | undefined;
+    if (sub?.showName) return sub.showName;
+  }
+  const fromPosts = db
+    .prepare(`SELECT MAX(show_name) AS showName FROM community_posts WHERE tvmaze_show_id = ? AND deleted_at IS NULL`)
+    .get(showId) as { showName: string | null } | undefined;
+  return fromPosts?.showName?.trim() ?? "";
+}
+
+function buildCommunityThreadsForUser(userId: string, timezone: string): CommunityThreadListRow[] {
+  const today = safeTodayInTimeZone(timezone);
+  const cutoff = calendarDateMinusDays(today, COMMUNITY_EPISODE_THREAD_DAYS);
+
+  const subs = db
+    .prepare(`SELECT tvmaze_show_id AS tvmazeShowId, show_name AS showName FROM show_subscriptions WHERE user_id = ?`)
+    .all(userId) as { tvmazeShowId: number; showName: string }[];
+
+  const epStmt = db.prepare(
+    `SELECT tvmaze_episode_id AS tvmazeEpisodeId, name, season, number, date(airdate) AS airdate
+     FROM episodes_cache
+     WHERE tvmaze_show_id = ?
+       AND airdate IS NOT NULL AND TRIM(airdate) != ''
+       AND date(airdate) IS NOT NULL
+       AND date(airdate) <= date(?)
+       AND date(airdate) >= date(?)`,
+  );
+
+  const statsStmt = db.prepare(
+    `SELECT COUNT(*) AS c, MAX(created_at) AS lastPostAt
+     FROM community_posts
+     WHERE tvmaze_show_id = ? AND tvmaze_episode_id = ? AND deleted_at IS NULL`,
+  );
+
+  const out: CommunityThreadListRow[] = [];
+  for (const s of subs) {
+    const eps = epStmt.all(s.tvmazeShowId, today, cutoff) as {
+      tvmazeEpisodeId: number;
+      name: string;
+      season: number;
+      number: number;
+      airdate: string;
+    }[];
+    for (const ep of eps) {
+      const st = statsStmt.get(s.tvmazeShowId, ep.tvmazeEpisodeId) as { c: number; lastPostAt: string | null };
+      const postCount = Number(st?.c ?? 0);
+      const lastPostAt = st?.lastPostAt ?? null;
+      const episodeAirsToday = ep.airdate === today;
+      out.push({
+        tvmazeShowId: s.tvmazeShowId,
+        showName: s.showName,
+        tvmazeEpisodeId: ep.tvmazeEpisodeId,
+        episodeLabel: communityEpisodeThreadLabel(ep.season, ep.number, ep.name),
+        airdate: ep.airdate,
+        postCount,
+        lastPostAt,
+        episodeAirsToday,
+        threadKind: "episode",
+      });
+    }
+  }
+
+  const generalAgg = db
     .prepare(
-      `SELECT tvmaze_show_id AS tvmazeShowId,
-              MAX(show_name) AS showName,
-              COUNT(*) AS postCount,
-              MAX(created_at) AS lastPostAt
+      `SELECT tvmaze_show_id AS tvmazeShowId, MAX(show_name) AS showName,
+              COUNT(*) AS postCount, MAX(created_at) AS lastPostAt
        FROM community_posts
-       WHERE deleted_at IS NULL
-       GROUP BY tvmaze_show_id
-       ORDER BY datetime(MAX(created_at)) DESC`,
+       WHERE deleted_at IS NULL AND tvmaze_episode_id IS NULL
+       GROUP BY tvmaze_show_id`,
     )
     .all() as { tvmazeShowId: number; showName: string; postCount: number; lastPostAt: string }[];
-  return { threads: rows };
+
+  for (const g of generalAgg) {
+    out.push({
+      tvmazeShowId: g.tvmazeShowId,
+      showName: g.showName,
+      tvmazeEpisodeId: null,
+      episodeLabel: "General discussion",
+      airdate: null,
+      postCount: Number(g.postCount),
+      lastPostAt: g.lastPostAt,
+      episodeAirsToday: false,
+      threadKind: "general",
+    });
+  }
+
+  out.sort(sortCommunityThreadRows);
+  return out;
+}
+
+function buildCommunityThreadsForGuest(): CommunityThreadListRow[] {
+  const agg = db
+    .prepare(
+      `SELECT tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId,
+              MAX(show_name) AS showName, COUNT(*) AS postCount, MAX(created_at) AS lastPostAt
+       FROM community_posts
+       WHERE deleted_at IS NULL AND tvmaze_episode_id IS NOT NULL
+       GROUP BY tvmaze_show_id, tvmaze_episode_id`,
+    )
+    .all() as {
+    tvmazeShowId: number;
+    tvmazeEpisodeId: number;
+    showName: string;
+    postCount: number;
+    lastPostAt: string;
+  }[];
+
+  const cacheStmt = db.prepare(
+    `SELECT name, season, number, date(airdate) AS airdate FROM episodes_cache WHERE tvmaze_show_id = ? AND tvmaze_episode_id = ?`,
+  );
+
+  const out: CommunityThreadListRow[] = [];
+  for (const r of agg) {
+    const c = cacheStmt.get(r.tvmazeShowId, r.tvmazeEpisodeId) as
+      | { name: string; season: number; number: number; airdate: string }
+      | undefined;
+    const episodeLabel = c
+      ? communityEpisodeThreadLabel(c.season, c.number, c.name)
+      : `Episode ${r.tvmazeEpisodeId}`;
+    out.push({
+      tvmazeShowId: r.tvmazeShowId,
+      showName: r.showName,
+      tvmazeEpisodeId: r.tvmazeEpisodeId,
+      episodeLabel,
+      airdate: c?.airdate ?? null,
+      postCount: Number(r.postCount),
+      lastPostAt: r.lastPostAt,
+      episodeAirsToday: false,
+      threadKind: "episode",
+    });
+  }
+
+  const generalAgg = db
+    .prepare(
+      `SELECT tvmaze_show_id AS tvmazeShowId, MAX(show_name) AS showName,
+              COUNT(*) AS postCount, MAX(created_at) AS lastPostAt
+       FROM community_posts
+       WHERE deleted_at IS NULL AND tvmaze_episode_id IS NULL
+       GROUP BY tvmaze_show_id`,
+    )
+    .all() as { tvmazeShowId: number; showName: string; postCount: number; lastPostAt: string }[];
+
+  for (const g of generalAgg) {
+    out.push({
+      tvmazeShowId: g.tvmazeShowId,
+      showName: g.showName,
+      tvmazeEpisodeId: null,
+      episodeLabel: "General discussion",
+      airdate: null,
+      postCount: Number(g.postCount),
+      lastPostAt: g.lastPostAt,
+      episodeAirsToday: false,
+      threadKind: "general",
+    });
+  }
+
+  out.sort(sortCommunityThreadRows);
+  return out;
+}
+
+app.get("/api/community/threads", async (request) => {
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    return { threads: buildCommunityThreadsForGuest() };
+  }
+  const userRow = db.prepare(`SELECT timezone FROM users WHERE id = ?`).get(sid) as { timezone: string } | undefined;
+  return { threads: buildCommunityThreadsForUser(sid, userRow?.timezone ?? "America/Los_Angeles") };
 });
 
 app.get("/api/community/threads/:showId/posts", async (request, reply) => {
@@ -2001,20 +2912,40 @@ app.get("/api/community/threads/:showId/posts", async (request, reply) => {
     reply.code(400);
     return { error: "Invalid show id" };
   }
-  const sort = (request.query as { sort?: string }).sort === "oldest" ? "ASC" : "DESC";
-  const rows = db
-    .prepare(
-      `SELECT p.id, p.user_id, p.tvmaze_show_id, p.show_name, p.tvmaze_episode_id, p.episode_label,
+  const q = request.query as { sort?: string; episodeId?: string };
+  const sort = q.sort === "oldest" ? "ASC" : "DESC";
+  const epRaw = q.episodeId;
+  let episodeScope: "general" | "episode";
+  let episodeNum: number | null = null;
+  if (epRaw == null || epRaw === "" || epRaw === "general") {
+    episodeScope = "general";
+  } else {
+    const n = Number(epRaw);
+    if (!Number.isInteger(n) || n < 1) {
+      reply.code(400);
+      return { error: "episodeId must be a positive integer or 'general'" };
+    }
+    episodeScope = "episode";
+    episodeNum = n;
+  }
+
+  const whereExtra =
+    episodeScope === "general" ? "p.tvmaze_episode_id IS NULL" : "p.tvmaze_episode_id = ?";
+  const sql = `SELECT p.id, p.user_id, p.tvmaze_show_id, p.show_name, p.tvmaze_episode_id, p.episode_label,
               p.body_html, p.is_spoiler, p.created_at, p.edited_at, p.edited_by_user_id,
               au.display_name AS authorDisplayName, au.username AS authorUsername, au.avatar_data_url AS authorAvatarDataUrl,
               eu.display_name AS editorDisplayName, eu.username AS editorUsername
        FROM community_posts p
        JOIN users au ON au.id = p.user_id
        LEFT JOIN users eu ON eu.id = p.edited_by_user_id
-       WHERE p.tvmaze_show_id = ? AND p.deleted_at IS NULL
-       ORDER BY datetime(p.created_at) ${sort}, p.id ${sort}`,
-    )
-    .all(showId) as CommunityPostRow[];
+       WHERE p.tvmaze_show_id = ? AND p.deleted_at IS NULL AND ${whereExtra}
+       ORDER BY datetime(p.created_at) ${sort}, p.id ${sort}`;
+
+  const rows = (
+    episodeScope === "general"
+      ? db.prepare(sql).all(showId)
+      : db.prepare(sql).all(showId, episodeNum)
+  ) as CommunityPostRow[];
 
   const sid = sessionUserIdFromRequest(request);
   let subscribed = false;
@@ -2025,9 +2956,61 @@ app.get("/api/community/threads/:showId/posts", async (request, reply) => {
     subscribed = Boolean(sub);
   }
 
-  const meta = db
-    .prepare(`SELECT MAX(show_name) AS showName FROM community_posts WHERE tvmaze_show_id = ? AND deleted_at IS NULL`)
-    .get(showId) as { showName: string | null } | undefined;
+  let showName = resolveCommunityShowName(showId, sid);
+  if (!showName) {
+    try {
+      const detail = await fetchShow(showId);
+      showName = detail.name?.trim() ?? "";
+    } catch {
+      showName = "";
+    }
+  }
+
+  const postCountRow = (
+    episodeScope === "general"
+      ? db
+          .prepare(
+            `SELECT COUNT(*) AS c FROM community_posts WHERE tvmaze_show_id = ? AND deleted_at IS NULL AND tvmaze_episode_id IS NULL`,
+          )
+          .get(showId)
+      : db
+          .prepare(
+            `SELECT COUNT(*) AS c FROM community_posts WHERE tvmaze_show_id = ? AND deleted_at IS NULL AND tvmaze_episode_id = ?`,
+          )
+          .get(showId, episodeNum)
+  ) as { c: number };
+  const postCount = Number(postCountRow?.c ?? 0);
+
+  let threadTitle = "Discussion";
+  let threadSubtitle = showName;
+  if (episodeScope === "episode" && episodeNum != null) {
+    const epRow = db
+      .prepare(
+        `SELECT name, season, number FROM episodes_cache WHERE tvmaze_show_id = ? AND tvmaze_episode_id = ?`,
+      )
+      .get(showId, episodeNum) as { name: string; season: number; number: number } | undefined;
+    if (epRow) {
+      threadTitle = communityThreadTitleDiscussion(epRow.season, epRow.number);
+      const epName = epRow.name || null;
+      threadSubtitle = [epName, showName].filter(Boolean).join(" · ");
+    } else {
+      threadTitle = "Episode discussion";
+      threadSubtitle = showName;
+    }
+  } else {
+    threadTitle = "General discussion";
+    threadSubtitle = showName;
+  }
+
+  let showImageUrl: string | null = null;
+  let showStatus: string | null = null;
+  try {
+    const detail = await fetchShow(showId);
+    showImageUrl = detail.image?.original ?? detail.image?.medium ?? null;
+    showStatus = detail.status ?? null;
+  } catch {
+    /* TVMaze unavailable — thread still works */
+  }
 
   let canSubscribeThread = rows.length > 0;
   if (sid && !canSubscribeThread) {
@@ -2037,12 +3020,466 @@ app.get("/api/community/threads/:showId/posts", async (request, reply) => {
     canSubscribeThread = Boolean(onList);
   }
 
+  let viewerCatchUp: { subscriptionId: string; episodesBehind: number; bingeLater: boolean } | null = null;
+  let aheadSet: Set<number> | null = null;
+  if (sid) {
+    const ur = db.prepare(`SELECT timezone FROM users WHERE id = ?`).get(sid) as { timezone: string } | undefined;
+    const todayStr = safeTodayInTimeZone(ur?.timezone);
+    aheadSet = getCatchUpAheadEpisodeIdSet(showId, sid, todayStr);
+    const subRow = db
+      .prepare(
+        `SELECT id, community_episodes_behind, binge_later FROM show_subscriptions WHERE user_id = ? AND tvmaze_show_id = ?`,
+      )
+      .get(sid, showId) as { id: string; community_episodes_behind: number | null; binge_later: number | null } | undefined;
+    if (subRow) {
+      viewerCatchUp = {
+        subscriptionId: subRow.id,
+        episodesBehind: Math.max(0, Number(subRow.community_episodes_behind ?? 0)),
+        bingeLater: subRow.binge_later === 1,
+      };
+    }
+  }
+
+  const posts = rows.map((r) => {
+    const base = formatCommunityPost(r);
+    const catchUpSpoiler =
+      aheadSet != null && r.tvmaze_episode_id != null && aheadSet.has(r.tvmaze_episode_id);
+    return { ...base, catchUpSpoiler };
+  });
+
+  const liveAirNight =
+    episodeScope === "episode" && episodeNum != null && isEpisodeLiveAirNightWindow(showId, episodeNum);
+
   return {
     tvmazeShowId: showId,
-    showName: meta?.showName ?? "",
+    showName,
+    tvmazeEpisodeId: episodeScope === "episode" ? episodeNum : null,
+    episodeScope,
+    threadTitle,
+    threadSubtitle,
+    postCount,
+    showImageUrl,
+    showStatus,
     subscribed,
     canSubscribeThread,
-    posts: rows.map(formatCommunityPost),
+    viewerCatchUp,
+    liveAirNight,
+    posts,
+  };
+});
+
+type EpisodePollRow = {
+  id: string;
+  user_id: string;
+  question: string;
+  options_json: string;
+  correct_option_index: number | null;
+  created_at: string;
+};
+
+function episodePollToJson(poll: EpisodePollRow, showId: number, episodeId: number, viewerId: string | undefined) {
+  let options: string[];
+  try {
+    options = JSON.parse(poll.options_json) as string[];
+  } catch {
+    options = [];
+  }
+  const n = options.length;
+  const voteCounts = new Array(n).fill(0);
+  const agg = db
+    .prepare(
+      `SELECT option_index AS i, COUNT(*) AS c FROM community_episode_poll_votes WHERE poll_id = ? GROUP BY option_index`,
+    )
+    .all(poll.id) as { i: number; c: number }[];
+  for (const r of agg) {
+    if (r.i >= 0 && r.i < n) voteCounts[r.i] = Number(r.c);
+  }
+  let myVote: number | null = null;
+  if (viewerId) {
+    const v = db
+      .prepare(`SELECT option_index FROM community_episode_poll_votes WHERE poll_id = ? AND user_id = ?`)
+      .get(poll.id, viewerId) as { option_index: number } | undefined;
+    if (v) myVote = v.option_index;
+  }
+  const author = db
+    .prepare(`SELECT display_name, username FROM users WHERE id = ?`)
+    .get(poll.user_id) as { display_name: string | null; username: string | null } | undefined;
+  const votingOpen = isEpisodePollVotingOpen(showId, episodeId);
+  return {
+    id: poll.id,
+    question: poll.question,
+    options,
+    voteCounts,
+    totalVotes: voteCounts.reduce((a: number, b: number) => a + b, 0),
+    myVote,
+    votingOpen,
+    locked: !votingOpen,
+    correctOptionIndex: poll.correct_option_index,
+    revealed: poll.correct_option_index != null,
+    authorUserId: poll.user_id,
+    authorHandle: authorPublicHandle(author ?? { display_name: null, username: null }),
+    createdAt: poll.created_at,
+  };
+}
+
+app.get("/api/community/threads/:showId/episode-polls", async (request, reply) => {
+  const showId = Number((request.params as { showId: string }).showId);
+  if (!Number.isInteger(showId) || showId < 1) {
+    reply.code(400);
+    return { error: "Invalid show id" };
+  }
+  const q = request.query as { episodeId?: string };
+  const ep = Number(q.episodeId);
+  if (!Number.isInteger(ep) || ep < 1) {
+    reply.code(400);
+    return { error: "episodeId required" };
+  }
+  const sid = sessionUserIdFromRequest(request);
+  const rows = db
+    .prepare(
+      `SELECT id, user_id, question, options_json, correct_option_index, created_at
+       FROM community_episode_polls WHERE tvmaze_show_id = ? AND tvmaze_episode_id = ?
+       ORDER BY datetime(created_at) DESC`,
+    )
+    .all(showId, ep) as EpisodePollRow[];
+  return {
+    airdateKnown: episodeAirStartUtcMs(showId, ep) != null,
+    votingOpen: isEpisodePollVotingOpen(showId, ep),
+    polls: rows.map((r) => episodePollToJson(r, showId, ep, sid)),
+  };
+});
+
+app.post("/api/community/episode-polls", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const body = (request.body ?? {}) as {
+    tvmazeShowId?: number;
+    tvmazeEpisodeId?: number;
+    question?: string;
+    options?: unknown;
+  };
+  const showId = Number(body.tvmazeShowId);
+  const ep = Number(body.tvmazeEpisodeId);
+  if (!Number.isInteger(showId) || showId < 1 || !Number.isInteger(ep) || ep < 1) {
+    reply.code(400);
+    return { error: "tvmazeShowId and tvmazeEpisodeId required" };
+  }
+  if (!isEpisodePollVotingOpen(showId, ep)) {
+    reply.code(400);
+    return { error: "Polls are locked after this episode’s listed air date (or the episode has no air date yet)." };
+  }
+  const label = await resolveCommunityEpisodeLabel(showId, ep);
+  if (!label) {
+    reply.code(400);
+    return { error: "Episode not found for this show" };
+  }
+  const qRaw = typeof body.question === "string" ? body.question.trim() : "";
+  if (!qRaw || qRaw.length > POLL_MAX_QUESTION) {
+    reply.code(400);
+    return { error: "Question required (max " + String(POLL_MAX_QUESTION) + " characters)" };
+  }
+  const options = normalizePollOptions(body.options);
+  if (!options) {
+    reply.code(400);
+    return { error: "Provide 2–8 unique options (max length per option enforced)" };
+  }
+  const n = db
+    .prepare(`SELECT COUNT(*) AS c FROM community_episode_polls WHERE tvmaze_show_id = ? AND tvmaze_episode_id = ?`)
+    .get(showId, ep) as { c: number };
+  if (Number(n.c) >= POLL_MAX_POLLS_PER_EPISODE) {
+    reply.code(400);
+    return { error: "Maximum prediction polls per episode reached" };
+  }
+  const id = uuidv4();
+  db.prepare(
+    `INSERT INTO community_episode_polls (id, tvmaze_show_id, tvmaze_episode_id, user_id, question, options_json)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+  ).run(id, showId, ep, uid, qRaw, JSON.stringify(options));
+  const row = db
+    .prepare(
+      `SELECT id, user_id, question, options_json, correct_option_index, created_at FROM community_episode_polls WHERE id = ?`,
+    )
+    .get(id) as EpisodePollRow | undefined;
+  reply.code(201);
+  return { poll: row ? episodePollToJson(row, showId, ep, uid) : { id } };
+});
+
+app.post("/api/community/episode-polls/:pollId/vote", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { pollId } = request.params as { pollId: string };
+  const body = (request.body ?? {}) as { optionIndex?: number };
+  const optionIndex = Number(body.optionIndex);
+  const poll = db
+    .prepare(`SELECT id, tvmaze_show_id, tvmaze_episode_id, options_json FROM community_episode_polls WHERE id = ?`)
+    .get(pollId) as { id: string; tvmaze_show_id: number; tvmaze_episode_id: number; options_json: string } | undefined;
+  if (!poll) {
+    reply.code(404);
+    return { error: "Poll not found" };
+  }
+  if (!isEpisodePollVotingOpen(poll.tvmaze_show_id, poll.tvmaze_episode_id)) {
+    reply.code(400);
+    return { error: "Voting is closed for this episode" };
+  }
+  let optCount = 0;
+  try {
+    optCount = (JSON.parse(poll.options_json) as string[]).length;
+  } catch {
+    reply.code(500);
+    return { error: "Invalid poll" };
+  }
+  if (!Number.isInteger(optionIndex) || optionIndex < 0 || optionIndex >= optCount) {
+    reply.code(400);
+    return { error: "Invalid option" };
+  }
+  db.prepare(
+    `INSERT INTO community_episode_poll_votes (poll_id, user_id, option_index) VALUES (?, ?, ?)
+     ON CONFLICT(poll_id, user_id) DO UPDATE SET option_index = excluded.option_index`,
+  ).run(pollId, uid, optionIndex);
+  const row = db
+    .prepare(
+      `SELECT id, user_id, question, options_json, correct_option_index, created_at FROM community_episode_polls WHERE id = ?`,
+    )
+    .get(pollId) as EpisodePollRow | undefined;
+  return { poll: row ? episodePollToJson(row, poll.tvmaze_show_id, poll.tvmaze_episode_id, uid) : null };
+});
+
+app.patch("/api/community/episode-polls/:pollId", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { pollId } = request.params as { pollId: string };
+  const body = (request.body ?? {}) as { correctOptionIndex?: number };
+  const poll = db
+    .prepare(
+      `SELECT id, user_id, tvmaze_show_id, tvmaze_episode_id, options_json, correct_option_index FROM community_episode_polls WHERE id = ?`,
+    )
+    .get(pollId) as
+    | {
+        id: string;
+        user_id: string;
+        tvmaze_show_id: number;
+        tvmaze_episode_id: number;
+        options_json: string;
+        correct_option_index: number | null;
+      }
+    | undefined;
+  if (!poll) {
+    reply.code(404);
+    return { error: "Poll not found" };
+  }
+  if (poll.user_id !== uid) {
+    reply.code(403);
+    return { error: "Only the poll author can reveal the answer" };
+  }
+  if (isEpisodePollVotingOpen(poll.tvmaze_show_id, poll.tvmaze_episode_id)) {
+    reply.code(400);
+    return { error: "Reveal the outcome after the episode airs (polls lock on the listed air date)" };
+  }
+  if (poll.correct_option_index != null) {
+    reply.code(400);
+    return { error: "Answer already set" };
+  }
+  const idx = Number(body.correctOptionIndex);
+  let len = 0;
+  try {
+    len = (JSON.parse(poll.options_json) as string[]).length;
+  } catch {
+    reply.code(500);
+    return { error: "Invalid poll" };
+  }
+  if (!Number.isInteger(idx) || idx < 0 || idx >= len) {
+    reply.code(400);
+    return { error: "Invalid correctOptionIndex" };
+  }
+  db.prepare(`UPDATE community_episode_polls SET correct_option_index = ? WHERE id = ?`).run(idx, pollId);
+  const row = db
+    .prepare(
+      `SELECT id, user_id, question, options_json, correct_option_index, created_at FROM community_episode_polls WHERE id = ?`,
+    )
+    .get(pollId) as EpisodePollRow | undefined;
+  return { poll: row ? episodePollToJson(row, poll.tvmaze_show_id, poll.tvmaze_episode_id, uid) : null };
+});
+
+app.delete("/api/community/episode-polls/:pollId", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { pollId } = request.params as { pollId: string };
+  const poll = db
+    .prepare(`SELECT user_id, tvmaze_show_id, tvmaze_episode_id FROM community_episode_polls WHERE id = ?`)
+    .get(pollId) as { user_id: string; tvmaze_show_id: number; tvmaze_episode_id: number } | undefined;
+  if (!poll) {
+    reply.code(404);
+    return { error: "Poll not found" };
+  }
+  if (poll.user_id !== uid) {
+    reply.code(403);
+    return { error: "Only the author can delete this poll" };
+  }
+  if (!isEpisodePollVotingOpen(poll.tvmaze_show_id, poll.tvmaze_episode_id)) {
+    reply.code(400);
+    return { error: "Cannot delete after the episode airs" };
+  }
+  db.prepare(`DELETE FROM community_episode_polls WHERE id = ?`).run(pollId);
+  return { ok: true };
+});
+
+function seasonEpisodeRatingsForChart(showId: number, season: number): {
+  tvmazeEpisodeId: number;
+  season: number;
+  number: number;
+  episodeName: string;
+  label: string;
+  avgRating: number | null;
+  ratingCount: number;
+}[] {
+  const rows = db
+    .prepare(
+      `SELECT e.tvmaze_episode_id AS tvmazeEpisodeId, e.season AS season, e.number AS number, e.name AS episodeName,
+              (SELECT AVG(rating) FROM community_episode_ratings r
+               WHERE r.tvmaze_show_id = e.tvmaze_show_id AND r.tvmaze_episode_id = e.tvmaze_episode_id) AS avgRating,
+              (SELECT COUNT(*) FROM community_episode_ratings r2
+               WHERE r2.tvmaze_show_id = e.tvmaze_show_id AND r2.tvmaze_episode_id = e.tvmaze_episode_id) AS ratingCount
+       FROM episodes_cache e
+       WHERE e.tvmaze_show_id = ? AND e.season = ?
+         AND e.airdate IS NOT NULL AND trim(e.airdate) != ''
+         AND date(e.airdate) <= date('now')
+       ORDER BY e.number ASC`,
+    )
+    .all(showId, season) as {
+    tvmazeEpisodeId: number;
+    season: number;
+    number: number;
+    episodeName: string;
+    avgRating: number | null;
+    ratingCount: number;
+  }[];
+  return rows.map((r) => ({
+    tvmazeEpisodeId: r.tvmazeEpisodeId,
+    season: r.season,
+    number: r.number,
+    episodeName: r.episodeName,
+    label: `S${r.season}E${r.number}`,
+    avgRating: r.avgRating != null ? Math.round(Number(r.avgRating) * 100) / 100 : null,
+    ratingCount: Number(r.ratingCount) || 0,
+  }));
+}
+
+/** Public aggregate — community sentiment by episode for charts and embeds. */
+app.get("/api/community/shows/:showId/episode-ratings-summary", async (request, reply) => {
+  const showId = Number((request.params as { showId: string }).showId);
+  const season = Number((request.query as { season?: string }).season);
+  if (!Number.isInteger(showId) || showId < 1 || !Number.isInteger(season)) {
+    reply.code(400);
+    return { error: "Invalid show id or season" };
+  }
+  let showName = resolveCommunityShowName(showId, undefined);
+  if (!showName) {
+    try {
+      const d = await fetchShow(showId);
+      showName = d.name?.trim() ?? "";
+    } catch {
+      showName = "";
+    }
+  }
+  const episodes = seasonEpisodeRatingsForChart(showId, season);
+  return { tvmazeShowId: showId, showName, season, episodes };
+});
+
+app.get("/api/community/shows/:showId/episode-ratings-seasons", async (request, reply) => {
+  const showId = Number((request.params as { showId: string }).showId);
+  if (!Number.isInteger(showId) || showId < 1) {
+    reply.code(400);
+    return { error: "Invalid show id" };
+  }
+  const rows = db
+    .prepare(
+      `SELECT DISTINCT season FROM episodes_cache
+       WHERE tvmaze_show_id = ?
+         AND airdate IS NOT NULL AND trim(airdate) != ''
+         AND date(airdate) <= date('now')
+       ORDER BY season ASC`,
+    )
+    .all(showId) as { season: number }[];
+  return { seasons: rows.map((r) => Number(r.season)) };
+});
+
+app.get("/api/community/shows/:showId/episode-rating", async (request, reply) => {
+  const showId = Number((request.params as { showId: string }).showId);
+  const ep = Number((request.query as { episodeId?: string }).episodeId);
+  if (!Number.isInteger(showId) || showId < 1 || !Number.isInteger(ep) || ep < 1) {
+    reply.code(400);
+    return { error: "Invalid show or episode" };
+  }
+  const agg = db
+    .prepare(
+      `SELECT AVG(rating) AS a, COUNT(*) AS c FROM community_episode_ratings WHERE tvmaze_show_id = ? AND tvmaze_episode_id = ?`,
+    )
+    .get(showId, ep) as { a: number | null; c: number } | undefined;
+  const sid = sessionUserIdFromRequest(request);
+  let myRating: number | null = null;
+  if (sid) {
+    const m = db
+      .prepare(
+        `SELECT rating FROM community_episode_ratings WHERE user_id = ? AND tvmaze_show_id = ? AND tvmaze_episode_id = ?`,
+      )
+      .get(sid, showId, ep) as { rating: number } | undefined;
+    if (m) myRating = m.rating;
+  }
+  const canRate = episodeHasAiredUtc(showId, ep);
+  return {
+    tvmazeShowId: showId,
+    tvmazeEpisodeId: ep,
+    canRate,
+    myRating,
+    avgRating:
+      agg?.a != null && Number(agg.c) > 0 ? Math.round(Number(agg.a) * 100) / 100 : null,
+    ratingCount: Number(agg?.c) || 0,
+  };
+});
+
+app.put("/api/community/episode-ratings", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const body = (request.body ?? {}) as { tvmazeShowId?: number; tvmazeEpisodeId?: number; rating?: number };
+  const showId = Number(body.tvmazeShowId);
+  const ep = Number(body.tvmazeEpisodeId);
+  const rating = Number(body.rating);
+  if (!Number.isInteger(showId) || showId < 1 || !Number.isInteger(ep) || ep < 1) {
+    reply.code(400);
+    return { error: "Invalid show or episode" };
+  }
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    reply.code(400);
+    return { error: "Rating must be between 1 and 5" };
+  }
+  if (!episodeHasAiredUtc(showId, ep)) {
+    reply.code(400);
+    return { error: "Ratings open after the episode’s listed air date" };
+  }
+  const label = await resolveCommunityEpisodeLabel(showId, ep);
+  if (!label) {
+    reply.code(400);
+    return { error: "Episode not found for this show" };
+  }
+  db.prepare(
+    `INSERT INTO community_episode_ratings (user_id, tvmaze_show_id, tvmaze_episode_id, rating, updated_at)
+     VALUES (?, ?, ?, ?, datetime('now'))
+     ON CONFLICT(user_id, tvmaze_show_id, tvmaze_episode_id) DO UPDATE SET
+       rating = excluded.rating,
+       updated_at = excluded.updated_at`,
+  ).run(uid, showId, ep, rating);
+  const agg = db
+    .prepare(
+      `SELECT AVG(rating) AS a, COUNT(*) AS c FROM community_episode_ratings WHERE tvmaze_show_id = ? AND tvmaze_episode_id = ?`,
+    )
+    .get(showId, ep) as { a: number | null; c: number };
+  return {
+    tvmazeShowId: showId,
+    tvmazeEpisodeId: ep,
+    canRate: true,
+    myRating: rating,
+    avgRating: agg.a != null ? Math.round(Number(agg.a) * 100) / 100 : null,
+    ratingCount: Number(agg.c) || 0,
   };
 });
 
@@ -2106,6 +3543,17 @@ app.post("/api/community/posts", async (request, reply) => {
     showName,
     authorUserId: uid,
     authorLabel,
+    tvmazeEpisodeId,
+    episodeLabel,
+  });
+  await notifyCommunityMentionedUsers({
+    bodyHtml,
+    previousBodyHtml: null,
+    taggerUserId: uid,
+    taggerLabel: authorLabel,
+    tvmazeShowId,
+    showName,
+    tvmazeEpisodeId,
   });
 
   const row = db
@@ -2252,6 +3700,22 @@ app.patch("/api/community/posts/:postId", async (request, reply) => {
         episodeChanged,
       },
     });
+
+    if (bodyChanged && editorId) {
+      const taggerRow = db
+        .prepare(`SELECT display_name, username FROM users WHERE id = ?`)
+        .get(editorId) as { display_name: string | null; username: string | null } | undefined;
+      const taggerLabel = taggerRow ? authorPublicHandle(taggerRow) : "Someone";
+      await notifyCommunityMentionedUsers({
+        bodyHtml: finHtml,
+        previousBodyHtml: cur.body_html,
+        taggerUserId: editorId,
+        taggerLabel,
+        tvmazeShowId: newShowId,
+        showName: newShowName,
+        tvmazeEpisodeId: finEpId,
+      });
+    }
   }
 
   const row = db
@@ -2368,6 +3832,27 @@ app.get("/api/dm/ws", { websocket: true }, (socket: WebSocket, request: FastifyR
   socket.on("error", () => unregisterDmSocket(uid, socket));
 });
 
+/** Ephemeral live rail + “watching now” presence for a thread (show + episode scope). */
+app.get("/api/community/thread-live/ws", { websocket: true }, (socket: WebSocket, request: FastifyRequest) => {
+  const uid = getRegisteredSessionUserId(request);
+  if (!uid) {
+    socket.close(4401, "Unauthorized");
+    return;
+  }
+  const q = request.query as { showId?: string; episode?: string };
+  const parsed = parseThreadLiveRoomQuery(q);
+  if (!parsed.ok) {
+    socket.close(4400, parsed.error);
+    return;
+  }
+  registerCommunityThreadLiveSocket(uid, socket, parsed.roomKey);
+  socket.on("message", (data) => {
+    handleCommunityThreadLiveMessage(uid, socket, data);
+  });
+  socket.on("close", () => unregisterCommunityThreadLiveSocket(socket));
+  socket.on("error", () => unregisterCommunityThreadLiveSocket(socket));
+});
+
 app.get("/api/dm/unread", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
@@ -2449,6 +3934,331 @@ app.post("/api/dm/threads/:threadId/read", async (request, reply) => {
   return { ok: true };
 });
 
+/** Search registered members by username (substring match). Requires a signed-in registered account. */
+app.get("/api/community/users/search", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const raw = (request.query as { q?: string }).q;
+  const q = typeof raw === "string" ? raw.trim().slice(0, 64) : "";
+  if (q.length < 1) {
+    return { users: [] as { id: string; username: string; displayName: string | null }[] };
+  }
+  const rows = db
+    .prepare(
+      `SELECT id, username, display_name AS displayName
+       FROM users
+       WHERE username IS NOT NULL AND TRIM(username) != ''
+         AND id != ?
+         AND instr(lower(username), lower(?)) > 0
+       ORDER BY
+         CASE WHEN lower(trim(username)) = lower(?) THEN 0 ELSE 1 END,
+         CASE WHEN instr(lower(username), lower(?)) = 1 THEN 0 ELSE 1 END,
+         length(username) ASC,
+         username ASC
+       LIMIT 20`,
+    )
+    .all(uid, q, q, q) as { id: string; username: string; displayName: string | null }[];
+  return {
+    users: rows.map((r) => ({
+      id: r.id,
+      username: r.username,
+      displayName: r.displayName,
+    })),
+  };
+});
+
+app.get("/api/community/challenges", async (request, reply) => {
+  const viewer = getRegisteredSessionUserId(request);
+  const rows = db
+    .prepare(
+      `SELECT c.*,
+              (SELECT COUNT(*) FROM community_watch_challenge_participants p WHERE p.challenge_id = c.id) AS participant_count
+       FROM community_watch_challenges c
+       ORDER BY
+         CASE WHEN date(c.deadline_airdate) >= date('now') THEN 0 ELSE 1 END,
+         datetime(c.created_at) DESC
+       LIMIT 40`,
+    )
+    .all() as (ChallengeRow & { participant_count: number })[];
+
+  const joinedSet = new Set<string>();
+  if (viewer && rows.length) {
+    const ids = rows.map((r) => r.id);
+    const placeholders = ids.map(() => "?").join(", ");
+    const jrows = db
+      .prepare(
+        `SELECT challenge_id FROM community_watch_challenge_participants WHERE user_id = ? AND challenge_id IN (${placeholders})`,
+      )
+      .all(viewer, ...ids) as { challenge_id: string }[];
+    for (const j of jrows) joinedSet.add(j.challenge_id);
+  }
+
+  const challenges = rows.map((c) => {
+    const myProgress =
+      viewer && joinedSet.has(c.id)
+        ? challengeProgressParts(viewer, {
+            tvmaze_target_show_id: c.tvmaze_target_show_id,
+            deadline_airdate: c.deadline_airdate,
+          })
+        : undefined;
+    return {
+      id: c.id,
+      title: c.title,
+      summary: c.summary,
+      tvmazeTargetShowId: c.tvmaze_target_show_id,
+      targetShowName: c.target_show_name,
+      tvmazeDeadlineShowId: c.tvmaze_deadline_show_id,
+      tvmazeDeadlineEpisodeId: c.tvmaze_deadline_episode_id,
+      deadlineShowName: c.deadline_show_name,
+      deadlineEpisodeLabel: c.deadline_episode_label,
+      deadlineAirdate: c.deadline_airdate,
+      createdAt: c.created_at,
+      active: challengeIsActive(c.deadline_airdate),
+      participantCount: Number(c.participant_count ?? 0),
+      joined: viewer ? joinedSet.has(c.id) : false,
+      myProgress,
+    };
+  });
+
+  return { challenges };
+});
+
+app.get("/api/community/challenges/:challengeId", async (request, reply) => {
+  const { challengeId } = request.params as { challengeId: string };
+  const viewer = getRegisteredSessionUserId(request);
+  const c = db
+    .prepare(`SELECT * FROM community_watch_challenges WHERE id = ?`)
+    .get(challengeId) as ChallengeRow | undefined;
+  if (!c) {
+    reply.code(404);
+    return { error: "Challenge not found" };
+  }
+
+  const participantCount = Number(
+    (
+      db
+        .prepare(`SELECT COUNT(*) AS c FROM community_watch_challenge_participants WHERE challenge_id = ?`)
+        .get(challengeId) as { c: number }
+    ).c ?? 0,
+  );
+
+  let joined = false;
+  if (viewer) {
+    const j = db
+      .prepare(
+        `SELECT 1 FROM community_watch_challenge_participants WHERE challenge_id = ? AND user_id = ?`,
+      )
+      .get(challengeId, viewer);
+    joined = Boolean(j);
+  }
+
+  const myProgress =
+    viewer && joined
+      ? challengeProgressParts(viewer, {
+          tvmaze_target_show_id: c.tvmaze_target_show_id,
+          deadline_airdate: c.deadline_airdate,
+        })
+      : null;
+
+  const parts = db
+    .prepare(
+      `SELECT user_id, joined_at FROM community_watch_challenge_participants WHERE challenge_id = ?`,
+    )
+    .all(challengeId) as { user_id: string; joined_at: string }[];
+
+  type LB = {
+    userId: string;
+    handle: string;
+    joinedAt: string;
+    completed: number;
+    eligible: number;
+    percent: number;
+    finished: boolean;
+  };
+
+  const leaderboard: LB[] = [];
+  for (const p of parts) {
+    const u = db
+      .prepare(`SELECT display_name, username FROM users WHERE id = ?`)
+      .get(p.user_id) as { display_name: string | null; username: string | null } | undefined;
+    const prog = challengeProgressParts(p.user_id, {
+      tvmaze_target_show_id: c.tvmaze_target_show_id,
+      deadline_airdate: c.deadline_airdate,
+    });
+    leaderboard.push({
+      userId: p.user_id,
+      handle: authorPublicHandle({ display_name: u?.display_name ?? null, username: u?.username ?? null }),
+      joinedAt: p.joined_at,
+      completed: prog.completed,
+      eligible: prog.eligible,
+      percent: prog.percent,
+      finished: prog.finished,
+    });
+  }
+
+  leaderboard.sort((a, b) => {
+    if (b.percent !== a.percent) return b.percent - a.percent;
+    if (b.completed !== a.completed) return b.completed - a.completed;
+    return String(a.joinedAt).localeCompare(String(b.joinedAt));
+  });
+
+  return {
+    challenge: {
+      id: c.id,
+      title: c.title,
+      summary: c.summary,
+      tvmazeTargetShowId: c.tvmaze_target_show_id,
+      targetShowName: c.target_show_name,
+      tvmazeDeadlineShowId: c.tvmaze_deadline_show_id,
+      tvmazeDeadlineEpisodeId: c.tvmaze_deadline_episode_id,
+      deadlineShowName: c.deadline_show_name,
+      deadlineEpisodeLabel: c.deadline_episode_label,
+      deadlineAirdate: c.deadline_airdate,
+      createdAt: c.created_at,
+      active: challengeIsActive(c.deadline_airdate),
+      participantCount,
+      joined,
+      myProgress,
+    },
+    leaderboard,
+  };
+});
+
+app.post("/api/community/challenges", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const body = (request.body ?? {}) as {
+    title?: string;
+    summary?: string;
+    tvmazeTargetShowId?: number;
+    tvmazeDeadlineShowId?: number;
+    tvmazeDeadlineEpisodeId?: number;
+  };
+  const title = typeof body.title === "string" ? body.title.trim().slice(0, 200) : "";
+  if (title.length < 3) {
+    reply.code(400);
+    return { error: "Title must be at least 3 characters" };
+  }
+  const summary =
+    typeof body.summary === "string" && body.summary.trim() ? body.summary.trim().slice(0, 2000) : null;
+  if (
+    typeof body.tvmazeTargetShowId !== "number" ||
+    !Number.isInteger(body.tvmazeTargetShowId) ||
+    typeof body.tvmazeDeadlineShowId !== "number" ||
+    !Number.isInteger(body.tvmazeDeadlineShowId) ||
+    typeof body.tvmazeDeadlineEpisodeId !== "number" ||
+    !Number.isInteger(body.tvmazeDeadlineEpisodeId)
+  ) {
+    reply.code(400);
+    return { error: "tvmazeTargetShowId, tvmazeDeadlineShowId, and tvmazeDeadlineEpisodeId required" };
+  }
+
+  try {
+    await refreshShowEpisodes(body.tvmazeTargetShowId);
+    await refreshShowEpisodes(body.tvmazeDeadlineShowId);
+  } catch (err) {
+    app.log.warn({ err }, "refreshShowEpisodes for challenge create");
+  }
+
+  const targetShow = await fetchShow(body.tvmazeTargetShowId);
+  const deadlineShow = await fetchShow(body.tvmazeDeadlineShowId);
+
+  const epRow = db
+    .prepare(
+      `SELECT date(airdate) AS airdate, name, season, number FROM episodes_cache
+       WHERE tvmaze_show_id = ? AND tvmaze_episode_id = ?`,
+    )
+    .get(body.tvmazeDeadlineShowId, body.tvmazeDeadlineEpisodeId) as
+    | { airdate: string; name: string; season: number; number: number }
+    | undefined;
+
+  if (!epRow?.airdate || !String(epRow.airdate).trim()) {
+    reply.code(400);
+    return {
+      error:
+        "Deadline episode not in cache or has no air date — open the show in the app or run Refresh all show data, then pick an episode with a listed air date.",
+    };
+  }
+
+  const deadlineYmd = String(epRow.airdate).trim().slice(0, 10);
+  const eligible = countEligibleChallengeEpisodes(body.tvmazeTargetShowId, deadlineYmd);
+  if (eligible < 1) {
+    reply.code(400);
+    return { error: "No eligible target-show episodes on or before that deadline — check show cache and dates." };
+  }
+
+  const epLabel = `S${epRow.season}E${epRow.number} — ${epRow.name || "Episode"}`;
+  const id = uuidv4();
+  db.prepare(
+    `INSERT INTO community_watch_challenges (
+       id, title, summary, tvmaze_target_show_id, target_show_name,
+       tvmaze_deadline_show_id, tvmaze_deadline_episode_id,
+       deadline_show_name, deadline_episode_label, deadline_airdate, created_by_user_id
+     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    id,
+    title,
+    summary,
+    body.tvmazeTargetShowId,
+    targetShow.name,
+    body.tvmazeDeadlineShowId,
+    body.tvmazeDeadlineEpisodeId,
+    deadlineShow.name,
+    epLabel,
+    deadlineYmd,
+    uid,
+  );
+
+  reply.code(201);
+  return { id };
+});
+
+app.post("/api/community/challenges/:challengeId/join", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { challengeId } = request.params as { challengeId: string };
+  const c = db.prepare(`SELECT deadline_airdate FROM community_watch_challenges WHERE id = ?`).get(challengeId) as
+    | { deadline_airdate: string }
+    | undefined;
+  if (!c) {
+    reply.code(404);
+    return { error: "Challenge not found" };
+  }
+  if (!challengeIsActive(c.deadline_airdate)) {
+    reply.code(400);
+    return { error: "This challenge has ended" };
+  }
+  try {
+    db.prepare(`INSERT INTO community_watch_challenge_participants (challenge_id, user_id) VALUES (?, ?)`).run(
+      challengeId,
+      uid,
+    );
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    if (msg.includes("UNIQUE")) {
+      reply.code(409);
+      return { error: "Already joined" };
+    }
+    throw e;
+  }
+  reply.code(201);
+  return { ok: true };
+});
+
+app.delete("/api/community/challenges/:challengeId/join", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { challengeId } = request.params as { challengeId: string };
+  const r = db
+    .prepare(`DELETE FROM community_watch_challenge_participants WHERE challenge_id = ? AND user_id = ?`)
+    .run(challengeId, uid);
+  if (r.changes === 0) {
+    reply.code(404);
+    return { error: "Not participating" };
+  }
+  return { ok: true };
+});
+
 /** Read-only profile for community member cards (no calendar token, timezone, or admin flags). */
 app.get("/api/community/users/:userId/profile", async (request, reply) => {
   const { userId } = request.params as { userId: string };
@@ -2467,7 +4277,15 @@ app.get("/api/community/users/:userId/profile", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
-  return row;
+  const watchStats = await buildPublicProfileWatchStats(userId);
+
+  const viewerId = getRegisteredSessionUserId(request);
+  let viewerCompatibility: { percent: number; showsInCommon: number; mutualEpisodesRated: number } | null = null;
+  if (viewerId && viewerId !== userId) {
+    viewerCompatibility = computeViewerShowCompatibility(viewerId, userId);
+  }
+
+  return { ...row, watchStats, viewerCompatibility };
 });
 
 app.get("/calendar/:filename", async (request, reply) => {
@@ -2543,6 +4361,10 @@ app.get("/search-results.html", async (_req, reply) => {
   reply.header("Cache-Control", "no-store, max-age=0");
   reply.type("text/html; charset=utf-8").send(readPublicHtml("search-results.html"));
 });
+app.get("/embed-ratings.html", async (_req, reply) => {
+  reply.header("Cache-Control", "no-store, max-age=0");
+  reply.type("text/html; charset=utf-8").send(readPublicHtml("embed-ratings.html"));
+});
 app.get("/admin.html", async (_req, reply) => {
   reply.header("Cache-Control", "no-store, max-age=0");
   reply.type("text/html; charset=utf-8").send(readPublicHtml("admin.html"));
@@ -2587,6 +4409,10 @@ cron.schedule("5 * * * *", async () => {
     const n = await runDailyNotifications();
     if (n.length) {
       app.log.info({ count: n.length }, "notifications recorded");
+    }
+    const personPushes = await runPersonNewProjectNotifications();
+    if (personPushes.length > 0) {
+      app.log.info({ count: personPushes.length }, "person new-project pushes sent");
     }
     const nudges = await runTaskNudgeNotifications();
     if (nudges > 0) {
