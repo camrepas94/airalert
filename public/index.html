@@ -98,6 +98,39 @@
           radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 65%);
         --mesh-shadow: 0 0 120px 40px rgba(34, 211, 238, 0.06), inset 0 0 80px rgba(91, 156, 255, 0.05);
         --mesh-filter: blur(120px) saturate(1.25);
+        /** Shared glass / inbox neon (galaxy UI) */
+        --dm-glow-layer:
+          0 0 0 1px rgba(34, 211, 238, 0.32),
+          0 0 14px 0 rgba(34, 211, 238, 0.38),
+          0 0 28px -2px rgba(91, 156, 255, 0.34),
+          0 0 40px -4px rgba(236, 72, 153, 0.38),
+          0 0 52px -8px rgba(168, 85, 247, 0.34);
+        --dm-surface-fill: linear-gradient(165deg, rgba(10, 6, 28, 0.42) 0%, rgba(4, 6, 18, 0.58) 100%);
+        --dm-surface-edge: linear-gradient(
+          125deg,
+          rgba(34, 211, 238, 0.95) 0%,
+          rgba(91, 156, 255, 0.85) 28%,
+          rgba(236, 72, 153, 0.88) 72%,
+          rgba(168, 85, 247, 0.9) 100%
+        );
+        /** Top chrome: tab rail + header icon tiles (matches DM glass) */
+        --chrome-glass-fill: linear-gradient(168deg, rgba(6, 8, 28, 0.52) 0%, rgba(3, 5, 16, 0.82) 100%);
+        --chrome-icon-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.12),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+          0 0 0 1px rgba(34, 211, 238, 0.14),
+          0 0 18px -2px rgba(34, 211, 238, 0.42),
+          0 0 32px -4px rgba(91, 156, 255, 0.32),
+          0 0 40px -6px rgba(236, 72, 153, 0.22),
+          0 6px 22px rgba(0, 0, 0, 0.48);
+        --chrome-rail-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.11),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.38),
+          0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+          0 8px 36px rgba(0, 0, 0, 0.5),
+          0 0 52px -6px rgba(34, 211, 238, 0.28),
+          0 0 72px -10px rgba(168, 85, 247, 0.2),
+          0 0 56px -8px rgba(236, 72, 153, 0.14);
       }
       * {
         box-sizing: border-box;
@@ -534,6 +567,9 @@
           animation: none !important;
           opacity: 0.18;
         }
+        .tab-btn.active {
+          animation: none !important;
+        }
       }
 
       html[data-theme="aurora"] {
@@ -575,41 +611,51 @@
       }
 
       html[data-theme="nebula"] {
-        --space-void: #06020c;
-        --space-gradient: linear-gradient(168deg, #080212 0%, #14081f 32%, #1a0a28 52%, #0c0614 78%, #040208 100%);
-        --space-stars-opacity: 0.58;
-        --space-stars-filter: saturate(1.2);
-        --space-haze-opacity: 0.16;
-        --space-haze-a: rgba(192, 132, 252, 0.16);
-        --space-haze-b: rgba(232, 121, 249, 0.14);
-        --space-haze-c: rgba(167, 139, 250, 0.12);
+        --space-void: #020208;
+        --space-gradient: linear-gradient(
+          168deg,
+          #010108 0%,
+          #050814 16%,
+          #0a0820 34%,
+          #100818 48%,
+          #12061c 62%,
+          #0a0614 78%,
+          #030208 100%
+        );
+        --space-stars-opacity: 0.64;
+        --space-stars-filter: saturate(1.22);
+        --space-haze-opacity: 0.18;
+        --space-haze-a: rgba(34, 211, 238, 0.14);
+        --space-haze-b: rgba(236, 72, 153, 0.12);
+        --space-haze-c: rgba(91, 156, 255, 0.14);
         --orb-tr-opacity: 0.58;
         --orb-tr: radial-gradient(
           circle,
-          rgba(232, 121, 249, 0.42) 0%,
-          rgba(168, 85, 247, 0.26) 38%,
-          rgba(91, 33, 182, 0.12) 58%,
+          rgba(236, 72, 153, 0.38) 0%,
+          rgba(168, 85, 247, 0.22) 36%,
+          rgba(34, 211, 238, 0.12) 56%,
           transparent 74%
         );
-        --orb-bl-opacity: 0.52;
+        --orb-bl-opacity: 0.54;
         --orb-bl: radial-gradient(
           circle,
-          rgba(192, 132, 252, 0.34) 0%,
-          rgba(124, 58, 237, 0.22) 44%,
-          rgba(76, 29, 149, 0.1) 64%,
+          rgba(34, 211, 238, 0.4) 0%,
+          rgba(91, 156, 255, 0.24) 42%,
+          rgba(59, 130, 246, 0.1) 62%,
           transparent 78%
         );
-        --mesh-opacity: 0.48;
+        --mesh-opacity: 0.5;
         --mesh-bg: radial-gradient(
             ellipse 90% 75% at 50% 42%,
-            rgba(232, 121, 249, 0.26) 0%,
-            rgba(168, 85, 247, 0.18) 38%,
-            rgba(91, 156, 255, 0.1) 58%,
-            transparent 72%
+            rgba(91, 156, 255, 0.22) 0%,
+            rgba(34, 211, 238, 0.14) 36%,
+            rgba(232, 121, 249, 0.16) 54%,
+            rgba(124, 92, 255, 0.1) 66%,
+            transparent 74%
           ),
-          radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.045) 0%, transparent 65%);
-        --mesh-shadow: 0 0 130px 48px rgba(232, 121, 249, 0.1), inset 0 0 88px rgba(168, 85, 247, 0.08);
-        --mesh-filter: blur(118px) saturate(1.4);
+          radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 65%);
+        --mesh-shadow: 0 0 120px 44px rgba(34, 211, 238, 0.08), inset 0 0 88px rgba(91, 156, 255, 0.06);
+        --mesh-filter: blur(118px) saturate(1.42);
       }
 
       html[data-theme="ion"] {
@@ -824,6 +870,47 @@
         padding-bottom: 3.5rem;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
+        position: relative;
+        z-index: 0;
+        isolation: isolate;
+      }
+      /** Galaxy + starfield behind all tab content (matches Messages / reference inbox) */
+      .main-scroll::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        border-radius: 0;
+        background:
+          radial-gradient(ellipse 130% 100% at 8% 15%, rgba(109, 40, 217, 0.42) 0%, transparent 55%),
+          radial-gradient(ellipse 110% 90% at 95% 25%, rgba(236, 72, 153, 0.42) 0%, transparent 52%),
+          radial-gradient(ellipse 100% 85% at 50% 95%, rgba(14, 165, 233, 0.35) 0%, transparent 50%),
+          radial-gradient(ellipse 80% 70% at 78% 8%, rgba(59, 130, 246, 0.38) 0%, transparent 55%),
+          radial-gradient(ellipse 60% 50% at 40% 45%, rgba(255, 255, 255, 0.1) 0%, transparent 58%),
+          linear-gradient(180deg, rgba(2, 4, 14, 0.45) 0%, rgba(8, 4, 22, 0.28) 50%, rgba(4, 2, 12, 0.48) 100%);
+        opacity: 1;
+      }
+      .main-scroll::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.55;
+        background-image: radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.55), transparent),
+          radial-gradient(1px 1px at 38% 42%, rgba(200, 230, 255, 0.4), transparent),
+          radial-gradient(0.8px 0.8px at 72% 28%, rgba(255, 255, 255, 0.45), transparent),
+          radial-gradient(1px 1px at 88% 62%, rgba(230, 200, 255, 0.4), transparent),
+          radial-gradient(0.7px 0.7px at 22% 78%, rgba(255, 255, 255, 0.35), transparent),
+          radial-gradient(1px 1px at 55% 12%, rgba(180, 220, 255, 0.42), transparent);
+        background-repeat: repeat;
+        background-size: 180px 200px, 220px 240px, 160px 180px, 200px 220px, 190px 210px, 240px 190px;
+        background-position: 0 0, 40px 60px, 80px 20px, 120px 100px, 20px 140px, 60px 80px;
+      }
+      .main-scroll > .tab-panel {
+        position: relative;
+        z-index: 1;
       }
       .app-top-brand-row {
         display: flex;
@@ -859,63 +946,16 @@
         box-shadow: 0 0 0 2px rgba(12, 20, 40, 0.95), 0 0 10px rgba(248, 113, 113, 0.75);
         pointer-events: none;
       }
-      /* Messages tab: visible galaxy + strong cyan/blue/pink/purple neon on sections */
+      /* Messages tab: neon glass surfaces (galaxy backdrop is on .main-scroll for all tabs) */
       #tab-messages {
-        --dm-glow-layer:
-          0 0 0 1px rgba(34, 211, 238, 0.35),
-          0 0 14px 0 rgba(34, 211, 238, 0.42),
-          0 0 28px -2px rgba(91, 156, 255, 0.38),
-          0 0 40px -4px rgba(236, 72, 153, 0.42),
-          0 0 52px -8px rgba(168, 85, 247, 0.38);
         --dm-glow-hover:
           0 0 0 1px rgba(255, 255, 255, 0.14),
           0 0 18px 0 rgba(34, 211, 238, 0.55),
           0 0 36px -2px rgba(91, 156, 255, 0.48),
           0 0 52px -4px rgba(236, 72, 153, 0.52),
           0 0 64px -8px rgba(168, 85, 247, 0.45);
-        --dm-surface-fill: linear-gradient(165deg, rgba(10, 6, 28, 0.42) 0%, rgba(4, 6, 18, 0.58) 100%);
-        --dm-surface-edge: linear-gradient(
-          125deg,
-          rgba(34, 211, 238, 0.95) 0%,
-          rgba(91, 156, 255, 0.85) 28%,
-          rgba(236, 72, 153, 0.88) 72%,
-          rgba(168, 85, 247, 0.9) 100%
-        );
         position: relative;
         isolation: isolate;
-      }
-      #tab-messages.tab-panel.active::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -2;
-        pointer-events: none;
-        border-radius: 0;
-        background:
-          radial-gradient(ellipse 130% 100% at 8% 15%, rgba(109, 40, 217, 0.55) 0%, transparent 55%),
-          radial-gradient(ellipse 110% 90% at 95% 25%, rgba(236, 72, 153, 0.42) 0%, transparent 52%),
-          radial-gradient(ellipse 100% 85% at 50% 95%, rgba(14, 165, 233, 0.35) 0%, transparent 50%),
-          radial-gradient(ellipse 80% 70% at 78% 8%, rgba(59, 130, 246, 0.38) 0%, transparent 55%),
-          radial-gradient(ellipse 60% 50% at 40% 45%, rgba(255, 255, 255, 0.1) 0%, transparent 58%),
-          linear-gradient(180deg, rgba(2, 4, 14, 0.5) 0%, rgba(8, 4, 22, 0.35) 50%, rgba(4, 2, 12, 0.55) 100%);
-        opacity: 1;
-      }
-      #tab-messages.tab-panel.active::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        pointer-events: none;
-        opacity: 0.55;
-        background-image: radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.55), transparent),
-          radial-gradient(1px 1px at 38% 42%, rgba(200, 230, 255, 0.4), transparent),
-          radial-gradient(0.8px 0.8px at 72% 28%, rgba(255, 255, 255, 0.45), transparent),
-          radial-gradient(1px 1px at 88% 62%, rgba(230, 200, 255, 0.4), transparent),
-          radial-gradient(0.7px 0.7px at 22% 78%, rgba(255, 255, 255, 0.35), transparent),
-          radial-gradient(1px 1px at 55% 12%, rgba(180, 220, 255, 0.42), transparent);
-        background-repeat: repeat;
-        background-size: 180px 200px, 220px 240px, 160px 180px, 200px 220px, 190px 210px, 240px 190px;
-        background-position: 0 0, 40px 60px, 80px 20px, 120px 100px, 20px 140px, 60px 80px;
       }
       #tab-messages .dm-inbox-page-root.panel-rail-cyan {
         position: relative;
@@ -1301,52 +1341,42 @@
         min-width: 44px;
         min-height: 44px;
         padding: 0;
-        border: 1px solid rgba(130, 200, 255, 0.26);
-        border-radius: 12px;
-        background: linear-gradient(
-          155deg,
-          rgba(255, 255, 255, 0.16) 0%,
-          rgba(120, 190, 255, 0.07) 38%,
-          rgba(12, 22, 48, 0.55) 52%,
-          rgba(6, 10, 26, 0.88) 100%
-        );
-        -webkit-backdrop-filter: blur(14px) saturate(1.28);
-        backdrop-filter: blur(14px) saturate(1.28);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.22),
-          0 0 0 1px rgba(34, 211, 238, 0.1), 0 4px 18px rgba(0, 0, 0, 0.42), 0 0 32px -8px rgba(34, 211, 238, 0.22);
+        border: 2px solid transparent;
+        border-radius: 13px;
+        background: var(--chrome-glass-fill) padding-box, var(--dm-surface-edge) border-box;
+        background-clip: padding-box, border-box;
+        -webkit-backdrop-filter: blur(16px) saturate(1.45);
+        backdrop-filter: blur(16px) saturate(1.45);
+        box-shadow: var(--chrome-icon-shadow);
         cursor: pointer;
         touch-action: manipulation;
         -webkit-tap-highlight-color: rgba(108, 158, 248, 0.25);
-        transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.15s ease;
+        transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.15s ease;
         color: inherit;
         transform: translateZ(0);
+        isolation: isolate;
       }
       .header-icon-btn:hover:not(:disabled) {
-        border-color: rgba(165, 215, 255, 0.38);
-        background: linear-gradient(
-          155deg,
-          rgba(255, 255, 255, 0.22) 0%,
-          rgba(130, 200, 255, 0.12) 42%,
-          rgba(18, 32, 58, 0.65) 100%
-        );
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(142, 203, 255, 0.22),
-          0 6px 22px rgba(0, 0, 0, 0.45), 0 0 40px -4px rgba(91, 156, 255, 0.32);
+        background: linear-gradient(168deg, rgba(12, 18, 42, 0.62) 0%, rgba(6, 10, 28, 0.88) 100%) padding-box,
+          var(--dm-surface-edge) border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+          0 0 0 1px rgba(34, 211, 238, 0.22), 0 0 24px -1px rgba(34, 211, 238, 0.55), 0 0 40px -4px rgba(91, 156, 255, 0.42),
+          0 0 48px -6px rgba(236, 72, 153, 0.28), 0 8px 26px rgba(0, 0, 0, 0.52);
       }
       .header-icon-btn[aria-expanded="true"] {
-        border-color: rgba(142, 203, 255, 0.48);
-        background: linear-gradient(
-          175deg,
-          rgba(91, 156, 255, 0.28) 0%,
-          rgba(34, 211, 238, 0.1) 48%,
-          rgba(8, 14, 32, 0.82) 100%
-        );
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(130, 200, 255, 0.35) inset,
-          0 0 28px 2px rgba(91, 156, 255, 0.38), 0 0 52px -8px rgba(34, 211, 238, 0.25), 0 8px 24px rgba(0, 0, 0, 0.48);
+        background: linear-gradient(175deg, rgba(34, 100, 160, 0.35) 0%, rgba(34, 211, 238, 0.12) 42%, rgba(6, 10, 28, 0.9) 100%)
+            padding-box,
+          var(--dm-surface-edge) border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 0 0 1px rgba(130, 200, 255, 0.22),
+          0 0 28px 3px rgba(91, 156, 255, 0.48), 0 0 52px -6px rgba(34, 211, 238, 0.38), 0 0 60px -8px rgba(236, 72, 153, 0.22),
+          0 10px 28px rgba(0, 0, 0, 0.52);
       }
       .header-icon-btn[aria-expanded="true"]:hover:not(:disabled) {
-        border-color: rgba(186, 220, 255, 0.55);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 0 0 1px rgba(160, 210, 255, 0.4) inset,
-          0 0 32px 3px rgba(91, 156, 255, 0.45), 0 0 56px -6px rgba(34, 211, 238, 0.3), 0 10px 26px rgba(0, 0, 0, 0.5);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), inset 0 0 0 1px rgba(160, 210, 255, 0.32),
+          0 0 34px 4px rgba(91, 156, 255, 0.55), 0 0 58px -4px rgba(34, 211, 238, 0.42), 0 0 64px -8px rgba(168, 85, 247, 0.28),
+          0 12px 30px rgba(0, 0, 0, 0.55);
       }
       .brand-heading {
         margin: 0;
@@ -2376,6 +2406,58 @@
         background: radial-gradient(ellipse at 50% 0%, rgba(34, 211, 238, 0.12) 0%, transparent 55%);
         pointer-events: none;
       }
+      /** Add Shows: glass panels + cyan/magenta/pink neon edge (Slack-style inbox reference) */
+      #tab-add .search-shell {
+        border: 2px solid transparent;
+        background: linear-gradient(165deg, rgba(10, 8, 32, 0.48) 0%, rgba(4, 6, 20, 0.62) 100%) padding-box,
+          var(--dm-surface-edge) border-box;
+        background-clip: padding-box, border-box;
+        isolation: isolate;
+        -webkit-backdrop-filter: blur(20px) saturate(1.38);
+        backdrop-filter: blur(20px) saturate(1.38);
+        box-shadow: var(--shadow-lift), 0 0 0 1px rgba(255, 255, 255, 0.06) inset, var(--dm-glow-layer),
+          0 20px 56px rgba(0, 0, 0, 0.42);
+      }
+      #tab-add .search-shell::after {
+        content: "";
+        position: absolute;
+        inset: -6px -4px -8px -4px;
+        z-index: -1;
+        border-radius: 24px;
+        pointer-events: none;
+        background: radial-gradient(ellipse 100% 85% at 18% 22%, rgba(139, 92, 246, 0.45) 0%, transparent 52%),
+          radial-gradient(ellipse 90% 75% at 86% 42%, rgba(236, 72, 153, 0.38) 0%, transparent 50%),
+          radial-gradient(ellipse 75% 60% at 52% 92%, rgba(34, 211, 238, 0.32) 0%, transparent 46%);
+        opacity: 0.85;
+      }
+      #tab-add section.trending-section.panel-rail-cyan,
+      #tab-add section.recommended-section.panel-rail-magenta {
+        position: relative;
+        isolation: isolate;
+        border: 2px solid transparent;
+        background: linear-gradient(165deg, rgba(10, 8, 32, 0.48) 0%, rgba(4, 6, 20, 0.62) 100%) padding-box,
+          var(--dm-surface-edge) border-box;
+        background-clip: padding-box, border-box;
+        -webkit-backdrop-filter: blur(20px) saturate(1.38);
+        backdrop-filter: blur(20px) saturate(1.38);
+        box-shadow: var(--shadow-lift), 0 0 0 1px rgba(255, 255, 255, 0.06) inset, var(--dm-glow-layer),
+          0 20px 56px rgba(0, 0, 0, 0.42);
+        border-left-color: transparent;
+        border-right-color: transparent;
+      }
+      #tab-add section.trending-section.panel-rail-cyan::before,
+      #tab-add section.recommended-section.panel-rail-magenta::before {
+        content: "";
+        position: absolute;
+        inset: -6px -4px -8px -4px;
+        z-index: -1;
+        border-radius: 18px;
+        pointer-events: none;
+        background: radial-gradient(ellipse 100% 85% at 18% 22%, rgba(139, 92, 246, 0.42) 0%, transparent 52%),
+          radial-gradient(ellipse 90% 75% at 86% 42%, rgba(236, 72, 153, 0.36) 0%, transparent 50%),
+          radial-gradient(ellipse 75% 60% at 52% 92%, rgba(34, 211, 238, 0.3) 0%, transparent 46%);
+        opacity: 0.82;
+      }
       .search-hero-head {
         position: relative;
         display: flex;
@@ -3149,38 +3231,74 @@
         min-width: 0;
       }
       .tab-rail {
+        position: relative;
         display: flex;
         flex-wrap: nowrap;
-        gap: 0.12rem;
-        padding: 0.32rem;
+        gap: 0.18rem;
+        padding: 0.38rem;
         min-width: 0;
         width: 100%;
-        background: linear-gradient(180deg, rgba(48, 22, 72, 0.38) 0%, rgba(20, 12, 36, 0.28) 48%, rgba(12, 8, 24, 0.55) 100%);
-        border: 1px solid rgba(167, 139, 250, 0.26);
-        border-radius: 15px;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07) inset, 0 2px 0 rgba(255, 255, 255, 0.05) inset,
-          0 0 40px -6px rgba(34, 211, 238, 0.12), 0 0 56px -12px rgba(232, 121, 249, 0.08);
-        -webkit-backdrop-filter: blur(26px) saturate(1.4);
-        backdrop-filter: blur(26px) saturate(1.4);
+        border: 2px solid transparent;
+        border-radius: 18px;
+        background: var(--chrome-glass-fill) padding-box, var(--dm-surface-edge) border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: var(--chrome-rail-shadow);
+        -webkit-backdrop-filter: blur(28px) saturate(1.5);
+        backdrop-filter: blur(28px) saturate(1.5);
         -webkit-transform: translateZ(0);
         transform: translateZ(0);
+        isolation: isolate;
+      }
+      .tab-rail::before {
+        content: "";
+        position: absolute;
+        left: 6%;
+        right: 6%;
+        top: 0;
+        height: 1px;
+        border-radius: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(34, 211, 238, 0.55),
+          rgba(91, 156, 255, 0.45),
+          rgba(236, 72, 153, 0.4),
+          transparent
+        );
+        opacity: 0.9;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .tab-rail::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.35;
+        background: radial-gradient(ellipse 90% 120% at 50% -20%, rgba(34, 211, 238, 0.2), transparent 55%);
       }
       .tab-btn {
         cursor: pointer;
+        position: relative;
+        z-index: 1;
         flex: 1 1 0;
         min-width: 0;
         border: none;
-        border-radius: 10px;
+        border-radius: 12px;
         padding: 0.52rem 0.2rem;
         font-size: 0.78rem;
         font-weight: 600;
         font-family: inherit;
         background: transparent;
-        color: var(--muted);
+        color: rgba(198, 212, 240, 0.82);
+        text-shadow: 0 0 22px rgba(34, 211, 238, 0.12);
+        letter-spacing: 0.04em;
         box-shadow: none;
         touch-action: manipulation;
         -webkit-tap-highlight-color: rgba(108, 158, 248, 0.25);
-        transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, text-shadow 0.15s ease;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -3189,19 +3307,20 @@
       }
       .tab-btn .tab-label {
         display: inline;
-        letter-spacing: -0.01em;
+        letter-spacing: inherit;
       }
       @media (max-width: 440px) {
         .tab-btn {
           font-size: 0.62rem;
           padding: 0.44rem 0.06rem;
-          letter-spacing: -0.02em;
+          letter-spacing: 0.02em;
         }
       }
       @media (max-width: 360px) {
         .tab-btn {
           font-size: 0.58rem;
           padding: 0.4rem 0.04rem;
+          letter-spacing: 0.015em;
         }
         .tab-rail {
           gap: 0.06rem;
@@ -3209,11 +3328,12 @@
         }
       }
       .tab-btn:hover:not(:disabled) {
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.06);
+        color: #f5f9ff;
+        background: rgba(255, 255, 255, 0.07);
+        box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.14);
+        text-shadow: 0 0 18px rgba(34, 211, 238, 0.25), 0 0 32px rgba(91, 156, 255, 0.12);
         transform: none;
         filter: none;
-        box-shadow: none;
       }
       @keyframes tab-glow-pulse {
         0%,
@@ -3226,6 +3346,7 @@
       }
       .tab-btn.active {
         color: #f8fbff;
+        text-shadow: 0 0 14px rgba(255, 255, 255, 0.45), 0 0 28px rgba(34, 211, 238, 0.35);
         animation: tab-glow-pulse 2.8s ease-in-out infinite;
       }
       .tab-btn.active[data-tab="add"] {
@@ -3429,9 +3550,15 @@
         width: 1.32rem;
         height: 1.32rem;
         flex-shrink: 0;
-        color: #e8f4ff;
-        opacity: 0.94;
-        filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.35)) drop-shadow(0 0 12px rgba(91, 156, 255, 0.22));
+        color: #e8f8ff;
+        stroke-width: 1.65;
+        opacity: 0.98;
+        filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.55)) drop-shadow(0 0 10px rgba(91, 156, 255, 0.38))
+          drop-shadow(0 0 18px rgba(236, 72, 153, 0.22)) drop-shadow(0 0 24px rgba(168, 85, 247, 0.14));
+      }
+      .header-icon-btn:hover:not(:disabled) .header-icon-svg {
+        filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.75)) drop-shadow(0 0 14px rgba(91, 156, 255, 0.5))
+          drop-shadow(0 0 22px rgba(236, 72, 153, 0.32));
       }
       .header-dropdown {
         position: absolute;
@@ -4153,22 +4280,45 @@
       }
       .community-catchup-panel {
         margin: 0.5rem 0.75rem 0.65rem;
-        padding: 0.65rem 0.85rem;
+        padding: 0;
         border-radius: 12px;
         border: 1px solid rgba(34, 211, 238, 0.22);
         background: linear-gradient(145deg, rgba(34, 211, 238, 0.06), rgba(8, 14, 28, 0.45));
+      }
+      .community-catchup-panel[hidden] {
+        display: none !important;
+      }
+      .community-catchup-summary {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.6rem 0.85rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #e0f2fe;
+        letter-spacing: -0.02em;
+        cursor: pointer;
+        list-style: none;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .community-catchup-summary::-webkit-details-marker { display: none; }
+      .community-catchup-summary::before {
+        content: "▸";
+        display: inline-block;
+        font-size: 0.72rem;
+        transition: transform 0.18s ease;
+        color: var(--neon-cyan);
+      }
+      .community-catchup-panel[open] > .community-catchup-summary::before {
+        transform: rotate(90deg);
       }
       .community-catchup-panel-inner {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
         gap: 0.5rem 0.75rem;
-      }
-      .community-catchup-label {
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: #e0f2fe;
-        letter-spacing: -0.02em;
+        padding: 0 0.85rem 0.65rem;
       }
       .community-catchup-field {
         display: inline-flex;
@@ -4189,7 +4339,7 @@
         text-align: center;
       }
       .community-catchup-help {
-        margin: 0.55rem 0 0;
+        margin: 0.35rem 0.85rem 0.65rem;
         font-size: 0.76rem;
         line-height: 1.45;
       }
@@ -4221,28 +4371,6 @@
         50% {
           opacity: 1;
         }
-      }
-      .community-watching-bar {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.5rem 0.75rem;
-        margin: 0 0.75rem 0.65rem;
-        padding: 0.55rem 0.75rem;
-        border-radius: 12px;
-        border: 1px solid rgba(251, 191, 36, 0.22);
-        background: linear-gradient(135deg, rgba(251, 191, 36, 0.07), rgba(8, 14, 28, 0.4));
-      }
-      .community-watching-btn.is-active {
-        border-color: rgba(251, 191, 36, 0.55);
-        background: rgba(251, 191, 36, 0.14);
-        color: #fef3c7;
-      }
-      .community-watching-status {
-        margin: 0;
-        font-size: 0.78rem;
-        line-height: 1.4;
-        flex: 1 1 200px;
       }
       .community-episode-polls {
         margin: 0 0.75rem 0.85rem;
@@ -5257,15 +5385,18 @@
         padding: 0.65rem 1.1rem 0.5rem;
         padding-top: max(0.65rem, env(safe-area-inset-top, 0px));
         background: linear-gradient(
-          180deg,
-          rgba(96, 40, 130, 0.1) 0%,
-          rgba(36, 14, 52, 0.05) 42%,
-          rgba(14, 6, 24, 0.03) 100%
-        );
-        -webkit-backdrop-filter: blur(24px) saturate(1.25);
-        backdrop-filter: blur(24px) saturate(1.25);
-        border-bottom: 1px solid rgba(192, 132, 252, 0.12);
-        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            180deg,
+            rgba(34, 211, 238, 0.07) 0%,
+            rgba(91, 156, 255, 0.04) 18%,
+            rgba(76, 29, 149, 0.08) 42%,
+            rgba(12, 6, 28, 0.35) 100%
+          ),
+          linear-gradient(180deg, rgba(4, 6, 18, 0.5) 0%, rgba(4, 4, 14, 0.2) 100%);
+        -webkit-backdrop-filter: blur(28px) saturate(1.42);
+        backdrop-filter: blur(28px) saturate(1.42);
+        border-bottom: 1px solid rgba(130, 200, 255, 0.14);
+        box-shadow: 0 4px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 0 48px -12px rgba(34, 211, 238, 0.12);
         -webkit-transform: translateZ(0);
         transform: translateZ(0);
         transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, padding 0.22s ease,
@@ -5276,21 +5407,30 @@
         display: block;
         height: 2px;
         margin: 0.5rem -1.1rem 0;
-        background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.35), rgba(91, 156, 255, 0.3), rgba(232, 121, 249, 0.22), transparent);
-        opacity: 0.65;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(34, 211, 238, 0.55),
+          rgba(91, 156, 255, 0.42),
+          rgba(236, 72, 153, 0.32),
+          rgba(168, 85, 247, 0.28),
+          transparent
+        );
+        opacity: 0.85;
         pointer-events: none;
       }
       .app-top.is-scrolled {
         background: linear-gradient(
-          180deg,
-          rgba(88, 36, 118, 0.16) 0%,
-          rgba(28, 10, 42, 0.08) 45%,
-          rgba(12, 5, 22, 0.05) 100%
-        );
-        -webkit-backdrop-filter: blur(28px) saturate(1.3);
-        backdrop-filter: blur(28px) saturate(1.3);
-        border-bottom-color: rgba(192, 132, 252, 0.18);
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            180deg,
+            rgba(34, 211, 238, 0.06) 0%,
+            rgba(88, 36, 118, 0.14) 38%,
+            rgba(12, 5, 26, 0.55) 100%
+          ),
+          linear-gradient(180deg, rgba(6, 8, 22, 0.72) 0%, rgba(4, 4, 14, 0.45) 100%);
+        -webkit-backdrop-filter: blur(32px) saturate(1.45);
+        backdrop-filter: blur(32px) saturate(1.45);
+        box-shadow: 0 6px 32px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.07),
+          0 0 56px -10px rgba(34, 211, 238, 0.16);
         padding-top: max(0.4rem, env(safe-area-inset-top, 0px));
         padding-bottom: 0.35rem;
       }
@@ -6088,9 +6228,9 @@
                   </div>
                 </div>
               </header>
-              <div class="community-catchup-panel" id="communityCatchUpPanel" hidden>
+              <details class="community-catchup-panel" id="communityCatchUpPanel" hidden>
+                <summary class="community-catchup-summary">Spoiler-safe mode</summary>
                 <div class="community-catchup-panel-inner">
-                  <span class="community-catchup-label">Spoiler-safe mode</span>
                   <label class="community-catchup-binge" id="communityBingeLaterLabel">
                     <input type="checkbox" id="communityBingeLaterCb" />
                     <span>Binge-watching later — mute this show’s alerts and blur <em>all</em> episode threads until I’m caught up</span>
@@ -6108,7 +6248,7 @@
                 <p class="muted community-catchup-help community-catchup-help-binge" id="communityCatchUpHelpBinge" hidden>
                   While <strong>binge-watching later</strong> is on, the number above is ignored: every aired episode thread is treated as ahead of you. Turn it off when you’re current to use “episodes behind” again.
                 </p>
-              </div>
+              </details>
               <section class="community-sentiment-chart-panel" id="communityShowRatingsChartPanel" hidden aria-label="Season scores">
                 <h3 class="community-polls-heading">Community scores</h3>
                 <div class="community-sentiment-chart-toolbar">
@@ -6117,12 +6257,6 @@
                 </div>
                 <div id="communityRatingsChartSvg" class="community-sentiment-chart-svg" role="img" aria-label="Ratings chart"></div>
               </section>
-              <div class="community-watching-bar" id="communityWatchingBar" hidden>
-                <button type="button" class="secondary community-watching-btn" id="communityWatchingBtn">
-                  I’m watching this right now
-                </button>
-                <p class="muted community-watching-status" id="communityWatchingStatus" hidden></p>
-              </div>
               <div class="community-live-air-banner" id="communityLiveAirNightBanner" hidden role="status">
                 <span class="community-live-air-banner-dot" aria-hidden="true">●</span>
                 <span
@@ -9375,7 +9509,6 @@
       let communityThreadLiveWs = null;
       let communityThreadLiveReconnectTimer = null;
       let communityThreadLiveRoomKey = null;
-      let communityThreadLiveWatching = false;
       let communityThreadLiveRailOpen = false;
       let communityThreadLiveAirNight = false;
       let communityThreadLivePingTimer = null;
@@ -9458,13 +9591,6 @@
         }
       }
 
-      function syncCommunityWatchingLiveBtn() {
-        const wBtn = document.getElementById("communityWatchingBtn");
-        if (!wBtn) return;
-        const ready = communityThreadLiveWs && communityThreadLiveWs.readyState === 1;
-        wBtn.disabled = !ready;
-      }
-
       function disconnectCommunityThreadLiveWs() {
         if (communityThreadLivePingTimer) {
           clearInterval(communityThreadLivePingTimer);
@@ -9475,7 +9601,6 @@
           communityThreadLiveReconnectTimer = null;
         }
         communityThreadLiveRoomKey = null;
-        communityThreadLiveWatching = false;
         communityThreadLiveRailOpen = false;
         if (communityThreadLiveWs) {
           try {
@@ -9492,8 +9617,6 @@
         const inp = document.getElementById("communityLiveRailInput");
         const btn = document.getElementById("communityLiveRailSendBtn");
         const pres = document.getElementById("communityLiveRailPresence");
-        const wBtn = document.getElementById("communityWatchingBtn");
-        const wStat = document.getElementById("communityWatchingStatus");
         if (rail) rail.hidden = true;
         if (row) row.classList.remove("is-rail-open");
         if (msgs) msgs.innerHTML = "";
@@ -9504,14 +9627,6 @@
         }
         if (btn) btn.disabled = true;
         if (pres) pres.textContent = "—";
-        if (wBtn) {
-          wBtn.classList.remove("is-active");
-          wBtn.disabled = true;
-        }
-        if (wStat) {
-          wStat.hidden = true;
-          wStat.textContent = "";
-        }
       }
 
       function applyCommunityThreadLivePresence(data) {
@@ -9525,7 +9640,6 @@
         const rail = document.getElementById("communityLiveRail");
         const row = document.getElementById("communityThreadMainRow");
         const pres = document.getElementById("communityLiveRailPresence");
-        const wStat = document.getElementById("communityWatchingStatus");
         if (pres) {
           if (communityThreadLiveRailOpen) {
             if (communityThreadLiveAirNight) {
@@ -9541,9 +9655,6 @@
         }
         if (rail) rail.hidden = !communityThreadLiveRailOpen;
         if (row) row.classList.toggle("is-rail-open", communityThreadLiveRailOpen);
-        if (wStat) {
-          wStat.hidden = true;
-        }
         syncCommunityLiveRailWatchers(data.watchers);
         syncCommunityLiveRailCompose();
         syncCommunityLiveRailEmptyHint();
@@ -9570,15 +9681,6 @@
         if (!data || typeof data !== "object") return;
         if (data.type === "thread_live_presence") applyCommunityThreadLivePresence(data);
         if (data.type === "thread_live_chat") appendCommunityLiveRailChatLine(data);
-      }
-
-      function sendCommunityThreadLiveWatching(active) {
-        if (!communityThreadLiveWs || communityThreadLiveWs.readyState !== 1) return;
-        try {
-          communityThreadLiveWs.send(JSON.stringify({ type: "watching", active: !!active }));
-        } catch {
-          /* ignore */
-        }
       }
 
       function sendCommunityThreadLiveChat() {
@@ -9647,7 +9749,6 @@
               if (railEl) railEl.hidden = false;
               if (rowEl) rowEl.classList.add("is-rail-open");
             }
-            syncCommunityWatchingLiveBtn();
             syncCommunityLiveRailCompose();
             syncCommunityLiveRailEmptyHint();
           };
@@ -9665,7 +9766,6 @@
             }
             communityThreadLiveWs = null;
             communityThreadLiveRoomKey = null;
-            syncCommunityWatchingLiveBtn();
             if (communityThreadLiveReconnectTimer) clearTimeout(communityThreadLiveReconnectTimer);
             if (
               communityState.view === "thread" &&
@@ -9883,6 +9983,7 @@
         const cup = document.getElementById("communityCatchUpPanel");
         if (cup) {
           cup.hidden = true;
+          cup.removeAttribute("open");
           delete cup.dataset.subscriptionId;
         }
         disconnectCommunityThreadLiveWs();
@@ -10277,8 +10378,6 @@
         if (!reg) document.getElementById("communityComposer").innerHTML = "";
         const epRow = document.getElementById("communityComposerEpisodeRow");
         if (epRow) epRow.hidden = typeof communityState.episodeId === "number";
-        const wb = document.getElementById("communityWatchingBar");
-        if (wb) wb.hidden = true;
       }
 
       function insertTextAtCommunityComposer(text) {
@@ -10542,7 +10641,6 @@
           if (panel) panel.hidden = true;
           return;
         }
-        panel.hidden = false;
         if (errEl) {
           errEl.style.display = "none";
           errEl.textContent = "";
@@ -10842,10 +10940,20 @@
         const reg = accountIsRegistered(sessionMeSnapshot);
         const airOk = data.airdateKnown === true;
         const votingOpen = data.votingOpen === true;
+        const polls = data.polls || [];
+        const pollPanel = document.getElementById("communityEpisodePollsPanel");
+        if (!votingOpen && !polls.length) {
+          if (pollPanel) pollPanel.hidden = true;
+          return;
+        }
+        if (pollPanel) pollPanel.hidden = false;
         if (lead) {
           if (!airOk) {
             lead.textContent =
               "Prediction polls need an air date for this episode in the guide. Refresh show data in Settings if this stays empty.";
+          } else if (!votingOpen) {
+            lead.textContent =
+              "Voting is locked \u2014 the episode has aired. Results are shown below.";
           } else {
             lead.textContent =
               "Before this episode’s listed air date, add a poll and vote — who dies, will they get together, etc. Voting locks when the episode airs; the author can then reveal the correct outcome.";
@@ -10853,7 +10961,7 @@
         }
         if (list) {
           list.innerHTML = "";
-          for (const p of data.polls || []) {
+          for (const p of polls) {
             list.appendChild(renderCommunityPollCard(p, uid, reg));
           }
         }
@@ -12415,14 +12523,6 @@
             err.style.display = "block";
           }
         }
-      });
-      document.getElementById("communityWatchingBtn")?.addEventListener("click", () => {
-        if (!communityThreadLiveWs || communityThreadLiveWs.readyState !== 1) return;
-        communityThreadLiveWatching = !communityThreadLiveWatching;
-        const wBtn = document.getElementById("communityWatchingBtn");
-        if (wBtn) wBtn.classList.toggle("is-active", communityThreadLiveWatching);
-        sendCommunityThreadLiveWatching(communityThreadLiveWatching);
-        syncCommunityLiveRailCompose();
       });
       document.getElementById("communityLiveRailSendBtn")?.addEventListener("click", () => sendCommunityThreadLiveChat());
       document.getElementById("communityLiveRailInput")?.addEventListener("keydown", (e) => {
