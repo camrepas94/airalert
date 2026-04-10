@@ -65,7 +65,7 @@
           #04060e 78%,
           #020205 100%
         );
-        --space-stars-opacity: 0.55;
+        --space-stars-opacity: 0.68;
         --space-stars-filter: none;
         --space-haze-opacity: 0.12;
         --space-haze-a: rgba(91, 156, 255, 0.15);
@@ -131,24 +131,41 @@
           radial-gradient(0.9px 0.9px at 35% 88%, rgba(190, 220, 255, 0.32), transparent),
           radial-gradient(0.8px 0.8px at 52% 45%, rgba(255, 255, 255, 0.28), transparent),
           radial-gradient(1px 1px at 71% 79%, rgba(230, 245, 255, 0.4), transparent),
-          radial-gradient(0.75px 0.75px at 88% 92%, rgba(200, 220, 255, 0.35), transparent);
+          radial-gradient(0.75px 0.75px at 88% 92%, rgba(200, 220, 255, 0.35), transparent),
+          radial-gradient(0.65px 0.65px at 5% 48%, rgba(255, 255, 255, 0.42), transparent),
+          radial-gradient(1.05px 1.05px at 48% 22%, rgba(210, 235, 255, 0.48), transparent),
+          radial-gradient(0.7px 0.7px at 84% 44%, rgba(255, 255, 255, 0.36), transparent),
+          radial-gradient(0.9px 0.9px at 29% 56%, rgba(200, 228, 255, 0.38), transparent),
+          radial-gradient(0.55px 0.55px at 67% 8%, rgba(255, 255, 255, 0.5), transparent),
+          radial-gradient(1px 1px at 12% 28%, rgba(240, 248, 255, 0.44), transparent),
+          radial-gradient(0.8px 0.8px at 95% 63%, rgba(220, 232, 255, 0.34), transparent),
+          radial-gradient(0.85px 0.85px at 38% 94%, rgba(255, 255, 255, 0.4), transparent),
+          radial-gradient(0.6px 0.6px at 56% 33%, rgba(255, 255, 255, 0.45), transparent),
+          radial-gradient(1.1px 1.1px at 73% 51%, rgba(190, 220, 255, 0.36), transparent),
+          radial-gradient(0.72px 0.72px at 18% 86%, rgba(255, 255, 255, 0.38), transparent),
+          radial-gradient(0.95px 0.95px at 61% 68%, rgba(230, 240, 255, 0.42), transparent);
         background-repeat: repeat;
         background-size: 280px 320px, 420px 380px, 360px 440px, 520px 300px, 340px 460px, 480px 360px, 310px 290px,
-          450px 410px, 390px 350px, 330px 370px, 400px 400px;
+          450px 410px, 390px 350px, 330px 370px, 400px 400px, 260px 280px, 340px 360px, 400px 300px, 320px 340px,
+          290px 310px, 380px 420px, 350px 330px, 410px 370px, 300px 400px, 360px 290px, 330px 350px, 270px 380px;
         background-position: 0 0, 40px 80px, 120px 20px, 200px 140px, 60px 200px, 300px 60px, 80px 300px, 240px 240px,
-          160px 100px, 20px 180px, 100px 40px;
-        animation: space-stars-twinkle 6.5s ease-in-out infinite;
+          160px 100px, 20px 180px, 100px 40px, 190px 120px, 70px 260px, 310px 90px, 130px 40px, 250px 200px, 20px 70px,
+          340px 310px, 90px 150px, 280px 20px, 40px 320px, 220px 180px, 160px 250px;
+        animation: space-stars-twinkle 5.2s ease-in-out infinite;
       }
       @keyframes space-stars-twinkle {
         0%,
         100% {
-          opacity: var(--space-stars-opacity);
+          opacity: calc(var(--space-stars-opacity) * 0.88);
         }
-        35% {
-          opacity: calc(var(--space-stars-opacity) * 1.2);
+        28% {
+          opacity: calc(var(--space-stars-opacity) * 1.32);
         }
-        68% {
-          opacity: calc(var(--space-stars-opacity) * 0.75);
+        52% {
+          opacity: calc(var(--space-stars-opacity) * 0.62);
+        }
+        78% {
+          opacity: calc(var(--space-stars-opacity) * 1.12);
         }
       }
       html::after {
@@ -224,21 +241,39 @@
       }
       .space-milky-way {
         position: fixed;
-        inset: -38% -48% -28% -38%;
+        inset: -42% -52% -32% -42%;
         z-index: -1;
         pointer-events: none;
-        background: linear-gradient(
-          112deg,
-          transparent 0%,
-          rgba(76, 29, 149, 0.14) 14%,
-          rgba(192, 132, 252, 0.11) 28%,
-          rgba(232, 121, 249, 0.1) 42%,
-          rgba(91, 156, 255, 0.08) 56%,
-          rgba(109, 40, 217, 0.09) 72%,
-          transparent 100%
-        );
-        filter: blur(64px) saturate(1.38);
-        opacity: 0.74;
+        background-image: radial-gradient(
+            ellipse 120% 42% at 44% 46%,
+            rgba(255, 250, 255, 0.14) 0%,
+            rgba(216, 200, 255, 0.1) 22%,
+            rgba(167, 139, 250, 0.07) 48%,
+            transparent 72%
+          ),
+          linear-gradient(
+            112deg,
+            transparent 0%,
+            rgba(76, 29, 149, 0.2) 12%,
+            rgba(192, 132, 252, 0.16) 26%,
+            rgba(232, 121, 249, 0.14) 40%,
+            rgba(129, 140, 248, 0.12) 52%,
+            rgba(91, 156, 255, 0.11) 64%,
+            rgba(109, 40, 217, 0.13) 78%,
+            transparent 100%
+          ),
+          linear-gradient(
+            68deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.04) 35%,
+            rgba(196, 181, 253, 0.09) 50%,
+            rgba(91, 156, 255, 0.06) 62%,
+            transparent 85%
+          );
+        background-repeat: no-repeat, no-repeat, no-repeat;
+        background-size: 100% 100%, 100% 100%, 100% 100%;
+        filter: blur(68px) saturate(1.48);
+        opacity: 0.88;
         animation: milky-way-drift 150s linear infinite;
         will-change: transform;
       }
@@ -265,26 +300,36 @@
           radial-gradient(0.8px 0.8px at 26% 84%, rgba(255, 255, 255, 0.58), transparent),
           radial-gradient(1px 1px at 61% 38%, rgba(255, 255, 255, 0.7), transparent),
           radial-gradient(0.85px 0.85px at 8% 55%, rgba(255, 255, 255, 0.52), transparent),
-          radial-gradient(1px 1px at 94% 44%, rgba(255, 255, 255, 0.64), transparent);
+          radial-gradient(1px 1px at 94% 44%, rgba(255, 255, 255, 0.64), transparent),
+          radial-gradient(1.15px 1.15px at 33% 12%, rgba(255, 255, 255, 0.82), transparent),
+          radial-gradient(0.75px 0.75px at 52% 78%, rgba(220, 235, 255, 0.62), transparent),
+          radial-gradient(1px 1px at 6% 38%, rgba(255, 255, 255, 0.58), transparent),
+          radial-gradient(0.9px 0.9px at 81% 56%, rgba(255, 248, 255, 0.68), transparent),
+          radial-gradient(0.7px 0.7px at 47% 91%, rgba(230, 240, 255, 0.55), transparent),
+          radial-gradient(1.05px 1.05px at 19% 66%, rgba(255, 255, 255, 0.72), transparent),
+          radial-gradient(0.95px 0.95px at 96% 12%, rgba(255, 255, 255, 0.6), transparent);
         background-repeat: no-repeat;
         background-size: 100% 100%;
         mix-blend-mode: screen;
-        opacity: 0.4;
-        animation: sparkle-twinkle 4.2s ease-in-out infinite;
+        opacity: 0.52;
+        animation: sparkle-twinkle 3.4s ease-in-out infinite;
       }
       @keyframes sparkle-twinkle {
         0%,
         100% {
-          opacity: 0.2;
+          opacity: 0.18;
         }
-        22% {
+        18% {
+          opacity: 0.62;
+        }
+        36% {
+          opacity: 0.26;
+        }
+        58% {
           opacity: 0.55;
         }
-        48% {
-          opacity: 0.28;
-        }
-        74% {
-          opacity: 0.48;
+        82% {
+          opacity: 0.32;
         }
       }
 
@@ -302,13 +347,15 @@
         background: linear-gradient(
           58deg,
           transparent 0%,
-          rgba(255, 255, 255, 0.05) 18%,
-          rgba(196, 181, 253, 0.09) 38%,
-          rgba(167, 139, 250, 0.08) 52%,
-          rgba(91, 156, 255, 0.07) 68%,
+          rgba(255, 255, 255, 0.08) 14%,
+          rgba(230, 220, 255, 0.1) 28%,
+          rgba(196, 181, 253, 0.14) 42%,
+          rgba(167, 139, 250, 0.12) 54%,
+          rgba(129, 140, 248, 0.1) 66%,
+          rgba(91, 156, 255, 0.09) 76%,
           transparent 100%
         );
-        filter: blur(72px) saturate(1.45);
+        filter: blur(78px) saturate(1.52);
         mix-blend-mode: screen;
         animation: milky-rift-drift 200s linear infinite;
         will-change: transform;
@@ -403,53 +450,67 @@
           radial-gradient(1.1px 1.1px at 73% 19%, rgba(255, 255, 255, 0.78), transparent),
           radial-gradient(0.8px 0.8px at 86% 71%, rgba(230, 235, 255, 0.58), transparent),
           radial-gradient(0.95px 0.95px at 4% 58%, rgba(255, 255, 255, 0.62), transparent),
-          radial-gradient(0.7px 0.7px at 96% 84%, rgba(255, 255, 255, 0.52), transparent);
+          radial-gradient(0.7px 0.7px at 96% 84%, rgba(255, 255, 255, 0.52), transparent),
+          radial-gradient(0.55px 0.55px at 23% 8%, rgba(255, 255, 255, 0.72), transparent),
+          radial-gradient(1.15px 1.15px at 62% 44%, rgba(220, 235, 255, 0.68), transparent),
+          radial-gradient(0.62px 0.62px at 41% 52%, rgba(255, 255, 255, 0.58), transparent),
+          radial-gradient(0.88px 0.88px at 8% 78%, rgba(240, 248, 255, 0.62), transparent),
+          radial-gradient(0.72px 0.72px at 88% 24%, rgba(255, 255, 255, 0.55), transparent),
+          radial-gradient(1px 1px at 49% 71%, rgba(200, 228, 255, 0.52), transparent),
+          radial-gradient(0.68px 0.68px at 15% 31%, rgba(255, 255, 255, 0.65), transparent),
+          radial-gradient(0.92px 0.92px at 77% 96%, rgba(255, 255, 255, 0.6), transparent);
         background-repeat: repeat;
         background-size: 320px 340px, 280px 300px, 360px 380px, 310px 290px, 400px 360px, 350px 320px, 330px 350px,
-          370px 310px, 290px 330px, 340px 400px, 380px 280px, 300px 360px, 410px 340px, 270px 310px, 390px 370px;
+          370px 310px, 290px 330px, 340px 400px, 380px 280px, 300px 360px, 410px 340px, 270px 310px, 390px 370px,
+          300px 320px, 340px 360px, 260px 340px, 310px 280px, 360px 400px, 280px 300px, 330px 350px, 400px 310px;
         background-position: 0 0, 55px 40px, 120px 90px, 30px 200px, 200px 20px, 280px 160px, 90px 280px, 340px 60px,
-          10px 120px, 220px 240px, 150px 10px, 70px 310px, 310px 180px, 180px 70px, 40px 250px;
-        animation: nebula-stars-drift 140s linear infinite, nebula-stars-twinkle 5.8s ease-in-out infinite;
+          10px 120px, 220px 240px, 150px 10px, 70px 310px, 310px 180px, 180px 70px, 40px 250px, 95px 15px, 260px 95px,
+          45px 175px, 320px 220px, 130px 285px, 380px 45px, 15px 200px, 210px 130px;
+        animation: nebula-stars-drift 140s linear infinite, nebula-stars-twinkle 4.6s ease-in-out infinite;
       }
       @keyframes nebula-stars-drift {
         from {
           background-position: 0 0, 55px 40px, 120px 90px, 30px 200px, 200px 20px, 280px 160px, 90px 280px, 340px 60px,
-            10px 120px, 220px 240px, 150px 10px, 70px 310px, 310px 180px, 180px 70px, 40px 250px;
+            10px 120px, 220px 240px, 150px 10px, 70px 310px, 310px 180px, 180px 70px, 40px 250px, 95px 15px, 260px 95px,
+            45px 175px, 320px 220px, 130px 285px, 380px 45px, 15px 200px, 210px 130px;
         }
         to {
           background-position: 320px 180px, 375px 220px, 440px 270px, 350px 380px, 520px 200px, 600px 340px, 410px 460px,
             660px 240px, 330px 300px, 540px 420px, 470px 190px, 390px 490px, 630px 360px, 500px 250px, 360px 430px,
-            430px 620px;
+            430px 620px, 415px 195px, 580px 315px, 345px 355px, 640px 300px, 450px 505px, 395px 125px, 540px 460px;
         }
       }
       @keyframes nebula-stars-twinkle {
         0%,
         100% {
-          opacity: 0.32;
+          opacity: 0.38;
         }
-        40% {
-          opacity: 0.52;
+        32% {
+          opacity: 0.68;
         }
-        65% {
-          opacity: 0.24;
+        58% {
+          opacity: 0.22;
+        }
+        82% {
+          opacity: 0.55;
         }
       }
 
       html[data-theme="nebula"] .space-milky-way {
-        opacity: 0.86;
-        filter: blur(56px) saturate(1.52);
+        opacity: 0.96;
+        filter: blur(52px) saturate(1.58);
       }
       html[data-theme="nebula"] .space-milky-rift {
-        opacity: 0.62;
+        opacity: 0.82;
       }
       html[data-theme="nebula"] .space-aurora {
         opacity: 1;
       }
       html[data-theme="nebula"] .space-stars-deep {
-        opacity: 0.44;
+        opacity: 0.58;
       }
       html[data-theme="nebula"] .space-sparkle-layer {
-        opacity: 0.46;
+        opacity: 0.58;
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -2926,15 +2987,6 @@
         box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.52) inset, 0 0 28px 3px rgba(34, 211, 238, 0.42),
           0 0 56px 0 rgba(91, 156, 255, 0.22), 0 8px 22px rgba(0, 0, 0, 0.45);
       }
-      .tab-btn.active[data-tab="messages"] {
-        background: linear-gradient(180deg, rgba(129, 140, 248, 0.26) 0%, rgba(91, 156, 255, 0.09) 100%);
-        box-shadow: 0 0 0 1px rgba(165, 180, 252, 0.4) inset, 0 0 22px 2px rgba(129, 140, 248, 0.38),
-          0 0 48px 0 rgba(91, 156, 255, 0.16), 0 8px 20px rgba(0, 0, 0, 0.42);
-      }
-      .tab-btn.active[data-tab="messages"]:hover:not(:disabled) {
-        box-shadow: 0 0 0 1px rgba(165, 180, 252, 0.5) inset, 0 0 28px 3px rgba(129, 140, 248, 0.45),
-          0 0 56px 0 rgba(91, 156, 255, 0.2), 0 8px 22px rgba(0, 0, 0, 0.45);
-      }
       .tab-btn.active[data-tab="admin"] {
         background: linear-gradient(180deg, rgba(251, 191, 36, 0.22) 0%, rgba(245, 158, 11, 0.07) 100%);
         box-shadow: 0 0 0 1px rgba(252, 211, 77, 0.38) inset, 0 0 20px 2px rgba(245, 158, 11, 0.28),
@@ -3071,12 +3123,6 @@
       .admin-pill.unk {
         background: rgba(138, 155, 184, 0.2);
         color: var(--muted);
-      }
-      #tabBtnMessages {
-        display: none;
-      }
-      #tabBtnMessages.visible {
-        display: flex;
       }
       #tabBtnAdmin {
         display: none;
@@ -3363,10 +3409,15 @@
         color: inherit;
         font: inherit;
         cursor: pointer;
+        box-shadow: none;
+        transition: border-color 0.15s ease, background 0.15s ease;
       }
       .community-challenge-card:hover {
         border-color: rgba(167, 139, 250, 0.4);
         background: rgba(255, 255, 255, 0.04);
+        box-shadow: none;
+        filter: none;
+        transform: none;
       }
       .community-challenge-card-title {
         font-weight: 700;
@@ -3485,21 +3536,30 @@
         padding: 0.85rem 1rem;
         border-radius: 14px;
         border: 1px solid rgba(130, 200, 255, 0.14);
-        background: rgba(0, 0, 0, 0.28);
-        -webkit-backdrop-filter: blur(14px) saturate(1.15);
-        backdrop-filter: blur(14px) saturate(1.15);
+        background: rgba(10, 12, 20, 0.82);
         color: inherit;
         font: inherit;
         cursor: pointer;
         touch-action: manipulation;
+        box-shadow: none;
+        transition: border-color 0.15s ease, background 0.15s ease;
       }
       .community-thread-card:hover {
         border-color: rgba(34, 211, 238, 0.28);
-        background: rgba(34, 211, 238, 0.06);
+        background: rgba(18, 26, 42, 0.88);
+        box-shadow: none;
+        filter: none;
+        transform: none;
+      }
+      .community-thread-card:active:not(:disabled) {
+        transform: none;
       }
       .community-thread-card--episode {
         border-left: 3px solid rgba(251, 113, 133, 0.65);
-        background: linear-gradient(135deg, rgba(251, 113, 133, 0.07) 0%, rgba(0, 0, 0, 0.22) 48%);
+        background: linear-gradient(135deg, rgba(251, 113, 133, 0.08) 0%, rgba(10, 12, 20, 0.9) 52%);
+      }
+      .community-thread-card--episode:hover {
+        background: linear-gradient(135deg, rgba(251, 113, 133, 0.12) 0%, rgba(18, 22, 34, 0.92) 52%);
       }
       .community-thread-card--general {
         border-left: 3px solid rgba(147, 197, 253, 0.45);
@@ -4113,11 +4173,6 @@
         background: rgba(0, 0, 0, 0.35);
         color: inherit;
       }
-      .community-ratings-embed-link {
-        font-size: 0.78rem;
-        color: #7dd3fc;
-        margin-left: auto;
-      }
       .community-sentiment-chart-svg {
         width: 100%;
         overflow-x: auto;
@@ -4134,6 +4189,8 @@
         align-items: stretch;
         gap: 0.75rem;
         margin: 0;
+        min-width: 0;
+        overflow-x: hidden;
       }
       .community-thread-main-row.is-rail-open {
         flex-wrap: nowrap;
@@ -4149,11 +4206,13 @@
         display: flex;
         flex-direction: column;
         max-height: min(52vh, 420px);
+        min-width: 0;
         border-radius: 14px;
         border: 1px solid rgba(34, 211, 238, 0.22);
         background: linear-gradient(180deg, rgba(8, 14, 28, 0.92), rgba(4, 8, 18, 0.96));
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
         overflow: hidden;
+        isolation: isolate;
       }
       .community-thread-main-row.is-rail-open .community-live-rail {
         margin: 0 0.65rem 0.75rem 0;
@@ -4185,13 +4244,54 @@
         margin-top: 0.2rem;
         line-height: 1.35;
       }
+      .community-live-rail-watchers {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.45rem 0.65rem 0.35rem;
+        border-bottom: 1px solid rgba(130, 200, 255, 0.08);
+        background: rgba(0, 0, 0, 0.2);
+      }
+      .community-live-rail-watchers[hidden] {
+        display: none !important;
+      }
+      .community-live-rail-watcher {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 0.2rem 0.45rem;
+        border-radius: 999px;
+        border: 1px solid rgba(34, 211, 238, 0.22);
+        background: rgba(34, 211, 238, 0.08);
+        color: #bae6fd;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
       .community-live-rail-messages {
         flex: 1 1 auto;
-        min-height: 120px;
+        min-height: 0;
         overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
         padding: 0.5rem 0.65rem;
         font-size: 0.82rem;
         line-height: 1.45;
+        scrollbar-width: thin;
+      }
+      .community-live-rail-messages::-webkit-scrollbar {
+        width: 6px;
+      }
+      .community-live-rail-messages::-webkit-scrollbar-thumb {
+        background: rgba(130, 200, 255, 0.25);
+        border-radius: 999px;
+      }
+      .community-live-rail-empty-hint {
+        margin: 0 0 0.5rem;
+        font-size: 0.78rem;
+        line-height: 1.45;
+        color: var(--muted);
       }
       .community-live-rail-msg {
         margin: 0 0 0.45rem;
@@ -4239,7 +4339,7 @@
         padding: 0.45rem 0.75rem;
       }
       .community-member-profile-inner {
-        margin: 0.5rem 0 1rem;
+        margin: 0 0 1rem;
       }
       .community-member-profile-hero {
         display: flex;
@@ -4362,13 +4462,8 @@
         margin: 0.75rem 0 0.25rem;
         padding: 0.65rem 0.75rem;
         border-radius: 12px;
-        border: 1px solid rgba(91, 156, 255, 0.35);
-        background: linear-gradient(
-          165deg,
-          rgba(91, 156, 255, 0.14) 0%,
-          rgba(34, 211, 238, 0.08) 55%,
-          rgba(8, 14, 32, 0.5) 100%
-        );
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        background: rgba(8, 12, 22, 0.65);
       }
       .community-compatibility-line {
         margin: 0;
@@ -4389,8 +4484,8 @@
       .community-profile-stat-card {
         padding: 0.55rem 0.65rem;
         border-radius: 11px;
-        border: 1px solid rgba(130, 200, 255, 0.14);
-        background: rgba(8, 14, 28, 0.45);
+        border: 1px solid rgba(130, 200, 255, 0.1);
+        background: rgba(6, 10, 20, 0.55);
       }
       .community-profile-stat-value {
         display: block;
@@ -4441,8 +4536,8 @@
         min-width: 0;
         padding: 0.45rem 0.55rem;
         border-radius: 10px;
-        border: 1px solid rgba(251, 191, 36, 0.2);
-        background: linear-gradient(145deg, rgba(251, 191, 36, 0.06), rgba(8, 14, 28, 0.5));
+        border: 1px solid rgba(130, 200, 255, 0.1);
+        background: rgba(6, 10, 20, 0.55);
       }
       .community-profile-shelf-title {
         display: block;
@@ -4690,6 +4785,7 @@
         background: rgba(0, 0, 0, 0.65);
         -webkit-backdrop-filter: blur(6px);
         backdrop-filter: blur(6px);
+        cursor: pointer;
       }
       .community-modal-panel {
         position: relative;
@@ -4714,6 +4810,99 @@
           border: 1px solid rgba(34, 211, 238, 0.2);
         }
       }
+
+      /* Member profile: sticky header + scroll body so dismiss is always visible */
+      .community-member-profile-panel.community-modal-panel {
+        display: flex;
+        flex-direction: column;
+        max-height: min(92dvh, 40rem);
+        padding: 0;
+        overflow: hidden;
+        cursor: default;
+        background: rgba(12, 14, 24, 0.94);
+        -webkit-backdrop-filter: blur(22px) saturate(1.1);
+        backdrop-filter: blur(22px) saturate(1.1);
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        border-bottom: none;
+        box-shadow: 0 -6px 32px rgba(0, 0, 0, 0.4);
+      }
+      @media (min-width: 520px) {
+        .community-member-profile-panel.community-modal-panel {
+          border-radius: 20px;
+          border-bottom: 1px solid rgba(130, 200, 255, 0.12);
+          box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+        }
+      }
+      .community-member-profile-sheet-handle {
+        flex-shrink: 0;
+        width: 2.25rem;
+        height: 4px;
+        margin: 0.5rem auto 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+      }
+      @media (min-width: 520px) {
+        .community-member-profile-sheet-handle {
+          display: none;
+        }
+      }
+      .community-member-profile-toolbar {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.35rem 1rem 0.85rem;
+        border-bottom: 1px solid rgba(130, 200, 255, 0.08);
+      }
+      .community-member-profile-toolbar-title {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.25;
+        min-width: 0;
+      }
+      button.community-member-profile-close-x {
+        flex-shrink: 0;
+        width: 2.75rem;
+        height: 2.75rem;
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+        padding: 0;
+        margin: 0;
+        border-radius: 12px;
+        border: 1px solid rgba(130, 200, 255, 0.22);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+        font-size: 1.5rem;
+        font-weight: 400;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: none;
+        touch-action: manipulation;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      button.community-member-profile-close-x:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.09);
+        border-color: rgba(34, 211, 238, 0.35);
+        filter: none;
+        transform: none;
+        box-shadow: none;
+      }
+      button.community-member-profile-close-x:active:not(:disabled) {
+        transform: none;
+      }
+      .community-member-profile-scroll {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 0.65rem 1.1rem 1.15rem;
+        -webkit-overflow-scrolling: touch;
+      }
+
       .community-modal-title {
         margin: 0 0 0.5rem;
         font-size: 1.1rem;
@@ -5340,18 +5529,6 @@
               class="tab-btn"
               role="tab"
               aria-selected="false"
-              data-tab="messages"
-              id="tabBtnMessages"
-              aria-label="Messages"
-              title="Messages"
-            >
-              <span class="tab-label">Messages</span>
-            </button>
-            <button
-              type="button"
-              class="tab-btn"
-              role="tab"
-              aria-selected="false"
               data-tab="admin"
               id="tabBtnAdmin"
               aria-label="Admin"
@@ -5573,19 +5750,7 @@
               <h2 class="section-header-highlight header-cyan-glow" style="margin-top: 0">Community</h2>
               <span class="community-live-badge" aria-hidden="true">● LIVE</span>
             </div>
-            <p class="muted community-lead" id="communityTabLead">
-              Each episode gets its own thread when it airs — <strong>S03E04 — Discussion</strong> style. General show chat lives under
-              <strong>General discussion</strong>. Tap <strong>+</strong> to jump to a show and pick an episode.
-              <strong>Spoiler-safe mode</strong>: set how many episodes you’re behind on a show — we blur newer-episode threads (and you can still mark posts as spoilers). Few apps respect your pace this clearly.
-              <strong>Watching now</strong>: tap when you’re live — when two or more people are in the same thread, a side rail opens for quick, ephemeral reactions (no sync needed).
-              <strong>Prediction polls</strong> (episode threads): before the listed air date, create polls and vote; they lock when the episode airs, then the author can reveal the correct outcome.
-              <strong>Episode scores</strong>: after an episode airs, rate it 1–5 — the general show thread charts community sentiment across the season (share or embed for fans and press).
-              Open a member’s <strong>profile</strong> from a post to see their watch stats, top genres, recent watches, and what they’re watching now.
-              <strong>Watch challenges</strong>: race to finish a show before a chosen episode airs — opt in and climb the public leaderboard (progress from your Tasks checklist).
-            </p>
-            <div class="community-find-friend" id="communityFindFriend">
-              <h3 class="community-find-friend-title">Find a friend</h3>
-              <p class="muted community-find-friend-lead">Look up members by username — suggestions appear as you type.</p>
+            <div class="community-find-friend" id="communityFindFriend" aria-label="Find a friend">
               <div class="community-find-friend-field">
                 <label for="communityFindFriendInput" class="visually-hidden">Search username</label>
                 <input
@@ -5604,32 +5769,19 @@
                 />
                 <div id="communityFindFriendResults" class="community-find-friend-results" hidden role="listbox" aria-label="Matching members"></div>
               </div>
-              <p class="muted community-find-friend-guest-hint" id="communityFindFriendGuestHint" hidden>
-                Create an account (profile icon → Your profile) to search for members.
-              </p>
             </div>
-            <div class="community-challenges-block" id="communityChallengesBlock">
-              <h3 class="community-challenges-title">Watch challenges</h3>
-              <p class="muted community-challenges-lead">
-                Shared goals — finish one show before a chosen episode of another airs. Opt in, then progress is public from
-                episodes you mark watched on <strong>Tasks</strong> (same show &amp; air dates on or before the deadline).
-              </p>
+            <div class="community-challenges-block" id="communityChallengesBlock" aria-label="Watch challenges">
               <div class="community-challenges-toolbar">
                 <button type="button" class="secondary" id="communityChallengeCreateBtn">Start a challenge</button>
               </div>
               <p class="muted community-loading" id="communityChallengesLoading" hidden>Loading challenges…</p>
               <p class="err" id="communityChallengesErr" style="display: none; margin: 0.35rem 0"></p>
               <ul class="community-challenges-list" id="communityChallengesList" role="list"></ul>
-              <p class="muted" id="communityChallengesEmpty" hidden>No challenges yet — start one for the community.</p>
             </div>
             <button type="button" class="community-fab-plus" id="communityNewThreadBtn" title="New discussion">+</button>
             <div id="communityThreadsLoading" class="muted community-loading" hidden>Loading threads…</div>
             <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
             <ul class="community-thread-list" id="communityThreadList"></ul>
-            <p class="muted community-empty" id="communityThreadsEmpty" hidden>
-              No threads yet. Subscribe to shows and refresh episode data — episode discussions appear here automatically after air
-              date. Or tap + to open a show and pick an episode.
-            </p>
           </div>
           <div class="community-thread-view hidden" id="communityThreadView">
             <div class="community-show-page" id="communityShowPage">
@@ -5650,9 +5802,6 @@
                   </div>
                 </div>
               </header>
-              <p class="muted community-thread-hint" id="communitySubscribeHint" hidden style="margin: 0.35rem 0.75rem 0; font-size: 0.78rem; line-height: 1.45">
-                Use <strong>Turn on push</strong> (settings → Push notifications) first. You can subscribe if this show is on <strong>My List</strong> (even before the first post) or once someone has posted.
-              </p>
               <div class="community-catchup-panel" id="communityCatchUpPanel" hidden>
                 <div class="community-catchup-panel-inner">
                   <span class="community-catchup-label">Spoiler-safe mode</span>
@@ -5676,21 +5825,9 @@
               </div>
               <section class="community-sentiment-chart-panel" id="communityShowRatingsChartPanel" hidden aria-label="Season scores">
                 <h3 class="community-polls-heading">Community scores</h3>
-                <p class="muted community-polls-lead">
-                  Average 1–5 per aired episode (this community). Spikes and dips show how the season landed — share or embed for
-                  fans and press.
-                </p>
                 <div class="community-sentiment-chart-toolbar">
                   <label for="communityRatingsSeasonSelect">Season</label>
                   <select id="communityRatingsSeasonSelect" class="community-ratings-season-select"></select>
-                  <a
-                    class="community-ratings-embed-link"
-                    id="communityRatingsEmbedLink"
-                    href="#"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >Open embed page</a
-                  >
                 </div>
                 <div id="communityRatingsChartSvg" class="community-sentiment-chart-svg" role="img" aria-label="Ratings chart"></div>
               </section>
@@ -5759,9 +5896,6 @@
                 role="textbox"
                 aria-multiline="true"
               ></div>
-              <p class="muted community-mention-hint" id="communityMentionHint" hidden style="font-size: 0.78rem; margin: 0.35rem 0 0; line-height: 1.45">
-                Use <strong>@username</strong> to mention someone (same format as <strong>Reply</strong>) — they get a push notification if they enabled notifications.
-              </p>
               <div class="community-composer-meta" id="communityComposerEpisodeRow">
                 <label class="community-ep-label" for="communityEpisodeSelect">
                   Episode <span class="muted">(optional, from guide)</span>
@@ -5796,6 +5930,7 @@
                     <span class="community-live-rail-title" id="communityLiveRailTitle">Watching now</span>
                     <span class="muted community-live-rail-sub" id="communityLiveRailPresence">—</span>
                   </div>
+                  <div id="communityLiveRailWatchers" class="community-live-rail-watchers" hidden></div>
                   <div class="community-live-rail-messages" id="communityLiveRailMessages" role="log" aria-live="polite"></div>
                   <div class="community-live-rail-compose">
                     <input type="text" id="communityLiveRailInput" maxlength="280" placeholder="Quick reaction…" autocomplete="off" />
@@ -5925,16 +6060,28 @@
       <div id="communityMemberProfileModal" class="community-modal" hidden aria-hidden="true">
         <div class="community-modal-backdrop" data-close-member-profile></div>
         <div class="community-modal-panel community-member-profile-panel" role="dialog" aria-modal="true" aria-labelledby="communityMemberProfileHeading">
-          <h3 id="communityMemberProfileHeading" class="community-modal-title">Member profile</h3>
-          <div id="communityMemberProfileBody" class="community-member-profile-body"></div>
-          <button type="button" id="communityMemberProfileDmBtn" class="secondary" style="margin-top: 0.65rem; width: 100%">
-            Direct message
-          </button>
-          <p class="muted" id="communityMemberProfileDmHint" hidden style="margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.4">
-            Create an account (profile icon → Your profile) to send direct messages.
-          </p>
-          <p class="err" id="communityMemberProfileErr" style="display: none; margin-top: 0.5rem"></p>
-          <button type="button" class="secondary community-modal-close" data-close-member-profile>Close</button>
+          <div class="community-member-profile-sheet-handle" aria-hidden="true"></div>
+          <div class="community-member-profile-toolbar">
+            <h3 id="communityMemberProfileHeading" class="community-member-profile-toolbar-title">Member profile</h3>
+            <button
+              type="button"
+              class="community-member-profile-close-x"
+              data-close-member-profile
+              aria-label="Close profile"
+            >
+              ×
+            </button>
+          </div>
+          <div class="community-member-profile-scroll">
+            <div id="communityMemberProfileBody" class="community-member-profile-body"></div>
+            <button type="button" id="communityMemberProfileDmBtn" class="secondary" style="margin-top: 0.65rem; width: 100%">
+              Direct message
+            </button>
+            <p class="muted" id="communityMemberProfileDmHint" hidden style="margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.4">
+              Create an account (profile icon → Your profile) to send direct messages.
+            </p>
+            <p class="err" id="communityMemberProfileErr" style="display: none; margin-top: 0.5rem"></p>
+          </div>
         </div>
       </div>
 
@@ -5953,7 +6100,7 @@
         </div>
       </div>
 
-      <div id="tab-messages" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnMessages">
+      <div id="tab-messages" class="tab-panel" role="tabpanel" aria-labelledby="dmInboxTitle">
         <section class="panel-rail-cyan dm-inbox-page-root" aria-label="Messages">
           <div class="dm-inbox-panel">
             <div id="dmInboxListView">
@@ -6075,7 +6222,7 @@
             Airalert helps you track what’s airing, check off what you’ve watched, and hang out with other fans. You land on
             <strong>Add Shows</strong> first. Use the header for everything else:
             <strong>?</strong> this guide · <strong>gear</strong> settings · <strong>person</strong> your profile ·
-            <strong>Messages</strong> when you’re signed in.
+            <strong>inbox</strong> (top right) when you’re signed in.
           </p>
           <div class="quickstart-guide">
             <section class="quickstart-block">
@@ -6127,8 +6274,8 @@
             <section class="quickstart-block">
               <h4 class="quickstart-block-title">Messages</h4>
               <p>
-                Registered members can <strong>direct message</strong> from the <strong>Messages</strong> tab or from someone’s
-                profile. Create an account under <strong>Your profile</strong> if you don’t have one yet.
+                Registered members can <strong>direct message</strong> from the <strong>inbox</strong> (top right) or from
+                someone’s profile. Create an account under <strong>Your profile</strong> if you don’t have one yet.
               </p>
             </section>
             <section class="quickstart-block">
@@ -7966,17 +8113,9 @@
           signOutSec.hidden = !(me && (me.username || truthyBit(me.hasPassword)));
         }
         const tabBtn = document.getElementById("tabBtnAdmin");
-        const tabBtnMsg = document.getElementById("tabBtnMessages");
         const guest = document.getElementById("accountGuest");
         const signed = document.getElementById("accountSignedIn");
         if (!tabBtn || !guest || !signed) return;
-        if (tabBtnMsg) {
-          if (me && accountIsRegistered(me)) {
-            tabBtnMsg.classList.add("visible");
-          } else {
-            tabBtnMsg.classList.remove("visible");
-          }
-        }
         if (me && truthyBit(me.isAdmin)) {
           tabBtn.classList.add("visible");
         } else {
@@ -8749,6 +8888,52 @@
         if (btn) btn.disabled = !can;
       }
 
+      function syncCommunityLiveRailWatchers(watchersRaw) {
+        const wEl = document.getElementById("communityLiveRailWatchers");
+        if (!wEl) return;
+        wEl.innerHTML = "";
+        const watchers = Array.isArray(watchersRaw) ? watchersRaw : [];
+        if (!watchers.length) {
+          wEl.hidden = true;
+          return;
+        }
+        wEl.hidden = false;
+        for (const w of watchers.slice(0, 16)) {
+          const h = w && typeof w.handle === "string" ? w.handle.trim() : "";
+          const span = document.createElement("span");
+          span.className = "community-live-rail-watcher";
+          span.textContent = h || "Member";
+          span.title = h || "Member";
+          wEl.appendChild(span);
+        }
+      }
+
+      function syncCommunityLiveRailEmptyHint() {
+        const host = document.getElementById("communityLiveRailMessages");
+        if (!host) return;
+        const hasMsg = host.querySelector(".community-live-rail-msg");
+        let hint = host.querySelector(".community-live-rail-empty-hint");
+        const wsOk = communityThreadLiveWs && communityThreadLiveWs.readyState === 1;
+        const show =
+          communityThreadLiveRailOpen && wsOk && !hasMsg;
+        if (show) {
+          if (!hint) {
+            hint = document.createElement("p");
+            hint.className = "community-live-rail-empty-hint";
+            host.insertBefore(hint, host.firstChild);
+          }
+          if (communityThreadLiveAirNight) {
+            hint.textContent = "No messages yet — say something below.";
+          } else if (communityThreadLiveWatching) {
+            hint.textContent = "No messages yet — your note will show up here.";
+          } else {
+            hint.textContent = "Tap “I’m watching this right now” above to unlock sending.";
+          }
+        } else if (hint) {
+          hint.remove();
+        }
+      }
+
       function syncCommunityWatchingLiveBtn() {
         const wBtn = document.getElementById("communityWatchingBtn");
         if (!wBtn) return;
@@ -8788,6 +8973,7 @@
         if (rail) rail.hidden = true;
         if (row) row.classList.remove("is-rail-open");
         if (msgs) msgs.innerHTML = "";
+        syncCommunityLiveRailWatchers([]);
         if (inp) {
           inp.value = "";
           inp.disabled = true;
@@ -8842,7 +9028,9 @@
             wStat.textContent = "Live chat unlocks when at least two people tap “watching.”";
           }
         }
+        syncCommunityLiveRailWatchers(data.watchers);
         syncCommunityLiveRailCompose();
+        syncCommunityLiveRailEmptyHint();
       }
 
       function appendCommunityLiveRailChatLine(msg) {
@@ -8859,6 +9047,7 @@
         row.appendChild(document.createTextNode(" " + (msg.body || "")));
         host.appendChild(row);
         host.scrollTop = host.scrollHeight;
+        syncCommunityLiveRailEmptyHint();
       }
 
       function handleCommunityThreadLivePayload(data) {
@@ -8944,6 +9133,7 @@
             }
             syncCommunityWatchingLiveBtn();
             syncCommunityLiveRailCompose();
+            syncCommunityLiveRailEmptyHint();
           };
           communityThreadLiveWs.onmessage = (ev) => {
             try {
@@ -8991,9 +9181,7 @@
 
       function syncCommunityFindFriendChrome() {
         const inp = document.getElementById("communityFindFriendInput");
-        const hint = document.getElementById("communityFindFriendGuestHint");
         const reg = accountIsRegistered(sessionMeSnapshot);
-        if (hint) hint.hidden = reg;
         if (inp) {
           inp.disabled = !reg;
           if (!reg) {
@@ -9195,7 +9383,6 @@
 
       async function loadCommunityChallenges() {
         const listEl = document.getElementById("communityChallengesList");
-        const emptyEl = document.getElementById("communityChallengesEmpty");
         const errEl = document.getElementById("communityChallengesErr");
         const loadEl = document.getElementById("communityChallengesLoading");
         if (!listEl) return;
@@ -9208,7 +9395,6 @@
           const data = await api("/api/community/challenges");
           const challenges = data.challenges || [];
           listEl.innerHTML = "";
-          if (emptyEl) emptyEl.hidden = challenges.length > 0;
           for (const ch of challenges) {
             const li = document.createElement("li");
             const btn = document.createElement("button");
@@ -9462,7 +9648,6 @@
 
       async function loadCommunityThreads() {
         const listEl = document.getElementById("communityThreadList");
-        const emptyEl = document.getElementById("communityThreadsEmpty");
         const errEl = document.getElementById("communityThreadsErr");
         const loadEl = document.getElementById("communityThreadsLoading");
         if (!listEl) return;
@@ -9475,7 +9660,6 @@
           const data = await api("/api/community/threads");
           const threads = data.threads || [];
           listEl.innerHTML = "";
-          if (emptyEl) emptyEl.hidden = threads.length > 0;
           for (const th of threads) {
             const li = document.createElement("li");
             const btn = document.createElement("button");
@@ -9571,8 +9755,6 @@
         if (postAs) postAs.textContent = accountDisplayForCommunity(sessionMeSnapshot);
         document.getElementById("communityPostAsLine").hidden = !reg;
         document.getElementById("communityGuestHint").hidden = reg;
-        const mh = document.getElementById("communityMentionHint");
-        if (mh) mh.hidden = !reg;
         document.getElementById("communityFormatBar").hidden = !reg;
         document.getElementById("communityPostSubmitBtn").disabled = !reg;
         document.getElementById("communityComposer").contentEditable = reg ? "true" : "false";
@@ -9636,7 +9818,6 @@
         const liveEl = document.getElementById("communityShowLiveBadge");
         const pcEl = document.getElementById("communityShowPostCount");
         const subCb = document.getElementById("communitySubscribeCb");
-        const subHint = document.getElementById("communitySubscribeHint");
         const composerEl = document.getElementById("communityComposer");
         if (errEl) {
           errEl.style.display = "none";
@@ -9691,7 +9872,6 @@
             subCb.checked = Boolean(data.subscribed);
             subCb.disabled = !accountIsRegistered(sessionMeSnapshot) || !canSub;
           }
-          if (subHint) subHint.hidden = !accountIsRegistered(sessionMeSnapshot);
           const cup = document.getElementById("communityCatchUpPanel");
           const cupInp = document.getElementById("communityEpisodesBehindInput");
           const cupNum = document.getElementById("communityCatchUpHelpNum");
@@ -9734,23 +9914,32 @@
           communityThreadLiveLastKey = threadLiveKey;
           communityThreadLiveAirNight = data.liveAirNight === true;
           applyCommunityLiveAirNightChrome();
+          const regLive = accountIsRegistered(sessionMeSnapshot);
           const rail = document.getElementById("communityLiveRail");
           const row = document.getElementById("communityThreadMainRow");
           const pres = document.getElementById("communityLiveRailPresence");
-          if (communityThreadLiveAirNight && typeof communityState.episodeId === "number") {
+          if (threadChanged) {
+            const msgsEarly = document.getElementById("communityLiveRailMessages");
+            if (msgsEarly) msgsEarly.innerHTML = "";
+            syncCommunityLiveRailWatchers([]);
+          }
+          const shouldAirOpen =
+            regLive && communityThreadLiveAirNight && typeof communityState.episodeId === "number";
+          if (shouldAirOpen) {
             communityThreadLiveRailOpen = true;
             if (rail) rail.hidden = false;
             if (row) row.classList.add("is-rail-open");
             if (pres && (!communityThreadLiveWs || communityThreadLiveWs.readyState !== 1)) {
               pres.textContent = "Connecting…";
             }
-          } else if (threadChanged) {
+          } else {
             communityThreadLiveRailOpen = false;
             if (rail) rail.hidden = true;
             if (row) row.classList.remove("is-rail-open");
             if (pres) pres.textContent = "—";
           }
           syncCommunityLiveRailCompose();
+          syncCommunityLiveRailEmptyHint();
           if (communityThreadLiveWs && communityThreadLiveWs.readyState === 1) {
             try {
               communityThreadLiveWs.send(JSON.stringify({ type: "ping" }));
@@ -10077,7 +10266,6 @@
       async function refreshCommunityShowRatingsChart(showId) {
         const sel = document.getElementById("communityRatingsSeasonSelect");
         const host = document.getElementById("communityRatingsChartSvg");
-        const link = document.getElementById("communityRatingsEmbedLink");
         if (!sel || !host) return;
         const season = Number(sel.value);
         if (!Number.isFinite(season)) return;
@@ -10091,17 +10279,9 @@
           (data.showName || "Show") + " — season " + String(data.season);
         const eps = data.episodes || [];
         if (!eps.length) {
-          host.innerHTML = "<p class=\"muted\" style=\"margin:0\">No aired episodes in the guide for this season yet.</p>";
+          host.innerHTML = "";
         } else {
           host.innerHTML = communitySentimentChartSvg(eps, titleLine);
-        }
-        if (link) {
-          link.href =
-            apiOrigin() +
-            "/embed-ratings.html?showId=" +
-            encodeURIComponent(showId) +
-            "&season=" +
-            encodeURIComponent(String(season));
         }
       }
 
@@ -10121,10 +10301,7 @@
           const seasons = sdata.seasons || [];
           const sel = document.getElementById("communityRatingsSeasonSelect");
           if (!sel || !seasons.length) {
-            if (host) {
-              host.innerHTML =
-                "<p class=\"muted\" style=\"margin:0\">No aired episodes in the guide yet — refresh show data in Settings.</p>";
-            }
+            if (host) host.innerHTML = "";
             return;
           }
           sel.innerHTML = "";
@@ -12132,13 +12309,6 @@
                       openCommunityThread(s.id, s.name, 0, { episodeId: epId });
                     });
                     box.appendChild(eb);
-                  }
-                  if (eps.length === 0) {
-                    const p = document.createElement("p");
-                    p.className = "muted";
-                    p.style.margin = "0.5rem 0 0";
-                    p.textContent = "No aired episodes in the guide yet — try General discussion, or refresh show data in Settings.";
-                    box.appendChild(p);
                   }
                 } catch {
                   closeCommunityNewModal();
