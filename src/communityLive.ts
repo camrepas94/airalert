@@ -106,21 +106,23 @@ function broadcastPresence(roomKey: string): void {
   const set = rooms.get(roomKey);
   if (!set) return;
 
-  const watchingUsers = new Map<string, string>();
+  /** Everyone connected to this thread scope appears in “Watching now” (no extra tap). */
+  const viewerUsers = new Map<string, string>();
   for (const c of set) {
-    if (c.watching && !watchingUsers.has(c.userId)) {
-      watchingUsers.set(c.userId, authorLabelForUser(c.userId));
+    if (!viewerUsers.has(c.userId)) {
+      viewerUsers.set(c.userId, authorLabelForUser(c.userId));
     }
   }
-  const watchingCount = watchingUsers.size;
-  const viewerCount = countDistinctViewers(set);
-  const watchers = [...watchingUsers.entries()].slice(0, 24).map(([userId, handle]) => ({ userId, handle }));
+  const viewerCount = viewerUsers.size;
+  const watchers = [...viewerUsers.entries()].slice(0, 24).map(([userId, handle]) => ({ userId, handle }));
+  const watchingCount = countDistinctWatching(set);
+
   const parsed = parseRoomKeyForEpisode(roomKey);
   const liveAirNight =
     parsed != null &&
     parsed.tvmazeEpisodeId != null &&
     isEpisodeLiveAirNightWindow(parsed.showId, parsed.tvmazeEpisodeId);
-  const railOpen = watchingCount >= 2 || !!liveAirNight;
+  const railOpen = viewerCount >= 1 || !!liveAirNight;
 
   const payload = JSON.stringify({
     type: "thread_live_presence" as const,
@@ -202,15 +204,6 @@ export function handleCommunityThreadLiveMessage(userId: string, socket: WebSock
   if (d.type === "chat") {
     const set = rooms.get(meta.roomKey);
     if (!set) return;
-    const parsed = parseRoomKeyForEpisode(meta.roomKey);
-    const airNight =
-      parsed != null &&
-      parsed.tvmazeEpisodeId != null &&
-      isEpisodeLiveAirNightWindow(parsed.showId, parsed.tvmazeEpisodeId);
-    if (!airNight) {
-      if (countDistinctWatching(set) < 2) return;
-      if (!meta.rec.watching) return;
-    }
     const body = normalizeLiveChatBody(d.body);
     if (!body) return;
 

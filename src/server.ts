@@ -49,16 +49,15 @@ import {
   sendDmMessage,
   getDmUnreadTotal,
   markDmThreadRead,
-  listUnifiedDmThreadsForUser,
+  markDmThreadUnread,
+  deleteDmThreadAsMember,
+  listDmThreadsForUser,
   listDmMessages,
   registerDmSocket,
   unregisterDmSocket,
   enrichMessagesWithReadState,
   getOtherParticipantLastReadAt,
   handleDmClientSocketMessage,
-  resolveDmThreadAccess,
-  createDmGroup,
-  renameDmGroup,
 } from "./dm.js";
 import {
   parseThreadLiveRoomQuery,
@@ -3864,7 +3863,7 @@ app.get("/api/dm/unread", async (request, reply) => {
 app.get("/api/dm/threads", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
-  return { threads: listUnifiedDmThreadsForUser(uid) };
+  return { threads: listDmThreadsForUser(uid) };
 });
 
 app.post("/api/dm/threads", async (request, reply) => {
@@ -3885,43 +3884,14 @@ app.post("/api/dm/threads", async (request, reply) => {
   return { threadId };
 });
 
-app.post("/api/dm/groups", async (request, reply) => {
-  const uid = sessionRegisteredUserId(request, reply);
-  if (!uid) return;
-  const body = (request.body ?? {}) as { name?: string; memberUserIds?: unknown };
-  const name = typeof body.name === "string" ? body.name : "";
-  const rawIds = body.memberUserIds;
-  const memberUserIds = Array.isArray(rawIds) ? rawIds.filter((x): x is string => typeof x === "string") : [];
-  try {
-    const groupId = createDmGroup(uid, name, memberUserIds);
-    reply.code(201);
-    return { threadId: groupId, groupId };
-  } catch (e) {
-    reply.code(400);
-    return { error: e instanceof Error ? e.message : "Could not create group" };
-  }
-});
-
-app.patch("/api/dm/groups/:groupId", async (request, reply) => {
-  const uid = sessionRegisteredUserId(request, reply);
-  if (!uid) return;
-  const { groupId } = request.params as { groupId: string };
-  const body = (request.body ?? {}) as { name?: string };
-  const name = typeof body.name === "string" ? body.name : "";
-  const ok = renameDmGroup(groupId, uid, name);
-  if (!ok) {
-    reply.code(404);
-    return { error: "Group not found or no access" };
-  }
-  return { ok: true };
-});
-
 app.get("/api/dm/threads/:threadId/messages", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   const { threadId } = request.params as { threadId: string };
-  const access = resolveDmThreadAccess(uid, threadId);
-  if (!access) {
+  const inThread = db
+    .prepare(`SELECT 1 FROM dm_threads WHERE id = ? AND (user_low = ? OR user_high = ?)`)
+    .get(threadId, uid, uid);
+  if (!inThread) {
     reply.code(404);
     return { error: "Thread not found" };
   }
@@ -3931,19 +3901,15 @@ app.get("/api/dm/threads/:threadId/messages", async (request, reply) => {
   const beforeId = typeof q.before === "string" && q.before.trim() ? q.before.trim() : null;
   const raw = listDmMessages(threadId, uid, limit, beforeId);
   const chronological = raw.slice().reverse();
-  const otherLastReadAt = access === "direct" ? getOtherParticipantLastReadAt(threadId, uid) : null;
+  const otherLastReadAt = getOtherParticipantLastReadAt(threadId, uid);
   const messages = enrichMessagesWithReadState(chronological, uid, otherLastReadAt);
-  return { messages, otherLastReadAt, threadKind: access };
+  return { messages, otherLastReadAt };
 });
 
 app.post("/api/dm/threads/:threadId/messages", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   const { threadId } = request.params as { threadId: string };
-  if (!resolveDmThreadAccess(uid, threadId)) {
-    reply.code(404);
-    return { error: "Thread not found" };
-  }
   const body = (request.body ?? {}) as { body?: string };
   const text = typeof body.body === "string" ? body.body : "";
   const row = sendDmMessage(uid, threadId, text);
@@ -3958,11 +3924,41 @@ app.post("/api/dm/threads/:threadId/read", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   const { threadId } = request.params as { threadId: string };
-  if (!resolveDmThreadAccess(uid, threadId)) {
+  const member = db
+    .prepare(`SELECT 1 FROM dm_threads WHERE id = ? AND (user_low = ? OR user_high = ?)`)
+    .get(threadId, uid, uid);
+  if (!member) {
     reply.code(404);
     return { error: "Thread not found" };
   }
   markDmThreadRead(threadId, uid);
+  return { ok: true };
+});
+
+app.post("/api/dm/threads/:threadId/unread", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { threadId } = request.params as { threadId: string };
+  const member = db
+    .prepare(`SELECT 1 FROM dm_threads WHERE id = ? AND (user_low = ? OR user_high = ?)`)
+    .get(threadId, uid, uid);
+  if (!member) {
+    reply.code(404);
+    return { error: "Thread not found" };
+  }
+  markDmThreadUnread(threadId, uid);
+  return { ok: true };
+});
+
+app.delete("/api/dm/threads/:threadId", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { threadId } = request.params as { threadId: string };
+  const ok = deleteDmThreadAsMember(threadId, uid);
+  if (!ok) {
+    reply.code(404);
+    return { error: "Thread not found" };
+  }
   return { ok: true };
 });
 
