@@ -58,46 +58,47 @@
         --space-void: #010108;
         --space-gradient: linear-gradient(
           168deg,
-          #01010a 0%,
-          #050814 18%,
-          #070b18 38%,
-          #060916 55%,
-          #04060e 78%,
-          #020205 100%
+          #010010 0%,
+          #04061a 14%,
+          #060c22 30%,
+          #080e24 46%,
+          #060818 64%,
+          #030412 82%,
+          #010108 100%
         );
-        --space-stars-opacity: 0.68;
+        --space-stars-opacity: 0.78;
         --space-stars-filter: none;
-        --space-haze-opacity: 0.12;
-        --space-haze-a: rgba(91, 156, 255, 0.15);
-        --space-haze-b: rgba(232, 121, 249, 0.1);
-        --space-haze-c: rgba(34, 211, 238, 0.12);
-        --orb-tr-opacity: 0.55;
+        --space-haze-opacity: 0.22;
+        --space-haze-a: rgba(91, 156, 255, 0.2);
+        --space-haze-b: rgba(232, 121, 249, 0.16);
+        --space-haze-c: rgba(34, 211, 238, 0.18);
+        --orb-tr-opacity: 0.7;
         --orb-tr: radial-gradient(
           circle,
-          rgba(168, 130, 255, 0.38) 0%,
-          rgba(232, 121, 249, 0.18) 38%,
-          rgba(91, 156, 255, 0.08) 58%,
+          rgba(168, 130, 255, 0.48) 0%,
+          rgba(232, 121, 249, 0.28) 32%,
+          rgba(91, 156, 255, 0.12) 55%,
           transparent 72%
         );
-        --orb-bl-opacity: 0.55;
+        --orb-bl-opacity: 0.65;
         --orb-bl: radial-gradient(
           circle,
-          rgba(34, 211, 238, 0.36) 0%,
-          rgba(91, 156, 255, 0.2) 42%,
-          rgba(34, 100, 180, 0.06) 62%,
+          rgba(34, 211, 238, 0.48) 0%,
+          rgba(91, 156, 255, 0.28) 36%,
+          rgba(34, 100, 180, 0.1) 58%,
           transparent 76%
         );
-        --mesh-opacity: 0.42;
+        --mesh-opacity: 0.52;
         --mesh-bg: radial-gradient(
             ellipse 90% 75% at 50% 42%,
-            rgba(91, 156, 255, 0.28) 0%,
-            rgba(34, 211, 238, 0.16) 38%,
-            rgba(124, 92, 255, 0.1) 58%,
+            rgba(91, 156, 255, 0.32) 0%,
+            rgba(34, 211, 238, 0.2) 38%,
+            rgba(124, 92, 255, 0.12) 58%,
             transparent 72%
           ),
-          radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 65%);
-        --mesh-shadow: 0 0 120px 40px rgba(34, 211, 238, 0.06), inset 0 0 80px rgba(91, 156, 255, 0.05);
-        --mesh-filter: blur(120px) saturate(1.25);
+          radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 65%);
+        --mesh-shadow: 0 0 120px 40px rgba(34, 211, 238, 0.08), inset 0 0 80px rgba(91, 156, 255, 0.06);
+        --mesh-filter: blur(110px) saturate(1.35);
         /** Shared glass / inbox neon (galaxy UI) */
         --dm-glow-layer:
           0 0 0 1px rgba(34, 211, 238, 0.32),
@@ -176,14 +177,21 @@
           radial-gradient(0.6px 0.6px at 56% 33%, rgba(255, 255, 255, 0.45), transparent),
           radial-gradient(1.1px 1.1px at 73% 51%, rgba(190, 220, 255, 0.36), transparent),
           radial-gradient(0.72px 0.72px at 18% 86%, rgba(255, 255, 255, 0.38), transparent),
-          radial-gradient(0.95px 0.95px at 61% 68%, rgba(230, 240, 255, 0.42), transparent);
+          radial-gradient(0.95px 0.95px at 61% 68%, rgba(230, 240, 255, 0.42), transparent),
+          radial-gradient(2px 2px at 35% 15%, rgba(120, 220, 255, 0.8), rgba(34, 211, 238, 0.2) 60%, transparent),
+          radial-gradient(1.8px 1.8px at 82% 42%, rgba(255, 200, 240, 0.7), rgba(236, 72, 153, 0.15) 55%, transparent),
+          radial-gradient(2.2px 2.2px at 58% 72%, rgba(200, 180, 255, 0.75), rgba(168, 85, 247, 0.18) 50%, transparent),
+          radial-gradient(1.6px 1.6px at 14% 55%, rgba(255, 255, 220, 0.85), rgba(251, 191, 36, 0.12) 60%, transparent),
+          radial-gradient(1.9px 1.9px at 91% 78%, rgba(160, 230, 255, 0.72), rgba(56, 189, 248, 0.15) 55%, transparent);
         background-repeat: repeat;
         background-size: 280px 320px, 420px 380px, 360px 440px, 520px 300px, 340px 460px, 480px 360px, 310px 290px,
           450px 410px, 390px 350px, 330px 370px, 400px 400px, 260px 280px, 340px 360px, 400px 300px, 320px 340px,
-          290px 310px, 380px 420px, 350px 330px, 410px 370px, 300px 400px, 360px 290px, 330px 350px, 270px 380px;
+          290px 310px, 380px 420px, 350px 330px, 410px 370px, 300px 400px, 360px 290px, 330px 350px, 270px 380px,
+          100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
         background-position: 0 0, 40px 80px, 120px 20px, 200px 140px, 60px 200px, 300px 60px, 80px 300px, 240px 240px,
           160px 100px, 20px 180px, 100px 40px, 190px 120px, 70px 260px, 310px 90px, 130px 40px, 250px 200px, 20px 70px,
-          340px 310px, 90px 150px, 280px 20px, 40px 320px, 220px 180px, 160px 250px;
+          340px 310px, 90px 150px, 280px 20px, 40px 320px, 220px 180px, 160px 250px,
+          0 0, 0 0, 0 0, 0 0, 0 0;
         animation: space-stars-twinkle 5.2s ease-in-out infinite;
       }
       @keyframes space-stars-twinkle {
@@ -208,9 +216,14 @@
         z-index: 0;
         pointer-events: none;
         opacity: var(--space-haze-opacity);
-        background-image: radial-gradient(circle at 50% 50%, var(--space-haze-a) 0%, transparent 42%),
-          radial-gradient(circle at 80% 20%, var(--space-haze-b) 0%, transparent 38%),
-          radial-gradient(circle at 15% 75%, var(--space-haze-c) 0%, transparent 40%);
+        background-image:
+          radial-gradient(ellipse 60% 40% at 50% 50%, var(--space-haze-a) 0%, transparent 42%),
+          radial-gradient(ellipse 45% 55% at 80% 18%, var(--space-haze-b) 0%, transparent 38%),
+          radial-gradient(ellipse 50% 45% at 12% 72%, var(--space-haze-c) 0%, transparent 40%),
+          radial-gradient(ellipse 35% 30% at 68% 75%, rgba(236, 72, 153, 0.18) 0%, transparent 50%),
+          radial-gradient(ellipse 40% 25% at 25% 30%, rgba(56, 189, 248, 0.14) 0%, transparent 45%),
+          radial-gradient(ellipse 30% 35% at 90% 55%, rgba(168, 85, 247, 0.12) 0%, transparent 48%),
+          radial-gradient(ellipse 55% 20% at 45% 85%, rgba(34, 211, 238, 0.1) 0%, transparent 50%);
         background-size: 100% 100%;
         mix-blend-mode: screen;
       }
@@ -242,18 +255,18 @@
         filter: blur(130px);
       }
       body::before {
-        width: min(110vw, 640px);
-        height: min(110vw, 640px);
-        top: -18%;
-        right: -22%;
+        width: min(120vw, 720px);
+        height: min(120vw, 720px);
+        top: -20%;
+        right: -24%;
         opacity: var(--orb-tr-opacity);
         background: var(--orb-tr);
       }
       body::after {
-        width: min(95vw, 560px);
-        height: min(95vw, 560px);
-        bottom: -14%;
-        left: -28%;
+        width: min(105vw, 620px);
+        height: min(105vw, 620px);
+        bottom: -16%;
+        left: -30%;
         opacity: var(--orb-bl-opacity);
         background: var(--orb-bl);
       }
@@ -277,36 +290,57 @@
         inset: -42% -52% -32% -42%;
         z-index: -1;
         pointer-events: none;
-        background-image: radial-gradient(
+        background-image:
+          radial-gradient(
             ellipse 120% 42% at 44% 46%,
-            rgba(255, 250, 255, 0.14) 0%,
-            rgba(216, 200, 255, 0.1) 22%,
-            rgba(167, 139, 250, 0.07) 48%,
+            rgba(255, 250, 255, 0.16) 0%,
+            rgba(216, 200, 255, 0.12) 22%,
+            rgba(167, 139, 250, 0.08) 48%,
             transparent 72%
+          ),
+          radial-gradient(
+            ellipse 45% 35% at 78% 22%,
+            rgba(34, 211, 238, 0.28) 0%,
+            rgba(56, 189, 248, 0.16) 35%,
+            rgba(14, 165, 233, 0.06) 60%,
+            transparent 80%
+          ),
+          radial-gradient(
+            ellipse 40% 45% at 18% 68%,
+            rgba(236, 72, 153, 0.24) 0%,
+            rgba(219, 39, 119, 0.14) 30%,
+            rgba(168, 85, 247, 0.08) 55%,
+            transparent 78%
+          ),
+          radial-gradient(
+            ellipse 30% 25% at 62% 78%,
+            rgba(139, 92, 246, 0.2) 0%,
+            rgba(109, 40, 217, 0.1) 40%,
+            transparent 70%
           ),
           linear-gradient(
             112deg,
             transparent 0%,
-            rgba(76, 29, 149, 0.2) 12%,
-            rgba(192, 132, 252, 0.16) 26%,
-            rgba(232, 121, 249, 0.14) 40%,
-            rgba(129, 140, 248, 0.12) 52%,
-            rgba(91, 156, 255, 0.11) 64%,
-            rgba(109, 40, 217, 0.13) 78%,
+            rgba(76, 29, 149, 0.22) 12%,
+            rgba(192, 132, 252, 0.18) 26%,
+            rgba(232, 121, 249, 0.16) 40%,
+            rgba(129, 140, 248, 0.14) 52%,
+            rgba(91, 156, 255, 0.13) 64%,
+            rgba(109, 40, 217, 0.15) 78%,
             transparent 100%
           ),
           linear-gradient(
             68deg,
             transparent 0%,
             rgba(255, 255, 255, 0.04) 35%,
-            rgba(196, 181, 253, 0.09) 50%,
-            rgba(91, 156, 255, 0.06) 62%,
+            rgba(196, 181, 253, 0.1) 50%,
+            rgba(91, 156, 255, 0.07) 62%,
             transparent 85%
           );
-        background-repeat: no-repeat, no-repeat, no-repeat;
-        background-size: 100% 100%, 100% 100%, 100% 100%;
-        filter: blur(68px) saturate(1.48);
-        opacity: 0.88;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        filter: blur(62px) saturate(1.55);
+        opacity: 0.92;
         animation: milky-way-drift 150s linear infinite;
         will-change: transform;
       }
@@ -344,25 +378,25 @@
         background-repeat: no-repeat;
         background-size: 100% 100%;
         mix-blend-mode: screen;
-        opacity: 0.52;
+        opacity: 0.62;
         animation: sparkle-twinkle 3.4s ease-in-out infinite;
       }
       @keyframes sparkle-twinkle {
         0%,
         100% {
-          opacity: 0.18;
+          opacity: 0.28;
         }
         18% {
-          opacity: 0.62;
+          opacity: 0.72;
         }
         36% {
-          opacity: 0.26;
+          opacity: 0.35;
         }
         58% {
-          opacity: 0.55;
+          opacity: 0.65;
         }
         82% {
-          opacity: 0.32;
+          opacity: 0.42;
         }
       }
 
@@ -377,18 +411,19 @@
 
       .space-milky-rift {
         inset: -42% -55% -32% -45%;
+        opacity: 0.6;
         background: linear-gradient(
           58deg,
           transparent 0%,
           rgba(255, 255, 255, 0.08) 14%,
-          rgba(230, 220, 255, 0.1) 28%,
-          rgba(196, 181, 253, 0.14) 42%,
-          rgba(167, 139, 250, 0.12) 54%,
-          rgba(129, 140, 248, 0.1) 66%,
-          rgba(91, 156, 255, 0.09) 76%,
+          rgba(230, 220, 255, 0.12) 28%,
+          rgba(196, 181, 253, 0.16) 42%,
+          rgba(167, 139, 250, 0.14) 54%,
+          rgba(129, 140, 248, 0.12) 66%,
+          rgba(91, 156, 255, 0.1) 76%,
           transparent 100%
         );
-        filter: blur(78px) saturate(1.52);
+        filter: blur(72px) saturate(1.55);
         mix-blend-mode: screen;
         animation: milky-rift-drift 200s linear infinite;
         will-change: transform;
@@ -887,8 +922,10 @@
           radial-gradient(ellipse 110% 90% at 95% 25%, rgba(236, 72, 153, 0.42) 0%, transparent 52%),
           radial-gradient(ellipse 100% 85% at 50% 95%, rgba(14, 165, 233, 0.35) 0%, transparent 50%),
           radial-gradient(ellipse 80% 70% at 78% 8%, rgba(59, 130, 246, 0.38) 0%, transparent 55%),
+          radial-gradient(ellipse 55% 40% at 70% 60%, rgba(34, 211, 238, 0.18) 0%, transparent 55%),
+          radial-gradient(ellipse 45% 35% at 20% 45%, rgba(168, 85, 247, 0.16) 0%, transparent 50%),
           radial-gradient(ellipse 60% 50% at 40% 45%, rgba(255, 255, 255, 0.1) 0%, transparent 58%),
-          linear-gradient(180deg, rgba(2, 4, 14, 0.45) 0%, rgba(8, 4, 22, 0.28) 50%, rgba(4, 2, 12, 0.48) 100%);
+          linear-gradient(180deg, rgba(2, 4, 14, 0.42) 0%, rgba(8, 4, 22, 0.25) 50%, rgba(4, 2, 12, 0.44) 100%);
         opacity: 1;
       }
       .main-scroll::after {
@@ -3550,15 +3587,39 @@
         width: 1.32rem;
         height: 1.32rem;
         flex-shrink: 0;
-        color: #e8f8ff;
         stroke-width: 1.65;
         opacity: 0.98;
-        filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.55)) drop-shadow(0 0 10px rgba(91, 156, 255, 0.38))
-          drop-shadow(0 0 18px rgba(236, 72, 153, 0.22)) drop-shadow(0 0 24px rgba(168, 85, 247, 0.14));
+      }
+      #headerSettingsBtn .header-icon-svg {
+        color: #22d3ee;
+        filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.7)) drop-shadow(0 0 12px rgba(34, 211, 238, 0.35));
+      }
+      #headerProfileBtn .header-icon-svg {
+        color: #a78bfa;
+        filter: drop-shadow(0 0 5px rgba(167, 139, 250, 0.7)) drop-shadow(0 0 12px rgba(168, 85, 247, 0.35));
+      }
+      #headerInboxBtn .header-icon-svg {
+        color: #f472b6;
+        filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.7)) drop-shadow(0 0 12px rgba(236, 72, 153, 0.35));
+      }
+      #quickStartHelpBtn .header-icon-svg {
+        color: #fbbf24;
+        filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.7)) drop-shadow(0 0 12px rgba(251, 191, 36, 0.35));
       }
       .header-icon-btn:hover:not(:disabled) .header-icon-svg {
-        filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.75)) drop-shadow(0 0 14px rgba(91, 156, 255, 0.5))
-          drop-shadow(0 0 22px rgba(236, 72, 153, 0.32));
+        opacity: 1;
+      }
+      #headerSettingsBtn:hover:not(:disabled) .header-icon-svg {
+        filter: drop-shadow(0 0 7px rgba(34, 211, 238, 0.9)) drop-shadow(0 0 18px rgba(34, 211, 238, 0.5));
+      }
+      #headerProfileBtn:hover:not(:disabled) .header-icon-svg {
+        filter: drop-shadow(0 0 7px rgba(167, 139, 250, 0.9)) drop-shadow(0 0 18px rgba(168, 85, 247, 0.5));
+      }
+      #headerInboxBtn:hover:not(:disabled) .header-icon-svg {
+        filter: drop-shadow(0 0 7px rgba(244, 114, 182, 0.9)) drop-shadow(0 0 18px rgba(236, 72, 153, 0.5));
+      }
+      #quickStartHelpBtn:hover:not(:disabled) .header-icon-svg {
+        filter: drop-shadow(0 0 7px rgba(251, 191, 36, 0.9)) drop-shadow(0 0 18px rgba(251, 191, 36, 0.5));
       }
       .header-dropdown {
         position: absolute;
@@ -3605,6 +3666,7 @@
       }
       .tab-panel.active {
         display: block;
+        min-height: 100%;
       }
 
       .community-root {
@@ -3862,6 +3924,12 @@
         background: rgba(148, 163, 184, 0.2);
         color: #cbd5e1;
       }
+      .community-challenge-create-view {
+        padding: 0.35rem 0 1rem;
+      }
+      .community-challenge-create-view.hidden {
+        display: none !important;
+      }
       .challenge-create-search-wrap {
         position: relative;
         margin-bottom: 0.35rem;
@@ -4034,14 +4102,16 @@
         display: none !important;
       }
       .community-show-page {
-        margin: -1.15rem -1.2rem 0;
+        margin: 0.25rem 0 0;
       }
       .community-show-hero {
         position: relative;
         min-height: min(32vh, 220px);
         margin: 0 0 0.5rem;
         overflow: hidden;
-        border-radius: 0 0 16px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(130, 200, 255, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
       }
       .community-show-back-btn {
         position: absolute;
@@ -4139,7 +4209,7 @@
       .community-show-composer-shell {
         position: relative;
         z-index: 3;
-        margin: -1.65rem 0.35rem 0.75rem;
+        margin: 0.5rem 0 0.75rem;
         padding: 0;
       }
       .community-show-composer-shell .community-composer-wrap {
@@ -4154,8 +4224,7 @@
         box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(34, 211, 238, 0.06) inset;
       }
       .community-thread-controls {
-        margin-bottom: 0.85rem;
-        padding: 0 0.15rem;
+        display: none !important;
       }
       .community-sort-label {
         font-size: 0.78rem;
@@ -4279,7 +4348,7 @@
         margin-top: 0.35rem;
       }
       .community-catchup-panel {
-        margin: 0.5rem 0.75rem 0.65rem;
+        margin: 0.5rem 0 0.65rem;
         padding: 0;
         border-radius: 12px;
         border: 1px solid rgba(34, 211, 238, 0.22);
@@ -4344,17 +4413,7 @@
         line-height: 1.45;
       }
       .community-live-air-banner {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.5rem;
-        margin: 0 0.75rem 0.65rem;
-        padding: 0.55rem 0.75rem;
-        border-radius: 12px;
-        border: 1px solid rgba(248, 113, 113, 0.28);
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(8, 14, 28, 0.55));
-        font-size: 0.8rem;
-        line-height: 1.45;
-        color: #fecaca;
+        display: none !important;
       }
       .community-live-air-banner-dot {
         flex-shrink: 0;
@@ -4373,7 +4432,7 @@
         }
       }
       .community-episode-polls {
-        margin: 0 0.75rem 0.85rem;
+        margin: 0 0 0.85rem;
         padding: 0.65rem 0.75rem 0.75rem;
         border-radius: 14px;
         border: 1px solid rgba(167, 139, 250, 0.28);
@@ -4527,7 +4586,7 @@
         margin-top: 0.45rem;
       }
       .community-episode-rating {
-        margin: 0 0.75rem 0.85rem;
+        margin: 0 0 0.85rem;
         padding: 0.65rem 0.75rem 0.75rem;
         border-radius: 14px;
         border: 1px solid rgba(34, 211, 238, 0.22);
@@ -4564,7 +4623,7 @@
         cursor: not-allowed;
       }
       .community-sentiment-chart-panel {
-        margin: 0 0.75rem 0.85rem;
+        margin: 0 0 0.85rem;
         padding: 0.65rem 0.75rem 0.75rem;
         border-radius: 14px;
         border: 1px solid rgba(91, 156, 255, 0.28);
@@ -4604,19 +4663,19 @@
         gap: 0.75rem;
         margin: 0;
         min-width: 0;
-        overflow-x: hidden;
+        overflow: visible;
       }
       .community-thread-main-row.is-rail-open {
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
       }
       .community-thread-main-col {
         flex: 1 1 280px;
         min-width: 0;
       }
       .community-live-rail {
-        flex: 0 0 min(100%, 300px);
+        flex: 0 0 100%;
         width: 100%;
-        max-width: 320px;
+        max-width: 100%;
         display: flex;
         flex-direction: column;
         max-height: min(52vh, 420px);
@@ -4627,23 +4686,19 @@
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
         overflow: hidden;
         isolation: isolate;
+        margin: 0 0 0.75rem;
       }
       .community-thread-main-row.is-rail-open .community-live-rail {
-        margin: 0 0.65rem 0.75rem 0;
-      }
-      @media (max-width: 720px) {
-        .community-thread-main-row.is-rail-open {
-          flex-wrap: wrap;
-        }
-        .community-live-rail {
-          max-width: none;
-          max-height: min(40vh, 320px);
-        }
+        margin: 0 0 0.75rem;
       }
       .community-live-rail-head {
-        padding: 0.55rem 0.75rem;
+        padding: 0.65rem 0.85rem;
         border-bottom: 1px solid rgba(130, 200, 255, 0.12);
-        background: rgba(34, 211, 238, 0.06);
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.08), rgba(91, 156, 255, 0.04));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
       }
       .community-live-rail-title {
         display: block;
@@ -4655,7 +4710,6 @@
       .community-live-rail-sub {
         display: block;
         font-size: 0.72rem;
-        margin-top: 0.2rem;
         line-height: 1.35;
       }
       .community-live-rail-watchers {
@@ -4663,9 +4717,9 @@
         flex-wrap: wrap;
         align-items: center;
         gap: 0.35rem;
-        padding: 0.45rem 0.65rem 0.35rem;
+        padding: 0.5rem 0.85rem;
         border-bottom: 1px solid rgba(130, 200, 255, 0.08);
-        background: rgba(0, 0, 0, 0.2);
+        background: rgba(0, 0, 0, 0.15);
       }
       .community-live-rail-watchers[hidden] {
         display: none !important;
@@ -4685,11 +4739,11 @@
       }
       .community-live-rail-messages {
         flex: 1 1 auto;
-        min-height: 0;
+        min-height: 4rem;
         overflow-y: auto;
         overflow-x: hidden;
         overscroll-behavior: contain;
-        padding: 0.5rem 0.65rem;
+        padding: 0.6rem 0.85rem;
         font-size: 0.82rem;
         line-height: 1.45;
         scrollbar-width: thin;
@@ -4720,10 +4774,10 @@
       }
       .community-live-rail-compose {
         display: flex;
-        gap: 0.4rem;
-        padding: 0.5rem 0.65rem;
+        gap: 0.45rem;
+        padding: 0.55rem 0.85rem;
         border-top: 1px solid rgba(130, 200, 255, 0.1);
-        background: rgba(0, 0, 0, 0.25);
+        background: rgba(0, 0, 0, 0.2);
       }
       .community-live-rail-compose input {
         flex: 1;
@@ -5379,7 +5433,6 @@
         position: relative;
         flex-shrink: 0;
         z-index: 40;
-        width: 100%;
         min-width: 0;
         margin: 0 -1.1rem;
         padding: 0.65rem 1.1rem 0.5rem;
@@ -6209,6 +6262,38 @@
             <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
             <ul class="community-thread-list" id="communityThreadList"></ul>
           </div>
+          <div class="community-challenge-create-view hidden" id="communityChallengeCreateView">
+            <button type="button" class="secondary community-show-back-btn" id="challengeCreateBackBtn">← Community</button>
+            <h3 class="section-header-highlight header-cyan-glow" style="margin-top: 0.35rem">Start a watch challenge</h3>
+            <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.85rem; line-height: 1.45">
+              Pick the show everyone should finish, then the episode whose <strong>air date</strong> is the deadline (e.g. the finale you're racing toward).
+            </p>
+            <label for="challengeCreateTitle">Title</label>
+            <input type="text" id="challengeCreateTitle" maxlength="200" placeholder="e.g. Finish Breaking Bad before the BCS finale" style="width: 100%; box-sizing: border-box; margin-bottom: 0.5rem" />
+            <label for="challengeCreateSummary">Short description <span class="muted">(optional)</span></label>
+            <textarea id="challengeCreateSummary" rows="2" maxlength="2000" placeholder="Rules or hype — optional" style="width: 100%; box-sizing: border-box; margin-bottom: 0.5rem"></textarea>
+            <label>Show to finish</label>
+            <div class="challenge-create-search-wrap">
+              <input type="search" id="challengeCreateTargetSearch" class="challenge-create-search" placeholder="Search TVMaze…" autocomplete="off" />
+              <div id="challengeCreateTargetDropdown" class="challenge-create-dropdown" hidden></div>
+            </div>
+            <p class="muted challenge-create-picked" id="challengeCreateTargetPicked">None selected</p>
+            <label>Deadline episode — show</label>
+            <div class="challenge-create-search-wrap">
+              <input type="search" id="challengeCreateDeadlineSearch" class="challenge-create-search" placeholder="Search TVMaze…" autocomplete="off" />
+              <div id="challengeCreateDeadlineDropdown" class="challenge-create-dropdown" hidden></div>
+            </div>
+            <p class="muted challenge-create-picked" id="challengeCreateDeadlinePicked">None selected</p>
+            <label for="challengeCreateDeadlineEp">Deadline episode</label>
+            <select id="challengeCreateDeadlineEp" style="width: 100%; margin-bottom: 0.65rem" disabled>
+              <option value="">Select a show first, then pick an episode with an air date</option>
+            </select>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.35rem">
+              <button type="button" id="challengeCreateSubmitBtn">Create</button>
+              <button type="button" class="secondary" id="challengeCreateCancelBtn">Cancel</button>
+            </div>
+            <p class="err" id="challengeCreateErr" style="display: none; margin-top: 0.5rem"></p>
+          </div>
           <div class="community-thread-view hidden" id="communityThreadView">
             <div class="community-show-page" id="communityShowPage">
               <header class="community-show-hero" id="communityShowHero" aria-label="Show community">
@@ -6425,10 +6510,9 @@
         </div>
       </div>
 
-      <div id="communityChallengeCreateModal" class="community-modal" hidden aria-hidden="true">
-        <div class="community-modal-backdrop" data-close-challenge-create></div>
-        <div class="community-modal-panel community-challenge-create-panel" role="dialog" aria-modal="true" aria-labelledby="communityChallengeCreateTitle">
-          <h3 id="communityChallengeCreateTitle" class="community-modal-title">Start a watch challenge</h3>
+      <!-- old challenge create modal removed -->
+      <div id="communityChallengeCreateModal__dead" style="display:none!important" hidden>
+          <h3 class="community-modal-title">Start a watch challenge</h3>
           <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.65rem; line-height: 1.45">
             Pick the show everyone should finish, then the episode whose <strong>air date</strong> is the deadline (e.g. the finale you’re racing toward).
           </p>
@@ -6635,7 +6719,7 @@
             <summary class="section-header-highlight header-gold admin-mod-log-summary">
               Community moderation log
             </summary>
-            <ul id="adminCommunityLog" class="admin-community-log"></ul>
+            <div id="adminCommunityLog" class="admin-accounts-host"></div>
           </details>
           <details class="admin-mod-log-details">
             <summary class="section-header-highlight header-gold admin-mod-log-summary">
@@ -6644,7 +6728,7 @@
             <p class="muted" style="font-size: 0.75rem; margin: 0 0 0.45rem; line-height: 1.45">
               Newest DMs on this server for review. Full paging is on the standalone <a href="/admin.html">admin console</a>.
             </p>
-            <ul id="adminDmLog" class="admin-community-log"></ul>
+            <div id="adminDmLog" class="admin-accounts-host"></div>
           </details>
           <p class="msg err" id="adminErr" style="display: none; margin-top: 0.5rem"></p>
         </section>
@@ -8133,6 +8217,7 @@
       let dmTypingStopTimer = null;
       let dmPeerTypingHideTimer = null;
       let dmTypingTrueLastSent = 0;
+      let dmThreadListGen = 0;
 
       function setDmInboxBadge(total) {
         const b = document.getElementById("headerInboxBadge");
@@ -8605,8 +8690,10 @@
         const empty = document.getElementById("dmInboxEmpty");
         if (!host) return;
         host.innerHTML = "";
+        const gen = ++dmThreadListGen;
         try {
           const data = await api("/api/dm/threads");
+          if (gen !== dmThreadListGen) return;
           const threads = data.threads || [];
           if (empty) {
             const showDmEmpty = threads.length === 0 && (dmInboxRailFilter === "all" || dmInboxRailFilter === "dms");
@@ -9144,48 +9231,41 @@
               const entries = logData.entries || [];
               logHost.innerHTML = "";
               if (!entries.length) {
-                const li = document.createElement("li");
-                li.style.margin = "0.2rem 0";
-                li.textContent = "No community moderation events logged yet.";
-                logHost.appendChild(li);
+                const p = document.createElement("p");
+                p.className = "muted";
+                p.style.fontSize = "0.8rem";
+                p.textContent = "No community moderation events logged yet.";
+                logHost.appendChild(p);
               } else {
                 for (const ent of entries) {
-                  const li = document.createElement("li");
-                  li.className = "admin-comm-log-entry";
                   const det = ent.detailParsed;
                   let detStr = "";
                   if (det && typeof det === "object") {
-                    try {
-                      detStr = JSON.stringify(det);
-                    } catch {
-                      detStr = "";
-                    }
+                    try { detStr = JSON.stringify(det); } catch { detStr = ""; }
                   }
-                  if (detStr.length > 200) detStr = detStr.slice(0, 200) + "…";
-                  const actionRow = document.createElement("div");
-                  actionRow.className = "admin-comm-log-action";
-                  actionRow.innerHTML = "<strong>" + escapeHtml(ent.action) + "</strong>";
-                  li.appendChild(actionRow);
-                  const postRow = document.createElement("div");
-                  postRow.className = "admin-comm-log-post";
-                  postRow.textContent = "Post " + String(ent.postId || "");
-                  li.appendChild(postRow);
-                  const actorRow = document.createElement("div");
-                  actorRow.className = "admin-comm-log-actor";
-                  actorRow.textContent = "By " + (ent.actorLabel || "—");
-                  li.appendChild(actorRow);
-                  if (ent.createdAt) {
-                    const timeRow = document.createElement("div");
-                    timeRow.className = "admin-comm-log-time";
-                    timeRow.textContent = ent.createdAt;
-                    li.appendChild(timeRow);
-                  }
+                  if (detStr.length > 200) detStr = detStr.slice(0, 200) + "\u2026";
+                  const card = document.createElement("details");
+                  card.className = "admin-account-item";
+                  const sum = document.createElement("summary");
+                  sum.innerHTML =
+                    "<div class=\"admin-account-summary-row\">" +
+                    "<span class=\"admin-account-name\" style=\"color:#fde68a\">" + escapeHtml(ent.action) + "</span>" +
+                    "</div>" +
+                    "<div class=\"admin-account-summary-meta\">" +
+                    "By " + escapeHtml(ent.actorLabel || "\u2014") +
+                    (ent.createdAt ? " \u00b7 " + escapeHtml(ent.createdAt) : "") +
+                    "</div>";
+                  card.appendChild(sum);
+                  const panel = document.createElement("div");
+                  panel.className = "admin-account-panel";
+                  let panelHtml =
+                    "<div class=\"admin-account-detail-grid\">" +
+                    "<div><strong>Post ID</strong><br><span class=\"mono\" style=\"font-size:0.72rem;word-break:break-all\">" + escapeHtml(String(ent.postId || "")) + "</span></div>";
                   if (detStr) {
-                    const detEl = document.createElement("div");
-                    detEl.className = "admin-comm-log-detail";
-                    detEl.textContent = detStr;
-                    li.appendChild(detEl);
+                    panelHtml += "<div><strong>Details</strong><br><span style=\"font-size:0.72rem;word-break:break-word;white-space:pre-wrap;opacity:0.88\">" + escapeHtml(detStr) + "</span></div>";
                   }
+                  panelHtml += "</div>";
+                  panel.innerHTML = panelHtml;
                   if (ent.canRestore) {
                     const restoreBtn = document.createElement("button");
                     restoreBtn.type = "button";
@@ -9206,13 +9286,14 @@
                         showToast(e.message || "Restore failed");
                       }
                     });
-                    li.appendChild(restoreBtn);
+                    panel.appendChild(restoreBtn);
                   }
-                  logHost.appendChild(li);
+                  card.appendChild(panel);
+                  logHost.appendChild(card);
                 }
               }
             } catch {
-              logHost.innerHTML = "<li style=\"margin:0.2rem 0\">Could not load community log.</li>";
+              logHost.innerHTML = "<p class=\"muted\" style=\"font-size:0.8rem\">Could not load community log.</p>";
             }
           }
 
@@ -9223,30 +9304,43 @@
               const dms = dmData.messages || [];
               dmHost.innerHTML = "";
               if (!dms.length) {
-                const li = document.createElement("li");
-                li.style.margin = "0.2rem 0";
-                li.textContent = "No direct messages yet.";
-                dmHost.appendChild(li);
+                const p = document.createElement("p");
+                p.className = "muted";
+                p.style.fontSize = "0.8rem";
+                p.textContent = "No direct messages yet.";
+                dmHost.appendChild(p);
               } else {
                 for (const m of dms) {
-                  const li = document.createElement("li");
-                  li.style.margin = "0.4rem 0";
-                  li.style.lineHeight = "1.45";
-                  li.innerHTML =
-                    "<strong>" +
-                    escapeHtml(m.senderLabel || m.senderId || "—") +
-                    "</strong> → <strong>" +
-                    escapeHtml(m.recipientLabel || m.recipientId || "—") +
-                    "</strong>" +
-                    (m.createdAt ? " · <span class=\"mono\">" + escapeHtml(m.createdAt) + "</span>" : "") +
-                    "<br><span style=\"opacity:0.92;word-break:break-word\">" +
-                    escapeHtml(m.body || "") +
-                    "</span>";
-                  dmHost.appendChild(li);
+                  const card = document.createElement("details");
+                  card.className = "admin-account-item";
+                  const sum = document.createElement("summary");
+                  const sender = m.senderLabel || m.senderId || "\u2014";
+                  const recipient = m.recipientLabel || m.recipientId || "\u2014";
+                  const bodyPreview = (m.body || "").length > 80 ? (m.body || "").slice(0, 80) + "\u2026" : (m.body || "");
+                  sum.innerHTML =
+                    "<div class=\"admin-account-summary-row\">" +
+                    "<span class=\"admin-account-name\">" + escapeHtml(sender) + " \u2192 " + escapeHtml(recipient) + "</span>" +
+                    "</div>" +
+                    "<div class=\"admin-account-summary-meta\">" +
+                    escapeHtml(bodyPreview) +
+                    (m.createdAt ? " \u00b7 " + escapeHtml(m.createdAt) : "") +
+                    "</div>";
+                  card.appendChild(sum);
+                  const panel = document.createElement("div");
+                  panel.className = "admin-account-panel";
+                  panel.innerHTML =
+                    "<div class=\"admin-account-detail-grid\">" +
+                    "<div><strong>From</strong><br>" + escapeHtml(sender) + "</div>" +
+                    "<div><strong>To</strong><br>" + escapeHtml(recipient) + "</div>" +
+                    (m.createdAt ? "<div><strong>Sent</strong><br>" + escapeHtml(m.createdAt) + "</div>" : "") +
+                    "<div><strong>Message</strong><br><span style=\"word-break:break-word;white-space:pre-wrap\">" + escapeHtml(m.body || "") + "</span></div>" +
+                    "</div>";
+                  card.appendChild(panel);
+                  dmHost.appendChild(card);
                 }
               }
             } catch {
-              dmHost.innerHTML = "<li style=\"margin:0.2rem 0\">Could not load DM log.</li>";
+              dmHost.innerHTML = "<p class=\"muted\" style=\"font-size:0.8rem\">Could not load DM log.</p>";
             }
           }
         } catch (e) {
@@ -9992,8 +10086,10 @@
         applyCommunityLiveAirNightChrome();
         const lv = document.getElementById("communityListView");
         const tv = document.getElementById("communityThreadView");
+        const ccv = document.getElementById("communityChallengeCreateView");
         if (lv) lv.classList.remove("hidden");
         if (tv) tv.classList.add("hidden");
+        if (ccv) ccv.classList.add("hidden");
         loadCommunityThreads();
         void loadCommunityChallenges();
       }
@@ -10199,8 +10295,10 @@
       }
 
       function openCommunityChallengeCreateModal() {
-        const modal = document.getElementById("communityChallengeCreateModal");
-        if (!modal) return;
+        const view = document.getElementById("communityChallengeCreateView");
+        const listView = document.getElementById("communityListView");
+        const threadView = document.getElementById("communityThreadView");
+        if (!view) return;
         chCreateTarget = null;
         chCreateDeadlineShow = null;
         const tp = document.getElementById("challengeCreateTargetPicked");
@@ -10213,7 +10311,7 @@
         if (tp) tp.textContent = "None selected";
         if (dp) dp.textContent = "None selected";
         if (ep) {
-          ep.innerHTML = "<option value=\"\">Select a show first…</option>";
+          ep.innerHTML = "<option value=\"\">Select a show first\u2026</option>";
           ep.disabled = true;
         }
         if (tit) tit.value = "";
@@ -10225,16 +10323,16 @@
           err.style.display = "none";
           err.textContent = "";
         }
-        modal.hidden = false;
-        modal.setAttribute("aria-hidden", "false");
+        if (listView) listView.classList.add("hidden");
+        if (threadView) threadView.classList.add("hidden");
+        view.classList.remove("hidden");
       }
 
       function closeCommunityChallengeCreateModal() {
-        const modal = document.getElementById("communityChallengeCreateModal");
-        if (modal) {
-          modal.hidden = true;
-          modal.setAttribute("aria-hidden", "true");
-        }
+        const view = document.getElementById("communityChallengeCreateView");
+        const listView = document.getElementById("communityListView");
+        if (view) view.classList.add("hidden");
+        if (listView) listView.classList.remove("hidden");
       }
 
       async function loadDeadlineEpisodesForChallenge(showId) {
@@ -10357,8 +10455,10 @@
         }
         const lv = document.getElementById("communityListView");
         const tv = document.getElementById("communityThreadView");
+        const ccv = document.getElementById("communityChallengeCreateView");
         if (lv) lv.classList.add("hidden");
         if (tv) tv.classList.remove("hidden");
+        if (ccv) ccv.classList.add("hidden");
         const sortSel = document.getElementById("communitySortSelect");
         if (sortSel) sortSel.value = communityState.sort;
         await loadCommunityThreadPosts();
@@ -12388,9 +12488,8 @@
         }
         openCommunityChallengeCreateModal();
       });
-      document.querySelectorAll("[data-close-challenge-create]").forEach((el) => {
-        el.addEventListener("click", () => closeCommunityChallengeCreateModal());
-      });
+      document.getElementById("challengeCreateBackBtn")?.addEventListener("click", () => closeCommunityChallengeCreateModal());
+      document.getElementById("challengeCreateCancelBtn")?.addEventListener("click", () => closeCommunityChallengeCreateModal());
       document.querySelectorAll("[data-close-challenge-detail]").forEach((el) => {
         el.addEventListener("click", () => closeCommunityChallengeDetailModal());
       });
