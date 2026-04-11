@@ -91,6 +91,8 @@ import { hashPassword, verifyPassword } from "./password.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 const publicDir = path.join(process.cwd(), "public");
+/** Not web-exposed: admin-only HTML snippets (never place under `public/`). */
+const templatesDir = path.join(process.cwd(), "templates");
 
 /** Default password when an admin resets a user account (no email recovery). */
 const DEFAULT_USER_PASSWORD_FOR_RESET = "airalert";
@@ -714,7 +716,7 @@ app.get("/api/admin/ui-fragment", async (request, reply) => {
 app.get("/api/admin/community-edit-move-fragment", async (request, reply) => {
   if (replyForbiddenUnlessAdminInAppShell(request, reply)) return;
   try {
-    const html = readPublicHtml("community-edit-admin-move-fragment.html");
+    const html = readTemplateHtml("community-edit-admin-move-fragment.html");
     reply.header("Cache-Control", "no-store");
     return reply.type("text/html; charset=utf-8").send(html);
   } catch (err) {
@@ -4753,6 +4755,10 @@ app.get("/calendar/:filename", async (request, reply) => {
 
 function readPublicHtml(name: string): string {
   return fs.readFileSync(path.join(publicDir, name), "utf8");
+}
+
+function readTemplateHtml(name: string): string {
+  return fs.readFileSync(path.join(templatesDir, name), "utf8");
 }
 app.get("/", async (_req, reply) => {
   reply.header("Cache-Control", "no-store, max-age=0");
