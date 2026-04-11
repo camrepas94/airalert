@@ -702,7 +702,7 @@ function replyForbiddenUnlessAdminInAppShell(request: FastifyRequest, reply: Fas
 app.get("/api/admin/ui-fragment", async (request, reply) => {
   if (replyForbiddenUnlessAdminInAppShell(request, reply)) return;
   try {
-    const html = readPublicHtml("admin-ui-fragment.html");
+    const html = readTemplateHtml("admin-ui-fragment.html");
     reply.header("Cache-Control", "no-store");
     return reply.type("text/html; charset=utf-8").send(html);
   } catch (err) {

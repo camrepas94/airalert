@@ -6453,12 +6453,12 @@
       .community-modal-close {
         margin-top: 0;
       }
-      .community-admin-move {
+      .aa-em-row {
         margin-top: 0.85rem;
         padding-top: 0.85rem;
         border-top: 1px dashed rgba(251, 191, 36, 0.25);
       }
-      .community-admin-move input {
+      .aa-em-row input {
         width: 100%;
         max-width: 12rem;
         min-height: 44px;
@@ -8147,7 +8147,7 @@
                 <input id="displayName" type="text" maxlength="120" placeholder="Your full name" autocomplete="name" />
                 <div class="profile-readonly-row">
                   <span class="profile-readonly-label">Username</span>
-                  <span id="profileUsernameDisplay" class="profile-readonly-value">Guest</span>
+                  <span id="profileUsernameDisplay" class="profile-readonly-value">—</span>
                 </div>
                 <div class="profile-readonly-row">
                   <span class="profile-readonly-label">Member since</span>
@@ -8459,7 +8459,7 @@
           ph.hidden = false;
         }
         const un = document.getElementById("profileUsernameDisplay");
-        if (un) un.textContent = (u && u.username) || "Guest";
+        if (un) un.textContent = (u && u.username) || "—";
         const ms = document.getElementById("profileMemberSince");
         if (ms) ms.textContent = formatMemberSince(u && u.createdAt);
         const am = document.getElementById("profileAboutMe");
@@ -10285,7 +10285,7 @@
         document.getElementById("tabBtnAdmin")?.remove();
         document.getElementById("tab-admin")?.remove();
         document.getElementById("communityAdminMoveModal")?.remove();
-        document.querySelector("[data-airalert-admin-edit-move-host]")?.remove();
+        document.querySelector("[data-aa-em]")?.remove();
         const active = document.querySelector(".tab-panel.active");
         if (active && active.id === "tab-admin") {
           setTab("add");
@@ -10296,17 +10296,17 @@
         return Boolean(me && (me.isAdmin === true || me.isAdmin === 1));
       }
 
-      /** Edit-post admin-only row: markup is not in index.html; fetched from /api/admin/community-edit-move-fragment (401/403 otherwise). */
+      /** Edit-post moderation row: HTML fetched only for DB admins (401/403 otherwise). */
       async function syncCommunityEditAdminMoveUi(epoch) {
         const panel = document.querySelector("#communityEditModal .community-modal-panel");
         if (!panel) return;
         const actions = panel.querySelector(".community-modal-actions");
         if (!actions) return;
         if (!userIsDbAdmin(sessionMeSnapshot)) {
-          document.querySelector("[data-airalert-admin-edit-move-host]")?.remove();
+          document.querySelector("[data-aa-em]")?.remove();
           return;
         }
-        if (panel.querySelector("[data-airalert-admin-edit-move-host]")) return;
+        if (panel.querySelector("[data-aa-em]")) return;
         let r;
         try {
           r = await fetch(new URL("/api/admin/community-edit-move-fragment", apiOrigin()).href, { credentials: "include" });
@@ -10319,13 +10319,13 @@
         const html = await r.text();
         if (epoch != null && epoch !== adminMoveUiEpoch) return;
         if (!userIsDbAdmin(sessionMeSnapshot)) {
-          document.querySelector("[data-airalert-admin-edit-move-host]")?.remove();
+          document.querySelector("[data-aa-em]")?.remove();
           return;
         }
         const wrap = document.createElement("div");
         wrap.innerHTML = html.trim();
         const block = wrap.firstElementChild;
-        if (!block || !block.hasAttribute("data-airalert-admin-edit-move-host")) return;
+        if (!block || !block.hasAttribute("data-aa-em")) return;
         panel.insertBefore(block, actions);
       }
 
@@ -14330,7 +14330,7 @@
         bodyEl.innerHTML = p.bodyHtml || "";
         sp.checked = Boolean(p.isSpoiler);
         await syncCommunityEditAdminMoveUi(adminMoveUiEpoch);
-        const moveHost = document.querySelector("#communityEditModal [data-airalert-admin-edit-move-host]");
+        const moveHost = document.querySelector("#communityEditModal [data-aa-em]");
         const moveInp = moveHost && moveHost.querySelector('input[type="number"]');
         if (moveInp) moveInp.value = "";
         await populateCommunityEpisodeSelect(p.tvmazeShowId, document.getElementById("communityEditEpisodeSelect"), p.tvmazeEpisodeId);
@@ -14341,6 +14341,7 @@
       function closeCommunityEditModal() {
         communityState.editingPostId = null;
         communityState.editingShowId = null;
+        document.querySelector("#communityEditModal [data-aa-em]")?.remove();
         const modal = document.getElementById("communityEditModal");
         modal.hidden = true;
         modal.setAttribute("aria-hidden", "true");
@@ -16011,11 +16012,11 @@
         }
       });
       document.getElementById("communityEditModal").addEventListener("click", async (e) => {
-        const btn = e.target && e.target.closest && e.target.closest("[data-airalert-admin-edit-move-apply]");
+        const btn = e.target && e.target.closest && e.target.closest("[data-aa-em-apply]");
         if (!btn) return;
         const id = communityState.editingPostId;
         if (!id) return;
-        const moveHost = document.querySelector("#communityEditModal [data-airalert-admin-edit-move-host]");
+        const moveHost = document.querySelector("#communityEditModal [data-aa-em]");
         const moveInp = moveHost && moveHost.querySelector('input[type="number"]');
         if (!moveInp) return;
         const raw = moveInp.value.trim();
