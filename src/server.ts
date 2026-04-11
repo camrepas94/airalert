@@ -710,6 +710,20 @@ app.get("/api/admin/ui-fragment", async (request, reply) => {
   }
 });
 
+/** Edit-post “move thread” row: HTML is not embedded in index.html; only DB admins receive this. */
+app.get("/api/admin/community-edit-move-fragment", async (request, reply) => {
+  if (replyForbiddenUnlessAdminInAppShell(request, reply)) return;
+  try {
+    const html = readPublicHtml("community-edit-admin-move-fragment.html");
+    reply.header("Cache-Control", "no-store");
+    return reply.type("text/html; charset=utf-8").send(html);
+  } catch (err) {
+    app.log.error(err, "community-edit-admin-move-fragment read failed");
+    reply.code(500);
+    return { error: "Fragment unavailable" };
+  }
+});
+
 app.get("/api/admin/overview", async (request, reply) => {
   if (replyForbiddenUnlessAdmin(request, reply)) return;
   const rows = db

@@ -10240,13 +10240,15 @@
       let adminUiListenersWired = false;
       /** Incremented on every `applyMeToUI` so in-flight admin fragment fetches cannot inject after identity changes. */
       let adminUiEpoch = 0;
+      /** Invalidates in-flight community-edit admin row fetch on session / role change. */
+      let adminMoveUiEpoch = 0;
 
       function removeAdminUiFromDom() {
         adminUiListenersWired = false;
         document.getElementById("tabBtnAdmin")?.remove();
         document.getElementById("tab-admin")?.remove();
         document.getElementById("communityAdminMoveModal")?.remove();
-        document.getElementById("communityEditAdminMove")?.remove();
+        document.querySelector("[data-airalert-admin-edit-move-host]")?.remove();
         const active = document.querySelector(".tab-panel.active");
         if (active && active.id === "tab-admin") {
           setTab("add");
@@ -10257,22 +10259,37 @@
         return Boolean(me && (me.isAdmin === true || me.isAdmin === 1));
       }
 
-      /** In-app edit modal: admin-only “move thread” row is not in static HTML for non-admins; mounted when DB admin is confirmed. */
-      function syncCommunityEditAdminMoveUi() {
+      /** Edit-post admin-only row: markup is not in index.html; fetched from /api/admin/community-edit-move-fragment (401/403 otherwise). */
+      async function syncCommunityEditAdminMoveUi(epoch) {
         const panel = document.querySelector("#communityEditModal .community-modal-panel");
         if (!panel) return;
         const actions = panel.querySelector(".community-modal-actions");
         if (!actions) return;
-        document.getElementById("communityEditAdminMove")?.remove();
-        if (!userIsDbAdmin(sessionMeSnapshot)) return;
+        if (!userIsDbAdmin(sessionMeSnapshot)) {
+          document.querySelector("[data-airalert-admin-edit-move-host]")?.remove();
+          return;
+        }
+        if (panel.querySelector("[data-airalert-admin-edit-move-host]")) return;
+        let r;
+        try {
+          r = await fetch(new URL("/api/admin/community-edit-move-fragment", apiOrigin()).href, { credentials: "include" });
+        } catch {
+          return;
+        }
+        if (epoch != null && epoch !== adminMoveUiEpoch) return;
+        if (r.status === 401 || r.status === 403) return;
+        if (!r.ok) return;
+        const html = await r.text();
+        if (epoch != null && epoch !== adminMoveUiEpoch) return;
+        if (!userIsDbAdmin(sessionMeSnapshot)) {
+          document.querySelector("[data-airalert-admin-edit-move-host]")?.remove();
+          return;
+        }
         const wrap = document.createElement("div");
-        wrap.id = "communityEditAdminMove";
-        wrap.className = "community-admin-move";
-        wrap.innerHTML =
-          '<label for="communityEditMoveShowId">Move to TVMaze show ID <span class="muted">(admin)</span></label>' +
-          '<input type="number" id="communityEditMoveShowId" min="1" step="1" placeholder="Numeric ID" />' +
-          '<button type="button" class="secondary" id="communityEditApplyMoveBtn">Move thread</button>';
-        panel.insertBefore(wrap, actions);
+        wrap.innerHTML = html.trim();
+        const block = wrap.firstElementChild;
+        if (!block || !block.hasAttribute("data-airalert-admin-edit-move-host")) return;
+        panel.insertBefore(block, actions);
       }
 
       async function ensureAdminUiLoaded(me, epoch) {
@@ -10410,7 +10427,8 @@
             signed.hidden = true;
           }
         }
-        syncCommunityEditAdminMoveUi();
+        adminMoveUiEpoch++;
+        void syncCommunityEditAdminMoveUi(adminMoveUiEpoch);
         void ensureAdminUiLoaded(me, epoch);
       }
 
@@ -14052,8 +14070,9 @@
         }
         bodyEl.innerHTML = p.bodyHtml || "";
         sp.checked = Boolean(p.isSpoiler);
-        syncCommunityEditAdminMoveUi();
-        const moveInp = document.getElementById("communityEditMoveShowId");
+        await syncCommunityEditAdminMoveUi(adminMoveUiEpoch);
+        const moveHost = document.querySelector("#communityEditModal [data-airalert-admin-edit-move-host]");
+        const moveInp = moveHost && moveHost.querySelector('input[type="number"]');
         if (moveInp) moveInp.value = "";
         await populateCommunityEpisodeSelect(p.tvmazeShowId, document.getElementById("communityEditEpisodeSelect"), p.tvmazeEpisodeId);
         modal.hidden = false;
@@ -15725,16 +15744,17 @@
         }
       });
       document.getElementById("communityEditModal").addEventListener("click", async (e) => {
-        const btn = e.target && e.target.closest && e.target.closest("#communityEditApplyMoveBtn");
+        const btn = e.target && e.target.closest && e.target.closest("[data-airalert-admin-edit-move-apply]");
         if (!btn) return;
         const id = communityState.editingPostId;
         if (!id) return;
-        const moveInp = document.getElementById("communityEditMoveShowId");
+        const moveHost = document.querySelector("#communityEditModal [data-airalert-admin-edit-move-host]");
+        const moveInp = moveHost && moveHost.querySelector('input[type="number"]');
         if (!moveInp) return;
         const raw = moveInp.value.trim();
         const n = Number(raw);
         if (!Number.isInteger(n) || n < 1) {
-          showToast("Enter a valid TVMaze show ID");
+          showToast("Enter a valid numeric show ID");
           return;
         }
         const err = document.getElementById("communityEditErr");
