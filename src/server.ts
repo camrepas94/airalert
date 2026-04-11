@@ -1405,12 +1405,13 @@ app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
     return { error: "tvmazeShowId required" };
   }
   const show = await fetchShow(body.tvmazeShowId);
+  const showImageUrl = show.image?.original ?? show.image?.medium ?? null;
   const id = uuidv4();
   try {
     db.prepare(
-      `INSERT INTO show_subscriptions (id, user_id, tvmaze_show_id, show_name, platform_note, added_from)
-       VALUES (?, ?, ?, ?, ?, 'admin')`,
-    ).run(id, userId, show.id, show.name, null);
+      `INSERT INTO show_subscriptions (id, user_id, tvmaze_show_id, show_name, platform_note, added_from, show_image_url)
+       VALUES (?, ?, ?, ?, ?, 'admin', ?)`,
+    ).run(id, userId, show.id, show.name, null, showImageUrl);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
     if (msg.includes("UNIQUE")) {
@@ -2372,12 +2373,13 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
     addedFrom = body.addedFrom;
   }
   const show = await fetchShow(body.tvmazeShowId);
+  const showImageUrl = show.image?.original ?? show.image?.medium ?? null;
   const id = uuidv4();
   try {
     db.prepare(
-      `INSERT INTO show_subscriptions (id, user_id, tvmaze_show_id, show_name, platform_note, added_from)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-    ).run(id, userId, show.id, show.name, null, addedFrom);
+      `INSERT INTO show_subscriptions (id, user_id, tvmaze_show_id, show_name, platform_note, added_from, show_image_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    ).run(id, userId, show.id, show.name, null, addedFrom, showImageUrl);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
     if (msg.includes("UNIQUE")) {
@@ -2850,6 +2852,7 @@ type CommunityThreadListRow = {
   lastPostAt: string | null;
   episodeAirsToday: boolean;
   threadKind: "episode" | "general";
+  showImageUrl?: string | null;
 };
 
 function sortCommunityThreadRows(a: CommunityThreadListRow, b: CommunityThreadListRow): number {
@@ -2889,8 +2892,8 @@ function buildCommunityThreadsForUser(userId: string, timezone: string): Communi
   const today = safeTodayInTimeZone(timezone);
 
   const subs = db
-    .prepare(`SELECT tvmaze_show_id AS tvmazeShowId, show_name AS showName FROM show_subscriptions WHERE user_id = ?`)
-    .all(userId) as { tvmazeShowId: number; showName: string }[];
+    .prepare(`SELECT tvmaze_show_id AS tvmazeShowId, show_name AS showName, show_image_url AS showImageUrl FROM show_subscriptions WHERE user_id = ?`)
+    .all(userId) as { tvmazeShowId: number; showName: string; showImageUrl: string | null }[];
 
   const epStmt = db.prepare(
     `SELECT tvmaze_episode_id AS tvmazeEpisodeId, name, season, number, date(airdate) AS airdate
@@ -2931,6 +2934,7 @@ function buildCommunityThreadsForUser(userId: string, timezone: string): Communi
         lastPostAt,
         episodeAirsToday,
         threadKind: "episode",
+        showImageUrl: s.showImageUrl,
       });
     }
   }
@@ -2945,6 +2949,7 @@ function buildCommunityThreadsForUser(userId: string, timezone: string): Communi
     )
     .all() as { tvmazeShowId: number; showName: string; postCount: number; lastPostAt: string }[];
 
+  const subImageMap = new Map(subs.map(s => [s.tvmazeShowId, s.showImageUrl]));
   for (const g of generalAgg) {
     out.push({
       tvmazeShowId: g.tvmazeShowId,
@@ -2956,6 +2961,7 @@ function buildCommunityThreadsForUser(userId: string, timezone: string): Communi
       lastPostAt: g.lastPostAt,
       episodeAirsToday: false,
       threadKind: "general",
+      showImageUrl: subImageMap.get(g.tvmazeShowId) ?? null,
     });
   }
 
@@ -2965,6 +2971,12 @@ function buildCommunityThreadsForUser(userId: string, timezone: string): Communi
 
 function buildCommunityThreadsForGuest(): CommunityThreadListRow[] {
   const guestToday = safeTodayInTimeZone("America/Los_Angeles");
+
+  const showImageLookup = new Map(
+    (db.prepare(`SELECT DISTINCT tvmaze_show_id, show_image_url FROM show_subscriptions WHERE show_image_url IS NOT NULL`).all() as { tvmaze_show_id: number; show_image_url: string }[])
+      .map(r => [r.tvmaze_show_id, r.show_image_url]),
+  );
+
   const agg = db
     .prepare(
       `SELECT tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId,
@@ -3006,6 +3018,7 @@ function buildCommunityThreadsForGuest(): CommunityThreadListRow[] {
       lastPostAt: r.lastPostAt,
       episodeAirsToday: true,
       threadKind: "episode",
+      showImageUrl: showImageLookup.get(r.tvmazeShowId) ?? null,
     });
   }
 
@@ -3030,6 +3043,7 @@ function buildCommunityThreadsForGuest(): CommunityThreadListRow[] {
       lastPostAt: g.lastPostAt,
       episodeAirsToday: false,
       threadKind: "general",
+      showImageUrl: showImageLookup.get(g.tvmazeShowId) ?? null,
     });
   }
 
@@ -4133,11 +4147,11 @@ app.get("/api/community/users/search", async (request, reply) => {
   }
   const rows = db
     .prepare(
-      `SELECT id, username, display_name AS displayName
+      `SELECT id, username, display_name AS displayName, avatar_data_url AS avatarDataUrl
        FROM users
        WHERE username IS NOT NULL AND TRIM(username) != ''
          AND id != ?
-         AND instr(lower(username), lower(?)) > 0
+         AND (instr(lower(username), lower(?)) > 0 OR instr(lower(COALESCE(display_name, '')), lower(?)) > 0)
        ORDER BY
          CASE WHEN lower(trim(username)) = lower(?) THEN 0 ELSE 1 END,
          CASE WHEN instr(lower(username), lower(?)) = 1 THEN 0 ELSE 1 END,
@@ -4145,12 +4159,13 @@ app.get("/api/community/users/search", async (request, reply) => {
          username ASC
        LIMIT 20`,
     )
-    .all(uid, q, q, q) as { id: string; username: string; displayName: string | null }[];
+    .all(uid, q, q, q, q) as { id: string; username: string; displayName: string | null; avatarDataUrl: string | null }[];
   return {
     users: rows.map((r) => ({
       id: r.id,
       username: r.username,
       displayName: r.displayName,
+      avatarDataUrl: r.avatarDataUrl ?? null,
     })),
   };
 });
@@ -4645,3 +4660,22 @@ cron.schedule("30 */6 * * *", async () => {
 
 await app.listen({ port: PORT, host: "0.0.0.0" });
 app.log.info(`Airalert V1 http://localhost:${PORT}`);
+
+// Backfill show_image_url for existing subscriptions missing it
+(async () => {
+  const missing = db
+    .prepare(`SELECT DISTINCT tvmaze_show_id FROM show_subscriptions WHERE show_image_url IS NULL`)
+    .all() as { tvmaze_show_id: number }[];
+  if (!missing.length) return;
+  app.log.info({ count: missing.length }, "Backfilling show images");
+  const updateStmt = db.prepare(`UPDATE show_subscriptions SET show_image_url = ? WHERE tvmaze_show_id = ? AND show_image_url IS NULL`);
+  for (const row of missing) {
+    try {
+      const show = await fetchShow(row.tvmaze_show_id);
+      const url = show.image?.original ?? show.image?.medium ?? null;
+      if (url) updateStmt.run(url, row.tvmaze_show_id);
+    } catch { /* TVMaze unavailable */ }
+    await new Promise(r => setTimeout(r, 300));
+  }
+  app.log.info("Show image backfill complete");
+})();

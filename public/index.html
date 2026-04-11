@@ -1117,6 +1117,149 @@
       #tab-messages .dm-inbox-main {
         background: transparent;
       }
+      .dm-inbox-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.35rem;
+      }
+      .dm-inbox-header-row h2 { flex: 1; }
+      .dm-compose-btn {
+        flex-shrink: 0;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 50%;
+        border: 1px solid rgba(34, 211, 238, 0.4);
+        background: rgba(34, 211, 238, 0.1);
+        color: #7dd3fc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+      }
+      .dm-compose-btn:hover {
+        background: rgba(34, 211, 238, 0.2);
+        border-color: rgba(34, 211, 238, 0.6);
+        transform: scale(1.08);
+      }
+      .dm-compose-btn:active { transform: scale(0.95); }
+      .dm-compose-btn svg {
+        width: 1rem;
+        height: 1rem;
+      }
+      .dm-compose-btn.active {
+        background: rgba(34, 211, 238, 0.25);
+        border-color: rgba(34, 211, 238, 0.65);
+        transform: rotate(45deg);
+      }
+      .dm-compose-btn.active:hover {
+        transform: rotate(45deg) scale(1.08);
+      }
+      .dm-compose-view {
+        margin-bottom: 0.65rem;
+        border-radius: 14px;
+        border: 1px solid rgba(34, 211, 238, 0.18);
+        background: rgba(8, 12, 28, 0.6);
+        padding: 0.65rem;
+        animation: dm-compose-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      @keyframes dm-compose-in {
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .dm-compose-search-wrap {
+        position: relative;
+      }
+      .dm-compose-search-input {
+        width: 100%;
+        padding: 0.55rem 0.75rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
+        font-size: 0.85rem;
+        outline: none;
+        transition: border-color 0.15s ease;
+        box-sizing: border-box;
+      }
+      .dm-compose-search-input:focus {
+        border-color: rgba(34, 211, 238, 0.4);
+      }
+      .dm-compose-search-input::placeholder {
+        color: rgba(180, 200, 230, 0.4);
+      }
+      .dm-compose-results {
+        margin-top: 0.4rem;
+        max-height: 200px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+      .dm-compose-result-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        width: 100%;
+        padding: 0.5rem 0.6rem;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+        font: inherit;
+        font-size: 0.84rem;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.12s ease, border-color 0.12s ease;
+      }
+      .dm-compose-result-btn:hover {
+        background: rgba(34, 211, 238, 0.08);
+        border-color: rgba(34, 211, 238, 0.2);
+      }
+      .dm-compose-result-avatar {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        background: rgba(91, 156, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.85rem;
+        overflow: hidden;
+      }
+      .dm-compose-result-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+      .dm-compose-result-info {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .dm-compose-result-name {
+        font-weight: 650;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .dm-compose-result-username {
+        font-size: 0.74rem;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .dm-compose-hint {
+        font-size: 0.8rem;
+        margin: 0.35rem 0 0;
+        line-height: 1.4;
+      }
       .dm-inbox-hub-scroll {
         flex: 1 1 auto;
         min-height: 0;
@@ -4369,37 +4512,97 @@
       .community-thread-list {
         list-style: none;
         margin: 0;
-        padding: 0;
+        padding: 0 0 0.5rem;
         display: flex;
-        flex-direction: column;
-        gap: 0.65rem;
+        flex-direction: row;
+        gap: 0.75rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x;
+      }
+      .community-thread-list::-webkit-scrollbar { display: none; }
+      .community-thread-list > li {
+        flex: 0 0 280px;
+        scroll-snap-align: start;
+        min-width: 280px;
+        max-width: 320px;
       }
       .community-thread-card {
-        display: block;
+        display: flex;
+        flex-direction: column;
         width: 100%;
         text-align: left;
-        padding: 0.85rem 1rem;
-        border-radius: 14px;
+        border-radius: 16px;
         border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(255, 255, 255, 0.04);
-        -webkit-backdrop-filter: blur(12px);
-        backdrop-filter: blur(12px);
+        background: rgba(14, 18, 28, 0.92);
         color: inherit;
         font: inherit;
         cursor: pointer;
         touch-action: manipulation;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-        transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s cubic-bezier(0.16,1,0.3,1), box-shadow 0.2s ease;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+        transition: border-color 0.2s ease, transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease;
         min-height: 44px;
+        overflow: hidden;
+        padding: 0;
       }
       .community-thread-card:hover {
         border-color: rgba(79, 195, 247, 0.35);
-        background: rgba(255, 255, 255, 0.07);
-        box-shadow: 0 4px 20px rgba(79, 195, 247, 0.1), 0 2px 12px rgba(0, 0, 0, 0.25);
-        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(79, 195, 247, 0.12), 0 4px 16px rgba(0, 0, 0, 0.3);
+        transform: translateY(-3px);
       }
       .community-thread-card:active:not(:disabled) {
         transform: translateY(0);
+      }
+      .community-thread-card-image {
+        position: relative;
+        width: 100%;
+        height: 140px;
+        background-size: cover;
+        background-position: center top;
+        background-color: rgba(20, 28, 44, 0.8);
+        flex-shrink: 0;
+      }
+      .community-thread-card-image::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(14,18,28,0.95) 100%);
+      }
+      .community-thread-card-badges {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.55rem;
+        right: 0.55rem;
+        display: flex;
+        justify-content: space-between;
+        z-index: 2;
+      }
+      .community-thread-card-body {
+        padding: 0.65rem 0.85rem 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        flex: 1;
+      }
+      .community-thread-card-join {
+        flex-shrink: 0;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        border: 1px solid rgba(79, 195, 247, 0.35);
+        background: rgba(79, 195, 247, 0.12);
+        color: #7dd3fc;
+        font-size: 0.74rem;
+        font-weight: 700;
+        cursor: pointer;
+        min-height: 32px;
+        transition: background 0.15s ease;
+      }
+      .community-thread-card-join:hover {
+        background: rgba(79, 195, 247, 0.22);
       }
       .community-thread-card--episode {
         border-left: 3px solid rgba(251, 113, 133, 0.65);
@@ -4435,19 +4638,26 @@
         color: var(--muted);
       }
       .community-thread-ep-show {
-        font-size: 0.72rem;
+        font-size: 0.68rem;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        color: rgba(154, 184, 224, 0.85);
-        margin: 0 0 0.2rem;
+        color: rgba(180, 200, 230, 0.7);
+        margin: 0 0 0.15rem;
         font-weight: 650;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .community-thread-ep-title {
         font-weight: 750;
-        font-size: 1.02rem;
-        margin: 0 0 0.35rem;
-        line-height: 1.25;
+        font-size: 0.92rem;
+        margin: 0 0 0.1rem;
+        line-height: 1.3;
         color: var(--text);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
       .community-thread-badge-hot,
       .community-thread-badge-new {
@@ -4473,15 +4683,15 @@
       .community-thread-footer {
         display: flex;
         align-items: center;
-        gap: 0.65rem;
-        margin-top: 0.45rem;
-        font-size: 0.72rem;
+        gap: 0.55rem;
+        font-size: 0.68rem;
         color: var(--muted);
       }
       .community-thread-footer-stat {
         display: flex;
         align-items: center;
         gap: 0.2rem;
+        white-space: nowrap;
       }
       .community-thread-ep-line {
         font-size: 0.8rem;
@@ -6684,6 +6894,7 @@
               <ul class="community-challenges-list" id="communityChallengesList" role="list"></ul>
             </div>
             <button type="button" class="community-fab-plus" id="communityNewThreadBtn" title="New discussion">+</button>
+            <h3 style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(180,200,230,0.6);margin:0.75rem 0 0.45rem;font-weight:700">Trending Discussions</h3>
             <div id="communityThreadsLoading" class="muted community-loading" hidden>Loading threads…</div>
             <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
             <ul class="community-thread-list" id="communityThreadList"></ul>
@@ -7112,8 +7323,24 @@
                   </button>
                 </nav>
                 <div class="dm-inbox-main">
-                  <h2 id="dmInboxTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Inbox</h2>
-                  <div class="dm-inbox-hub-scroll">
+                  <div class="dm-inbox-header-row">
+                    <h2 id="dmInboxTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Inbox</h2>
+                    <button type="button" class="dm-compose-btn" id="dmComposeBtn" title="New message">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div id="dmComposeView" class="dm-compose-view" hidden>
+                    <div class="dm-compose-search-wrap">
+                      <label for="dmComposeSearchInput" class="visually-hidden">Search users</label>
+                      <input type="text" id="dmComposeSearchInput" class="dm-compose-search-input" placeholder="Search by username or name..." autocomplete="off" spellcheck="false" />
+                    </div>
+                    <div id="dmComposeResults" class="dm-compose-results"></div>
+                    <p class="muted dm-compose-hint" id="dmComposeHint">Type a name to find someone and start a conversation.</p>
+                  </div>
+                  <div class="dm-inbox-hub-scroll" id="dmInboxHubScroll">
                     <section id="dmInboxSectionGroups" class="dm-inbox-section" aria-label="Group chats">
                       <div class="dm-inbox-section-head">
                         <span class="dm-inbox-section-label">Groups</span>
@@ -9063,12 +9290,22 @@
         return "Chat";
       }
 
+      function closeDmComposeView() {
+        const cv = document.getElementById("dmComposeView");
+        const btn = document.getElementById("dmComposeBtn");
+        const hub = document.getElementById("dmInboxHubScroll");
+        if (cv) cv.hidden = true;
+        if (btn) btn.classList.remove("active");
+        if (hub) hub.style.display = "";
+      }
+
       async function openDmInboxModal(opts) {
         closeHeaderMenus();
         if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
           showToast("Create an account (profile icon → Your profile) to use messages.");
           return;
         }
+        closeDmComposeView();
         const threadId = opts && opts.threadId;
         const titleLabel = opts && opts.titleLabel;
         const list = document.getElementById("dmInboxListView");
@@ -11052,13 +11289,11 @@
         cards.forEach(li => {
           const card = li.querySelector(".community-thread-card");
           if (!card) return;
-          const isEpisode = card.classList.contains("community-thread-card--episode");
-          const isGeneral = card.classList.contains("community-thread-card--general");
           let show = true;
           if (communityActiveFilter === "live") {
-            show = card.querySelector(".community-thread-new-ep-badge") != null;
+            show = card.dataset.live === "1";
           } else if (communityActiveFilter === "theories" || communityActiveFilter === "hot") {
-            show = isGeneral;
+            show = card.dataset.threadKind === "general";
           } else if (communityActiveFilter === "spoiler-free") {
             show = true;
           }
@@ -11122,44 +11357,52 @@
             const btn = document.createElement("button");
             btn.type = "button";
             const isGeneral = th.threadKind === "general" || th.tvmazeEpisodeId == null;
-            btn.className =
-              "community-thread-card" + (isGeneral ? " community-thread-card--general" : " community-thread-card--episode");
-            const badge =
-              th.episodeAirsToday === true
-                ? '<span class="community-thread-new-ep-badge" role="status">🔴 New Episode Today</span>'
-                : "";
-            const activeLine =
-              th.lastPostAt != null && String(th.lastPostAt).trim()
-                ? " · last activity " + formatCommunityRelativeTime(th.lastPostAt)
-                : "";
+            const isLive = th.episodeAirsToday === true;
+            const isHot = th.postCount > 50;
+            btn.className = "community-thread-card";
+            btn.dataset.threadKind = isGeneral ? "general" : "episode";
+            if (isLive) btn.dataset.live = "1";
+            const postLabel = th.postCount + " repl" + (th.postCount === 1 ? "y" : "ies");
+            const timeAgo = th.lastPostAt ? formatCommunityRelativeTime(th.lastPostAt) : "";
             const epTitle = isGeneral
               ? "General discussion"
               : escapeHtml(th.episodeLabel || "Episode");
-            const epTag = isGeneral
-              ? "Show-wide chat"
-              : (th.airdate ? (th.episodeAirsToday ? "Aired Tonight" : escapeHtml(String(th.airdate))) : "");
-            const postLabel = th.postCount + " post" + (th.postCount === 1 ? "" : "s");
-            const timeAgo = th.lastPostAt ? formatCommunityRelativeTime(th.lastPostAt) : "";
-            const isHot = th.postCount > 50;
-            const isNew = th.lastPostAt && (Date.now() - new Date(th.lastPostAt).getTime()) < 1800000;
-            const badges = badge +
-              (isHot ? ' <span class="community-thread-badge-hot">HOT</span>' : '') +
-              (isNew ? ' <span class="community-thread-badge-new">NEW</span>' : '');
+            const epTag = isGeneral ? "" : (th.airdate ? " \u00b7 " + (isLive ? "Aired Tonight" : escapeHtml(String(th.airdate))) : "");
+
+            const trendBadge = isHot
+              ? '<span class="community-thread-badge-hot" style="font-size:0.62rem;padding:0.2rem 0.5rem">\u{1F525} Trending Now</span>'
+              : (isLive ? '<span class="community-thread-new-ep-badge" style="font-size:0.62rem;padding:0.2rem 0.5rem;background:rgba(255,64,129,0.2);border:1px solid rgba(255,64,129,0.35);border-radius:6px;color:#ff80ab">\u{1F534} New Episode</span>' : '');
+            const liveBadge = isLive
+              ? '<span style="font-size:0.62rem;padding:0.2rem 0.5rem;border-radius:6px;background:rgba(0,230,118,0.15);border:1px solid rgba(0,230,118,0.3);color:#69f0ae;font-weight:700">\u{1F7E2} ' + th.postCount + ' live</span>'
+              : '';
+
             btn.innerHTML =
-              '<div class="community-thread-ep-show">' +
-              escapeHtml(th.showName || "Show") +
-              (epTag ? ' · ' + epTag : '') +
-              "</div>" +
-              '<div class="community-thread-card-head">' +
-              '<div class="community-thread-ep-title">' +
-              epTitle +
-              "</div>" +
-              badges +
-              "</div>" +
-              '<div class="community-thread-footer">' +
+              '<div class="community-thread-card-image" id="threadImg' + th.tvmazeShowId + '">' +
+              '<div class="community-thread-card-badges">' + trendBadge + liveBadge + '</div>' +
+              '</div>' +
+              '<div class="community-thread-card-body">' +
+              '<div class="community-thread-ep-show">' + escapeHtml(th.showName || "Show") + epTag + '</div>' +
+              '<div class="community-thread-ep-title" style="font-size:0.92rem;margin:0;line-height:1.3">' + epTitle + '</div>' +
+              '<div class="community-thread-footer" style="margin-top:auto;padding-top:0.35rem">' +
               '<span class="community-thread-footer-stat">\u{1F4AC} ' + postLabel + '</span>' +
               (timeAgo ? '<span class="community-thread-footer-stat">\u{1F552} ' + timeAgo + '</span>' : '') +
-              "</div>";
+              '<span style="margin-left:auto"><span class="community-thread-card-join">Join</span></span>' +
+              '</div>' +
+              '</div>';
+
+            // Set show image from cached URL or fallback to TVMaze API
+            (function(showId, imgUrl, btn) {
+              const imgEl = btn.querySelector(".community-thread-card-image");
+              if (!imgEl) return;
+              if (imgUrl) {
+                imgEl.style.backgroundImage = "url(" + imgUrl + ")";
+              } else {
+                fetch("https://api.tvmaze.com/shows/" + showId).then(r => r.json()).then(d => {
+                  if (d && d.image) imgEl.style.backgroundImage = "url(" + (d.image.original || d.image.medium) + ")";
+                }).catch(() => {});
+              }
+            })(th.tvmazeShowId, th.showImageUrl, btn);
+
             btn.addEventListener("click", () =>
               openCommunityThread(th.tvmazeShowId, th.showName, th.postCount, {
                 episodeId: isGeneral ? null : th.tvmazeEpisodeId,
@@ -11167,15 +11410,15 @@
             );
             li.appendChild(btn);
             li.style.opacity = "0";
-            li.style.transform = "translateY(16px)";
+            li.style.transform = "translateX(20px)";
             listEl.appendChild(li);
           }
           listEl.querySelectorAll("li").forEach((li, i) => {
             setTimeout(() => {
               li.style.transition = "opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)";
               li.style.opacity = "1";
-              li.style.transform = "translateY(0)";
-            }, i * 50);
+              li.style.transform = "translateX(0)";
+            }, i * 80);
           });
           applyCommunityFilter();
         } catch (e) {
@@ -13811,6 +14054,7 @@
           dmTypingStopTimer = null;
         }
         hideDmPeerTyping();
+        closeDmComposeView();
         dmInboxActiveThreadId = null;
         dmThreadPeerReadAt = null;
         const list = document.getElementById("dmInboxListView");
@@ -13833,6 +14077,100 @@
           }
         });
       });
+      // ── Compose / New Message button ──
+      (function initDmCompose() {
+        const composeBtn = document.getElementById("dmComposeBtn");
+        const composeView = document.getElementById("dmComposeView");
+        const hubScroll = document.getElementById("dmInboxHubScroll");
+        const searchInput = document.getElementById("dmComposeSearchInput");
+        const resultsEl = document.getElementById("dmComposeResults");
+        const hintEl = document.getElementById("dmComposeHint");
+        if (!composeBtn || !composeView || !searchInput) return;
+        let searchTimer = null;
+        let searchGen = 0;
+        let composeOpen = false;
+
+        function toggleCompose() {
+          composeOpen = !composeOpen;
+          composeView.hidden = !composeOpen;
+          composeBtn.classList.toggle("active", composeOpen);
+          if (composeOpen) {
+            if (hubScroll) hubScroll.style.display = "none";
+            searchInput.value = "";
+            if (resultsEl) resultsEl.innerHTML = "";
+            if (hintEl) hintEl.hidden = false;
+            setTimeout(() => searchInput.focus(), 60);
+          } else {
+            if (hubScroll) hubScroll.style.display = "";
+            searchInput.value = "";
+            if (resultsEl) resultsEl.innerHTML = "";
+          }
+        }
+
+        composeBtn.addEventListener("click", toggleCompose);
+
+        searchInput.addEventListener("input", () => {
+          const q = searchInput.value.trim();
+          if (searchTimer) clearTimeout(searchTimer);
+          if (!q || q.length < 2) {
+            if (resultsEl) resultsEl.innerHTML = "";
+            if (hintEl) hintEl.hidden = false;
+            return;
+          }
+          if (hintEl) hintEl.hidden = true;
+          searchTimer = setTimeout(async () => {
+            const gen = ++searchGen;
+            try {
+              const data = await api("/api/community/users/search?q=" + encodeURIComponent(q));
+              if (gen !== searchGen) return;
+              const users = data.users || [];
+              if (!resultsEl) return;
+              resultsEl.innerHTML = "";
+              if (!users.length) {
+                resultsEl.innerHTML = '<p class="muted" style="font-size:0.82rem;margin:0.25rem 0">No users found.</p>';
+                return;
+              }
+              const selfId = sessionMeSnapshot?.id;
+              for (const u of users) {
+                if (u.id === selfId) continue;
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "dm-compose-result-btn";
+                const avatarContent = u.avatarDataUrl
+                  ? '<img src="' + escapeHtml(u.avatarDataUrl) + '" alt="" />'
+                  : (u.displayName || u.username || "?").charAt(0).toUpperCase();
+                btn.innerHTML =
+                  '<div class="dm-compose-result-avatar">' + avatarContent + '</div>' +
+                  '<div class="dm-compose-result-info">' +
+                  '<span class="dm-compose-result-name">' + escapeHtml(u.displayName || u.username) + '</span>' +
+                  '<span class="dm-compose-result-username">@' + escapeHtml(u.username) + '</span>' +
+                  '</div>';
+                btn.addEventListener("click", async () => {
+                  try {
+                    const out = await api("/api/dm/threads", {
+                      method: "POST",
+                      body: JSON.stringify({ otherUserId: u.id }),
+                    });
+                    composeOpen = false;
+                    composeView.hidden = true;
+                    composeBtn.classList.remove("active");
+                    if (hubScroll) hubScroll.style.display = "";
+                    searchInput.value = "";
+                    resultsEl.innerHTML = "";
+                    await openDmThreadView(out.threadId, u.displayName || u.username);
+                  } catch (e) {
+                    showToast(e.message || "Could not start chat");
+                  }
+                });
+                resultsEl.appendChild(btn);
+              }
+            } catch {
+              if (resultsEl) resultsEl.innerHTML = '<p class="muted" style="font-size:0.82rem;margin:0.25rem 0">Search failed.</p>';
+            }
+          }, 250);
+        });
+      })();
+
       document.getElementById("dmInboxSendBtn")?.addEventListener("click", () => void sendDmFromInbox());
       document.getElementById("dmInboxInput")?.addEventListener("keydown", (e) => {
         if (e.key === "Enter" && !e.shiftKey) {

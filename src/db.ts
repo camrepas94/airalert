@@ -243,6 +243,9 @@ if (!subColNames.has("community_episodes_behind")) {
 if (!subColNames.has("binge_later")) {
   db.exec(`ALTER TABLE show_subscriptions ADD COLUMN binge_later INTEGER NOT NULL DEFAULT 0`);
 }
+if (!subColNames.has("show_image_url")) {
+  db.exec(`ALTER TABLE show_subscriptions ADD COLUMN show_image_url TEXT`);
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS watch_tasks (
