@@ -452,3 +452,84 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_watch_challenge_participants_user ON community_watch_challenge_participants(user_id);
 `);
+
+/* ── Breaking News ─────────────────────────────────────────────── */
+db.exec(`
+  CREATE TABLE IF NOT EXISTS breaking_news (
+    id TEXT PRIMARY KEY,
+    headline TEXT NOT NULL,
+    snippet TEXT,
+    source TEXT NOT NULL,
+    url TEXT NOT NULL UNIQUE,
+    show_id INTEGER,
+    show_name TEXT,
+    score INTEGER NOT NULL DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','auto','dismissed')),
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_breaking_news_status ON breaking_news(status, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_breaking_news_show ON breaking_news(show_id) WHERE show_id IS NOT NULL;
+  CREATE INDEX IF NOT EXISTS idx_breaking_news_created ON breaking_news(created_at DESC);
+
+  CREATE TABLE IF NOT EXISTS admin_ticker_message (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    message TEXT,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  INSERT OR IGNORE INTO admin_ticker_message (id, message) VALUES (1, NULL);
+`);
+
+/* ── Cast Cache (TVMaze cast data per show, refreshed every 24h) ── */
+db.exec(`
+  CREATE TABLE IF NOT EXISTS cast_cache (
+    tvmaze_show_id INTEGER NOT NULL,
+    tvmaze_person_id INTEGER NOT NULL,
+    person_name TEXT NOT NULL,
+    character_name TEXT,
+    fetched_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (tvmaze_show_id, tvmaze_person_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_cast_cache_show ON cast_cache(tvmaze_show_id);
+  CREATE INDEX IF NOT EXISTS idx_cast_cache_fetched ON cast_cache(fetched_at);
+`);
+
+/* ── Notification Preferences (granular per-user toggles) ── */
+db.exec(`
+  CREATE TABLE IF NOT EXISTS notification_preferences (
+    user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    episode_airs INTEGER NOT NULL DEFAULT 1,
+    dm_message INTEGER NOT NULL DEFAULT 1,
+    mention_in_thread INTEGER NOT NULL DEFAULT 1,
+    thread_reply INTEGER NOT NULL DEFAULT 1,
+    show_breaking_news INTEGER NOT NULL DEFAULT 1,
+    live_room_opens INTEGER NOT NULL DEFAULT 1,
+    task_added INTEGER NOT NULL DEFAULT 1,
+    still_watching_days INTEGER NOT NULL DEFAULT 3
+  );
+`);
+
+/* ── User Follows (user-to-user) ── */
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_follows (
+    follower_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    followed_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (follower_id, followed_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON user_follows(follower_id);
+  CREATE INDEX IF NOT EXISTS idx_user_follows_followed ON user_follows(followed_id);
+`);
+
+/* ── Reply threading: add parent_post_id + tag to community_posts ── */
+const cpCols = new Set(
+  (db.prepare(`PRAGMA table_info(community_posts)`).all() as { name: string }[]).map((r) => r.name),
+);
+if (!cpCols.has("parent_post_id")) {
+  db.exec(`ALTER TABLE community_posts ADD COLUMN parent_post_id TEXT REFERENCES community_posts(id) ON DELETE SET NULL`);
+}
+if (!cpCols.has("tag")) {
+  db.exec(`ALTER TABLE community_posts ADD COLUMN tag TEXT`);
+}
+try {
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_community_posts_parent ON community_posts(parent_post_id) WHERE parent_post_id IS NOT NULL`);
+} catch { /* ignore */ }

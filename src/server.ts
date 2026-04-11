@@ -36,6 +36,11 @@ import {
   runPersonNewProjectNotifications,
 } from "./jobs.js";
 import {
+  pollRssFeeds,
+  refreshAllCastCache,
+  getTickerItems,
+} from "./breakingNews.js";
+import {
   configureWebPush,
   getVapidPublicKey,
   isWebPushConfigured,
@@ -490,6 +495,8 @@ function formatCommunityPost(p: CommunityPostRow) {
     authorUsername: p.authorUsername,
     authorHandle,
     authorAvatarDataUrl: p.authorAvatarDataUrl,
+    parentPostId: (p as Record<string, unknown>).parent_post_id || null,
+    tag: (p as Record<string, unknown>).tag || null,
   };
 }
 
@@ -1434,6 +1441,138 @@ app.delete("/api/admin/subscriptions/:subscriptionId", async (request, reply) =>
     return { error: "Not found" };
   }
   return { ok: true };
+});
+
+/* ── Breaking News / Ticker API ────────────────────────────── */
+
+app.get("/api/ticker", async () => {
+  return { items: getTickerItems() };
+});
+
+app.get("/api/admin/breaking-news", async (request, reply) => {
+  if (!isRequestAdmin(request)) { reply.code(401); return { error: "Unauthorized" }; }
+  const pending = db.prepare(
+    `SELECT id, headline, snippet, source, url, show_id, show_name, score, status, created_at
+     FROM breaking_news WHERE status = 'pending' ORDER BY score DESC, created_at DESC`
+  ).all();
+  const autoPublished = db.prepare(
+    `SELECT id, headline, snippet, source, url, show_id, show_name, score, status, created_at
+     FROM breaking_news WHERE status IN ('auto', 'approved') ORDER BY created_at DESC LIMIT 20`
+  ).all();
+  const tickerMsg = db.prepare(`SELECT message FROM admin_ticker_message WHERE id = 1`).get() as { message: string | null } | undefined;
+  return { pending, autoPublished, tickerMessage: tickerMsg?.message || null };
+});
+
+app.post("/api/admin/breaking-news/:id/approve", async (request, reply) => {
+  if (!isRequestAdmin(request)) { reply.code(401); return { error: "Unauthorized" }; }
+  const { id } = request.params as { id: string };
+  db.prepare(`UPDATE breaking_news SET status = 'approved' WHERE id = ? AND status = 'pending'`).run(id);
+  return { ok: true };
+});
+
+app.post("/api/admin/breaking-news/:id/dismiss", async (request, reply) => {
+  if (!isRequestAdmin(request)) { reply.code(401); return { error: "Unauthorized" }; }
+  const { id } = request.params as { id: string };
+  db.prepare(`UPDATE breaking_news SET status = 'dismissed' WHERE id = ?`).run(id);
+  return { ok: true };
+});
+
+app.put("/api/admin/ticker-message", async (request, reply) => {
+  if (!isRequestAdmin(request)) { reply.code(401); return { error: "Unauthorized" }; }
+  const { message } = (request.body ?? {}) as { message?: string };
+  db.prepare(`UPDATE admin_ticker_message SET message = ?, updated_at = datetime('now') WHERE id = 1`).run(message || null);
+  return { ok: true, message: message || null };
+});
+
+app.get("/api/shows/:showId/news", async (request, reply) => {
+  const showId = Number((request.params as { showId: string }).showId);
+  if (!Number.isFinite(showId)) { reply.code(400); return { error: "Invalid show id" }; }
+  const items = db.prepare(
+    `SELECT id, headline, snippet, source, url, created_at AS createdAt
+     FROM breaking_news
+     WHERE show_id = ? AND status IN ('auto', 'approved') AND created_at > datetime('now', '-48 hours')
+     ORDER BY created_at DESC LIMIT 15`
+  ).all(showId);
+  return { items };
+});
+
+app.post("/api/admin/rss-poll", async (request, reply) => {
+  if (!isRequestAdmin(request)) { reply.code(401); return { error: "Unauthorized" }; }
+  const result = await pollRssFeeds();
+  return result;
+});
+
+/* ── Notification Preferences API ─────────────────────────── */
+
+app.get("/api/notification-preferences", async (request, reply) => {
+  const userId = sessionUserIdFromRequest(request);
+  if (!userId) { reply.code(401); return { error: "Unauthorized" }; }
+  let prefs = db.prepare(`SELECT * FROM notification_preferences WHERE user_id = ?`).get(userId) as Record<string, unknown> | undefined;
+  if (!prefs) {
+    db.prepare(`INSERT OR IGNORE INTO notification_preferences (user_id) VALUES (?)`).run(userId);
+    prefs = db.prepare(`SELECT * FROM notification_preferences WHERE user_id = ?`).get(userId) as Record<string, unknown>;
+  }
+  return { prefs };
+});
+
+app.patch("/api/notification-preferences", async (request, reply) => {
+  const userId = sessionUserIdFromRequest(request);
+  if (!userId) { reply.code(401); return { error: "Unauthorized" }; }
+  db.prepare(`INSERT OR IGNORE INTO notification_preferences (user_id) VALUES (?)`).run(userId);
+  const body = (request.body ?? {}) as Record<string, unknown>;
+  const allowed = ["episode_airs", "dm_message", "mention_in_thread", "thread_reply", "show_breaking_news", "live_room_opens", "task_added", "still_watching_days"];
+  const sets: string[] = [];
+  const vals: unknown[] = [];
+  for (const key of allowed) {
+    if (key in body) {
+      sets.push(`${key} = ?`);
+      vals.push(typeof body[key] === "number" ? body[key] : body[key] ? 1 : 0);
+    }
+  }
+  if (sets.length > 0) {
+    vals.push(userId);
+    db.prepare(`UPDATE notification_preferences SET ${sets.join(", ")} WHERE user_id = ?`).run(...vals);
+  }
+  const prefs = db.prepare(`SELECT * FROM notification_preferences WHERE user_id = ?`).get(userId);
+  return { prefs };
+});
+
+/* ── User Follow API ────────────────────────────────────── */
+
+app.post("/api/users/:userId/follow", async (request, reply) => {
+  const followerId = sessionUserIdFromRequest(request);
+  if (!followerId) { reply.code(401); return { error: "Unauthorized" }; }
+  const { userId } = request.params as { userId: string };
+  if (followerId === userId) { reply.code(400); return { error: "Cannot follow yourself" }; }
+  db.prepare(`INSERT OR IGNORE INTO user_follows (follower_id, followed_id) VALUES (?, ?)`).run(followerId, userId);
+  return { ok: true, following: true };
+});
+
+app.delete("/api/users/:userId/follow", async (request, reply) => {
+  const followerId = sessionUserIdFromRequest(request);
+  if (!followerId) { reply.code(401); return { error: "Unauthorized" }; }
+  const { userId } = request.params as { userId: string };
+  db.prepare(`DELETE FROM user_follows WHERE follower_id = ? AND followed_id = ?`).run(followerId, userId);
+  return { ok: true, following: false };
+});
+
+app.get("/api/users/:userId/follow-status", async (request, reply) => {
+  const viewerId = sessionUserIdFromRequest(request);
+  if (!viewerId) return { following: false, followerCount: 0, followingCount: 0 };
+  const { userId } = request.params as { userId: string };
+  const isFollowing = db.prepare(`SELECT 1 FROM user_follows WHERE follower_id = ? AND followed_id = ?`).get(viewerId, userId);
+  const followerCount = (db.prepare(`SELECT COUNT(*) as c FROM user_follows WHERE followed_id = ?`).get(userId) as { c: number }).c;
+  const followingCount = (db.prepare(`SELECT COUNT(*) as c FROM user_follows WHERE follower_id = ?`).get(userId) as { c: number }).c;
+  return { following: !!isFollowing, followerCount, followingCount };
+});
+
+/* ── Google News RSS for top followed shows ────────────── */
+
+app.get("/api/admin/google-news-poll", async (request, reply) => {
+  if (!isRequestAdmin(request)) { reply.code(401); return { error: "Unauthorized" }; }
+  const { pollGoogleNewsForTopShows } = await import("./breakingNews.js");
+  const result = await pollGoogleNewsForTopShows();
+  return result;
 });
 
 app.post("/api/users", async (request, reply) => {
@@ -2934,6 +3073,7 @@ app.get("/api/community/threads/:showId/posts", async (request, reply) => {
     episodeScope === "general" ? "p.tvmaze_episode_id IS NULL" : "p.tvmaze_episode_id = ?";
   const sql = `SELECT p.id, p.user_id, p.tvmaze_show_id, p.show_name, p.tvmaze_episode_id, p.episode_label,
               p.body_html, p.is_spoiler, p.created_at, p.edited_at, p.edited_by_user_id,
+              p.parent_post_id, p.tag,
               au.display_name AS authorDisplayName, au.username AS authorUsername, au.avatar_data_url AS authorAvatarDataUrl,
               eu.display_name AS editorDisplayName, eu.username AS editorUsername
        FROM community_posts p
@@ -3493,6 +3633,8 @@ app.post("/api/community/posts", async (request, reply) => {
     isSpoiler?: boolean;
     tvmazeEpisodeId?: number | null;
     episodeLabel?: string | null;
+    parentPostId?: string | null;
+    tag?: string | null;
   };
   const tvmazeShowId = Number(body.tvmazeShowId);
   if (!Number.isInteger(tvmazeShowId) || tvmazeShowId < 1) {
@@ -3530,10 +3672,14 @@ app.post("/api/community/posts", async (request, reply) => {
   const showName = showDetail.name?.trim() || "Unknown show";
   const id = uuidv4();
   const isSpoiler = body.isSpoiler === true ? 1 : 0;
+  const parentPostId = typeof body.parentPostId === "string" && body.parentPostId.trim() ? body.parentPostId.trim() : null;
+  const allowedTags = ["theory", "spoiler-free", "hot-take"];
+  const tag = typeof body.tag === "string" && allowedTags.includes(body.tag) ? body.tag : null;
+
   db.prepare(
-    `INSERT INTO community_posts (id, user_id, tvmaze_show_id, show_name, tvmaze_episode_id, episode_label, body_html, is_spoiler)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).run(id, uid, tvmazeShowId, showName, tvmazeEpisodeId, episodeLabel, bodyHtml, isSpoiler);
+    `INSERT INTO community_posts (id, user_id, tvmaze_show_id, show_name, tvmaze_episode_id, episode_label, body_html, is_spoiler, parent_post_id, tag)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(id, uid, tvmazeShowId, showName, tvmazeEpisodeId, episodeLabel, bodyHtml, isSpoiler, parentPostId, tag);
 
   const author = db
     .prepare(`SELECT display_name, username FROM users WHERE id = ?`)
@@ -3556,11 +3702,25 @@ app.post("/api/community/posts", async (request, reply) => {
     showName,
     tvmazeEpisodeId,
   });
+  if (parentPostId) {
+    const parentPost = db.prepare(`SELECT user_id FROM community_posts WHERE id = ?`).get(parentPostId) as { user_id: string } | undefined;
+    if (parentPost && parentPost.user_id !== uid) {
+      const url = tvmazeEpisodeId != null
+        ? `/?communityShow=${tvmazeShowId}&communityEpisode=${tvmazeEpisodeId}`
+        : `/?communityShow=${tvmazeShowId}`;
+      await sendWebPushToUser(parentPost.user_id, {
+        title: "New reply to your post",
+        body: `${authorLabel} replied to your post in ${showName}`,
+        url,
+      }, { kind: "communityThreadNewPost" });
+    }
+  }
 
   const row = db
     .prepare(
       `SELECT p.id, p.user_id, p.tvmaze_show_id, p.show_name, p.tvmaze_episode_id, p.episode_label,
               p.body_html, p.is_spoiler, p.created_at, p.edited_at, p.edited_by_user_id,
+              p.parent_post_id, p.tag,
               au.display_name AS authorDisplayName, au.username AS authorUsername, au.avatar_data_url AS authorAvatarDataUrl,
               eu.display_name AS editorDisplayName, eu.username AS editorUsername
        FROM community_posts p
@@ -4313,7 +4473,19 @@ app.get("/api/community/users/:userId/profile", async (request, reply) => {
     viewerCompatibility = computeViewerShowCompatibility(viewerId, userId);
   }
 
-  return { ...row, watchStats, viewerCompatibility };
+  const postsCount = (db.prepare(
+    `SELECT COUNT(*) as c FROM community_posts WHERE user_id = ? AND deleted_at IS NULL`
+  ).get(userId) as { c: number }).c;
+
+  const recentPosts = db.prepare(
+    `SELECT cp.id, cp.show_name AS showName, cp.episode_label AS episodeLabel,
+            cp.body_html AS bodyHtml, cp.created_at AS createdAt, cp.tvmaze_show_id AS tvmazeShowId
+     FROM community_posts cp
+     WHERE cp.user_id = ? AND cp.deleted_at IS NULL
+     ORDER BY cp.created_at DESC LIMIT 3`
+  ).all(userId);
+
+  return { ...row, watchStats, viewerCompatibility, postsCount, recentPosts };
 });
 
 app.get("/calendar/:filename", async (request, reply) => {
@@ -4446,8 +4618,28 @@ cron.schedule("5 * * * *", async () => {
     if (nudges > 0) {
       app.log.info({ count: nudges }, "task nudge pushes sent");
     }
+    await refreshAllCastCache();
   } catch (err) {
     app.log.error(err, "scheduled job failed");
+  }
+});
+
+cron.schedule("15,45 * * * *", async () => {
+  try {
+    const result = await pollRssFeeds();
+    app.log.info(result, "RSS poll completed");
+  } catch (err) {
+    app.log.error(err, "RSS poll job failed");
+  }
+});
+
+cron.schedule("30 */6 * * *", async () => {
+  try {
+    const { pollGoogleNewsForTopShows } = await import("./breakingNews.js");
+    const result = await pollGoogleNewsForTopShows();
+    app.log.info(result, "Google News poll completed");
+  } catch (err) {
+    app.log.error(err, "Google News poll failed");
   }
 });
 

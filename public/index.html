@@ -902,6 +902,7 @@
         overflow-x: hidden;
         overscroll-behavior: contain;
         overscroll-behavior-x: none;
+        touch-action: pan-y;
         padding-bottom: 3.5rem;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
@@ -3681,6 +3682,369 @@
         flex-wrap: wrap;
         margin-bottom: 0.35rem;
       }
+      /* ── Breaking News Ticker ── */
+      .community-ticker {
+        overflow: hidden;
+        white-space: nowrap;
+        margin: 0.45rem 0 0.65rem;
+        padding: 0.5rem 0;
+        border-top: 1px solid rgba(79, 195, 247, 0.15);
+        border-bottom: 1px solid rgba(79, 195, 247, 0.15);
+        background: rgba(3, 5, 8, 0.6);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+        border-radius: 10px;
+        position: relative;
+      }
+      .community-ticker-track {
+        display: inline-flex;
+        gap: 0;
+        animation: ticker-scroll 40s linear infinite;
+        will-change: transform;
+      }
+      .community-ticker:hover .community-ticker-track,
+      .community-ticker:active .community-ticker-track {
+        animation-play-state: paused;
+      }
+      .community-ticker-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0 0.85rem;
+        font-size: 0.78rem;
+        color: #4fc3f7;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .community-ticker-item a {
+        color: #4fc3f7;
+        text-decoration: none;
+      }
+      .community-ticker-item a:hover {
+        text-decoration: underline;
+      }
+      .community-ticker-source {
+        font-size: 0.65rem;
+        color: rgba(79, 195, 247, 0.55);
+        margin-left: 0.2rem;
+      }
+      .community-ticker-divider {
+        color: rgba(79, 195, 247, 0.35);
+        padding: 0 0.5rem;
+        flex-shrink: 0;
+      }
+      @keyframes ticker-scroll {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+      }
+      /* ── Filter Pills ── */
+      .community-filter-pills {
+        display: flex;
+        gap: 0.4rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        padding: 0.15rem 0 0.65rem;
+        margin: 0 -0.15rem;
+      }
+      .community-filter-pills::-webkit-scrollbar { display: none; }
+      .community-pill {
+        flex-shrink: 0;
+        padding: 0.38rem 0.75rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 0.76rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        -webkit-tap-highlight-color: transparent;
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+      }
+      .community-pill:hover {
+        border-color: rgba(79, 195, 247, 0.25);
+        color: rgba(255, 255, 255, 0.8);
+      }
+      .community-pill.active {
+        background: rgba(79, 195, 247, 0.15);
+        border-color: rgba(79, 195, 247, 0.45);
+        color: #4fc3f7;
+      }
+      /* ── Live Episode Banner ── */
+      .community-live-episode-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.6rem 0.85rem;
+        margin: 0 0 0.65rem;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 230, 118, 0.25);
+        background: linear-gradient(135deg, rgba(0, 230, 118, 0.08), rgba(8, 14, 28, 0.55));
+        animation: live-banner-pulse 2.5s ease-in-out infinite;
+      }
+      .community-live-episode-banner[hidden] { display: none !important; }
+      @keyframes live-banner-pulse {
+        0%, 100% { box-shadow: 0 0 12px rgba(0, 230, 118, 0.08); }
+        50% { box-shadow: 0 0 24px rgba(0, 230, 118, 0.2); }
+      }
+      .community-live-episode-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #00e676;
+        flex-shrink: 0;
+        animation: live-dot-pulse 1.4s ease-in-out infinite;
+      }
+      @keyframes live-dot-pulse {
+        0%, 100% { opacity: 0.55; }
+        50% { opacity: 1; }
+      }
+      .community-live-episode-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .community-live-episode-info strong {
+        display: block;
+        font-size: 0.84rem;
+        color: #a7f3d0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .community-live-episode-info .muted {
+        font-size: 0.72rem;
+        color: rgba(167, 243, 208, 0.6);
+      }
+      .community-live-episode-join {
+        flex-shrink: 0;
+        padding: 0.4rem 0.85rem;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 230, 118, 0.4);
+        background: rgba(0, 230, 118, 0.12);
+        color: #a7f3d0;
+        font-size: 0.78rem;
+        font-weight: 700;
+        cursor: pointer;
+        min-height: 36px;
+        transition: background 0.15s ease;
+      }
+      .community-live-episode-join:hover {
+        background: rgba(0, 230, 118, 0.22);
+      }
+      /* ── Show News ── */
+      .community-show-news-panel {
+        margin: 0 0 0.65rem;
+        padding: 0.65rem 0.85rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .community-show-news-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+      .community-show-news-item {
+        display: block;
+        padding: 0.55rem 0.7rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.15s ease;
+      }
+      .community-show-news-item:hover {
+        border-color: rgba(79, 195, 247, 0.3);
+      }
+      .community-show-news-headline {
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: var(--text);
+        margin: 0 0 0.2rem;
+        line-height: 1.35;
+      }
+      .community-show-news-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.7rem;
+        color: var(--muted);
+      }
+      .community-show-news-source {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.2rem;
+        padding: 0.1rem 0.4rem;
+        border-radius: 6px;
+        background: rgba(79, 195, 247, 0.12);
+        color: #7dd3fc;
+        font-size: 0.65rem;
+        font-weight: 600;
+      }
+      .community-show-news-readmore {
+        color: #4fc3f7;
+        font-weight: 600;
+      }
+      /* ── @mention autocomplete ── */
+      .community-mention-dropdown {
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        right: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        background: rgba(8, 12, 20, 0.95);
+        border: 1px solid rgba(79, 195, 247, 0.25);
+        border-radius: 10px;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        z-index: 50;
+        margin-bottom: 0.3rem;
+      }
+      .community-mention-dropdown[hidden] { display: none !important; }
+      .community-mention-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        cursor: pointer;
+        font-size: 0.84rem;
+        color: var(--text);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        min-height: 44px;
+      }
+      .community-mention-item:last-child { border-bottom: none; }
+      .community-mention-item:hover,
+      .community-mention-item.active {
+        background: rgba(79, 195, 247, 0.1);
+      }
+      .community-mention-item .mention-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        object-fit: cover;
+      }
+      .community-mention-item .mention-avatar-ph {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: rgba(79, 195, 247, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #7dd3fc;
+      }
+      .community-mention-name {
+        font-weight: 600;
+      }
+      .community-mention-username {
+        color: var(--muted);
+        font-size: 0.76rem;
+      }
+      /* ── Reply threading ── */
+      .community-post-reply-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.72rem;
+        color: rgba(79, 195, 247, 0.7);
+        margin-bottom: 0.3rem;
+        padding-left: 0.15rem;
+      }
+      .community-post-card.is-reply {
+        margin-left: 1.5rem;
+        border-left: 2px solid rgba(79, 195, 247, 0.2);
+        padding-left: 0.75rem;
+      }
+      .community-reply-context {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.15rem 0.45rem;
+        border-radius: 6px;
+        background: rgba(79, 195, 247, 0.08);
+        border: 1px solid rgba(79, 195, 247, 0.15);
+        font-size: 0.68rem;
+        color: rgba(79, 195, 247, 0.75);
+        margin-bottom: 0.35rem;
+        cursor: default;
+      }
+      /* ── Show sub-tabs ── */
+      .community-show-subtabs {
+        display: flex;
+        gap: 0;
+        margin: 0 0 0.65rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        overflow: hidden;
+      }
+      .community-show-subtab {
+        flex: 1;
+        padding: 0.45rem 0.3rem;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.72rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.15s ease;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-right: 1px solid rgba(255, 255, 255, 0.04);
+      }
+      .community-show-subtab:last-child { border-right: none; }
+      .community-show-subtab:hover {
+        color: rgba(255, 255, 255, 0.75);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .community-show-subtab.active {
+        background: rgba(79, 195, 247, 0.12);
+        color: #4fc3f7;
+      }
+      /* ── Follow button ── */
+      .community-profile-follow-bar {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        align-items: center;
+      }
+      .community-profile-follow-btn {
+        padding: 0.4rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        border: 1px solid rgba(79, 195, 247, 0.35);
+        background: rgba(79, 195, 247, 0.1);
+        color: #4fc3f7;
+        transition: all 0.15s ease;
+        min-height: 38px;
+      }
+      .community-profile-follow-btn:hover {
+        background: rgba(79, 195, 247, 0.2);
+      }
+      .community-profile-follow-btn.following {
+        background: rgba(79, 195, 247, 0.2);
+        border-color: rgba(79, 195, 247, 0.5);
+      }
+      .community-profile-follow-stats {
+        font-size: 0.74rem;
+        color: var(--muted);
+      }
       .header-cyan-glow {
         margin-bottom: 0 !important;
       }
@@ -4016,24 +4380,26 @@
         text-align: left;
         padding: 0.85rem 1rem;
         border-radius: 14px;
-        border: 1px solid rgba(130, 200, 255, 0.14);
-        background: rgba(10, 12, 20, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
         color: inherit;
         font: inherit;
         cursor: pointer;
         touch-action: manipulation;
-        box-shadow: none;
-        transition: border-color 0.15s ease, background 0.15s ease;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+        transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s cubic-bezier(0.16,1,0.3,1), box-shadow 0.2s ease;
+        min-height: 44px;
       }
       .community-thread-card:hover {
-        border-color: rgba(34, 211, 238, 0.28);
-        background: rgba(18, 26, 42, 0.88);
-        box-shadow: none;
-        filter: none;
-        transform: none;
+        border-color: rgba(79, 195, 247, 0.35);
+        background: rgba(255, 255, 255, 0.07);
+        box-shadow: 0 4px 20px rgba(79, 195, 247, 0.1), 0 2px 12px rgba(0, 0, 0, 0.25);
+        transform: translateY(-2px);
       }
       .community-thread-card:active:not(:disabled) {
-        transform: none;
+        transform: translateY(0);
       }
       .community-thread-card--episode {
         border-left: 3px solid rgba(251, 113, 133, 0.65);
@@ -4082,6 +4448,40 @@
         margin: 0 0 0.35rem;
         line-height: 1.25;
         color: var(--text);
+      }
+      .community-thread-badge-hot,
+      .community-thread-badge-new {
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 0.15rem 0.45rem;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+      }
+      .community-thread-badge-hot {
+        background: rgba(255, 64, 129, 0.18);
+        color: #ff4081;
+        border: 1px solid rgba(255, 64, 129, 0.3);
+      }
+      .community-thread-badge-new {
+        background: rgba(255, 171, 64, 0.18);
+        color: #ffab40;
+        border: 1px solid rgba(255, 171, 64, 0.3);
+      }
+      .community-thread-footer {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-top: 0.45rem;
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+      .community-thread-footer-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
       }
       .community-thread-ep-line {
         font-size: 0.8rem;
@@ -6229,6 +6629,32 @@
               <h2 class="section-header-highlight header-cyan-glow" style="margin-top: 0">Community</h2>
               <span class="community-live-badge" aria-hidden="true">● LIVE</span>
             </div>
+
+            <!-- Breaking News Ticker -->
+            <div class="community-ticker" id="communityTicker" hidden>
+              <div class="community-ticker-track" id="communityTickerTrack"></div>
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="community-filter-pills" id="communityFilterPills">
+              <button type="button" class="community-pill active" data-filter="all">All</button>
+              <button type="button" class="community-pill" data-filter="following">Following</button>
+              <button type="button" class="community-pill" data-filter="live">● Live</button>
+              <button type="button" class="community-pill" data-filter="theories">Theories</button>
+              <button type="button" class="community-pill" data-filter="spoiler-free">Spoiler-Free</button>
+              <button type="button" class="community-pill" data-filter="hot">Hot Takes</button>
+            </div>
+
+            <!-- Live Episode Banner -->
+            <div class="community-live-episode-banner" id="communityLiveEpisodeBanner" hidden>
+              <div class="community-live-episode-dot"></div>
+              <div class="community-live-episode-info">
+                <strong id="communityLiveEpisodeTitle">—</strong>
+                <span class="muted" id="communityLiveEpisodeViewers"></span>
+              </div>
+              <button type="button" class="community-live-episode-join" id="communityLiveEpisodeJoinBtn">Join</button>
+            </div>
+
             <div class="community-find-friend" id="communityFindFriend" aria-label="Find a friend">
               <div class="community-find-friend-field">
                 <label for="communityFindFriendInput" class="visually-hidden">Search username</label>
@@ -6313,6 +6739,14 @@
                   </div>
                 </div>
               </header>
+              <!-- Show Sub-Tabs -->
+              <div class="community-show-subtabs" id="communityShowSubtabs">
+                <button type="button" class="community-show-subtab active" data-subtab="discussion">Discussion</button>
+                <button type="button" class="community-show-subtab" data-subtab="theories">Theories</button>
+                <button type="button" class="community-show-subtab" data-subtab="spoiler-free">Spoiler-Free</button>
+                <button type="button" class="community-show-subtab" data-subtab="poll">Poll</button>
+                <button type="button" class="community-show-subtab" data-subtab="news">News</button>
+              </div>
               <details class="community-catchup-panel" id="communityCatchUpPanel" hidden>
                 <summary class="community-catchup-summary">Spoiler-safe mode</summary>
                 <div class="community-catchup-panel-inner">
@@ -6341,6 +6775,11 @@
                   <select id="communityRatingsSeasonSelect" class="community-ratings-season-select"></select>
                 </div>
                 <div id="communityRatingsChartSvg" class="community-sentiment-chart-svg" role="img" aria-label="Ratings chart"></div>
+              </section>
+              <section class="community-show-news-panel" id="communityShowNewsPanel" hidden aria-label="Show news">
+                <h3 class="community-polls-heading">Breaking News</h3>
+                <div id="communityShowNewsList" class="community-show-news-list"></div>
+                <p class="muted" id="communityShowNewsEmpty" hidden style="font-size: 0.82rem; margin: 0">No breaking news for this show yet.</p>
               </section>
               <div class="community-live-air-banner" id="communityLiveAirNightBanner" hidden role="status">
                 <span class="community-live-air-banner-dot" aria-hidden="true">●</span>
@@ -6381,7 +6820,8 @@
               </section>
               <div class="community-thread-main-row" id="communityThreadMainRow">
                 <div class="community-thread-main-col" id="communityThreadMainCol">
-              <div class="community-show-composer-shell">
+              <div class="community-show-composer-shell" style="position:relative">
+                <div class="community-mention-dropdown" id="communityMentionDropdown" hidden></div>
                 <div class="community-composer-wrap" id="communityComposerWrap">
               <p class="muted community-post-as" id="communityPostAsLine" hidden>Post as <strong id="communityPostAsName">—</strong></p>
               <p class="muted community-guest-hint" id="communityGuestHint" hidden>
@@ -6412,6 +6852,18 @@
                   <input type="checkbox" id="communityComposerSpoiler" />
                   Spoiler
                 </label>
+                <label class="community-ep-label" style="margin-left:auto">
+                  <select id="communityPostTagSelect" style="padding:0.3rem 0.5rem;border-radius:8px;border:1px solid rgba(130,200,255,0.18);background:rgba(0,0,0,0.3);color:inherit;font:inherit;font-size:0.78rem">
+                    <option value="">No tag</option>
+                    <option value="theory">Theory</option>
+                    <option value="spoiler-free">Spoiler-Free</option>
+                    <option value="hot-take">Hot Take</option>
+                  </select>
+                </label>
+              </div>
+              <div id="communityReplyIndicator" class="community-post-reply-indicator" hidden>
+                Replying to <strong id="communityReplyToName">—</strong>
+                <button type="button" style="background:none;border:none;color:#ff4081;cursor:pointer;font-size:0.78rem;padding:0 0.3rem" id="communityReplyCancelBtn">✕</button>
               </div>
               <button type="button" id="communityPostSubmitBtn">Post</button>
               <p class="muted msg" id="communityComposerMsg" style="margin-top: 0.5rem"></p>
@@ -6578,7 +7030,11 @@
           </div>
           <div class="community-member-profile-scroll">
             <div id="communityMemberProfileBody" class="community-member-profile-body"></div>
-            <button type="button" id="communityMemberProfileDmBtn" class="secondary" style="margin-top: 0.65rem; width: 100%">
+            <div class="community-profile-follow-bar" id="communityProfileFollowBar" hidden>
+              <button type="button" class="community-profile-follow-btn" id="communityProfileFollowBtn">Follow</button>
+              <span class="community-profile-follow-stats" id="communityProfileFollowStats"></span>
+            </div>
+            <button type="button" id="communityMemberProfileDmBtn" class="secondary" style="margin-top: 0.45rem; width: 100%">
               Direct message
             </button>
             <p class="muted" id="communityMemberProfileDmHint" hidden style="margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.4">
@@ -6709,6 +7165,30 @@
           <h2 class="section-header-highlight header-gold" style="margin-top: 0">Admin</h2>
           <button type="button" class="secondary" id="adminRefreshBtn">Refresh data</button>
           <div id="adminTotals" class="admin-stats-grid" aria-live="polite"></div>
+          <details class="admin-mod-log-details">
+            <summary class="section-header-highlight header-gold admin-mod-log-summary">
+              Breaking news manager
+            </summary>
+            <div style="margin-bottom: 0.75rem">
+              <label for="adminTickerMessageInput" style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.35rem; display: block">Manual Ticker Message</label>
+              <div style="display: flex; gap: 0.4rem; align-items: stretch">
+                <input type="text" id="adminTickerMessageInput" maxlength="300" placeholder="Breaking news that appears immediately for all users..." style="flex: 1; min-width: 0; padding: 0.5rem 0.65rem; border-radius: 10px; border: 1px solid rgba(130,200,255,0.22); background: rgba(0,0,0,0.35); color: inherit; font: inherit; box-sizing: border-box" />
+                <button type="button" class="secondary" id="adminTickerMessageSaveBtn" style="margin: 0; white-space: nowrap">Save</button>
+                <button type="button" class="secondary" id="adminTickerMessageClearBtn" style="margin: 0; white-space: nowrap">Clear</button>
+              </div>
+            </div>
+            <div style="margin-bottom: 0.75rem">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem">
+                <strong style="font-size: 0.8rem">Pending Review</strong>
+                <button type="button" class="secondary" id="adminRssPollBtn" style="margin: 0; font-size: 0.72rem; padding: 0.3rem 0.55rem">Poll RSS Now</button>
+              </div>
+              <div id="adminBreakingNewsPending" class="admin-accounts-host"></div>
+            </div>
+            <div>
+              <strong style="font-size: 0.8rem; display: block; margin-bottom: 0.35rem">Auto-Published / Approved</strong>
+              <div id="adminBreakingNewsPublished" class="admin-accounts-host"></div>
+            </div>
+          </details>
           <details class="admin-mod-log-details">
             <summary class="section-header-highlight header-gold admin-mod-log-summary">
               User accounts
@@ -6949,6 +7429,18 @@
                 <span
                   ><strong>People you follow</strong> — new show added to their TVMaze credits (cast or crew)</span
                 >
+              </label>
+              <label class="push-pref-row" style="display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; font-size: 0.88rem; line-height: 1.4">
+                <input type="checkbox" id="pushPrefShowBreakingNews" checked style="margin-top: 0.15rem" />
+                <span>Breaking news about a show you follow</span>
+              </label>
+              <label class="push-pref-row" style="display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; font-size: 0.88rem; line-height: 1.4">
+                <input type="checkbox" id="pushPrefLiveRoomOpens" checked style="margin-top: 0.15rem" />
+                <span>Live episode room opens for a show you follow</span>
+              </label>
+              <label class="push-pref-row" style="display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; font-size: 0.88rem; line-height: 1.4">
+                <input type="checkbox" id="pushPrefTaskAdded" checked style="margin-top: 0.15rem" />
+                <span>When a task is added to your list</span>
               </label>
             </div>
             <div style="margin-bottom: 0.75rem">
@@ -7440,6 +7932,16 @@
         }
         applyPushPrefsToForm(u.pushPrefs);
         syncProfileIdentityFromUser(u);
+        try {
+          const np = await api("/api/notification-preferences");
+          if (np.prefs) {
+            const p = np.prefs;
+            const set = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+            set("pushPrefShowBreakingNews", p.show_breaking_news);
+            set("pushPrefLiveRoomOpens", p.live_room_opens);
+            set("pushPrefTaskAdded", p.task_added);
+          }
+        } catch {}
       }
 
       async function saveProfileInfo(userId) {
@@ -7545,6 +8047,16 @@
           taskStillWatching: document.getElementById("pushPrefTaskStillWatching").checked,
           personNewProject: document.getElementById("pushPrefPersonNewProject").checked,
         };
+        const notifPrefs = {
+          episode_airs: document.getElementById("pushPrefEpisodeAirsToday").checked ? 1 : 0,
+          dm_message: document.getElementById("pushPrefDmMessage").checked ? 1 : 0,
+          mention_in_thread: document.getElementById("pushPrefCommunityMention").checked ? 1 : 0,
+          thread_reply: document.getElementById("pushPrefCommunityThreadNewPost").checked ? 1 : 0,
+          show_breaking_news: document.getElementById("pushPrefShowBreakingNews")?.checked ? 1 : 0,
+          live_room_opens: document.getElementById("pushPrefLiveRoomOpens")?.checked ? 1 : 0,
+          task_added: document.getElementById("pushPrefTaskAdded")?.checked ? 1 : 0,
+          still_watching_days: taskNudgeDaysAfterAir ?? 0,
+        };
         try {
           await api("/api/users/" + encodeURIComponent(userId), {
             method: "PATCH",
@@ -7553,6 +8065,10 @@
               taskNudgeDaysAfterAir,
               reminderHourLocal: Number(document.getElementById("hour").value),
             }),
+          });
+          await api("/api/notification-preferences", {
+            method: "PATCH",
+            body: JSON.stringify(notifPrefs),
           });
           await loadUser(userId);
           if (msg) msg.textContent = "Notification preferences saved.";
@@ -9349,6 +9865,97 @@
         }
       }
 
+      async function loadAdminBreakingNews() {
+        try {
+          const data = await api("/api/admin/breaking-news");
+          const tickerInput = document.getElementById("adminTickerMessageInput");
+          if (tickerInput && data.tickerMessage) tickerInput.value = data.tickerMessage;
+
+          const pendingHost = document.getElementById("adminBreakingNewsPending");
+          if (pendingHost) {
+            pendingHost.innerHTML = "";
+            const items = data.pending || [];
+            if (!items.length) {
+              pendingHost.innerHTML = "<p class=\"muted\" style=\"font-size:0.78rem\">No items pending review.</p>";
+            }
+            for (const item of items) {
+              const card = document.createElement("div");
+              card.className = "admin-account-item";
+              card.style.padding = "0.6rem 0.75rem";
+              card.innerHTML =
+                "<div class=\"admin-account-summary-row\">" +
+                "<span class=\"admin-account-name\" style=\"font-size:0.82rem\">" + escapeHtml(item.headline) + "</span>" +
+                "<span style=\"font-size:0.68rem;color:var(--muted)\">Score: " + item.score + "</span>" +
+                "</div>" +
+                "<div class=\"admin-account-summary-meta\">" +
+                "via " + escapeHtml(item.source) +
+                (item.show_name ? " \u00b7 " + escapeHtml(item.show_name) : "") +
+                "</div>";
+              const actions = document.createElement("div");
+              actions.style.cssText = "display:flex;gap:0.35rem;margin-top:0.4rem";
+              const approveBtn = document.createElement("button");
+              approveBtn.type = "button";
+              approveBtn.className = "secondary";
+              approveBtn.textContent = "Approve";
+              approveBtn.style.cssText = "margin:0;font-size:0.72rem;padding:0.25rem 0.5rem";
+              approveBtn.addEventListener("click", async () => {
+                await api("/api/admin/breaking-news/" + item.id + "/approve", { method: "POST", body: "{}" });
+                showToast("Approved");
+                loadAdminBreakingNews();
+              });
+              const dismissBtn = document.createElement("button");
+              dismissBtn.type = "button";
+              dismissBtn.className = "secondary";
+              dismissBtn.textContent = "Dismiss";
+              dismissBtn.style.cssText = "margin:0;font-size:0.72rem;padding:0.25rem 0.5rem";
+              dismissBtn.addEventListener("click", async () => {
+                await api("/api/admin/breaking-news/" + item.id + "/dismiss", { method: "POST", body: "{}" });
+                showToast("Dismissed");
+                loadAdminBreakingNews();
+              });
+              actions.appendChild(approveBtn);
+              actions.appendChild(dismissBtn);
+              card.appendChild(actions);
+              pendingHost.appendChild(card);
+            }
+          }
+
+          const pubHost = document.getElementById("adminBreakingNewsPublished");
+          if (pubHost) {
+            pubHost.innerHTML = "";
+            const items = data.autoPublished || [];
+            if (!items.length) {
+              pubHost.innerHTML = "<p class=\"muted\" style=\"font-size:0.78rem\">No published items yet.</p>";
+            }
+            for (const item of items) {
+              const card = document.createElement("div");
+              card.className = "admin-account-item";
+              card.style.padding = "0.6rem 0.75rem";
+              card.innerHTML =
+                "<div class=\"admin-account-summary-row\">" +
+                "<span class=\"admin-account-name\" style=\"font-size:0.82rem\">" + escapeHtml(item.headline) + "</span>" +
+                "<span style=\"font-size:0.62rem;padding:0.1rem 0.3rem;border-radius:4px;background:rgba(34,211,238,0.15);color:#7dd3fc\">" + item.status + "</span>" +
+                "</div>" +
+                "<div class=\"admin-account-summary-meta\">via " + escapeHtml(item.source) + " \u00b7 Score: " + item.score + "</div>";
+              const dismissBtn = document.createElement("button");
+              dismissBtn.type = "button";
+              dismissBtn.className = "secondary";
+              dismissBtn.textContent = "Dismiss";
+              dismissBtn.style.cssText = "margin:0.35rem 0 0;font-size:0.72rem;padding:0.25rem 0.5rem";
+              dismissBtn.addEventListener("click", async () => {
+                await api("/api/admin/breaking-news/" + item.id + "/dismiss", { method: "POST", body: "{}" });
+                showToast("Dismissed");
+                loadAdminBreakingNews();
+              });
+              card.appendChild(dismissBtn);
+              pubHost.appendChild(card);
+            }
+          }
+        } catch (e) {
+          console.error("Failed to load breaking news admin:", e);
+        }
+      }
+
       function formatAirDate(airdate, airtime) {
         if (!airdate) return "TBA";
         const parts = airdate.split("-").map(Number);
@@ -10092,6 +10699,8 @@
         if (ccv) ccv.classList.add("hidden");
         loadCommunityThreads();
         void loadCommunityChallenges();
+        void loadCommunityTicker();
+        void loadLiveEpisodeBanner();
       }
 
       async function loadCommunityChallenges() {
@@ -10361,6 +10970,139 @@
         }
       }
 
+      /* ── Breaking News Ticker ── */
+      async function loadCommunityTicker() {
+        const ticker = document.getElementById("communityTicker");
+        const track = document.getElementById("communityTickerTrack");
+        if (!ticker || !track) return;
+        try {
+          const data = await api("/api/ticker");
+          const items = data.items || [];
+          if (!items.length) { ticker.hidden = true; return; }
+          ticker.hidden = false;
+          const html = items.map(it => {
+            const src = it.source ? '<span class="community-ticker-source">via ' + escapeHtml(it.source) + '</span>' : '';
+            const link = it.url ? '<a href="' + escapeHtml(it.url) + '" target="_blank" rel="noopener">' + escapeHtml(it.text) + '</a>' : escapeHtml(it.text);
+            return '<span class="community-ticker-item">' + it.emoji + ' ' + link + src + '</span>';
+          }).join('<span class="community-ticker-divider">\u2726</span>');
+          track.innerHTML = html + '<span class="community-ticker-divider">\u2726</span>' + html;
+          const totalW = track.scrollWidth / 2;
+          const speed = Math.max(20, totalW / 60);
+          track.style.animationDuration = speed + 's';
+        } catch (e) {
+          ticker.hidden = true;
+        }
+      }
+
+      /* ── Live Episode Banner ── */
+      async function loadLiveEpisodeBanner() {
+        const banner = document.getElementById("communityLiveEpisodeBanner");
+        if (!banner) return;
+        try {
+          const data = await api("/api/subscriptions");
+          const subs = data.subscriptions || [];
+          const now = new Date();
+          let liveShow = null;
+          for (const sub of subs) {
+            if (!sub.episodes) continue;
+            for (const ep of sub.episodes) {
+              if (!ep.airdate) continue;
+              const epDate = new Date(ep.airdate + "T00:00:00");
+              const diffH = (now - epDate) / 3600000;
+              if (diffH >= -3 && diffH <= 24) {
+                const label = "S" + String(ep.season).padStart(2, "0") + "E" + String(ep.number).padStart(2, "0");
+                liveShow = {
+                  title: sub.showName + " — " + label + (diffH >= 0 && diffH <= 3 ? " airing now" : " aired today"),
+                  showId: sub.tvmazeShowId,
+                  showName: sub.showName,
+                };
+                break;
+              }
+            }
+            if (liveShow) break;
+          }
+          if (!liveShow) { banner.hidden = true; return; }
+          banner.hidden = false;
+          document.getElementById("communityLiveEpisodeTitle").textContent = liveShow.title;
+          document.getElementById("communityLiveEpisodeJoinBtn").onclick = () => {
+            openCommunityShowThread(liveShow.showId, liveShow.showName);
+          };
+        } catch {
+          banner.hidden = true;
+        }
+      }
+
+      /* ── Filter Pills ── */
+      let communityActiveFilter = "all";
+      (function initFilterPills() {
+        const pillsHost = document.getElementById("communityFilterPills");
+        if (!pillsHost) return;
+        pillsHost.addEventListener("click", e => {
+          const pill = e.target.closest(".community-pill");
+          if (!pill) return;
+          communityActiveFilter = pill.dataset.filter || "all";
+          pillsHost.querySelectorAll(".community-pill").forEach(p => p.classList.remove("active"));
+          pill.classList.add("active");
+          applyCommunityFilter();
+        });
+      })();
+
+      function applyCommunityFilter() {
+        const cards = document.querySelectorAll("#communityThreadList > li");
+        cards.forEach(li => {
+          const card = li.querySelector(".community-thread-card");
+          if (!card) return;
+          const isEpisode = card.classList.contains("community-thread-card--episode");
+          const isGeneral = card.classList.contains("community-thread-card--general");
+          let show = true;
+          if (communityActiveFilter === "live") {
+            show = card.querySelector(".community-thread-new-ep-badge") != null;
+          } else if (communityActiveFilter === "theories" || communityActiveFilter === "hot") {
+            show = isGeneral;
+          } else if (communityActiveFilter === "spoiler-free") {
+            show = true;
+          }
+          li.style.display = show ? "" : "none";
+        });
+      }
+
+      async function loadShowNews(showId) {
+        const panel = document.getElementById("communityShowNewsPanel");
+        const list = document.getElementById("communityShowNewsList");
+        const empty = document.getElementById("communityShowNewsEmpty");
+        if (!panel || !list) return;
+        try {
+          const data = await api("/api/shows/" + showId + "/news");
+          const items = data.items || [];
+          if (!items.length) {
+            panel.hidden = false;
+            list.innerHTML = "";
+            if (empty) empty.hidden = false;
+            return;
+          }
+          panel.hidden = false;
+          if (empty) empty.hidden = true;
+          list.innerHTML = "";
+          for (const it of items) {
+            const a = document.createElement("a");
+            a.className = "community-show-news-item";
+            a.href = it.url;
+            a.target = "_blank";
+            a.rel = "noopener";
+            a.innerHTML =
+              '<p class="community-show-news-headline">' + escapeHtml(it.headline) + '</p>' +
+              '<div class="community-show-news-meta">' +
+              '<span class="community-show-news-source">via ' + escapeHtml(it.source) + '</span>' +
+              '<span>' + formatCommunityRelativeTime(it.createdAt) + '</span>' +
+              '<span class="community-show-news-readmore">Read more \u2192</span>' +
+              '</div>';
+            list.appendChild(a);
+          }
+        } catch {
+          panel.hidden = true;
+        }
+      }
+
       async function loadCommunityThreads() {
         const listEl = document.getElementById("communityThreadList");
         const errEl = document.getElementById("communityThreadsErr");
@@ -10393,38 +11135,49 @@
             const epTitle = isGeneral
               ? "General discussion"
               : escapeHtml(th.episodeLabel || "Episode");
-            const epLine = isGeneral
-              ? "Show-wide chat · " +
-                th.postCount +
-                " post" +
-                (th.postCount === 1 ? "" : "s") +
-                activeLine
-              : (th.airdate ? "Aired " + escapeHtml(String(th.airdate)) + " · " : "") +
-                th.postCount +
-                " post" +
-                (th.postCount === 1 ? "" : "s") +
-                activeLine;
+            const epTag = isGeneral
+              ? "Show-wide chat"
+              : (th.airdate ? (th.episodeAirsToday ? "Aired Tonight" : escapeHtml(String(th.airdate))) : "");
+            const postLabel = th.postCount + " post" + (th.postCount === 1 ? "" : "s");
+            const timeAgo = th.lastPostAt ? formatCommunityRelativeTime(th.lastPostAt) : "";
+            const isHot = th.postCount > 50;
+            const isNew = th.lastPostAt && (Date.now() - new Date(th.lastPostAt).getTime()) < 1800000;
+            const badges = badge +
+              (isHot ? ' <span class="community-thread-badge-hot">HOT</span>' : '') +
+              (isNew ? ' <span class="community-thread-badge-new">NEW</span>' : '');
             btn.innerHTML =
               '<div class="community-thread-ep-show">' +
               escapeHtml(th.showName || "Show") +
+              (epTag ? ' · ' + epTag : '') +
               "</div>" +
               '<div class="community-thread-card-head">' +
               '<div class="community-thread-ep-title">' +
               epTitle +
               "</div>" +
-              badge +
+              badges +
               "</div>" +
-              '<p class="community-thread-ep-line">' +
-              epLine +
-              "</p>";
+              '<div class="community-thread-footer">' +
+              '<span class="community-thread-footer-stat">\u{1F4AC} ' + postLabel + '</span>' +
+              (timeAgo ? '<span class="community-thread-footer-stat">\u{1F552} ' + timeAgo + '</span>' : '') +
+              "</div>";
             btn.addEventListener("click", () =>
               openCommunityThread(th.tvmazeShowId, th.showName, th.postCount, {
                 episodeId: isGeneral ? null : th.tvmazeEpisodeId,
               }),
             );
             li.appendChild(btn);
+            li.style.opacity = "0";
+            li.style.transform = "translateY(16px)";
             listEl.appendChild(li);
           }
+          listEl.querySelectorAll("li").forEach((li, i) => {
+            setTimeout(() => {
+              li.style.transition = "opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)";
+              li.style.opacity = "1";
+              li.style.transform = "translateY(0)";
+            }, i * 50);
+          });
+          applyCommunityFilter();
         } catch (e) {
           if (errEl) {
             errEl.textContent = e.message || "Could not load threads";
@@ -10461,9 +11214,19 @@
         if (ccv) ccv.classList.add("hidden");
         const sortSel = document.getElementById("communitySortSelect");
         if (sortSel) sortSel.value = communityState.sort;
+        cancelCommunityReply();
+        communityShowActiveSubtab = "discussion";
+        const subtabHost = document.getElementById("communityShowSubtabs");
+        if (subtabHost) {
+          subtabHost.querySelectorAll(".community-show-subtab").forEach(b => b.classList.remove("active"));
+          const disc = subtabHost.querySelector('[data-subtab="discussion"]');
+          if (disc) disc.classList.add("active");
+        }
         await loadCommunityThreadPosts();
         updateCommunityThreadUi();
         ensureCommunityThreadLiveWs();
+        void loadShowNews(showId);
+        applyCommunityShowSubtab();
       }
 
       function updateCommunityThreadUi() {
@@ -10503,21 +11266,218 @@
         sel.addRange(range);
       }
 
+      /* ── Reply Threading ── */
+      let communityReplyToPostId = null;
+      let communityReplyToUsername = null;
+
       function handleCommunityReplyClick(p) {
         if (!accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an account (profile → Your profile) to reply.");
+          showToast("Create an account (profile \u2192 Your profile) to reply.");
           return;
         }
         const un = p.authorUsername && String(p.authorUsername).trim();
-        if (!un) {
-          showToast("This member has no username to tag.");
-          return;
+        communityReplyToPostId = p.id;
+        communityReplyToUsername = un;
+        const indicator = document.getElementById("communityReplyIndicator");
+        const nameEl = document.getElementById("communityReplyToName");
+        if (indicator && nameEl) {
+          nameEl.textContent = un ? "@" + un : (p.authorHandle || "this post");
+          indicator.hidden = false;
         }
-        insertTextAtCommunityComposer("@" + un + " ");
+        if (un) {
+          insertTextAtCommunityComposer("@" + un + " ");
+        }
         const composer = document.getElementById("communityComposer");
         if (composer) {
           composer.focus();
           composer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      }
+
+      function cancelCommunityReply() {
+        communityReplyToPostId = null;
+        communityReplyToUsername = null;
+        const indicator = document.getElementById("communityReplyIndicator");
+        if (indicator) indicator.hidden = true;
+      }
+
+      /* ── @mention autocomplete ── */
+      let mentionSearchTimeout = null;
+      let mentionActiveIndex = -1;
+      let mentionQuery = "";
+
+      function getMentionQueryAtCaret() {
+        const sel = window.getSelection();
+        if (!sel || !sel.rangeCount) return null;
+        const range = sel.getRangeAt(0);
+        const composer = document.getElementById("communityComposer");
+        if (!composer || !composer.contains(range.startContainer)) return null;
+        const node = range.startContainer;
+        if (node.nodeType !== 3) return null;
+        const text = node.textContent || "";
+        const offset = range.startOffset;
+        const before = text.slice(0, offset);
+        const match = before.match(/@([a-zA-Z0-9._-]{0,32})$/);
+        if (!match) return null;
+        return { query: match[1], node, start: match.index, offset };
+      }
+
+      function replaceMentionAtCaret(info, username) {
+        const fullText = info.node.textContent || "";
+        const before = fullText.slice(0, info.start);
+        const after = fullText.slice(info.offset);
+        info.node.textContent = before + "@" + username + " " + after;
+        const sel = window.getSelection();
+        const range = document.createRange();
+        const newOffset = before.length + username.length + 2;
+        range.setStart(info.node, Math.min(newOffset, info.node.textContent.length));
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+
+      async function searchMentionUsers(q) {
+        if (q.length < 1) return [];
+        try {
+          const data = await api("/api/community/users/search?q=" + encodeURIComponent(q));
+          return (data.users || []).slice(0, 8);
+        } catch { return []; }
+      }
+
+      function renderMentionDropdown(users, caretInfo) {
+        const dd = document.getElementById("communityMentionDropdown");
+        if (!dd) return;
+        if (!users.length) { dd.hidden = true; dd.innerHTML = ""; return; }
+        dd.hidden = false;
+        dd.innerHTML = "";
+        mentionActiveIndex = 0;
+        users.forEach((u, i) => {
+          const item = document.createElement("div");
+          item.className = "community-mention-item" + (i === 0 ? " active" : "");
+          const avatarHtml = u.avatarDataUrl
+            ? '<img class="mention-avatar" src="' + escapeHtml(u.avatarDataUrl) + '" alt="" />'
+            : '<div class="mention-avatar-ph">' + escapeHtml((u.displayName || u.username || "?").charAt(0).toUpperCase()) + '</div>';
+          item.innerHTML = avatarHtml +
+            '<span class="community-mention-name">' + escapeHtml(u.displayName || u.username) + '</span>' +
+            '<span class="community-mention-username">@' + escapeHtml(u.username) + '</span>';
+          item.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            replaceMentionAtCaret(caretInfo, u.username);
+            dd.hidden = true;
+            dd.innerHTML = "";
+          });
+          dd.appendChild(item);
+        });
+      }
+
+      function hideMentionDropdown() {
+        const dd = document.getElementById("communityMentionDropdown");
+        if (dd) { dd.hidden = true; dd.innerHTML = ""; }
+      }
+
+      (function initMentionAutocomplete() {
+        const composer = document.getElementById("communityComposer");
+        if (!composer) return;
+        composer.addEventListener("input", () => {
+          clearTimeout(mentionSearchTimeout);
+          const info = getMentionQueryAtCaret();
+          if (!info || info.query.length < 1) { hideMentionDropdown(); return; }
+          mentionQuery = info.query;
+          mentionSearchTimeout = setTimeout(async () => {
+            const freshInfo = getMentionQueryAtCaret();
+            if (!freshInfo || freshInfo.query !== mentionQuery) return;
+            const users = await searchMentionUsers(freshInfo.query);
+            const currentInfo = getMentionQueryAtCaret();
+            if (!currentInfo || currentInfo.query !== freshInfo.query) return;
+            renderMentionDropdown(users, currentInfo);
+          }, 300);
+        });
+        composer.addEventListener("keydown", (e) => {
+          const dd = document.getElementById("communityMentionDropdown");
+          if (!dd || dd.hidden) return;
+          const items = dd.querySelectorAll(".community-mention-item");
+          if (!items.length) return;
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            items[mentionActiveIndex]?.classList.remove("active");
+            mentionActiveIndex = (mentionActiveIndex + 1) % items.length;
+            items[mentionActiveIndex]?.classList.add("active");
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            items[mentionActiveIndex]?.classList.remove("active");
+            mentionActiveIndex = (mentionActiveIndex - 1 + items.length) % items.length;
+            items[mentionActiveIndex]?.classList.add("active");
+          } else if (e.key === "Enter" || e.key === "Tab") {
+            if (mentionActiveIndex >= 0 && items[mentionActiveIndex]) {
+              e.preventDefault();
+              items[mentionActiveIndex].dispatchEvent(new MouseEvent("mousedown"));
+            }
+          } else if (e.key === "Escape") {
+            hideMentionDropdown();
+          }
+        });
+        composer.addEventListener("blur", () => {
+          setTimeout(hideMentionDropdown, 200);
+        });
+      })();
+
+      /* ── Show Sub-Tabs ── */
+      let communityShowActiveSubtab = "discussion";
+      (function initShowSubtabs() {
+        const host = document.getElementById("communityShowSubtabs");
+        if (!host) return;
+        host.addEventListener("click", (e) => {
+          const btn = e.target.closest(".community-show-subtab");
+          if (!btn) return;
+          communityShowActiveSubtab = btn.dataset.subtab || "discussion";
+          host.querySelectorAll(".community-show-subtab").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          applyCommunityShowSubtab();
+        });
+      })();
+
+      function applyCommunityShowSubtab() {
+        const tab = communityShowActiveSubtab;
+        const showDiscussion = tab === "discussion" || tab === "theories" || tab === "spoiler-free";
+        const composerWrap = document.getElementById("communityComposerWrap");
+        const feedEl = document.getElementById("communityPostFeed");
+        const pollsPanel = document.getElementById("communityEpisodePollsPanel");
+        const newsPanel = document.getElementById("communityShowNewsPanel");
+        const catchUp = document.getElementById("communityCatchUpPanel");
+        const ratingsPanel = document.getElementById("communityShowRatingsChartPanel");
+        const liveRail = document.querySelector(".community-live-rail");
+        const sortCtrl = document.querySelector(".community-thread-controls");
+
+        if (composerWrap) composerWrap.style.display = showDiscussion ? "" : "none";
+        if (feedEl) feedEl.style.display = showDiscussion ? "" : "none";
+        if (pollsPanel) pollsPanel.style.display = tab === "poll" ? "" : "none";
+        if (newsPanel) newsPanel.style.display = tab === "news" ? "" : "none";
+        if (catchUp) catchUp.style.display = showDiscussion ? "" : "none";
+        if (ratingsPanel) ratingsPanel.style.display = tab === "discussion" ? "" : "none";
+        if (liveRail) liveRail.style.display = tab === "discussion" ? "" : "none";
+        if (sortCtrl) sortCtrl.style.display = tab === "discussion" ? "" : "none";
+
+        if (showDiscussion && feedEl) {
+          const cards = feedEl.querySelectorAll(".community-post-card");
+          cards.forEach(card => {
+            const postTag = card.dataset.postTag || "";
+            if (tab === "theories") {
+              card.style.display = postTag === "theory" ? "" : "none";
+            } else if (tab === "spoiler-free") {
+              const isSpoiler = card.dataset.isSpoiler === "1";
+              card.style.display = isSpoiler ? "none" : "";
+            } else {
+              card.style.display = "";
+            }
+          });
+        }
+
+        if (tab === "news") {
+          const showId = communityState.showId;
+          if (showId != null) loadShowNews(showId);
+        }
+        if (tab === "poll") {
+          if (pollsPanel) pollsPanel.hidden = false;
         }
       }
 
@@ -11209,10 +12169,39 @@
         const isAdmin = sessionMeSnapshot && truthyBit(sessionMeSnapshot.isAdmin);
         const canMod = isOwner || isAdmin;
         const wrap = document.createElement("article");
-        wrap.className = "community-post-card";
+        wrap.className = "community-post-card" + (p.parentPostId ? " is-reply" : "");
         wrap.dataset.postId = p.id;
+        if (p.tag) wrap.dataset.postTag = p.tag;
+        if (p.isSpoiler) wrap.dataset.isSpoiler = "1";
         if (p.tvmazeEpisodeId != null && p.tvmazeEpisodeId !== "") {
           wrap.dataset.tvmazeEpisodeId = String(p.tvmazeEpisodeId);
+        }
+        if (p.parentPostId) {
+          const ctx = document.createElement("div");
+          ctx.className = "community-reply-context";
+          ctx.textContent = "\u21B3 Reply";
+          wrap.appendChild(ctx);
+        }
+        if (p.tag) {
+          const tagBadge = document.createElement("span");
+          tagBadge.style.cssText = "font-size:0.62rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:6px;margin-bottom:0.25rem;display:inline-block;";
+          if (p.tag === "theory") {
+            tagBadge.style.background = "rgba(124,77,255,0.18)";
+            tagBadge.style.color = "#b388ff";
+            tagBadge.style.border = "1px solid rgba(124,77,255,0.3)";
+            tagBadge.textContent = "Theory";
+          } else if (p.tag === "spoiler-free") {
+            tagBadge.style.background = "rgba(0,230,118,0.12)";
+            tagBadge.style.color = "#69f0ae";
+            tagBadge.style.border = "1px solid rgba(0,230,118,0.25)";
+            tagBadge.textContent = "Spoiler-Free";
+          } else if (p.tag === "hot-take") {
+            tagBadge.style.background = "rgba(255,64,129,0.15)";
+            tagBadge.style.color = "#ff80ab";
+            tagBadge.style.border = "1px solid rgba(255,64,129,0.3)";
+            tagBadge.textContent = "Hot Take";
+          }
+          wrap.appendChild(tagBadge);
         }
         const authorHit = document.createElement("button");
         authorHit.type = "button";
@@ -11549,6 +12538,7 @@
             };
             statsGrid.appendChild(mkStat(ec, "Episodes done"));
             statsGrid.appendChild(mkStat(st, "Shows on list"));
+            statsGrid.appendChild(mkStat(Number(d.postsCount) || 0, "Posts made"));
             inner.appendChild(statsGrid);
 
             if (genres.length) {
@@ -11663,6 +12653,31 @@
             "</span>";
           inner.appendChild(rowFav);
 
+          const rp = Array.isArray(d.recentPosts) ? d.recentPosts : [];
+          if (rp.length > 0) {
+            const secPosts = document.createElement("div");
+            secPosts.className = "community-member-profile-section-title";
+            secPosts.textContent = "Recent posts";
+            inner.appendChild(secPosts);
+            for (const post of rp) {
+              const postCard = document.createElement("button");
+              postCard.type = "button";
+              postCard.className = "community-thread-card";
+              postCard.style.cssText = "margin-bottom:0.4rem;padding:0.6rem 0.75rem";
+              const snippet = (post.bodyHtml || "").replace(/<[^>]*>/g, "").slice(0, 120);
+              postCard.innerHTML =
+                '<div class="community-thread-ep-show">' + escapeHtml(post.showName || "Show") +
+                (post.episodeLabel ? " \u00b7 " + escapeHtml(post.episodeLabel) : "") + '</div>' +
+                '<p style="font-size:0.82rem;margin:0.2rem 0 0;color:rgba(186,230,253,0.88);line-height:1.35">' + escapeHtml(snippet) + '</p>' +
+                '<span style="font-size:0.68rem;color:var(--muted)">' + formatCommunityRelativeTime(post.createdAt) + '</span>';
+              postCard.addEventListener("click", () => {
+                closeCommunityMemberProfile();
+                openCommunityThread(post.tvmazeShowId, post.showName, 0, {});
+              });
+              inner.appendChild(postCard);
+            }
+          }
+
           body.innerHTML = "";
           body.appendChild(inner);
           modal.dataset.profileLabel = label;
@@ -11680,6 +12695,38 @@
               dmBtn.hidden = false;
               dmHint.hidden = true;
             }
+          }
+          const followBar = document.getElementById("communityProfileFollowBar");
+          const followBtn = document.getElementById("communityProfileFollowBtn");
+          const followStats = document.getElementById("communityProfileFollowStats");
+          if (followBar && followBtn && selfId && userId !== selfId && accountIsRegistered(sessionMeSnapshot)) {
+            followBar.hidden = false;
+            try {
+              const fs = await api("/api/users/" + encodeURIComponent(userId) + "/follow-status");
+              followBtn.textContent = fs.following ? "Following" : "Follow";
+              followBtn.classList.toggle("following", !!fs.following);
+              followStats.textContent = (fs.followerCount || 0) + " follower" + (fs.followerCount === 1 ? "" : "s");
+              followBtn.onclick = async () => {
+                const isFollowing = followBtn.classList.contains("following");
+                try {
+                  if (isFollowing) {
+                    await api("/api/users/" + encodeURIComponent(userId) + "/follow", { method: "DELETE" });
+                    followBtn.textContent = "Follow";
+                    followBtn.classList.remove("following");
+                    const c = parseInt(followStats.textContent) || 0;
+                    followStats.textContent = Math.max(0, c - 1) + " follower" + (Math.max(0, c - 1) === 1 ? "" : "s");
+                  } else {
+                    await api("/api/users/" + encodeURIComponent(userId) + "/follow", { method: "POST", body: "{}" });
+                    followBtn.textContent = "Following";
+                    followBtn.classList.add("following");
+                    const c = parseInt(followStats.textContent) || 0;
+                    followStats.textContent = (c + 1) + " follower" + ((c + 1) === 1 ? "" : "s");
+                  }
+                } catch (e) { showToast(e.message || "Could not update follow"); }
+              };
+            } catch { followBar.hidden = true; }
+          } else if (followBar) {
+            followBar.hidden = true;
           }
         } catch (e) {
           body.innerHTML = "";
@@ -12362,6 +13409,8 @@
           if (communityState.view === "list") {
             loadCommunityThreads();
             void loadCommunityChallenges();
+            void loadCommunityTicker();
+            void loadLiveEpisodeBanner();
           } else if (communityState.showId != null) {
             loadCommunityThreadPosts();
             updateCommunityThreadUi();
@@ -12379,6 +13428,7 @@
         }
         if (name === "admin") {
           loadAdminOverview();
+          loadAdminBreakingNews();
         }
       }
 
@@ -12853,6 +13903,7 @@
         try {
           const epSel = document.getElementById("communityEpisodeSelect");
           const epVal = epSel && epSel.value;
+          const tagSel = document.getElementById("communityPostTagSelect");
           const postBody = {
             tvmazeShowId: showId,
             bodyHtml: html,
@@ -12863,13 +13914,21 @@
           } else if (epVal) {
             postBody.tvmazeEpisodeId = Number(epVal);
           }
+          if (communityReplyToPostId) {
+            postBody.parentPostId = communityReplyToPostId;
+          }
+          if (tagSel && tagSel.value) {
+            postBody.tag = tagSel.value;
+          }
           await api("/api/community/posts", {
             method: "POST",
             body: JSON.stringify(postBody),
           });
           composer.innerHTML = "";
           if (epSel) epSel.value = "";
+          if (tagSel) tagSel.value = "";
           document.getElementById("communityComposerSpoiler").checked = false;
+          cancelCommunityReply();
           showToast("Posted");
           await loadCommunityThreadPosts();
           await loadCommunityThreads();
@@ -12881,6 +13940,7 @@
           showToast(e.message || "Could not post");
         }
       });
+      document.getElementById("communityReplyCancelBtn")?.addEventListener("click", () => cancelCommunityReply());
       document.getElementById("communityPollAddOptionBtn")?.addEventListener("click", () => {
         const wrap = document.getElementById("communityPollOptionInputs");
         if (wrap) appendCommunityPollOptionRow(wrap);
@@ -13873,7 +14933,33 @@
         }
 
         const ar = document.getElementById("adminRefreshBtn");
-        if (ar) ar.addEventListener("click", () => loadAdminOverview());
+        if (ar) ar.addEventListener("click", () => { loadAdminOverview(); loadAdminBreakingNews(); });
+
+        document.getElementById("adminTickerMessageSaveBtn")?.addEventListener("click", async () => {
+          const inp = document.getElementById("adminTickerMessageInput");
+          if (!inp) return;
+          await api("/api/admin/ticker-message", { method: "PUT", body: JSON.stringify({ message: inp.value.trim() }) });
+          showToast("Ticker message saved");
+          loadCommunityTicker();
+        });
+        document.getElementById("adminTickerMessageClearBtn")?.addEventListener("click", async () => {
+          const inp = document.getElementById("adminTickerMessageInput");
+          if (inp) inp.value = "";
+          await api("/api/admin/ticker-message", { method: "PUT", body: JSON.stringify({ message: null }) });
+          showToast("Ticker message cleared");
+          loadCommunityTicker();
+        });
+        document.getElementById("adminRssPollBtn")?.addEventListener("click", async () => {
+          showToast("Polling RSS feeds...");
+          try {
+            const r = await api("/api/admin/rss-poll", { method: "POST", body: "{}" });
+            showToast("RSS poll done: " + (r.fetched || 0) + " new, " + (r.autoPublished || 0) + " auto-published");
+            loadAdminBreakingNews();
+            loadCommunityTicker();
+          } catch (e) {
+            showToast(e.message || "RSS poll failed");
+          }
+        });
       })();
     </script>
   </body>
