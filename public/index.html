@@ -152,9 +152,13 @@
         z-index: -3;
         pointer-events: none;
         background-color: #020308;
-        background-image: var(--galaxy-photo-url);
-        background-size: cover;
-        background-position: center 38%;
+        /* Photo + always-on cosmic wash so deploys missing PNG still look intentional */
+        background-image: var(--galaxy-photo-url),
+          radial-gradient(ellipse 100% 80% at 50% 100%, rgba(30, 27, 75, 0.45) 0%, transparent 55%),
+          radial-gradient(ellipse 90% 70% at 10% 20%, rgba(14, 116, 144, 0.25) 0%, transparent 50%),
+          linear-gradient(168deg, #020308 0%, #050a1a 45%, #0a0520 100%);
+        background-size: cover, cover, cover, cover;
+        background-position: center 38%, center, center, center;
         background-repeat: no-repeat;
       }
       /**
@@ -10136,11 +10140,15 @@
         }
       }
 
+      function userIsDbAdmin(me) {
+        return Boolean(me && (me.isAdmin === true || me.isAdmin === 1));
+      }
+
       async function ensureAdminUiLoaded(me) {
         /** In-app Admin tab ONLY for DB is_admin (from /api/users/me). Do not use /api/admin/status here:
          *  env-password cookie (AIRALERT_ADMIN_PASSWORD) also sets authenticated and must not unlock the main shell
          *  while a normal user is signed in. Env-only admins: use /admin.html */
-        const canAdmin = Boolean(me && me.isAdmin === true);
+        const canAdmin = userIsDbAdmin(me);
         if (!canAdmin) {
           removeAdminUiFromDom();
           return;
@@ -10226,6 +10234,7 @@
       }
 
       function applyMeToUI(me) {
+        if (!userIsDbAdmin(me)) removeAdminUiFromDom();
         sessionMeSnapshot = me;
         syncInboxChromeFromMe(me);
         syncCommunityFindFriendChrome();

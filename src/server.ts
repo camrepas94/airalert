@@ -131,6 +131,12 @@ await app.register(cors, {
 
 await app.register(websocket);
 
+/** Fast probe for Railway / Docker health checks — no DB or TVMaze work. */
+app.get("/health", async (_req, reply) => {
+  reply.header("Cache-Control", "no-store");
+  return reply.code(200).type("text/plain; charset=utf-8").send("ok");
+});
+
 if (webPushReady) {
   app.log.info("Web Push: VAPID keys loaded");
 } else {
@@ -3106,13 +3112,51 @@ function buildCommunityThreadsForGuest(): CommunityThreadListRow[] {
   return out;
 }
 
+/** Fill missing poster URLs from TVMaze so Community hero cards get art even when subscriptions lack cached images. */
+async function enrichCommunityThreadImages(rows: CommunityThreadListRow[]): Promise<CommunityThreadListRow[]> {
+  const need = new Set<number>();
+  for (const r of rows) {
+    if (r.tvmazeShowId > 0 && (r.showImageUrl == null || String(r.showImageUrl).trim() === "")) {
+      need.add(r.tvmazeShowId);
+    }
+  }
+  if (need.size === 0) return rows;
+  const urlByShow = new Map<number, string | null>();
+  const ids = [...need];
+  const chunk = 6;
+  for (let i = 0; i < ids.length; i += chunk) {
+    const slice = ids.slice(i, i + chunk);
+    await Promise.all(
+      slice.map(async (showId) => {
+        try {
+          const d = await fetchShow(showId);
+          const u = d.image?.medium ?? d.image?.original ?? null;
+          urlByShow.set(showId, u);
+        } catch {
+          urlByShow.set(showId, null);
+        }
+      }),
+    );
+  }
+  return rows.map((r) => {
+    if (r.showImageUrl != null && String(r.showImageUrl).trim() !== "") return r;
+    const u = urlByShow.get(r.tvmazeShowId);
+    if (!u) return r;
+    return { ...r, showImageUrl: u };
+  });
+}
+
 app.get("/api/community/threads", async (request) => {
   const sid = sessionUserIdFromRequest(request);
   if (!sid) {
-    return { threads: buildCommunityThreadsForGuest() };
+    return { threads: await enrichCommunityThreadImages(buildCommunityThreadsForGuest()) };
   }
   const userRow = db.prepare(`SELECT timezone FROM users WHERE id = ?`).get(sid) as { timezone: string } | undefined;
-  return { threads: buildCommunityThreadsForUser(sid, userRow?.timezone ?? "America/Los_Angeles") };
+  return {
+    threads: await enrichCommunityThreadImages(
+      buildCommunityThreadsForUser(sid, userRow?.timezone ?? "America/Los_Angeles"),
+    ),
+  };
 });
 
 app.get("/api/community/threads/:showId/posts", async (request, reply) => {
@@ -4794,6 +4838,19 @@ cron.schedule("30 */6 * * *", async () => {
 
 await app.listen({ port: PORT, host: "0.0.0.0" });
 app.log.info(`Airalert V1 http://localhost:${PORT}`);
+
+/** Railway sends SIGTERM when replacing the container; close Fastify cleanly so sockets/DB don't hang. */
+const shutdown = async (signal: string) => {
+  app.log.info({ signal }, "shutdown signal received");
+  try {
+    await app.close();
+  } catch (err) {
+    app.log.error(err, "error during app.close");
+  }
+  process.exit(0);
+};
+process.once("SIGTERM", () => void shutdown("SIGTERM"));
+process.once("SIGINT", () => void shutdown("SIGINT"));
 
 // Backfill show_image_url for existing subscriptions missing it
 (async () => {

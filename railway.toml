@@ -1,0 +1,6 @@
+# https://docs.railway.com/reference/config-as-code
+# Point health checks at a tiny response (not / which reads all of index.html).
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 30
