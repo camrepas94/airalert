@@ -668,9 +668,31 @@ app.post("/api/admin/logout", async (request, reply) => {
   return { ok: true };
 });
 
-/** Injected into the main app shell only after the server verifies admin (401/403 for others). */
+/**
+ * In-app shell fragment: **database admin only** (signed-in user with is_admin).
+ * Env-password cookie alone is not enough — those operators use /admin.html.
+ * Prevents a browser with both a normal session and an admin cookie from loading admin HTML into index.
+ */
+function isUserDbAdmin(request: FastifyRequest): boolean {
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) return false;
+  const row = db.prepare(`SELECT is_admin FROM users WHERE id = ?`).get(sid) as { is_admin: number } | undefined;
+  return Boolean(row?.is_admin);
+}
+
+function replyForbiddenUnlessAdminInAppShell(request: FastifyRequest, reply: FastifyReply): boolean {
+  if (isUserDbAdmin(request)) return false;
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401).send({ error: "Unauthorized" });
+  } else {
+    reply.code(403).send({ error: "Forbidden" });
+  }
+  return true;
+}
+
 app.get("/api/admin/ui-fragment", async (request, reply) => {
-  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  if (replyForbiddenUnlessAdminInAppShell(request, reply)) return;
   try {
     const html = readPublicHtml("admin-ui-fragment.html");
     reply.header("Cache-Control", "no-store");
