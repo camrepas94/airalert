@@ -237,6 +237,15 @@
         background-size: 100% 100%;
         mix-blend-mode: screen;
       }
+      /** Nebula: drop extra pink/purple haze ellipses — only soft cyan/blue lifts from tokens */
+      html[data-theme="nebula"]::after {
+        mix-blend-mode: soft-light;
+        opacity: var(--space-haze-opacity);
+        background-image:
+          radial-gradient(ellipse 60% 40% at 50% 50%, var(--space-haze-a) 0%, transparent 42%),
+          radial-gradient(ellipse 45% 55% at 80% 18%, var(--space-haze-b) 0%, transparent 38%),
+          radial-gradient(ellipse 50% 45% at 12% 72%, var(--space-haze-c) 0%, transparent 40%);
+      }
       body {
         margin: 0;
         font-family: var(--font);
@@ -578,22 +587,25 @@
         }
       }
 
-      /** Let the real galaxy photo read through — these were washing everything purple */
+      /** Nebula: photo-first — CSS nebula layers were stacking on top of galaxy-inspiration-bg and reading as flat purple */
       html[data-theme="nebula"] .space-milky-way {
-        opacity: 0.38;
-        filter: blur(48px) saturate(1.35);
+        opacity: 0.05;
+        filter: blur(64px) saturate(1.15);
       }
       html[data-theme="nebula"] .space-milky-rift {
-        opacity: 0.28;
+        opacity: 0.06;
       }
       html[data-theme="nebula"] .space-aurora {
-        opacity: 0.45;
+        opacity: 0.1;
       }
       html[data-theme="nebula"] .space-stars-deep {
-        opacity: 0.32;
+        opacity: 0.12;
       }
       html[data-theme="nebula"] .space-sparkle-layer {
-        opacity: 0.28;
+        opacity: 0.12;
+      }
+      html[data-theme="nebula"] .galaxy-photo-base {
+        filter: saturate(1.06) contrast(1.04);
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -661,47 +673,47 @@
       }
 
       html[data-theme="nebula"] {
-        --space-void: #010206;
+        background-color: #020308;
+        background-image: none;
+        --space-void: #020308;
         --space-gradient: none;
-        --space-stars-opacity: 0.38;
-        --space-stars-filter: saturate(1.28);
-        --space-haze-opacity: 0.12;
-        --space-haze-a: rgba(34, 211, 238, 0.16);
-        --space-haze-b: rgba(236, 72, 153, 0.14);
-        --space-haze-c: rgba(91, 156, 255, 0.12);
-        --orb-tr-opacity: 0.22;
+        --space-stars-opacity: 0.26;
+        --space-stars-filter: saturate(1.15);
+        --space-haze-opacity: 0.045;
+        --space-haze-a: rgba(34, 211, 238, 0.1);
+        --space-haze-b: rgba(91, 156, 255, 0.07);
+        --space-haze-c: rgba(34, 211, 238, 0.06);
+        --orb-tr-opacity: 0.08;
         --orb-tr: radial-gradient(
           circle,
-          rgba(236, 72, 153, 0.38) 0%,
-          rgba(168, 85, 247, 0.22) 36%,
-          rgba(34, 211, 238, 0.12) 56%,
-          transparent 74%
+          rgba(34, 211, 238, 0.22) 0%,
+          rgba(91, 156, 255, 0.12) 40%,
+          rgba(59, 130, 246, 0.06) 58%,
+          transparent 76%
         );
-        --orb-bl-opacity: 0.2;
+        --orb-bl-opacity: 0.06;
         --orb-bl: radial-gradient(
           circle,
-          rgba(34, 211, 238, 0.4) 0%,
-          rgba(91, 156, 255, 0.24) 42%,
-          rgba(59, 130, 246, 0.1) 62%,
+          rgba(34, 211, 238, 0.2) 0%,
+          rgba(91, 156, 255, 0.14) 45%,
+          rgba(30, 58, 138, 0.06) 65%,
           transparent 78%
         );
-        --mesh-opacity: 0.14;
+        --mesh-opacity: 0.045;
         --mesh-bg: radial-gradient(
-            ellipse 95% 80% at 18% 38%,
-            rgba(236, 72, 153, 0.16) 0%,
-            rgba(88, 28, 135, 0.08) 42%,
-            transparent 62%
+            ellipse 95% 80% at 22% 42%,
+            rgba(34, 211, 238, 0.09) 0%,
+            transparent 55%
           ),
           radial-gradient(
-            ellipse 90% 75% at 52% 36%,
-            rgba(34, 211, 238, 0.18) 0%,
-            rgba(91, 156, 255, 0.14) 38%,
-            rgba(124, 92, 255, 0.1) 58%,
-            transparent 74%
+            ellipse 90% 75% at 58% 38%,
+            rgba(91, 156, 255, 0.07) 0%,
+            rgba(34, 211, 238, 0.05) 45%,
+            transparent 70%
           ),
-          radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 65%);
-        --mesh-shadow: 0 0 120px 44px rgba(34, 211, 238, 0.1), inset 0 0 88px rgba(91, 156, 255, 0.05);
-        --mesh-filter: blur(118px) saturate(1.48);
+          radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.025) 0%, transparent 65%);
+        --mesh-shadow: 0 0 100px 36px rgba(34, 211, 238, 0.05), inset 0 0 72px rgba(91, 156, 255, 0.03);
+        --mesh-filter: blur(118px) saturate(1.25);
       }
 
       html[data-theme="ion"] {
@@ -4528,85 +4540,51 @@
       .community-challenges-block {
         position: relative;
         z-index: 1;
-        margin: 0 0 1.15rem;
-        padding: 0.85rem 0.95rem;
-        border-radius: 14px;
-        border: 1px solid rgba(167, 139, 250, 0.22);
-        background: linear-gradient(165deg, rgba(167, 139, 250, 0.08) 0%, rgba(8, 14, 28, 0.55) 100%);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 8px 28px rgba(0, 0, 0, 0.22);
+        margin: 0 0 1rem;
+        padding: 0;
+        border: none;
+        background: none;
+        box-shadow: none;
       }
-      .community-challenges-title {
-        margin: 0 0 0.35rem;
-        font-size: 0.95rem;
+      .community-subsection-heading {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(180, 200, 230, 0.6);
+        margin: 0.75rem 0 0.45rem;
         font-weight: 700;
-        letter-spacing: -0.02em;
-        color: var(--text);
       }
-      .community-challenges-lead {
-        margin: 0 0 0.65rem;
-        font-size: 0.82rem;
-        line-height: 1.45;
+      .community-challenges-block .community-subsection-heading {
+        margin-top: 0;
       }
       .community-challenges-toolbar {
-        margin-bottom: 0.55rem;
+        margin: 0 0 0.55rem;
       }
-      .community-challenges-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
+      /** Same horizontal carousel + hero cards as Trending Discussions */
+      .community-challenges-list.community-thread-list {
+        padding-bottom: 0.35rem;
       }
-      .community-challenge-card {
-        display: block;
-        width: 100%;
-        text-align: left;
-        padding: 0.65rem 0.75rem;
-        border-radius: 12px;
-        border: 1px solid rgba(167, 139, 250, 0.2);
-        background: rgba(0, 0, 0, 0.22);
-        color: inherit;
-        font: inherit;
-        cursor: pointer;
-        box-shadow: none;
-        transition: border-color 0.15s ease, background 0.15s ease;
-      }
-      .community-challenge-card:hover {
-        border-color: rgba(167, 139, 250, 0.4);
-        background: rgba(255, 255, 255, 0.04);
-        box-shadow: none;
-        filter: none;
-        transform: none;
-      }
-      .community-challenge-card-title {
-        font-weight: 700;
-        font-size: 0.9rem;
-        margin: 0 0 0.25rem;
-      }
-      .community-challenge-card-meta {
-        font-size: 0.78rem;
-        color: var(--muted);
-        line-height: 1.4;
-        margin: 0;
+      .community-thread-card--challenge {
+        border-left: 3px solid rgba(167, 139, 250, 0.5);
       }
       .community-challenge-card-badge {
         display: inline-block;
-        font-size: 0.68rem;
+        font-size: 0.62rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        padding: 0.15rem 0.4rem;
+        padding: 0.2rem 0.5rem;
         border-radius: 6px;
-        margin-left: 0.35rem;
         vertical-align: middle;
       }
       .community-challenge-card-badge--active {
-        background: rgba(34, 197, 94, 0.2);
+        background: rgba(34, 197, 94, 0.18);
+        border: 1px solid rgba(34, 197, 94, 0.35);
         color: #86efac;
       }
       .community-challenge-card-badge--ended {
-        background: rgba(148, 163, 184, 0.2);
+        background: rgba(148, 163, 184, 0.15);
+        border: 1px solid rgba(148, 163, 184, 0.28);
         color: #cbd5e1;
       }
       .community-challenge-create-view {
@@ -7142,23 +7120,24 @@
               </div>
             </div>
             <div class="community-challenges-block" id="communityChallengesBlock" aria-label="Watch challenges">
+              <h3 class="community-subsection-heading">Watch challenges</h3>
               <div class="community-challenges-toolbar">
                 <button type="button" class="secondary" id="communityChallengeCreateBtn">Start a challenge</button>
               </div>
               <p class="muted community-loading" id="communityChallengesLoading" hidden>Loading challenges…</p>
               <p class="err" id="communityChallengesErr" style="display: none; margin: 0.35rem 0"></p>
-              <ul class="community-challenges-list" id="communityChallengesList" role="list"></ul>
+              <ul class="community-thread-list community-challenges-list" id="communityChallengesList" role="list"></ul>
             </div>
             <button type="button" class="app-fab community-fab-plus" id="communityNewThreadBtn" title="New discussion">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
             </button>
-            <h3 style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(180,200,230,0.6);margin:0.75rem 0 0.45rem;font-weight:700">Trending Discussions</h3>
+            <h3 class="community-subsection-heading">Trending Discussions</h3>
             <div id="communityThreadsLoading" class="muted community-loading" hidden>Loading threads…</div>
             <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
             <ul class="community-thread-list" id="communityThreadList"></ul>
-            <h3 style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(180,200,230,0.6);margin:0.75rem 0 0.45rem;font-weight:700" id="communityGeneralHeading" hidden>General Discussion</h3>
+            <h3 class="community-subsection-heading" id="communityGeneralHeading" hidden>General Discussion</h3>
             <ul class="community-general-list" id="communityGeneralList"></ul>
           </div>
           <div class="community-challenge-create-view hidden" id="communityChallengeCreateView">
@@ -11490,43 +11469,83 @@
             const li = document.createElement("li");
             const btn = document.createElement("button");
             btn.type = "button";
-            btn.className = "community-challenge-card";
-            const title = document.createElement("div");
-            title.className = "community-challenge-card-title";
-            const titleText = document.createElement("span");
-            titleText.textContent = ch.title || "Challenge";
-            title.appendChild(titleText);
-            const badge = document.createElement("span");
-            badge.className =
-              "community-challenge-card-badge " +
-              (ch.active ? "community-challenge-card-badge--active" : "community-challenge-card-badge--ended");
-            badge.textContent = ch.active ? "Active" : "Ended";
-            title.appendChild(badge);
-            const meta = document.createElement("p");
-            meta.className = "community-challenge-card-meta";
-            const deadlineBit =
-              "Finish <strong>" +
-              escapeHtml(ch.targetShowName || "") +
-              "</strong> before <strong>" +
-              escapeHtml(ch.deadlineEpisodeLabel || "") +
-              "</strong> of <strong>" +
-              escapeHtml(ch.deadlineShowName || "") +
-              "</strong> · airs " +
-              escapeHtml(String(ch.deadlineAirdate || "").slice(0, 10)) +
+            btn.className =
+              "community-thread-card community-thread-card--hero community-thread-card--challenge";
+            const sid = Number(ch.tvmazeTargetShowId);
+            if (Number.isFinite(sid) && sid >= 1) btn.dataset.tvmazeShowId = String(sid);
+            const showLine = escapeHtml(ch.targetShowName || "Show");
+            const titleLine = escapeHtml(ch.title || "Watch challenge");
+            const deadlineHint =
+              "Before " +
+              escapeHtml(ch.deadlineEpisodeLabel || "—") +
               " · " +
-              (ch.participantCount || 0) +
-              " joined";
-            meta.innerHTML = deadlineBit;
+              escapeHtml(ch.deadlineShowName || "") +
+              (ch.deadlineAirdate
+                ? " · " + escapeHtml(String(ch.deadlineAirdate).slice(0, 10))
+                : "");
+            const joinedStat = (ch.participantCount || 0) + " joined";
+            const badge = ch.active
+              ? '<span class="community-challenge-card-badge community-challenge-card-badge--active">Active</span>'
+              : '<span class="community-challenge-card-badge community-challenge-card-badge--ended">Ended</span>';
+            const ctaLabel = ch.active && !ch.joined ? "Join" : "View";
+            let progressStat = "";
             if (ch.joined && ch.myProgress && typeof ch.myProgress.percent === "number") {
-              meta.innerHTML +=
-                " · <strong>Your progress: " + escapeHtml(String(ch.myProgress.percent)) + "%</strong>";
+              progressStat =
+                '<span class="community-thread-footer-stat">\u{1F4CA} ' +
+                escapeHtml(String(ch.myProgress.percent)) +
+                "%</span>";
             }
-            btn.appendChild(title);
-            btn.appendChild(meta);
+            let summaryLine = "";
+            if (ch.summary && String(ch.summary).trim()) {
+              const raw = String(ch.summary).trim();
+              const short = raw.length > 96 ? raw.slice(0, 93) + "\u2026" : raw;
+              summaryLine =
+                '<p class="community-challenge-summary-hint" style="font-size:0.7rem;margin:0.2rem 0 0;line-height:1.35;color:rgba(226,232,240,0.88);text-shadow:0 1px 4px rgba(0,0,0,0.65)">' +
+                escapeHtml(short) +
+                "</p>";
+            }
+            btn.innerHTML =
+              '<div class="community-thread-card-hero" role="presentation">' +
+              '<div class="community-thread-card-scrim" aria-hidden="true"></div>' +
+              '<div class="community-thread-card-badges">' +
+              badge +
+              "</div>" +
+              '<div class="community-thread-card-hero-inner">' +
+              '<div class="community-thread-ep-show">' +
+              showLine +
+              "</div>" +
+              '<div class="community-thread-ep-title" style="font-size:0.92rem;margin:0;line-height:1.3">' +
+              titleLine +
+              "</div>" +
+              '<p class="community-challenge-deadline-hint" style="font-size:0.72rem;margin:0.2rem 0 0;line-height:1.35;color:rgba(203,213,225,0.92);text-shadow:0 1px 4px rgba(0,0,0,0.65)">' +
+              deadlineHint +
+              "</p>" +
+              summaryLine +
+              '<div class="community-thread-footer" style="margin-top:0.35rem;flex-wrap:wrap">' +
+              '<span class="community-thread-footer-stat">\u{1F465} ' +
+              escapeHtml(joinedStat) +
+              "</span>" +
+              progressStat +
+              '<span style="margin-left:auto"><span class="community-thread-card-join">' +
+              escapeHtml(ctaLabel) +
+              "</span></span>" +
+              "</div>" +
+              "</div></div>";
+
+            applyCommunityThreadHeroArt(btn.querySelector(".community-thread-card-hero"), sid, null);
             btn.addEventListener("click", () => openCommunityChallengeDetail(ch.id));
             li.appendChild(btn);
+            li.style.opacity = "0";
+            li.style.transform = "translateX(20px)";
             listEl.appendChild(li);
           }
+          listEl.querySelectorAll("li").forEach((item, i) => {
+            setTimeout(() => {
+              item.style.transition = "opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)";
+              item.style.opacity = "1";
+              item.style.transform = "translateX(0)";
+            }, i * 80);
+          });
         } catch (e) {
           if (errEl) {
             errEl.textContent = e.message || "Could not load challenges";
