@@ -4018,6 +4018,10 @@
         max-width: 320px;
         scroll-snap-align: start;
       }
+      /** While programmatic auto-scroll runs, disable snap so motion stays smooth (manual scroll restores snap when paused). */
+      .community-headlines-rail.community-headlines-rail--auto-active {
+        scroll-snap-type: none;
+      }
       a.community-headline-card {
         display: block;
         width: 100%;
@@ -4564,6 +4568,19 @@
       }
       .community-find-friend-results[hidden] {
         display: none !important;
+      }
+      /** Username search (profile menu modal): stack results in flow instead of absolute overlay */
+      .username-search-modal-inner.community-find-friend {
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+      }
+      .username-search-modal-inner .community-find-friend-results {
+        position: static;
+        margin-top: 0.55rem;
+        max-height: min(42dvh, 15rem);
       }
       .community-find-friend-row {
         display: flex;
@@ -6921,6 +6938,7 @@
               </button>
               <div class="header-dropdown" id="headerProfileDropdown" hidden role="menu" aria-label="Profile">
                 <button type="button" class="header-menu-item" role="menuitem" id="headerMenuYourProfile">Your profile</button>
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSearchUsername">Search username</button>
                 <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSignOut">Sign out</button>
               </div>
             </div>
@@ -7298,26 +7316,6 @@
               <button type="button" class="community-live-episode-join" id="communityLiveEpisodeJoinBtn">Join</button>
             </div>
 
-            <div class="community-find-friend" id="communityFindFriend" aria-label="Find a friend">
-              <div class="community-find-friend-field">
-                <label for="communityFindFriendInput" class="visually-hidden">Search username</label>
-                <input
-                  type="search"
-                  id="communityFindFriendInput"
-                  class="community-find-friend-input"
-                  autocomplete="off"
-                  autocorrect="off"
-                  autocapitalize="none"
-                  spellcheck="false"
-                  placeholder="Search username…"
-                  maxlength="64"
-                  aria-autocomplete="list"
-                  aria-controls="communityFindFriendResults"
-                  aria-expanded="false"
-                />
-                <div id="communityFindFriendResults" class="community-find-friend-results" hidden role="listbox" aria-label="Matching members"></div>
-              </div>
-            </div>
             <div class="community-challenges-block" id="communityChallengesBlock" aria-label="Watch challenges">
               <h3 class="community-subsection-heading">Watch challenges</h3>
               <div class="community-challenges-toolbar">
@@ -7691,6 +7689,45 @@
         </div>
       </div>
 
+      <div id="usernameSearchModal" class="community-modal" hidden aria-hidden="true">
+        <div class="community-modal-backdrop" data-close-username-search-modal tabindex="-1"></div>
+        <div
+          class="community-modal-panel username-search-modal-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="usernameSearchModalTitle"
+        >
+          <h3 id="usernameSearchModalTitle" class="community-modal-title">Search username</h3>
+          <p class="muted" style="margin: 0 0 0.75rem; font-size: 0.86rem; line-height: 1.45">
+            Find members by username. Open a profile to follow, view compatibility, or send a direct message.
+          </p>
+          <p id="usernameSearchGuestHint" class="community-find-friend-guest-hint" hidden>
+            Create an account (Your profile in this menu) to search members.
+          </p>
+          <div class="community-find-friend username-search-modal-inner" id="usernameSearchWrap" aria-label="Search members">
+            <div class="community-find-friend-field">
+              <label for="usernameSearchInput" class="visually-hidden">Search username</label>
+              <input
+                type="search"
+                id="usernameSearchInput"
+                class="community-find-friend-input"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="none"
+                spellcheck="false"
+                placeholder="Search username…"
+                maxlength="64"
+                aria-autocomplete="list"
+                aria-controls="usernameSearchResults"
+                aria-expanded="false"
+              />
+              <div id="usernameSearchResults" class="community-find-friend-results" hidden role="listbox" aria-label="Matching members"></div>
+            </div>
+          </div>
+          <button type="button" class="secondary community-modal-close" data-close-username-search-modal>Close</button>
+        </div>
+      </div>
+
       <div id="tab-messages" class="tab-panel" role="tabpanel" aria-labelledby="dmInboxTitle">
         <section class="panel-rail-cyan dm-inbox-page-root" aria-label="Messages">
           <div class="dm-inbox-panel">
@@ -7936,7 +7973,7 @@
                 <li><strong>Polls &amp; scores</strong> — Vote in episode prediction polls before air; rate episodes 1–5 after. Season charts live in the general thread.</li>
                 <li><strong>Live rail</strong> — While you’re on a thread, you show in <strong>Watching now</strong> and can use the side rail for quick live chat.</li>
                 <li><strong>Watch challenges</strong> — Community goals (e.g. finish a show before a finale airs). Opt in and climb the leaderboard; progress uses the same episodes you mark watched on <strong>Tasks</strong>.</li>
-                <li><strong>Find a friend</strong> — Search usernames and open profiles. Signed-in viewers see a <strong>compatibility %</strong> from shared list overlap and matching episode ratings.</li>
+                <li><strong>Search username</strong> — From the profile menu (top right), find members and open profiles. Signed-in viewers see a <strong>compatibility %</strong> from shared list overlap and matching episode ratings.</li>
               </ul>
             </section>
             <section class="quickstart-block">
@@ -10400,7 +10437,7 @@
         sessionMeSnapshot = me;
         if (!userIsDbAdmin(me)) removeAdminUiFromDom();
         syncInboxChromeFromMe(me);
-        syncCommunityFindFriendChrome();
+        syncUsernameSearchChrome();
         syncProfileShareSection();
         if (communityState.view === "thread") {
           updateCommunityThreadUi();
@@ -11513,12 +11550,12 @@
         }
       }
 
-      let communityFindFriendTimer = null;
-      let communityFindFriendSearchGen = 0;
+      let usernameSearchTimer = null;
+      let usernameSearchGen = 0;
 
-      function hideCommunityFindFriendDropdown() {
-        const box = document.getElementById("communityFindFriendResults");
-        const inp = document.getElementById("communityFindFriendInput");
+      function hideUsernameSearchDropdown() {
+        const box = document.getElementById("usernameSearchResults");
+        const inp = document.getElementById("usernameSearchInput");
         if (box) {
           box.hidden = true;
           box.innerHTML = "";
@@ -11526,21 +11563,62 @@
         if (inp) inp.setAttribute("aria-expanded", "false");
       }
 
-      function syncCommunityFindFriendChrome() {
-        const inp = document.getElementById("communityFindFriendInput");
+      function syncUsernameSearchChrome() {
+        const inp = document.getElementById("usernameSearchInput");
+        const hint = document.getElementById("usernameSearchGuestHint");
         const reg = accountIsRegistered(sessionMeSnapshot);
         if (inp) {
           inp.disabled = !reg;
           if (!reg) {
             inp.value = "";
-            hideCommunityFindFriendDropdown();
+            hideUsernameSearchDropdown();
+          }
+        }
+        if (hint) hint.hidden = reg;
+      }
+
+      function openUsernameSearchModal() {
+        closeHeaderMenus();
+        closeQuickStartHelpModal();
+        const modal = document.getElementById("usernameSearchModal");
+        if (!modal) return;
+        hideUsernameSearchDropdown();
+        const inp = document.getElementById("usernameSearchInput");
+        if (inp) inp.value = "";
+        syncUsernameSearchChrome();
+        modal.hidden = false;
+        modal.setAttribute("aria-hidden", "false");
+        const inp2 = document.getElementById("usernameSearchInput");
+        if (inp2 && !inp2.disabled) {
+          requestAnimationFrame(() => inp2.focus());
+        } else {
+          modal.querySelector("[data-close-username-search-modal].community-modal-close")?.focus();
+        }
+      }
+
+      function closeUsernameSearchModal(opts) {
+        const modal = document.getElementById("usernameSearchModal");
+        if (!modal || modal.hidden) return;
+        const skipFocusRestore = Boolean(opts && opts.skipFocusRestore);
+        modal.hidden = true;
+        modal.setAttribute("aria-hidden", "true");
+        hideUsernameSearchDropdown();
+        if (usernameSearchTimer) {
+          clearTimeout(usernameSearchTimer);
+          usernameSearchTimer = null;
+        }
+        const ae = document.activeElement;
+        if (ae && modal.contains(ae)) {
+          ae.blur();
+          if (!skipFocusRestore) {
+            document.getElementById("headerProfileBtn")?.focus();
           }
         }
       }
 
-      function renderCommunityFindFriendResults(users, errorMessage) {
-        const box = document.getElementById("communityFindFriendResults");
-        const inp = document.getElementById("communityFindFriendInput");
+      function renderUsernameSearchResults(users, errorMessage) {
+        const box = document.getElementById("usernameSearchResults");
+        const inp = document.getElementById("usernameSearchInput");
         if (!box) return;
         box.innerHTML = "";
         if (errorMessage) {
@@ -11579,7 +11657,8 @@
             e.preventDefault();
           });
           btn.addEventListener("click", () => {
-            hideCommunityFindFriendDropdown();
+            hideUsernameSearchDropdown();
+            closeUsernameSearchModal();
             void openCommunityMemberProfile(u.id);
           });
           box.appendChild(btn);
@@ -11588,42 +11667,42 @@
         if (inp) inp.setAttribute("aria-expanded", "true");
       }
 
-      async function runCommunityFindFriendSearch(q) {
-        const gen = ++communityFindFriendSearchGen;
+      async function runUsernameSearch(q) {
+        const gen = ++usernameSearchGen;
         const trimmed = q.trim();
         if (trimmed.length < 1) {
-          hideCommunityFindFriendDropdown();
+          hideUsernameSearchDropdown();
           return;
         }
-        const box = document.getElementById("communityFindFriendResults");
+        const box = document.getElementById("usernameSearchResults");
         if (box) {
           box.innerHTML = "<p class=\"community-find-friend-status\">Searching…</p>";
           box.hidden = false;
         }
-        const inp = document.getElementById("communityFindFriendInput");
+        const inp = document.getElementById("usernameSearchInput");
         if (inp) inp.setAttribute("aria-expanded", "true");
         try {
           const data = await api("/api/community/users/search?q=" + encodeURIComponent(trimmed));
-          if (gen !== communityFindFriendSearchGen) return;
-          renderCommunityFindFriendResults(data.users || [], null);
+          if (gen !== usernameSearchGen) return;
+          renderUsernameSearchResults(data.users || [], null);
         } catch (e) {
-          if (gen !== communityFindFriendSearchGen) return;
+          if (gen !== usernameSearchGen) return;
           const msg = e && e.message ? String(e.message) : "Search failed";
-          renderCommunityFindFriendResults([], msg);
+          renderUsernameSearchResults([], msg);
         }
       }
 
-      function scheduleCommunityFindFriendSearch(raw) {
+      function scheduleUsernameSearch(raw) {
         if (!accountIsRegistered(sessionMeSnapshot)) return;
-        if (communityFindFriendTimer) clearTimeout(communityFindFriendTimer);
+        if (usernameSearchTimer) clearTimeout(usernameSearchTimer);
         const q = raw.trim();
         if (q.length < 1) {
-          hideCommunityFindFriendDropdown();
+          hideUsernameSearchDropdown();
           return;
         }
-        communityFindFriendTimer = setTimeout(() => {
-          communityFindFriendTimer = null;
-          void runCommunityFindFriendSearch(q);
+        usernameSearchTimer = setTimeout(() => {
+          usernameSearchTimer = null;
+          void runUsernameSearch(q);
         }, 280);
       }
 
@@ -12065,11 +12144,186 @@
       /** Invalidates in-flight headline fetches + DOM when `loadCommunityHeadlines` runs again before TVMaze responds. */
       let communityHeadlinesPaintId = 0;
 
+      /** Breaking news rail: slow horizontal auto-scroll (teardown on each reload). */
+      let communityHeadlinesAutoScrollCleanup = null;
+
+      function teardownCommunityHeadlinesAutoScroll() {
+        if (typeof communityHeadlinesAutoScrollCleanup === "function") {
+          try {
+            communityHeadlinesAutoScrollCleanup();
+          } catch {
+            /* ignore */
+          }
+          communityHeadlinesAutoScrollCleanup = null;
+        }
+      }
+
+      /**
+       * Seamless loop: duplicates list items (second set `aria-hidden` for AT), rAF ~22px/s, pause on hover/focus/pointer/touch/wheel.
+       * Disabled when `prefers-reduced-motion: reduce`.
+       */
+      function setupCommunityHeadlinesAutoScroll(rail) {
+        teardownCommunityHeadlinesAutoScroll();
+        if (!rail || rail.children.length < 1) return;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        const firstSet = Array.from(rail.querySelectorAll(":scope > li"));
+        if (firstSet.length < 1) return;
+
+        firstSet.forEach((li) => {
+          const clone = li.cloneNode(true);
+          clone.setAttribute("aria-hidden", "true");
+          const focusables = clone.querySelectorAll('a[href], button, [tabindex]:not([tabindex="-1"])');
+          focusables.forEach((el) => {
+            el.setAttribute("tabindex", "-1");
+          });
+          rail.appendChild(clone);
+        });
+
+        const firstClone = rail.children[firstSet.length];
+        const loopSpan = firstClone ? firstClone.offsetLeft : rail.scrollWidth / 2;
+        if (loopSpan < 24) return;
+        let rafId = 0;
+        let lastT = performance.now();
+        const speedPxPerSec = 20;
+        let paused = false;
+        let resumeTimer = null;
+        const resumeDelayMs = 2600;
+        let docPointerUpAttached = false;
+        let scrollFromAuto = false;
+
+        function setPaused(next) {
+          if (paused === next) return;
+          paused = next;
+          if (paused) {
+            rail.classList.remove("community-headlines-rail--auto-active");
+          } else {
+            rail.classList.add("community-headlines-rail--auto-active");
+            lastT = performance.now();
+          }
+        }
+
+        rail.classList.add("community-headlines-rail--auto-active");
+
+        function scheduleResume() {
+          if (resumeTimer) clearTimeout(resumeTimer);
+          resumeTimer = setTimeout(() => {
+            resumeTimer = null;
+            setPaused(false);
+          }, resumeDelayMs);
+        }
+
+        function pauseInteraction() {
+          setPaused(true);
+          if (resumeTimer) {
+            clearTimeout(resumeTimer);
+            resumeTimer = null;
+          }
+        }
+
+        function onDocPointerUp() {
+          if (docPointerUpAttached) {
+            document.removeEventListener("pointerup", onDocPointerUp, true);
+            docPointerUpAttached = false;
+          }
+          scheduleResume();
+        }
+
+        function tick(t) {
+          rafId = requestAnimationFrame(tick);
+          if (paused || document.visibilityState === "hidden") {
+            lastT = t;
+            return;
+          }
+          const dt = Math.min(48, t - lastT) / 1000;
+          lastT = t;
+          scrollFromAuto = true;
+          rail.scrollLeft += speedPxPerSec * dt;
+          if (rail.scrollLeft >= loopSpan - 0.5) {
+            rail.scrollLeft -= loopSpan;
+          }
+          queueMicrotask(() => {
+            scrollFromAuto = false;
+          });
+        }
+
+        const onScroll = () => {
+          if (scrollFromAuto) return;
+          pauseInteraction();
+          scheduleResume();
+        };
+
+        const onWheel = () => {
+          pauseInteraction();
+          scheduleResume();
+        };
+        const onPointerDown = () => {
+          pauseInteraction();
+          if (!docPointerUpAttached) {
+            docPointerUpAttached = true;
+            document.addEventListener("pointerup", onDocPointerUp, true);
+          }
+        };
+        const onMouseEnter = () => {
+          pauseInteraction();
+        };
+        const onMouseLeave = () => {
+          scheduleResume();
+        };
+        const onFocusIn = () => {
+          pauseInteraction();
+        };
+        const onFocusOut = (e) => {
+          if (rail.contains(e.relatedTarget)) return;
+          scheduleResume();
+        };
+        const onTouchStart = () => {
+          pauseInteraction();
+        };
+        const onTouchEnd = () => {
+          scheduleResume();
+        };
+
+        rail.addEventListener("wheel", onWheel, { passive: true });
+        rail.addEventListener("pointerdown", onPointerDown, { passive: true });
+        rail.addEventListener("mouseenter", onMouseEnter);
+        rail.addEventListener("mouseleave", onMouseLeave);
+        rail.addEventListener("focusin", onFocusIn);
+        rail.addEventListener("focusout", onFocusOut);
+        rail.addEventListener("touchstart", onTouchStart, { passive: true });
+        rail.addEventListener("touchend", onTouchEnd, { passive: true });
+        rail.addEventListener("touchcancel", onTouchEnd, { passive: true });
+        rail.addEventListener("scroll", onScroll, { passive: true });
+
+        rafId = requestAnimationFrame(tick);
+
+        communityHeadlinesAutoScrollCleanup = () => {
+          cancelAnimationFrame(rafId);
+          if (resumeTimer) clearTimeout(resumeTimer);
+          if (docPointerUpAttached) {
+            document.removeEventListener("pointerup", onDocPointerUp, true);
+            docPointerUpAttached = false;
+          }
+          rail.classList.remove("community-headlines-rail--auto-active");
+          rail.removeEventListener("wheel", onWheel);
+          rail.removeEventListener("pointerdown", onPointerDown);
+          rail.removeEventListener("mouseenter", onMouseEnter);
+          rail.removeEventListener("mouseleave", onMouseLeave);
+          rail.removeEventListener("focusin", onFocusIn);
+          rail.removeEventListener("focusout", onFocusOut);
+          rail.removeEventListener("touchstart", onTouchStart);
+          rail.removeEventListener("touchend", onTouchEnd);
+          rail.removeEventListener("touchcancel", onTouchEnd);
+          rail.removeEventListener("scroll", onScroll);
+        };
+      }
+
       async function loadCommunityHeadlines() {
         const wrap = document.getElementById("communityHeadlinesWrap");
         const rail = document.getElementById("communityHeadlinesRail");
         const errEl = document.getElementById("communityHeadlinesErr");
         if (!wrap || !rail) return;
+        teardownCommunityHeadlinesAutoScroll();
         const paintId = ++communityHeadlinesPaintId;
         if (errEl) {
           errEl.hidden = true;
@@ -12154,6 +12408,11 @@
               row.style.transform = "translateX(0)";
             }, j * 55);
           });
+          const staggerMs = Math.max(480, items.length * 55 + 200);
+          setTimeout(() => {
+            if (paintId !== communityHeadlinesPaintId) return;
+            setupCommunityHeadlinesAutoScroll(rail);
+          }, staggerMs);
         } catch (e) {
           if (paintId !== communityHeadlinesPaintId) return;
           rail.removeAttribute("aria-busy");
@@ -12507,7 +12766,7 @@
       }
 
       async function openCommunityThread(showId, showNameFallback, postCountHint, episodeDeepLink) {
-        hideCommunityFindFriendDropdown();
+        hideUsernameSearchDropdown();
         communityState.view = "thread";
         const communityFab = document.getElementById("communityNewThreadBtn");
         if (communityFab) communityFab.style.display = "none";
@@ -14608,6 +14867,7 @@
       function openQuickStartHelpModal() {
         closeAppSettingsModal();
         closeAppProfileModal();
+        closeUsernameSearchModal({ skipFocusRestore: true });
         const el = document.getElementById("quickStartHelpModal");
         const btn = document.getElementById("quickStartHelpBtn");
         if (!el) return;
@@ -14664,6 +14924,7 @@
         closeHeaderMenus();
         closeQuickStartHelpModal();
         closeAppSettingsModal();
+        closeUsernameSearchModal();
         const el = document.getElementById("appProfileModal");
         if (el) el.classList.add("open");
         const id = resolveUserId();
@@ -14704,6 +14965,7 @@
         closeHeaderMenus();
         closeAppSettingsModal();
         closeAppProfileModal();
+        closeUsernameSearchModal({ skipFocusRestore: true });
         const qsm = document.getElementById("quickStartHelpModal");
         if (qsm && qsm.classList.contains("open")) closeQuickStartHelpModal();
         document.querySelectorAll(".tab-panel").forEach((el) => {
@@ -14731,7 +14993,6 @@
           if (id) void loadWeekGuide(id);
         }
         if (name === "community") {
-          syncCommunityFindFriendChrome();
           if (communityState.view === "list") {
             loadCommunityThreads();
             void loadCommunityChallenges();
@@ -15063,25 +15324,31 @@
           });
         }
       })();
-      (function setupCommunityFindFriend() {
-        const inp = document.getElementById("communityFindFriendInput");
-        const wrap = document.getElementById("communityFindFriend");
+      (function setupUsernameSearch() {
+        const inp = document.getElementById("usernameSearchInput");
+        const wrap = document.getElementById("usernameSearchWrap");
         if (!inp) return;
         inp.addEventListener("input", () => {
-          scheduleCommunityFindFriendSearch(inp.value || "");
-        });
-        inp.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") {
-            hideCommunityFindFriendDropdown();
-            inp.blur();
-          }
+          scheduleUsernameSearch(inp.value || "");
         });
         if (wrap) {
           document.addEventListener("click", (e) => {
-            if (!wrap.contains(e.target)) hideCommunityFindFriendDropdown();
+            const modal = document.getElementById("usernameSearchModal");
+            if (!modal || modal.hidden) return;
+            if (!wrap.contains(e.target)) hideUsernameSearchDropdown();
           });
         }
+        document.addEventListener("keydown", (e) => {
+          if (e.key !== "Escape") return;
+          const modal = document.getElementById("usernameSearchModal");
+          if (!modal || modal.hidden) return;
+          e.preventDefault();
+          closeUsernameSearchModal();
+        });
       })();
+      document.querySelectorAll("[data-close-username-search-modal]").forEach((el) => {
+        el.addEventListener("click", () => closeUsernameSearchModal());
+      });
       document.querySelectorAll("[data-close-community-modal]").forEach((el) => {
         el.addEventListener("click", () => closeCommunityNewModal());
       });
@@ -16359,6 +16626,7 @@
           e.stopPropagation();
           closeQuickStartHelpModal();
           closeAppProfileModal();
+          closeUsernameSearchModal({ skipFocusRestore: true });
           const d = document.getElementById("headerSettingsDropdown");
           const pd = document.getElementById("headerProfileDropdown");
           const wasOpen = d && !d.hidden;
@@ -16373,6 +16641,7 @@
           e.stopPropagation();
           closeQuickStartHelpModal();
           closeAppSettingsModal();
+          closeUsernameSearchModal({ skipFocusRestore: true });
           const d = document.getElementById("headerProfileDropdown");
           const sd = document.getElementById("headerSettingsDropdown");
           const wasOpen = d && !d.hidden;
@@ -16409,6 +16678,11 @@
           e.stopPropagation();
           closeHeaderMenus();
           openAppProfileModal();
+        });
+        document.getElementById("headerMenuSearchUsername")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeHeaderMenus();
+          openUsernameSearchModal();
         });
         document.getElementById("headerMenuSignOut")?.addEventListener("click", (e) => {
           e.stopPropagation();
