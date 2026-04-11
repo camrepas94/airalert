@@ -4796,6 +4796,16 @@ app.get("/logo.svg", async (_req, reply) => {
   return reply.type("image/svg+xml; charset=utf-8").send(fs.readFileSync(p, "utf8"));
 });
 
+app.get("/galaxy-inspiration-bg.png", async (_req, reply) => {
+  const p = path.join(publicDir, "galaxy-inspiration-bg.png");
+  if (!fs.existsSync(p)) {
+    reply.code(404);
+    return "Not found";
+  }
+  reply.header("Cache-Control", "public, max-age=86400");
+  return reply.type("image/png").send(fs.readFileSync(p));
+});
+
 cron.schedule("5 * * * *", async () => {
   try {
     await refreshAllSubscribedShows();

@@ -54,8 +54,8 @@
         --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         --space-deep: #050510;
         --space-haze: rgba(91, 156, 255, 0.06);
-        /** Background theme tokens — full photo + light overlays (see .galaxy-photo-base) */
-        --space-void: #020308;
+        /** Background theme — layered CSS galaxy + optional photo wash (see .galaxy-photo-base) */
+        --space-void: #010108;
         --galaxy-photo-url: url("/galaxy-inspiration-bg.png");
         --space-gradient: none;
         --space-stars-opacity: 0.78;
@@ -128,10 +128,7 @@
       * {
         box-sizing: border-box;
       }
-      /**
-       * Root canvas: dark fallback only. Real galaxy art lives in .galaxy-photo-base so it is not
-       * painted over by CSS-only gradients that read as flat purple.
-       */
+      /** Root: void color only — full galaxy stack is on .galaxy-photo-base + layers */
       html {
         height: 100%;
         min-height: 100%;
@@ -139,31 +136,48 @@
         overflow-x: hidden;
         overscroll-behavior-x: none;
         background-color: var(--space-void);
-        background-image: linear-gradient(180deg, rgba(3, 6, 18, 0.35) 0%, rgba(2, 3, 10, 0.5) 100%);
-        background-size: 100% 100%;
-        background-repeat: no-repeat;
         background-attachment: fixed;
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
       }
+      /**
+       * Global galaxy canvas (z:-3): pure CSS depth — void, nebula clouds, dust bands.
+       * Optional reference photo in ::after — low opacity, never the only visual.
+       */
       .galaxy-photo-base {
         position: fixed;
         inset: 0;
         z-index: -3;
         pointer-events: none;
-        background-color: #020308;
-        /* Photo + always-on cosmic wash so deploys missing PNG still look intentional */
-        background-image: var(--galaxy-photo-url),
-          radial-gradient(ellipse 100% 80% at 50% 100%, rgba(30, 27, 75, 0.45) 0%, transparent 55%),
-          radial-gradient(ellipse 90% 70% at 10% 20%, rgba(14, 116, 144, 0.25) 0%, transparent 50%),
-          linear-gradient(168deg, #020308 0%, #050a1a 45%, #0a0520 100%);
-        background-size: cover, cover, cover, cover;
-        background-position: center 38%, center, center, center;
+        background-color: #010108;
+        background-image:
+          radial-gradient(ellipse 130% 85% at 50% -8%, rgba(30, 41, 82, 0.55) 0%, transparent 52%),
+          radial-gradient(ellipse 95% 70% at 108% 8%, rgba(59, 130, 246, 0.18) 0%, transparent 48%),
+          radial-gradient(ellipse 80% 60% at -5% 18%, rgba(34, 211, 238, 0.12) 0%, transparent 50%),
+          radial-gradient(ellipse 75% 55% at 92% 35%, rgba(168, 85, 247, 0.16) 0%, transparent 52%),
+          radial-gradient(ellipse 90% 75% at 8% 92%, rgba(14, 165, 233, 0.1) 0%, transparent 54%),
+          radial-gradient(ellipse 110% 90% at 50% 112%, rgba(76, 29, 149, 0.42) 0%, rgba(30, 27, 75, 0.15) 45%, transparent 58%),
+          radial-gradient(ellipse 70% 50% at 72% 88%, rgba(236, 72, 153, 0.12) 0%, transparent 48%),
+          radial-gradient(ellipse 55% 42% at 22% 48%, rgba(99, 102, 241, 0.08) 0%, transparent 46%),
+          linear-gradient(168deg, #010108 0%, #030612 28%, #05041a 58%, #020308 100%);
+        background-size: cover;
+        background-position: center;
         background-repeat: no-repeat;
       }
+      .galaxy-photo-base::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: var(--galaxy-photo-url);
+        background-size: cover;
+        background-position: center 38%;
+        background-repeat: no-repeat;
+        opacity: 0.2;
+        mix-blend-mode: soft-light;
+        pointer-events: none;
+      }
       /**
-       * Cosmic atmosphere: layered nebula + edge glow + center scrim (above photo, below mesh/stars).
-       * Keeps the galaxy photo readable while adding premium cyan / purple / pink depth.
+       * Cosmic atmosphere (z:-2): asymmetrical edge glow + center darkening for readable content column.
        */
       .cosmic-field {
         position: fixed;
@@ -171,13 +185,14 @@
         z-index: -2;
         pointer-events: none;
         background:
-          radial-gradient(ellipse 88% 70% at 0% 18%, rgba(56, 189, 248, 0.16) 0%, transparent 58%),
-          radial-gradient(ellipse 72% 58% at 100% 10%, rgba(168, 85, 247, 0.13) 0%, transparent 52%),
-          radial-gradient(ellipse 95% 72% at 50% 100%, rgba(236, 72, 153, 0.11) 0%, transparent 54%),
-          radial-gradient(ellipse 58% 48% at 6% 88%, rgba(34, 211, 238, 0.09) 0%, transparent 56%),
-          radial-gradient(ellipse 65% 52% at 94% 78%, rgba(99, 102, 241, 0.1) 0%, transparent 54%),
-          radial-gradient(ellipse 100% 85% at 50% 38%, rgba(2, 3, 18, 0.4) 0%, rgba(2, 3, 18, 0.12) 48%, transparent 72%),
-          radial-gradient(ellipse 125% 100% at 50% 50%, rgba(1, 2, 12, 0.32) 0%, transparent 68%);
+          radial-gradient(ellipse 92% 74% at 0% 12%, rgba(56, 189, 248, 0.2) 0%, transparent 56%),
+          radial-gradient(ellipse 78% 62% at 100% 6%, rgba(167, 139, 250, 0.16) 0%, transparent 50%),
+          radial-gradient(ellipse 100% 78% at 50% 102%, rgba(236, 72, 153, 0.14) 0%, transparent 56%),
+          radial-gradient(ellipse 62% 50% at 4% 78%, rgba(34, 211, 238, 0.11) 0%, transparent 54%),
+          radial-gradient(ellipse 68% 56% at 96% 62%, rgba(99, 102, 241, 0.13) 0%, transparent 52%),
+          radial-gradient(ellipse 52% 44% at 38% 8%, rgba(14, 165, 233, 0.08) 0%, transparent 48%),
+          radial-gradient(ellipse 105% 88% at 50% 36%, rgba(2, 4, 18, 0.38) 0%, rgba(2, 3, 14, 0.1) 46%, transparent 70%),
+          radial-gradient(ellipse 130% 100% at 50% 50%, rgba(0, 0, 0, 0.28) 0%, transparent 65%);
       }
       html:not([data-theme="nebula"]) .cosmic-field {
         display: none;
@@ -229,8 +244,30 @@
           0 0, 0 0, 0 0, 0 0, 0 0;
         animation: space-stars-twinkle 5.2s ease-in-out infinite;
       }
+      /**
+       * Nebula theme: sparse premium star field — large tile, few points (not confetti / dense repeat).
+       */
       html[data-theme="nebula"]::before {
-        animation: space-stars-twinkle-nebula 7.5s ease-in-out infinite;
+        filter: saturate(1.05);
+        background-image: radial-gradient(1.1px 1.1px at 8% 14%, rgba(240, 250, 255, 0.55), transparent),
+          radial-gradient(0.75px 0.75px at 22% 68%, rgba(200, 220, 255, 0.35), transparent),
+          radial-gradient(1px 1px at 41% 31%, rgba(255, 255, 255, 0.5), transparent),
+          radial-gradient(0.65px 0.65px at 63% 9%, rgba(220, 235, 255, 0.4), transparent),
+          radial-gradient(1.05px 1.05px at 78% 52%, rgba(255, 255, 255, 0.48), transparent),
+          radial-gradient(0.7px 0.7px at 91% 28%, rgba(190, 215, 255, 0.38), transparent),
+          radial-gradient(0.9px 0.9px at 14% 88%, rgba(255, 255, 255, 0.42), transparent),
+          radial-gradient(0.8px 0.8px at 35% 6%, rgba(230, 245, 255, 0.45), transparent),
+          radial-gradient(1px 1px at 52% 71%, rgba(200, 228, 255, 0.36), transparent),
+          radial-gradient(0.72px 0.72px at 71% 19%, rgba(255, 255, 255, 0.44), transparent),
+          radial-gradient(0.68px 0.68px at 88% 79%, rgba(210, 230, 255, 0.34), transparent),
+          radial-gradient(1.15px 1.15px at 5% 44%, rgba(255, 255, 255, 0.52), transparent),
+          radial-gradient(0.85px 0.85px at 96% 63%, rgba(240, 248, 255, 0.4), transparent),
+          radial-gradient(1.4px 1.4px at 48% 48%, rgba(180, 220, 255, 0.65), rgba(34, 211, 238, 0.12) 55%, transparent),
+          radial-gradient(1.2px 1.2px at 67% 91%, rgba(230, 210, 255, 0.5), rgba(168, 85, 247, 0.1) 50%, transparent);
+        background-repeat: repeat;
+        background-size: 680px 760px;
+        background-position: 0 0;
+        animation: space-stars-twinkle-nebula 12s ease-in-out infinite;
       }
       @keyframes space-stars-twinkle {
         0%,
@@ -250,16 +287,16 @@
       @keyframes space-stars-twinkle-nebula {
         0%,
         100% {
-          opacity: calc(var(--space-stars-opacity) * 0.92);
+          opacity: calc(var(--space-stars-opacity) * 0.88);
         }
         28% {
-          opacity: calc(var(--space-stars-opacity) * 1.12);
+          opacity: calc(var(--space-stars-opacity) * 1.08);
         }
         52% {
-          opacity: calc(var(--space-stars-opacity) * 0.78);
+          opacity: calc(var(--space-stars-opacity) * 0.72);
         }
         78% {
-          opacity: calc(var(--space-stars-opacity) * 1.06);
+          opacity: calc(var(--space-stars-opacity) * 1.02);
         }
       }
       html::after {
@@ -651,7 +688,15 @@
         opacity: 0.12;
       }
       html[data-theme="nebula"] .galaxy-photo-base {
-        filter: saturate(1.08) contrast(1.05) brightness(0.98);
+        filter: saturate(1.06) contrast(1.04) brightness(0.99);
+      }
+      html[data-theme="nebula"] .galaxy-photo-base::after {
+        opacity: 0.17;
+      }
+      @media (max-width: 520px) {
+        html[data-theme="nebula"] .galaxy-photo-base::after {
+          opacity: 0.14;
+        }
       }
       html[data-theme="nebula"] .cosmic-field {
         opacity: 1;
@@ -722,13 +767,14 @@
       }
 
       html[data-theme="nebula"] {
-        background-color: #020308;
+        background-color: #010108;
         background-image: none;
-        --space-void: #020308;
+        --space-void: #010108;
         --space-gradient: none;
-        --space-stars-opacity: 0.22;
+        --panel: rgba(10, 12, 22, 0.86);
+        --space-stars-opacity: 0.15;
         --space-stars-filter: saturate(1.12);
-        --space-haze-opacity: 0.072;
+        --space-haze-opacity: 0.088;
         --space-haze-a: rgba(34, 211, 238, 0.12);
         --space-haze-b: rgba(91, 156, 255, 0.09);
         --space-haze-c: rgba(167, 139, 250, 0.08);
@@ -3918,7 +3964,7 @@
         backdrop-filter: none;
       }
       #tab-community section.panel-rail-cyan.community-root {
-        background: linear-gradient(165deg, rgba(12, 16, 28, 0.94) 0%, rgba(6, 10, 20, 0.96) 100%);
+        background: linear-gradient(165deg, rgba(10, 14, 24, 0.97) 0%, rgba(5, 8, 18, 0.98) 100%);
         contain: layout;
       }
       .community-list-head {
@@ -3929,13 +3975,18 @@
         flex-wrap: wrap;
         margin-bottom: 0.35rem;
       }
-      /* ── Breaking news rail (matches General / Trending hero cards — horizontal scroll, not ticker) */
+      /* ── Breaking news rail: same hero DNA as General Discussion (image-led, scroll-snap rail, not ticker) */
       .community-headlines-rail-wrap {
         margin: 0.15rem 0 0.55rem;
       }
       .community-headlines-rail-wrap .community-subsection-heading {
         margin-bottom: 0.45rem;
         font-size: 0.82rem;
+      }
+      .community-headlines-err {
+        font-size: 0.78rem;
+        margin: 0 0 0.45rem;
+        line-height: 1.35;
       }
       .community-headlines-rail {
         list-style: none;
@@ -3953,13 +4004,16 @@
         -webkit-overflow-scrolling: touch;
         touch-action: pan-x;
       }
+      .community-headlines-rail[aria-busy="true"] {
+        pointer-events: none;
+      }
       .community-headlines-rail::-webkit-scrollbar {
         display: none;
       }
       .community-headlines-rail > li {
-        flex: 0 0 min(280px, 86vw);
-        min-width: min(280px, 86vw);
-        max-width: 300px;
+        flex: 0 0 min(300px, 85vw);
+        min-width: min(300px, 85vw);
+        max-width: 320px;
         scroll-snap-align: start;
       }
       a.community-headline-card {
@@ -3970,8 +4024,19 @@
         padding: 0;
         cursor: pointer;
       }
+      /** Match `.community-thread-card--hero` / General Discussion tile height */
       .community-headline-card .community-thread-card-hero {
-        min-height: 236px;
+        min-height: 272px;
+      }
+      /** Stronger scrim than default episode hero — headline text must stay readable on busy posters */
+      .community-headline-card .community-thread-card-scrim {
+        background: linear-gradient(
+          165deg,
+          rgba(0, 0, 0, 0.12) 0%,
+          rgba(4, 6, 14, 0.35) 38%,
+          rgba(4, 6, 18, 0.78) 58%,
+          rgba(2, 3, 10, 0.96) 100%
+        );
       }
       .community-headline-card-title {
         display: -webkit-box;
@@ -3981,6 +4046,42 @@
         line-height: 1.32;
         font-size: 0.88rem !important;
         font-weight: 700;
+      }
+      .community-headline-skeleton-li {
+        flex: 0 0 min(300px, 85vw);
+        min-width: min(300px, 85vw);
+        max-width: 320px;
+        scroll-snap-align: start;
+      }
+      .community-headline-skeleton-card {
+        height: 272px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(10, 14, 22, 0.92);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+        position: relative;
+      }
+      .community-headline-skeleton-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          105deg,
+          transparent 36%,
+          rgba(130, 200, 255, 0.07) 50%,
+          transparent 64%
+        );
+        background-size: 220% 100%;
+        animation: community-headline-skeleton-shimmer 1.35s ease-in-out infinite;
+      }
+      @keyframes community-headline-skeleton-shimmer {
+        0% {
+          background-position: 120% 0;
+        }
+        100% {
+          background-position: -120% 0;
+        }
       }
       .community-headline-type-badge {
         font-size: 0.6rem;
@@ -4013,6 +4114,15 @@
           radial-gradient(ellipse 85% 65% at 18% 22%, rgba(56, 189, 248, 0.14), transparent 58%),
           radial-gradient(ellipse 72% 58% at 88% 78%, rgba(168, 85, 247, 0.12), transparent 52%),
           linear-gradient(168deg, rgba(14, 18, 28, 0.96) 0%, rgba(4, 8, 18, 0.99) 100%) !important;
+      }
+      .community-headline-card-art--loading {
+        filter: brightness(0.92) saturate(0.95);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .community-headline-skeleton-card::after {
+          animation: none !important;
+          opacity: 0.5;
+        }
       }
       /* ── Filter Pills ── */
       .community-filter-pills {
@@ -7157,7 +7267,8 @@
               <span class="community-live-badge" aria-hidden="true">● LIVE</span>
             </div>
 
-            <!-- Breaking news — horizontal card rail (TVMaze art when available) -->
+            <!-- Breaking news — horizontal hero cards (TVMaze posters); same pattern as General Discussion -->
+            <p class="muted community-headlines-err" id="communityHeadlinesErr" hidden></p>
             <div class="community-headlines-rail-wrap" id="communityHeadlinesWrap" hidden>
               <h3 class="community-subsection-heading">Breaking news</h3>
               <ul class="community-headlines-rail" id="communityHeadlinesRail" role="list" aria-label="Breaking news"></ul>
@@ -10128,6 +10239,8 @@
       }
 
       let adminUiListenersWired = false;
+      /** Incremented on every `applyMeToUI` so in-flight admin fragment fetches cannot inject after identity changes. */
+      let adminUiEpoch = 0;
 
       function removeAdminUiFromDom() {
         adminUiListenersWired = false;
@@ -10144,7 +10257,7 @@
         return Boolean(me && (me.isAdmin === true || me.isAdmin === 1));
       }
 
-      async function ensureAdminUiLoaded(me) {
+      async function ensureAdminUiLoaded(me, epoch) {
         /** In-app Admin tab ONLY for DB is_admin (from /api/users/me). Do not use /api/admin/status here:
          *  env-password cookie (AIRALERT_ADMIN_PASSWORD) also sets authenticated and must not unlock the main shell
          *  while a normal user is signed in. Env-only admins: use /admin.html */
@@ -10153,7 +10266,9 @@
           removeAdminUiFromDom();
           return;
         }
+        if (epoch !== adminUiEpoch) return;
         if (document.getElementById("tab-admin")) {
+          if (epoch !== adminUiEpoch) return;
           const b = document.getElementById("tabBtnAdmin");
           if (b) b.classList.add("visible");
           return;
@@ -10164,9 +10279,15 @@
         } catch {
           return;
         }
+        if (epoch !== adminUiEpoch) return;
         if (r.status === 401 || r.status === 403) return;
         if (!r.ok) return;
         const text = await r.text();
+        if (epoch !== adminUiEpoch) return;
+        if (!userIsDbAdmin(sessionMeSnapshot)) {
+          removeAdminUiFromDom();
+          return;
+        }
         const parts = text.split(/<!--\s*AIRALERT_PART:(\w+)\s*-->/);
         const map = {};
         for (let i = 1; i < parts.length; i += 2) {
@@ -10191,6 +10312,11 @@
           wrap.innerHTML = map.moveModal;
           const modal = wrap.firstElementChild;
           if (modal) document.body.appendChild(modal);
+        }
+        if (epoch !== adminUiEpoch) return;
+        if (!userIsDbAdmin(sessionMeSnapshot)) {
+          removeAdminUiFromDom();
+          return;
         }
         wireAdminPanelListeners();
         const tabBtn = document.getElementById("tabBtnAdmin");
@@ -10234,8 +10360,10 @@
       }
 
       function applyMeToUI(me) {
-        if (!userIsDbAdmin(me)) removeAdminUiFromDom();
+        adminUiEpoch++;
+        const epoch = adminUiEpoch;
         sessionMeSnapshot = me;
+        if (!userIsDbAdmin(me)) removeAdminUiFromDom();
         syncInboxChromeFromMe(me);
         syncCommunityFindFriendChrome();
         syncProfileShareSection();
@@ -10264,7 +10392,7 @@
             signed.hidden = true;
           }
         }
-        void ensureAdminUiLoaded(me);
+        void ensureAdminUiLoaded(me, epoch);
       }
 
       function adminPillClass(from) {
@@ -11897,18 +12025,38 @@
         return "News";
       }
 
+      /** Invalidates in-flight headline fetches + DOM when `loadCommunityHeadlines` runs again before TVMaze responds. */
+      let communityHeadlinesPaintId = 0;
+
       async function loadCommunityHeadlines() {
         const wrap = document.getElementById("communityHeadlinesWrap");
         const rail = document.getElementById("communityHeadlinesRail");
+        const errEl = document.getElementById("communityHeadlinesErr");
         if (!wrap || !rail) return;
+        const paintId = ++communityHeadlinesPaintId;
+        if (errEl) {
+          errEl.hidden = true;
+          errEl.textContent = "";
+        }
+        wrap.hidden = false;
+        rail.innerHTML = "";
+        rail.setAttribute("aria-busy", "true");
+        for (let s = 0; s < 2; s++) {
+          const sk = document.createElement("li");
+          sk.className = "community-headline-skeleton-li";
+          sk.innerHTML = '<div class="community-headline-skeleton-card" aria-hidden="true"></div>';
+          rail.appendChild(sk);
+        }
         try {
           const data = await api("/api/ticker");
+          if (paintId !== communityHeadlinesPaintId) return;
           const items = data.items || [];
+          rail.removeAttribute("aria-busy");
           if (!items.length) {
             wrap.hidden = true;
+            rail.innerHTML = "";
             return;
           }
-          wrap.hidden = false;
           rail.innerHTML = "";
           for (let i = 0; i < items.length; i++) {
             const it = items[i];
@@ -11955,7 +12103,7 @@
             card.setAttribute("aria-label", label);
 
             const heroEl = card.querySelector(".community-headline-card-art");
-            applyCommunityHeadlineCardArt(heroEl, it.tvmazeShowId);
+            applyCommunityHeadlineCardArt(heroEl, it.tvmazeShowId, paintId);
 
             li.appendChild(card);
             li.style.opacity = "0";
@@ -11970,7 +12118,14 @@
             }, j * 55);
           });
         } catch (e) {
+          if (paintId !== communityHeadlinesPaintId) return;
+          rail.removeAttribute("aria-busy");
           wrap.hidden = true;
+          rail.innerHTML = "";
+          if (errEl) {
+            errEl.textContent = "Could not load breaking news.";
+            errEl.hidden = false;
+          }
         }
       }
 
@@ -12153,16 +12308,25 @@
         fetchTvmazeShowImageUrl(sid).then(applyUrl);
       }
 
-      function applyCommunityHeadlineCardArt(heroEl, tvmazeShowId) {
+      function applyCommunityHeadlineCardArt(heroEl, tvmazeShowId, paintId) {
         if (!heroEl) return;
-        heroEl.classList.remove("community-headline-card-art--placeholder");
-        if (tvmazeShowId == null) {
+        heroEl.classList.remove("community-headline-card-art--placeholder", "community-headline-card-art--loading");
+        if (tvmazeShowId == null || !Number.isFinite(Number(tvmazeShowId)) || Number(tvmazeShowId) < 1) {
           heroEl.classList.add("community-headline-card-art--placeholder");
           return;
         }
+        heroEl.classList.add("community-headline-card-art--loading");
         fetchTvmazeShowImageUrl(tvmazeShowId).then((url) => {
-          if (url) heroEl.style.backgroundImage = "url(" + url + ")";
-          else heroEl.classList.add("community-headline-card-art--placeholder");
+          if (paintId != null && paintId !== communityHeadlinesPaintId) return;
+          if (!heroEl.isConnected) return;
+          heroEl.classList.remove("community-headline-card-art--loading");
+          if (url) {
+            heroEl.classList.remove("community-headline-card-art--placeholder");
+            const safe = String(url).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+            heroEl.style.setProperty("background-image", 'url("' + safe + '")', "important");
+          } else {
+            heroEl.classList.add("community-headline-card-art--placeholder");
+          }
         });
       }
 
@@ -14488,6 +14652,9 @@
       }
 
       function setTab(name) {
+        if (name === "admin" && !userIsDbAdmin(sessionMeSnapshot)) {
+          name = "add";
+        }
         if (name === "admin" && !document.getElementById("tab-admin")) {
           name = "add";
         }
@@ -15736,7 +15903,20 @@
         }
       }
 
+      window.addEventListener("pageshow", (ev) => {
+        if (!ev.persisted) return;
+        void (async () => {
+          try {
+            const meNow = await api("/api/users/me");
+            applyMeToUI(meNow);
+          } catch {
+            applyMeToUI(null);
+          }
+        })();
+      });
+
       (async function init() {
+        removeAdminUiFromDom();
         const userId = await ensureUser();
         appUserId = userId;
         let me = null;
