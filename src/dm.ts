@@ -261,6 +261,13 @@ export function getDmUnreadTotal(userId: string): number {
     const c = countStmt.get(t.id, userId, cutoff) as { c: number };
     total += Number(c.c) || 0;
   }
+
+  const groupIds = db
+    .prepare(`SELECT group_id AS id FROM dm_group_members WHERE user_id = ?`)
+    .all(userId) as { id: string }[];
+  for (const g of groupIds) {
+    total += groupUnreadCountForUser(userId, g.id);
+  }
   return total;
 }
 
@@ -395,4 +402,211 @@ export function listDmMessages(threadId: string, userId: string, limit: number, 
        FROM dm_messages WHERE thread_id = ? ORDER BY datetime(created_at) DESC, id DESC LIMIT ?`,
     )
     .all(threadId, lim) as DmMessageRow[];
+}
+
+/* ── Group DMs ───────────────────────────────────────────── */
+
+export type DmGroupListRow = {
+  groupId: string;
+  name: string;
+  lastMessageAt: string;
+  lastBody: string | null;
+  lastSenderId: string | null;
+  memberCount: number;
+  unreadCount: number;
+};
+
+export type DmGroupMessageRow = {
+  id: string;
+  groupId: string;
+  senderId: string;
+  body: string;
+  createdAt: string;
+};
+
+function assertGroupMember(groupId: string, userId: string): boolean {
+  const r = db
+    .prepare(`SELECT 1 FROM dm_group_members WHERE group_id = ? AND user_id = ?`)
+    .get(groupId, userId);
+  return Boolean(r);
+}
+
+export function createDmGroup(creatorId: string, rawName: string, memberUserIds: string[]): string {
+  const name = normalizeGroupName(rawName) || "Group chat";
+  const ids = [...new Set((memberUserIds || []).map((x) => String(x).trim()).filter(Boolean))].filter((id) => id !== creatorId);
+  if (ids.length === 0) throw new Error("Add at least one other member");
+  if (ids.length > MAX_GROUP_MEMBERS - 1) throw new Error(`At most ${MAX_GROUP_MEMBERS - 1} other members`);
+
+  for (const uid of ids) {
+    const ex = db.prepare(`SELECT 1 FROM users WHERE id = ?`).get(uid);
+    if (!ex) throw new Error("One or more members were not found");
+  }
+
+  const groupId = uuidv4();
+  db
+    .prepare(
+      `INSERT INTO dm_group_threads (id, name, created_by, last_message_at) VALUES (?, ?, ?, datetime('now'))`,
+    )
+    .run(groupId, name, creatorId);
+  const ins = db.prepare(`INSERT INTO dm_group_members (group_id, user_id) VALUES (?, ?)`);
+  ins.run(groupId, creatorId);
+  for (const uid of ids) {
+    ins.run(groupId, uid);
+  }
+  return groupId;
+}
+
+export function listDmGroupsForUser(userId: string): DmGroupListRow[] {
+  const rows = db
+    .prepare(
+      `SELECT g.id AS groupId, g.name, g.last_message_at AS lastMessageAt
+       FROM dm_group_threads g
+       INNER JOIN dm_group_members m ON m.group_id = g.id AND m.user_id = ?
+       ORDER BY datetime(g.last_message_at) DESC`,
+    )
+    .all(userId) as { groupId: string; name: string; lastMessageAt: string }[];
+
+  const lastMsgStmt = db.prepare(
+    `SELECT body, sender_id AS senderId FROM dm_group_messages WHERE group_id = ? ORDER BY datetime(created_at) DESC, id DESC LIMIT 1`,
+  );
+  const readStmt = db.prepare(
+    `SELECT last_read_at AS lastReadAt FROM dm_group_reads WHERE group_id = ? AND user_id = ?`,
+  );
+  const countStmt = db.prepare(
+    `SELECT COUNT(*) AS c FROM dm_group_messages
+     WHERE group_id = ? AND sender_id != ? AND (datetime(created_at) > datetime(?))`,
+  );
+  const memCountStmt = db.prepare(`SELECT COUNT(*) AS c FROM dm_group_members WHERE group_id = ?`);
+
+  return rows.map((t) => {
+    const lm = lastMsgStmt.get(t.groupId) as { body: string; senderId: string } | undefined;
+    const readRow = readStmt.get(t.groupId, userId) as { lastReadAt: string | null } | undefined;
+    const cutoff = readRow?.lastReadAt ?? "1970-01-01 00:00:00";
+    const c = countStmt.get(t.groupId, userId, cutoff) as { c: number };
+    const mc = memCountStmt.get(t.groupId) as { c: number };
+    return {
+      groupId: t.groupId,
+      name: t.name,
+      lastMessageAt: t.lastMessageAt,
+      lastBody: lm?.body ?? null,
+      lastSenderId: lm?.senderId ?? null,
+      memberCount: Number(mc.c) || 0,
+      unreadCount: Number(c.c) || 0,
+    };
+  });
+}
+
+export function listDmGroupMessages(groupId: string, userId: string, limit: number): DmGroupMessageRow[] {
+  if (!assertGroupMember(groupId, userId)) return [];
+  const lim = Math.min(100, Math.max(1, limit));
+  const raw = db
+    .prepare(
+      `SELECT id, group_id AS groupId, sender_id AS senderId, body, created_at AS createdAt
+       FROM dm_group_messages WHERE group_id = ? ORDER BY datetime(created_at) DESC, id DESC LIMIT ?`,
+    )
+    .all(groupId, lim) as DmGroupMessageRow[];
+  return raw.slice().reverse();
+}
+
+export function sendDmGroupMessage(senderId: string, groupId: string, body: string): DmGroupMessageRow | null {
+  if (!assertGroupMember(groupId, senderId)) return null;
+  const text = normalizeDmBody(body);
+  if (!text) return null;
+
+  const msgId = uuidv4();
+  db
+    .prepare(
+      `INSERT INTO dm_group_messages (id, group_id, sender_id, body, created_at) VALUES (?, ?, ?, ?, datetime('now'))`,
+    )
+    .run(msgId, groupId, senderId, text);
+  db.prepare(`UPDATE dm_group_threads SET last_message_at = datetime('now') WHERE id = ?`).run(groupId);
+
+  const row = db
+    .prepare(
+      `SELECT id, group_id AS groupId, sender_id AS senderId, body, created_at AS createdAt FROM dm_group_messages WHERE id = ?`,
+    )
+    .get(msgId) as DmGroupMessageRow;
+
+  const members = db
+    .prepare(`SELECT user_id AS userId FROM dm_group_members WHERE group_id = ?`)
+    .all(groupId) as { userId: string }[];
+
+  const payload = {
+    type: "dm_group_message" as const,
+    groupId,
+    message: {
+      id: row.id,
+      senderId: row.senderId,
+      body: row.body,
+      createdAt: row.createdAt,
+    },
+  };
+
+  for (const m of members) {
+    broadcastToUser(m.userId, payload);
+    if (m.userId !== senderId) {
+      broadcastDmUnreadTotal(m.userId);
+    }
+  }
+
+  return row;
+}
+
+export function markDmGroupRead(groupId: string, userId: string): void {
+  if (!assertGroupMember(groupId, userId)) return;
+  const maxRow = db
+    .prepare(`SELECT MAX(created_at) AS m FROM dm_group_messages WHERE group_id = ?`)
+    .get(groupId) as { m: string | null } | undefined;
+  const at = maxRow?.m ?? new Date().toISOString().replace("T", " ").slice(0, 19);
+  db.prepare(
+    `INSERT INTO dm_group_reads (group_id, user_id, last_read_at) VALUES (?, ?, ?)
+     ON CONFLICT(group_id, user_id) DO UPDATE SET last_read_at = excluded.last_read_at`,
+  ).run(groupId, userId, at);
+  broadcastDmUnreadTotal(userId);
+}
+
+export function markDmGroupUnread(groupId: string, userId: string): void {
+  if (!assertGroupMember(groupId, userId)) return;
+  db.prepare(`DELETE FROM dm_group_reads WHERE group_id = ? AND user_id = ?`).run(groupId, userId);
+  broadcastDmUnreadTotal(userId);
+}
+
+/** Creator deleting the group removes it for everyone; others only leave. */
+export function leaveOrDeleteDmGroup(groupId: string, userId: string): boolean {
+  const g = db
+    .prepare(`SELECT created_by AS createdBy FROM dm_group_threads WHERE id = ?`)
+    .get(groupId) as { createdBy: string } | undefined;
+  if (!g) return false;
+  const isMember = assertGroupMember(groupId, userId);
+  if (!isMember) return false;
+
+  if (g.createdBy === userId) {
+    const memberIds = db
+      .prepare(`SELECT user_id AS userId FROM dm_group_members WHERE group_id = ?`)
+      .all(groupId) as { userId: string }[];
+    db.prepare(`DELETE FROM dm_group_threads WHERE id = ?`).run(groupId);
+    for (const m of memberIds) {
+      broadcastToUser(m.userId, { type: "dm_group_deleted" as const, groupId });
+      broadcastDmUnreadTotal(m.userId);
+    }
+    return true;
+  }
+
+  db.prepare(`DELETE FROM dm_group_members WHERE group_id = ? AND user_id = ?`).run(groupId, userId);
+  broadcastDmUnreadTotal(userId);
+  return true;
+}
+
+function groupUnreadCountForUser(userId: string, groupId: string): number {
+  const readRow = db
+    .prepare(`SELECT last_read_at AS lastReadAt FROM dm_group_reads WHERE group_id = ? AND user_id = ?`)
+    .get(groupId, userId) as { lastReadAt: string | null } | undefined;
+  const cutoff = readRow?.lastReadAt ?? "1970-01-01 00:00:00";
+  const c = db
+    .prepare(
+      `SELECT COUNT(*) AS c FROM dm_group_messages
+       WHERE group_id = ? AND sender_id != ? AND (datetime(created_at) > datetime(?))`,
+    )
+    .get(groupId, userId, cutoff) as { c: number };
+  return Number(c.c) || 0;
 }

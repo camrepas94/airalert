@@ -63,6 +63,13 @@ import {
   enrichMessagesWithReadState,
   getOtherParticipantLastReadAt,
   handleDmClientSocketMessage,
+  createDmGroup,
+  listDmGroupsForUser,
+  listDmGroupMessages,
+  sendDmGroupMessage,
+  markDmGroupRead,
+  markDmGroupUnread,
+  leaveOrDeleteDmGroup,
 } from "./dm.js";
 import {
   parseThreadLiveRoomQuery,
@@ -4037,7 +4044,7 @@ app.get("/api/dm/unread", async (request, reply) => {
 app.get("/api/dm/threads", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
-  return { threads: listDmThreadsForUser(uid) };
+  return { threads: listDmThreadsForUser(uid), groups: listDmGroupsForUser(uid) };
 });
 
 app.post("/api/dm/threads", async (request, reply) => {
@@ -4132,6 +4139,83 @@ app.delete("/api/dm/threads/:threadId", async (request, reply) => {
   if (!ok) {
     reply.code(404);
     return { error: "Thread not found" };
+  }
+  return { ok: true };
+});
+
+app.post("/api/dm/groups", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const body = (request.body ?? {}) as { name?: string; memberUserIds?: unknown };
+  const name = typeof body.name === "string" ? body.name : "";
+  const raw = body.memberUserIds;
+  const memberUserIds = Array.isArray(raw) ? raw.filter((x): x is string => typeof x === "string") : [];
+  try {
+    const groupId = createDmGroup(uid, name, memberUserIds);
+    return { groupId };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Could not create group";
+    reply.code(400);
+    return { error: msg };
+  }
+});
+
+app.get("/api/dm/groups/:groupId/messages", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { groupId } = request.params as { groupId: string };
+  const q = request.query as { limit?: string };
+  const limitRaw = Number(q.limit);
+  const limit = Number.isFinite(limitRaw) ? limitRaw : 80;
+  const messages = listDmGroupMessages(groupId, uid, limit);
+  if (messages.length === 0) {
+    const ok = db.prepare(`SELECT 1 FROM dm_group_members WHERE group_id = ? AND user_id = ?`).get(groupId, uid);
+    if (!ok) {
+      reply.code(404);
+      return { error: "Group not found" };
+    }
+  }
+  return { messages, isGroup: true as const };
+});
+
+app.post("/api/dm/groups/:groupId/messages", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { groupId } = request.params as { groupId: string };
+  const body = (request.body ?? {}) as { body?: string };
+  const text = typeof body.body === "string" ? body.body : "";
+  const row = sendDmGroupMessage(uid, groupId, text);
+  if (!row) {
+    reply.code(400);
+    return { error: "Could not send (empty message or no access)" };
+  }
+  return { message: row };
+});
+
+app.post("/api/dm/groups/:groupId/read", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { groupId } = request.params as { groupId: string };
+  markDmGroupRead(groupId, uid);
+  return { ok: true };
+});
+
+app.post("/api/dm/groups/:groupId/unread", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { groupId } = request.params as { groupId: string };
+  markDmGroupUnread(groupId, uid);
+  return { ok: true };
+});
+
+app.delete("/api/dm/groups/:groupId", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { groupId } = request.params as { groupId: string };
+  const ok = leaveOrDeleteDmGroup(groupId, uid);
+  if (!ok) {
+    reply.code(404);
+    return { error: "Group not found" };
   }
   return { ok: true };
 });

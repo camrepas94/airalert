@@ -14,7 +14,7 @@
       content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no"
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="theme-color" content="#06020c" />
+    <meta name="theme-color" content="#03051a" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -54,18 +54,15 @@
         --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         --space-deep: #050510;
         --space-haze: rgba(91, 156, 255, 0.06);
-        /** Background theme tokens (default: neon) */
-        --space-void: #010108;
-        --space-gradient: linear-gradient(
-          168deg,
-          #010010 0%,
-          #04061a 14%,
-          #060c22 30%,
-          #080e24 46%,
-          #060818 64%,
-          #030412 82%,
-          #010108 100%
-        );
+        /** Background theme tokens (default: neon) — layered galaxy base */
+        --space-void: #020308;
+        --space-gradient:
+          radial-gradient(ellipse 110% 95% at 0% 42%, rgba(219, 39, 119, 0.28) 0%, rgba(88, 28, 135, 0.12) 42%, transparent 62%),
+          radial-gradient(ellipse 90% 60% at 52% 0%, rgba(34, 211, 238, 0.2) 0%, rgba(8, 145, 178, 0.08) 48%, transparent 68%),
+          radial-gradient(ellipse 75% 55% at 95% 22%, rgba(255, 255, 255, 0.07) 0%, transparent 50%),
+          radial-gradient(ellipse 100% 85% at 85% 88%, rgba(129, 140, 248, 0.18) 0%, rgba(30, 27, 75, 0.45) 48%, transparent 70%),
+          radial-gradient(ellipse 45% 30% at 72% 78%, rgba(255, 251, 235, 0.06) 0%, transparent 55%),
+          linear-gradient(168deg, #010206 0%, #030818 22%, #050c1c 48%, #030510 74%, #010308 100%);
         --space-stars-opacity: 0.78;
         --space-stars-filter: none;
         --space-haze-opacity: 0.22;
@@ -142,8 +139,11 @@
         max-width: 100%;
         overflow-x: hidden;
         overscroll-behavior-x: none;
-        background: var(--space-void);
+        background-color: var(--space-void);
         background-image: var(--space-gradient);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
       }
@@ -292,55 +292,57 @@
         pointer-events: none;
         background-image:
           radial-gradient(
-            ellipse 120% 42% at 44% 46%,
-            rgba(255, 250, 255, 0.16) 0%,
-            rgba(216, 200, 255, 0.12) 22%,
-            rgba(167, 139, 250, 0.08) 48%,
-            transparent 72%
+            ellipse 130% 55% at 44% 46%,
+            rgba(255, 252, 250, 0.12) 0%,
+            rgba(200, 220, 255, 0.08) 18%,
+            rgba(120, 160, 255, 0.05) 42%,
+            transparent 68%
           ),
           radial-gradient(
-            ellipse 45% 35% at 78% 22%,
-            rgba(34, 211, 238, 0.28) 0%,
-            rgba(56, 189, 248, 0.16) 35%,
-            rgba(14, 165, 233, 0.06) 60%,
-            transparent 80%
+            ellipse 70% 45% at 12% 38%,
+            rgba(244, 114, 182, 0.32) 0%,
+            rgba(192, 38, 211, 0.14) 38%,
+            rgba(88, 28, 135, 0.06) 58%,
+            transparent 76%
           ),
           radial-gradient(
-            ellipse 40% 45% at 18% 68%,
-            rgba(236, 72, 153, 0.24) 0%,
-            rgba(219, 39, 119, 0.14) 30%,
-            rgba(168, 85, 247, 0.08) 55%,
+            ellipse 55% 40% at 48% 12%,
+            rgba(34, 211, 238, 0.26) 0%,
+            rgba(6, 182, 212, 0.12) 42%,
+            rgba(14, 116, 144, 0.05) 62%,
             transparent 78%
           ),
           radial-gradient(
-            ellipse 30% 25% at 62% 78%,
-            rgba(139, 92, 246, 0.2) 0%,
-            rgba(109, 40, 217, 0.1) 40%,
-            transparent 70%
+            ellipse 50% 42% at 78% 22%,
+            rgba(165, 243, 252, 0.18) 0%,
+            rgba(34, 211, 238, 0.12) 35%,
+            transparent 72%
+          ),
+          radial-gradient(
+            ellipse 85% 70% at 82% 78%,
+            rgba(199, 210, 254, 0.14) 0%,
+            rgba(99, 102, 241, 0.12) 28%,
+            rgba(30, 27, 75, 0.35) 52%,
+            transparent 74%
+          ),
+          radial-gradient(
+            ellipse 35% 28% at 72% 82%,
+            rgba(255, 255, 255, 0.09) 0%,
+            rgba(147, 197, 253, 0.06) 40%,
+            transparent 62%
           ),
           linear-gradient(
-            112deg,
+            118deg,
             transparent 0%,
-            rgba(76, 29, 149, 0.22) 12%,
-            rgba(192, 132, 252, 0.18) 26%,
-            rgba(232, 121, 249, 0.16) 40%,
-            rgba(129, 140, 248, 0.14) 52%,
-            rgba(91, 156, 255, 0.13) 64%,
-            rgba(109, 40, 217, 0.15) 78%,
+            rgba(34, 211, 238, 0.06) 22%,
+            rgba(192, 132, 252, 0.08) 48%,
+            rgba(236, 72, 153, 0.07) 68%,
             transparent 100%
-          ),
-          linear-gradient(
-            68deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.04) 35%,
-            rgba(196, 181, 253, 0.1) 50%,
-            rgba(91, 156, 255, 0.07) 62%,
-            transparent 85%
           );
         background-repeat: no-repeat;
         background-size: 100% 100%;
-        filter: blur(62px) saturate(1.55);
-        opacity: 0.92;
+        filter: blur(58px) saturate(1.65);
+        opacity: 0.94;
         animation: milky-way-drift 150s linear infinite;
         will-change: transform;
       }
@@ -411,16 +413,16 @@
 
       .space-milky-rift {
         inset: -42% -55% -32% -45%;
-        opacity: 0.6;
+        opacity: 0.52;
         background: linear-gradient(
           58deg,
           transparent 0%,
-          rgba(255, 255, 255, 0.08) 14%,
-          rgba(230, 220, 255, 0.12) 28%,
-          rgba(196, 181, 253, 0.16) 42%,
-          rgba(167, 139, 250, 0.14) 54%,
-          rgba(129, 140, 248, 0.12) 66%,
-          rgba(91, 156, 255, 0.1) 76%,
+          rgba(255, 255, 255, 0.06) 14%,
+          rgba(186, 230, 253, 0.1) 30%,
+          rgba(125, 211, 252, 0.08) 44%,
+          rgba(167, 139, 250, 0.1) 56%,
+          rgba(244, 114, 182, 0.08) 70%,
+          rgba(91, 156, 255, 0.08) 82%,
           transparent 100%
         );
         filter: blur(72px) saturate(1.55);
@@ -443,6 +445,7 @@
       .space-aurora {
         inset: 0;
         overflow: hidden;
+        opacity: 1;
       }
       .space-aurora::before,
       .space-aurora::after {
@@ -503,6 +506,7 @@
 
       .space-stars-deep {
         inset: 0;
+        opacity: 0.72;
         mix-blend-mode: screen;
         background-image: radial-gradient(1px 1px at 7% 14%, rgba(255, 255, 255, 0.9), transparent),
           radial-gradient(0.85px 0.85px at 19% 67%, rgba(230, 240, 255, 0.75), transparent),
@@ -575,7 +579,7 @@
         opacity: 1;
       }
       html[data-theme="nebula"] .space-stars-deep {
-        opacity: 0.58;
+        opacity: 0.82;
       }
       html[data-theme="nebula"] .space-sparkle-layer {
         opacity: 0.58;
@@ -646,23 +650,20 @@
       }
 
       html[data-theme="nebula"] {
-        --space-void: #020208;
-        --space-gradient: linear-gradient(
-          168deg,
-          #010108 0%,
-          #050814 16%,
-          #0a0820 34%,
-          #100818 48%,
-          #12061c 62%,
-          #0a0614 78%,
-          #030208 100%
-        );
-        --space-stars-opacity: 0.64;
-        --space-stars-filter: saturate(1.22);
-        --space-haze-opacity: 0.18;
-        --space-haze-a: rgba(34, 211, 238, 0.14);
-        --space-haze-b: rgba(236, 72, 153, 0.12);
-        --space-haze-c: rgba(91, 156, 255, 0.14);
+        --space-void: #010206;
+        --space-gradient:
+          radial-gradient(ellipse 115% 100% at 0% 40%, rgba(236, 72, 153, 0.34) 0%, rgba(131, 24, 67, 0.14) 40%, transparent 64%),
+          radial-gradient(ellipse 95% 58% at 50% -5%, rgba(34, 211, 238, 0.26) 0%, rgba(8, 145, 178, 0.1) 46%, transparent 70%),
+          radial-gradient(ellipse 70% 50% at 96% 18%, rgba(255, 255, 255, 0.08) 0%, transparent 52%),
+          radial-gradient(ellipse 105% 90% at 88% 90%, rgba(165, 180, 252, 0.2) 0%, rgba(67, 56, 202, 0.22) 38%, rgba(15, 23, 42, 0.55) 58%, transparent 76%),
+          radial-gradient(ellipse 42% 28% at 74% 80%, rgba(255, 250, 240, 0.07) 0%, transparent 58%),
+          linear-gradient(168deg, #010206 0%, #030a18 24%, #061018 52%, #040812 78%, #010308 100%);
+        --space-stars-opacity: 0.82;
+        --space-stars-filter: saturate(1.28);
+        --space-haze-opacity: 0.26;
+        --space-haze-a: rgba(34, 211, 238, 0.16);
+        --space-haze-b: rgba(236, 72, 153, 0.14);
+        --space-haze-c: rgba(91, 156, 255, 0.12);
         --orb-tr-opacity: 0.58;
         --orb-tr: radial-gradient(
           circle,
@@ -679,18 +680,23 @@
           rgba(59, 130, 246, 0.1) 62%,
           transparent 78%
         );
-        --mesh-opacity: 0.5;
+        --mesh-opacity: 0.46;
         --mesh-bg: radial-gradient(
-            ellipse 90% 75% at 50% 42%,
-            rgba(91, 156, 255, 0.22) 0%,
-            rgba(34, 211, 238, 0.14) 36%,
-            rgba(232, 121, 249, 0.16) 54%,
-            rgba(124, 92, 255, 0.1) 66%,
+            ellipse 95% 80% at 18% 38%,
+            rgba(236, 72, 153, 0.16) 0%,
+            rgba(88, 28, 135, 0.08) 42%,
+            transparent 62%
+          ),
+          radial-gradient(
+            ellipse 90% 75% at 52% 36%,
+            rgba(34, 211, 238, 0.18) 0%,
+            rgba(91, 156, 255, 0.14) 38%,
+            rgba(124, 92, 255, 0.1) 58%,
             transparent 74%
           ),
-          radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 65%);
-        --mesh-shadow: 0 0 120px 44px rgba(34, 211, 238, 0.08), inset 0 0 88px rgba(91, 156, 255, 0.06);
-        --mesh-filter: blur(118px) saturate(1.42);
+          radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 65%);
+        --mesh-shadow: 0 0 120px 44px rgba(34, 211, 238, 0.1), inset 0 0 88px rgba(91, 156, 255, 0.05);
+        --mesh-filter: blur(118px) saturate(1.48);
       }
 
       html[data-theme="ion"] {
@@ -919,15 +925,14 @@
         pointer-events: none;
         border-radius: 0;
         background:
-          radial-gradient(ellipse 130% 100% at 8% 15%, rgba(109, 40, 217, 0.42) 0%, transparent 55%),
-          radial-gradient(ellipse 110% 90% at 95% 25%, rgba(236, 72, 153, 0.42) 0%, transparent 52%),
-          radial-gradient(ellipse 100% 85% at 50% 95%, rgba(14, 165, 233, 0.35) 0%, transparent 50%),
-          radial-gradient(ellipse 80% 70% at 78% 8%, rgba(59, 130, 246, 0.38) 0%, transparent 55%),
-          radial-gradient(ellipse 55% 40% at 70% 60%, rgba(34, 211, 238, 0.18) 0%, transparent 55%),
-          radial-gradient(ellipse 45% 35% at 20% 45%, rgba(168, 85, 247, 0.16) 0%, transparent 50%),
-          radial-gradient(ellipse 60% 50% at 40% 45%, rgba(255, 255, 255, 0.1) 0%, transparent 58%),
-          linear-gradient(180deg, rgba(2, 4, 14, 0.42) 0%, rgba(8, 4, 22, 0.25) 50%, rgba(4, 2, 12, 0.44) 100%);
-        opacity: 1;
+          radial-gradient(ellipse 120% 95% at 6% 18%, rgba(192, 38, 211, 0.2) 0%, transparent 58%),
+          radial-gradient(ellipse 100% 85% at 94% 22%, rgba(236, 72, 153, 0.18) 0%, transparent 55%),
+          radial-gradient(ellipse 95% 80% at 48% 92%, rgba(14, 165, 233, 0.22) 0%, transparent 52%),
+          radial-gradient(ellipse 85% 72% at 76% 10%, rgba(34, 211, 238, 0.2) 0%, transparent 56%),
+          radial-gradient(ellipse 70% 50% at 72% 65%, rgba(129, 140, 248, 0.12) 0%, transparent 58%),
+          radial-gradient(ellipse 50% 38% at 22% 48%, rgba(34, 211, 238, 0.1) 0%, transparent 52%),
+          radial-gradient(ellipse 55% 48% at 42% 42%, rgba(255, 255, 255, 0.06) 0%, transparent 58%);
+        opacity: 0.88;
       }
       .main-scroll::after {
         content: "";
@@ -998,28 +1003,19 @@
       #tab-messages .dm-inbox-page-root.panel-rail-cyan {
         position: relative;
         z-index: 0;
-        overflow: visible;
+        overflow: hidden;
         flex: 1 1 auto;
         min-height: 0;
-        background: rgba(4, 6, 20, 0.22);
+        background: rgba(4, 8, 22, 0.08);
         -webkit-backdrop-filter: blur(18px) saturate(1.35);
         backdrop-filter: blur(18px) saturate(1.35);
         border-left-color: rgba(34, 211, 238, 0.65);
         border-right-color: rgba(232, 121, 249, 0.55);
         box-shadow: var(--shadow-lift), 0 0 0 1px rgba(255, 255, 255, 0.06) inset, var(--dm-glow-layer),
-          0 20px 56px rgba(0, 0, 0, 0.45);
+          0 12px 36px rgba(0, 0, 0, 0.22);
       }
       #tab-messages .dm-inbox-page-root.panel-rail-cyan::before {
-        content: "";
-        position: absolute;
-        inset: -8px -6px -10px -6px;
-        z-index: -1;
-        border-radius: 20px;
-        pointer-events: none;
-        background: radial-gradient(ellipse 100% 85% at 18% 22%, rgba(139, 92, 246, 0.5) 0%, transparent 52%),
-          radial-gradient(ellipse 90% 75% at 86% 42%, rgba(236, 72, 153, 0.42) 0%, transparent 50%),
-          radial-gradient(ellipse 75% 60% at 52% 92%, rgba(34, 211, 238, 0.35) 0%, transparent 46%);
-        opacity: 0.95;
+        display: none;
       }
       #tab-messages .dm-inbox-panel {
         position: relative;
@@ -1219,6 +1215,80 @@
         font-size: 0.8rem;
         margin: 0.35rem 0 0;
         line-height: 1.4;
+      }
+      .dm-create-group-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: env(safe-area-inset-bottom) max(0.5rem, env(safe-area-inset-right)) 0 max(0.5rem, env(safe-area-inset-left));
+      }
+      .dm-create-group-modal[hidden] {
+        display: none !important;
+      }
+      .dm-create-group-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px);
+      }
+      .dm-create-group-sheet {
+        position: relative;
+        width: 100%;
+        max-width: 28rem;
+        max-height: min(85vh, 520px);
+        overflow: auto;
+        margin-bottom: max(0.5rem, env(safe-area-inset-bottom));
+        padding: 1rem 1rem 1.1rem;
+        border-radius: 16px 16px 12px 12px;
+        border: 1px solid rgba(34, 211, 238, 0.2);
+        background: rgba(10, 14, 26, 0.97);
+        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+      }
+      .dm-create-group-label {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: rgba(180, 200, 230, 0.75);
+        margin: 0.65rem 0 0.35rem;
+      }
+      .dm-create-group-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin: 0.35rem 0 0;
+        min-height: 0.5rem;
+      }
+      .dm-create-group-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        background: rgba(34, 211, 238, 0.12);
+        border: 1px solid rgba(34, 211, 238, 0.25);
+        color: #b8e9ff;
+      }
+      .dm-create-group-chip button {
+        border: none;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        padding: 0 0.1rem;
+        font-size: 1rem;
+        line-height: 1;
+      }
+      .dm-create-group-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.85rem;
+        justify-content: flex-end;
       }
       .dm-inbox-hub-scroll {
         flex: 1 1 auto;
@@ -2550,54 +2620,37 @@
       /** Add Shows: glass panels + cyan/magenta/pink neon edge (Slack-style inbox reference) */
       #tab-add .search-shell {
         border: 2px solid transparent;
-        background: linear-gradient(165deg, rgba(10, 8, 32, 0.48) 0%, rgba(4, 6, 20, 0.62) 100%) padding-box,
+        background: linear-gradient(165deg, rgba(10, 8, 32, 0.38) 0%, rgba(4, 6, 20, 0.48) 100%) padding-box,
           var(--dm-surface-edge) border-box;
         background-clip: padding-box, border-box;
         isolation: isolate;
         -webkit-backdrop-filter: blur(20px) saturate(1.38);
         backdrop-filter: blur(20px) saturate(1.38);
         box-shadow: var(--shadow-lift), 0 0 0 1px rgba(255, 255, 255, 0.06) inset, var(--dm-glow-layer),
-          0 20px 56px rgba(0, 0, 0, 0.42);
+          0 12px 40px rgba(0, 0, 0, 0.22);
       }
       #tab-add .search-shell::after {
-        content: "";
-        position: absolute;
-        inset: -6px -4px -8px -4px;
-        z-index: -1;
-        border-radius: 24px;
-        pointer-events: none;
-        background: radial-gradient(ellipse 100% 85% at 18% 22%, rgba(139, 92, 246, 0.45) 0%, transparent 52%),
-          radial-gradient(ellipse 90% 75% at 86% 42%, rgba(236, 72, 153, 0.38) 0%, transparent 50%),
-          radial-gradient(ellipse 75% 60% at 52% 92%, rgba(34, 211, 238, 0.32) 0%, transparent 46%);
-        opacity: 0.85;
+        display: none;
       }
       #tab-add section.trending-section.panel-rail-cyan,
       #tab-add section.recommended-section.panel-rail-magenta {
         position: relative;
         isolation: isolate;
+        overflow: hidden;
         border: 2px solid transparent;
-        background: linear-gradient(165deg, rgba(10, 8, 32, 0.48) 0%, rgba(4, 6, 20, 0.62) 100%) padding-box,
+        background: linear-gradient(165deg, rgba(10, 8, 32, 0.38) 0%, rgba(4, 6, 20, 0.48) 100%) padding-box,
           var(--dm-surface-edge) border-box;
         background-clip: padding-box, border-box;
         -webkit-backdrop-filter: blur(20px) saturate(1.38);
         backdrop-filter: blur(20px) saturate(1.38);
         box-shadow: var(--shadow-lift), 0 0 0 1px rgba(255, 255, 255, 0.06) inset, var(--dm-glow-layer),
-          0 20px 56px rgba(0, 0, 0, 0.42);
+          0 12px 40px rgba(0, 0, 0, 0.22);
         border-left-color: transparent;
         border-right-color: transparent;
       }
       #tab-add section.trending-section.panel-rail-cyan::before,
       #tab-add section.recommended-section.panel-rail-magenta::before {
-        content: "";
-        position: absolute;
-        inset: -6px -4px -8px -4px;
-        z-index: -1;
-        border-radius: 18px;
-        pointer-events: none;
-        background: radial-gradient(ellipse 100% 85% at 18% 22%, rgba(139, 92, 246, 0.42) 0%, transparent 52%),
-          radial-gradient(ellipse 90% 75% at 86% 42%, rgba(236, 72, 153, 0.36) 0%, transparent 50%),
-          radial-gradient(ellipse 75% 60% at 52% 92%, rgba(34, 211, 238, 0.3) 0%, transparent 46%);
-        opacity: 0.82;
+        display: none;
       }
       .search-hero-head {
         position: relative;
@@ -3367,7 +3420,7 @@
       .tab-nav {
         position: relative;
         z-index: 20;
-        margin: 0.15rem 0 1rem;
+        margin: 0.15rem 0 0.55rem;
         width: 100%;
         min-width: 0;
       }
@@ -3777,6 +3830,17 @@
         position: relative;
         padding-bottom: 2.5rem;
       }
+      /**
+       * Community scroll perf: section backdrop-filter re-samples the scrolling layer every
+       * frame on mobile. Disable under Community; nested panels use opaque fills from their own rules.
+       */
+      #tab-community section {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+      #tab-community section.panel-rail-cyan.community-root {
+        background: linear-gradient(165deg, rgba(12, 16, 28, 0.94) 0%, rgba(6, 10, 20, 0.96) 100%);
+      }
       .community-list-head {
         display: flex;
         align-items: center;
@@ -3793,11 +3857,10 @@
         padding: 0.5rem 0;
         border-top: 1px solid rgba(79, 195, 247, 0.15);
         border-bottom: 1px solid rgba(79, 195, 247, 0.15);
-        background: rgba(3, 5, 8, 0.6);
-        -webkit-backdrop-filter: blur(8px);
-        backdrop-filter: blur(8px);
+        background: rgba(3, 5, 8, 0.92);
         border-radius: 10px;
         position: relative;
+        contain: layout paint;
       }
       .community-ticker-track {
         display: inline-flex;
@@ -3887,24 +3950,16 @@
         border-radius: 12px;
         border: 1px solid rgba(0, 230, 118, 0.25);
         background: linear-gradient(135deg, rgba(0, 230, 118, 0.08), rgba(8, 14, 28, 0.55));
-        animation: live-banner-pulse 2.5s ease-in-out infinite;
+        box-shadow: 0 0 18px rgba(0, 230, 118, 0.12);
       }
       .community-live-episode-banner[hidden] { display: none !important; }
-      @keyframes live-banner-pulse {
-        0%, 100% { box-shadow: 0 0 12px rgba(0, 230, 118, 0.08); }
-        50% { box-shadow: 0 0 24px rgba(0, 230, 118, 0.2); }
-      }
       .community-live-episode-dot {
         width: 10px;
         height: 10px;
         border-radius: 50%;
         background: #00e676;
         flex-shrink: 0;
-        animation: live-dot-pulse 1.4s ease-in-out infinite;
-      }
-      @keyframes live-dot-pulse {
-        0%, 100% { opacity: 0.55; }
-        50% { opacity: 1; }
+        opacity: 0.92;
       }
       .community-live-episode-info {
         flex: 1;
@@ -4062,12 +4117,10 @@
         right: 0;
         max-height: 200px;
         overflow-y: auto;
-        background: rgba(8, 12, 20, 0.95);
+        background: rgba(8, 12, 20, 0.98);
         border: 1px solid rgba(79, 195, 247, 0.25);
         border-radius: 10px;
         box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-        -webkit-backdrop-filter: blur(16px);
-        backdrop-filter: blur(16px);
         z-index: 50;
         margin-bottom: 0.3rem;
       }
@@ -4283,8 +4336,6 @@
         border: 1px solid rgba(130, 200, 255, 0.28);
         background: linear-gradient(165deg, rgba(18, 26, 44, 0.98) 0%, rgba(8, 12, 24, 0.99) 100%);
         box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
-        -webkit-backdrop-filter: blur(12px) saturate(1.15);
-        backdrop-filter: blur(12px) saturate(1.15);
       }
       .community-find-friend-results[hidden] {
         display: none !important;
@@ -4414,15 +4465,32 @@
         z-index: 34;
         bottom: calc(max(1.25rem, env(safe-area-inset-bottom)) + 3.5rem + 4.25rem);
         right: max(1rem, env(safe-area-inset-right));
-        display: flex;
         flex-direction: column;
-        gap: 0.35rem;
+        gap: 0.4rem;
         align-items: flex-end;
-        animation: fab-menu-in 0.2s cubic-bezier(0.16,1,0.3,1);
+        pointer-events: none;
+        display: none;
       }
-      @keyframes fab-menu-in {
-        from { opacity: 0; transform: translateY(10px) scale(0.9); }
-        to   { opacity: 1; transform: translateY(0) scale(1); }
+      .app-fab-menu[hidden] {
+        display: none !important;
+      }
+      .app-fab-menu.visible {
+        display: flex;
+        pointer-events: auto;
+      }
+      .app-fab-menu.visible .app-fab-menu-item {
+        animation: fab-bubble-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+      .app-fab-menu.visible .app-fab-menu-item:nth-child(2) {
+        animation-delay: 0.05s;
+      }
+      .app-fab-menu.visible .app-fab-menu-item:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      @keyframes fab-bubble-up {
+        0%   { opacity: 0; transform: translateY(16px) scale(0.7); }
+        60%  { opacity: 1; transform: translateY(-3px) scale(1.03); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
       }
       .app-fab-menu-item {
         display: flex;
@@ -4639,66 +4707,24 @@
       .community-general-list {
         list-style: none;
         margin: 0;
-        padding: 0;
+        padding: 0 0 0.5rem;
         display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      .community-general-card {
-        display: flex;
-        align-items: center;
+        flex-direction: row;
         gap: 0.75rem;
-        width: 100%;
-        text-align: left;
-        padding: 0.7rem 0.85rem;
-        border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(255, 255, 255, 0.04);
-        -webkit-backdrop-filter: blur(12px);
-        backdrop-filter: blur(12px);
-        color: inherit;
-        font: inherit;
-        cursor: pointer;
-        touch-action: manipulation;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-        transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s cubic-bezier(0.16,1,0.3,1);
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x;
       }
-      .community-general-card:hover {
-        border-color: rgba(79, 195, 247, 0.3);
-        background: rgba(255, 255, 255, 0.06);
-        transform: translateY(-1px);
-      }
-      .community-general-card:active:not(:disabled) {
-        transform: translateY(0);
-      }
-      .community-general-card-avatar {
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 10px;
-        background-size: cover;
-        background-position: center;
-        background-color: rgba(20, 28, 44, 0.6);
-        flex-shrink: 0;
-      }
-      .community-general-card-body {
-        flex: 1;
-        min-width: 0;
-      }
-      .community-general-card-show {
-        font-weight: 700;
-        font-size: 0.88rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        color: var(--text);
-      }
-      .community-general-card-meta {
-        font-size: 0.72rem;
-        color: var(--muted);
-        display: flex;
-        align-items: center;
-        gap: 0.45rem;
-        margin-top: 0.1rem;
+      .community-general-list::-webkit-scrollbar { display: none; }
+      .community-general-list > li {
+        flex: 0 0 280px;
+        scroll-snap-align: start;
+        min-width: 280px;
+        max-width: 320px;
       }
       .community-thread-card {
         display: flex;
@@ -5028,14 +5054,13 @@
         flex-direction: column;
         gap: 0.75rem;
         margin-bottom: 0.5rem;
+        contain: layout;
       }
       .community-post-card {
         border: 1px solid rgba(130, 200, 255, 0.12);
         border-radius: 14px;
         padding: 0.85rem 1rem;
-        background: rgba(4, 8, 18, 0.4);
-        -webkit-backdrop-filter: blur(12px);
-        backdrop-filter: blur(12px);
+        background: linear-gradient(165deg, rgba(12, 16, 28, 0.94) 0%, rgba(6, 10, 20, 0.92) 100%);
       }
       .community-post-head {
         display: flex;
@@ -6218,12 +6243,12 @@
         padding-top: max(0.65rem, env(safe-area-inset-top, 0px));
         background: linear-gradient(
             180deg,
-            rgba(34, 211, 238, 0.07) 0%,
-            rgba(91, 156, 255, 0.04) 18%,
-            rgba(76, 29, 149, 0.08) 42%,
-            rgba(12, 6, 28, 0.35) 100%
+            rgba(34, 211, 238, 0.06) 0%,
+            rgba(91, 156, 255, 0.035) 22%,
+            rgba(76, 29, 149, 0.06) 48%,
+            rgba(12, 6, 28, 0.18) 100%
           ),
-          linear-gradient(180deg, rgba(4, 6, 18, 0.5) 0%, rgba(4, 4, 14, 0.2) 100%);
+          linear-gradient(180deg, rgba(4, 6, 18, 0.28) 0%, rgba(4, 4, 14, 0.08) 100%);
         -webkit-backdrop-filter: blur(28px) saturate(1.42);
         backdrop-filter: blur(28px) saturate(1.42);
         border-bottom: 1px solid rgba(130, 200, 255, 0.14);
@@ -6885,35 +6910,57 @@
       </div>
 
       <div id="tab-shows" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnShows">
-        <section class="panel-rail-blue" aria-label="Your shows">
-          <h2 class="section-header-highlight header-blue">Your shows</h2>
-          <ul id="subs"></ul>
-          <div id="subsEmptyState" class="empty-state-card" style="display: none">
-            <div class="empty-state-icon" aria-hidden="true">📺</div>
-            <p class="empty-state-title">No shows yet</p>
-            <p class="empty-state-hint muted">Search by title and subscribe — your list will show up here.</p>
-            <button type="button" class="empty-state-cta" id="subsEmptyCta">Add shows</button>
+        <section class="panel-rail-blue shows-list-section" aria-labelledby="foldSubsHeading">
+          <button
+            type="button"
+            class="fold-toggle fold-toggle-cyan"
+            id="foldSubsBtn"
+            aria-expanded="true"
+            aria-controls="foldSubsBody"
+          >
+            <span class="fold-title" id="foldSubsHeading">Your shows</span>
+            <span class="fold-chev" aria-hidden="true">▼</span>
+          </button>
+          <div class="fold-body" id="foldSubsBody">
+            <ul id="subs"></ul>
+            <div id="subsEmptyState" class="empty-state-card" style="display: none">
+              <div class="empty-state-icon" aria-hidden="true">📺</div>
+              <p class="empty-state-title">No shows yet</p>
+              <p class="empty-state-hint muted">Search by title and subscribe — your list will show up here.</p>
+              <button type="button" class="empty-state-cta" id="subsEmptyCta">Add shows</button>
+            </div>
           </div>
         </section>
-        <section class="panel-rail-magenta person-follows-section" aria-label="People you follow">
-          <h2 class="section-header-highlight">People you follow</h2>
-          <p class="muted person-follows-lead">
-            Follow actors, writers, or directors. On each hourly check, if TVMaze lists a <strong>new show</strong> on their
-            cast or crew credits, you get a push — often before entertainment news catches up.
-          </p>
-          <div class="person-follow-search-wrap">
-            <input
-              type="search"
-              id="personFollowSearchInput"
-              class="person-follow-search-input"
-              placeholder="Search people on TVMaze…"
-              autocomplete="off"
-              aria-label="Search people to follow"
-            />
-            <div id="personFollowSearchDropdown" class="person-follow-dropdown" hidden role="listbox"></div>
+        <section class="panel-rail-magenta person-follows-section" aria-labelledby="foldPersonFollowsHeading">
+          <button
+            type="button"
+            class="fold-toggle fold-toggle-magenta"
+            id="foldPersonFollowsBtn"
+            aria-expanded="true"
+            aria-controls="foldPersonFollowsBody"
+          >
+            <span class="fold-title" id="foldPersonFollowsHeading">People you follow</span>
+            <span class="fold-chev" aria-hidden="true">▼</span>
+          </button>
+          <div class="fold-body" id="foldPersonFollowsBody">
+            <p class="muted person-follows-lead">
+              Follow actors, writers, or directors. On each hourly check, if TVMaze lists a <strong>new show</strong> on their
+              cast or crew credits, you get a push — often before entertainment news catches up.
+            </p>
+            <div class="person-follow-search-wrap">
+              <input
+                type="search"
+                id="personFollowSearchInput"
+                class="person-follow-search-input"
+                placeholder="Search people on TVMaze…"
+                autocomplete="off"
+                aria-label="Search people to follow"
+              />
+              <div id="personFollowSearchDropdown" class="person-follow-dropdown" hidden role="listbox"></div>
+            </div>
+            <ul id="personFollowsList" class="person-follows-list"></ul>
+            <p id="personFollowsEmpty" class="muted person-follows-empty" hidden>You are not following anyone yet.</p>
           </div>
-          <ul id="personFollowsList" class="person-follows-list"></ul>
-          <p id="personFollowsEmpty" class="muted person-follows-empty" hidden>You are not following anyone yet.</p>
         </section>
       </div>
 
@@ -7513,17 +7560,10 @@
                         <span class="dm-inbox-section-label">Groups</span>
                         <span class="dm-inbox-section-hint">Multi-member</span>
                       </div>
-                      <div class="dm-inbox-group-card">
-                        <div class="dm-inbox-group-avatars" aria-hidden="true">
-                          <span class="g1"></span>
-                          <span class="g2"></span>
-                          <span class="g3"></span>
-                        </div>
-                        <p class="muted" style="margin: 0; font-size: 0.82rem; line-height: 1.45">
-                          <strong style="color: rgba(232, 186, 255, 0.95)">Group chats</strong> are on the roadmap — watch
-                          parties, invite friends, and message several people in one thread.
-                        </p>
-                      </div>
+                      <div id="dmInboxGroupList" class="dm-inbox-thread-list"></div>
+                      <p class="muted" id="dmInboxGroupEmpty" hidden style="margin: 0; font-size: 0.84rem; line-height: 1.45">
+                        No group chats yet. Tap <strong>+</strong> and choose <strong>Create Group</strong>.
+                      </p>
                     </section>
                     <section id="dmInboxSectionDms" class="dm-inbox-section" aria-labelledby="dmInboxDmsSectionLabel">
                       <div class="dm-inbox-section-head">
@@ -7552,7 +7592,7 @@
             <p class="err" id="dmInboxErr" style="display: none; margin-top: 0.5rem"></p>
           </div>
         </section>
-        <div id="dmFabMenu" class="app-fab-menu" hidden>
+        <div id="dmFabMenu" class="app-fab-menu">
           <button type="button" class="app-fab-menu-item" id="dmFabNewMessage">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
               <path d="M5 5.5h14a1 1 0 011 1v8.5a1 1 0 01-1 1h-5.2L9.5 19.5V16H5a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke-linejoin="round"/>
@@ -7573,6 +7613,23 @@
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
         </button>
+        <div id="dmCreateGroupModal" class="dm-create-group-modal" hidden>
+          <div class="dm-create-group-backdrop" id="dmCreateGroupBackdrop"></div>
+          <div class="dm-create-group-sheet" role="dialog" aria-labelledby="dmCreateGroupTitle" aria-modal="true">
+            <h3 id="dmCreateGroupTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Create group</h3>
+            <label class="dm-create-group-label" for="dmCreateGroupNameInput">Group name</label>
+            <input type="text" id="dmCreateGroupNameInput" class="dm-compose-search-input" placeholder="e.g. Watch party" maxlength="80" autocomplete="off" />
+            <label class="dm-create-group-label" for="dmCreateGroupSearchInput">Add members</label>
+            <input type="text" id="dmCreateGroupSearchInput" class="dm-compose-search-input" placeholder="Search by username or name…" autocomplete="off" spellcheck="false" />
+            <div id="dmCreateGroupChipRow" class="dm-create-group-chips"></div>
+            <div id="dmCreateGroupSearchResults" class="dm-compose-results"></div>
+            <p class="muted" id="dmCreateGroupErr" style="display: none; margin: 0.35rem 0 0; font-size: 0.82rem"></p>
+            <div class="dm-create-group-actions">
+              <button type="button" class="secondary" id="dmCreateGroupCancelBtn">Cancel</button>
+              <button type="button" id="dmCreateGroupSubmitBtn">Create group</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="tab-admin" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnAdmin">
@@ -9142,6 +9199,7 @@
       let dmWebSocket = null;
       let dmWebSocketReconnectTimer = null;
       let dmInboxActiveThreadId = null;
+      let dmInboxActiveGroupId = null;
       let dmThreadPeerReadAt = null;
       /** Slack-style rail: all | groups | dms */
       let dmInboxRailFilter = "all";
@@ -9340,6 +9398,42 @@
           }
           void refreshDmUnread();
         }
+        if (data.type === "dm_group_message" && data.message && data.groupId) {
+          const threadView = document.getElementById("dmInboxThreadView");
+          if (
+            isDmMessagesTabActive() &&
+            threadView &&
+            !threadView.hidden &&
+            dmInboxActiveGroupId === data.groupId
+          ) {
+            const uid = resolveUserId();
+            const isMe = Boolean(uid && data.message.senderId === uid);
+            appendDmBubbleIfNew(data.message, isMe, undefined);
+            const sc = document.getElementById("dmInboxMessages");
+            if (sc) sc.scrollTop = sc.scrollHeight;
+            void api("/api/dm/groups/" + encodeURIComponent(data.groupId) + "/read", { method: "POST", body: "{}" });
+          }
+          void refreshDmUnread();
+        }
+        if (data.type === "dm_group_deleted" && data.groupId) {
+          if (dmInboxActiveGroupId === data.groupId) {
+            sendDmTypingWs(false);
+            if (dmTypingStopTimer) {
+              clearTimeout(dmTypingStopTimer);
+              dmTypingStopTimer = null;
+            }
+            hideDmPeerTyping();
+            dmInboxActiveGroupId = null;
+            const list = document.getElementById("dmInboxListView");
+            const tv = document.getElementById("dmInboxThreadView");
+            if (list) list.hidden = false;
+            if (tv) tv.hidden = true;
+            const dmFab = document.getElementById("dmComposeBtn");
+            if (dmFab) dmFab.style.display = "";
+          }
+          void renderDmThreadList();
+          void refreshDmUnread();
+        }
       }
 
       function appendDmBubbleIfNew(msg, isMe, readOverride) {
@@ -9486,7 +9580,8 @@
         if (cv) cv.hidden = true;
         if (btn) { btn.classList.remove("active"); btn.classList.remove("open"); }
         if (hub) hub.style.display = "";
-        if (fabMenu) fabMenu.hidden = true;
+        if (fabMenu) fabMenu.classList.remove("visible");
+        closeDmCreateGroupModal();
       }
 
       async function openDmInboxModal(opts) {
@@ -9503,6 +9598,7 @@
         if (list) list.hidden = false;
         if (tv) tv.hidden = true;
         dmInboxActiveThreadId = null;
+        dmInboxActiveGroupId = null;
         dmThreadPeerReadAt = null;
         hideDmPeerTyping();
         const err = document.getElementById("dmInboxErr");
@@ -9628,19 +9724,156 @@
         );
       }
 
+      function attachDmInboxGroupRowSwipe(btn, groupId, groupLabel) {
+        let startX = 0;
+        let startY = 0;
+        let active = false;
+        let ptrId = 0;
+        let suppressClick = false;
+        btn.addEventListener("pointerdown", (e) => {
+          if (e.pointerType === "mouse" && e.button !== 0) return;
+          active = true;
+          startX = e.clientX;
+          startY = e.clientY;
+          ptrId = e.pointerId;
+          try {
+            btn.setPointerCapture(ptrId);
+          } catch {
+            /* ignore */
+          }
+        });
+        btn.addEventListener("pointerup", (e) => {
+          if (!active || e.pointerId !== ptrId) return;
+          active = false;
+          try {
+            btn.releasePointerCapture(ptrId);
+          } catch {
+            /* ignore */
+          }
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+          if (Math.abs(dx) < DM_INBOX_SWIPE_MIN_PX || Math.abs(dx) < Math.abs(dy) * 1.1) return;
+          suppressClick = true;
+          e.preventDefault();
+          if (dx > 0) {
+            void (async () => {
+              try {
+                await api("/api/dm/groups/" + encodeURIComponent(groupId) + "/unread", { method: "POST", body: "{}" });
+                await renderDmThreadList();
+                void refreshDmUnread();
+                showToast("Marked unread");
+              } catch (err) {
+                showToast(err.message || "Could not mark unread");
+              }
+            })();
+          } else {
+            const ok = window.confirm(
+              "Leave \"" + groupLabel + "\"? You will lose access to this group chat.",
+            );
+            if (!ok) {
+              suppressClick = false;
+              return;
+            }
+            void (async () => {
+              try {
+                await api("/api/dm/groups/" + encodeURIComponent(groupId), { method: "DELETE" });
+                if (dmInboxActiveGroupId === groupId) {
+                  sendDmTypingWs(false);
+                  if (dmTypingStopTimer) {
+                    clearTimeout(dmTypingStopTimer);
+                    dmTypingStopTimer = null;
+                  }
+                  hideDmPeerTyping();
+                  dmInboxActiveGroupId = null;
+                  dmInboxActiveThreadId = null;
+                  dmThreadPeerReadAt = null;
+                  const list = document.getElementById("dmInboxListView");
+                  const tv = document.getElementById("dmInboxThreadView");
+                  if (list) list.hidden = false;
+                  if (tv) tv.hidden = true;
+                  const errEl = document.getElementById("dmInboxErr");
+                  if (errEl) {
+                    errEl.textContent = "";
+                    errEl.style.display = "none";
+                  }
+                  const dmFab = document.getElementById("dmComposeBtn");
+                  if (dmFab) dmFab.style.display = "";
+                }
+                await renderDmThreadList();
+                void refreshDmUnread();
+                showToast("Left group");
+              } catch (err) {
+                showToast(err.message || "Could not leave");
+                suppressClick = false;
+              }
+            })();
+          }
+        });
+        btn.addEventListener("pointercancel", () => {
+          active = false;
+          try {
+            btn.releasePointerCapture(ptrId);
+          } catch {
+            /* ignore */
+          }
+        });
+        btn.addEventListener(
+          "click",
+          (e) => {
+            if (suppressClick) {
+              e.preventDefault();
+              e.stopPropagation();
+              suppressClick = false;
+            }
+          },
+          true,
+        );
+      }
+
       async function renderDmThreadList() {
         const host = document.getElementById("dmInboxThreadList");
+        const groupHost = document.getElementById("dmInboxGroupList");
         const empty = document.getElementById("dmInboxEmpty");
+        const groupEmpty = document.getElementById("dmInboxGroupEmpty");
         if (!host) return;
         host.innerHTML = "";
+        if (groupHost) groupHost.innerHTML = "";
         const gen = ++dmThreadListGen;
         try {
           const data = await api("/api/dm/threads");
           if (gen !== dmThreadListGen) return;
           const threads = data.threads || [];
+          const groups = data.groups || [];
           if (empty) {
             const showDmEmpty = threads.length === 0 && (dmInboxRailFilter === "all" || dmInboxRailFilter === "dms");
             empty.hidden = !showDmEmpty;
+          }
+          if (groupEmpty) {
+            const showGrpEmpty = groups.length === 0 && (dmInboxRailFilter === "all" || dmInboxRailFilter === "groups");
+            groupEmpty.hidden = !showGrpEmpty;
+          }
+          if (groupHost) {
+            for (const g of groups) {
+              const btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "dm-inbox-thread-row";
+              btn.title = "Open group · Swipe right: mark unread · Swipe left: leave group";
+              const dot = g.unreadCount > 0 ? "<span class=\"dm-inbox-unread-dot\" aria-hidden=\"true\"></span>" : "<span style=\"width:8px;flex-shrink:0\"></span>";
+              const prev = g.lastBody ? escapeHtml(g.lastBody.slice(0, 80) + (g.lastBody.length > 80 ? "…" : "")) : "—";
+              const sub = (g.memberCount || 0) + " member" + (g.memberCount === 1 ? "" : "s");
+              btn.innerHTML =
+                dot +
+                "<span style=\"flex:1;min-width:0\"><strong style=\"display:block;font-size:0.92rem\">" +
+                escapeHtml(g.name || "Group") +
+                "</strong><span class=\"muted\" style=\"font-size:0.72rem;display:block\">" +
+                escapeHtml(sub) +
+                "</span><span class=\"dm-inbox-thread-preview\">" +
+                prev +
+                "</span></span>";
+              btn.addEventListener("click", () => void openDmGroupView(g.groupId, g.name || "Group"));
+              attachDmInboxGroupRowSwipe(btn, g.groupId, g.name || "Group");
+              groupHost.appendChild(btn);
+            }
           }
           for (const t of threads) {
             const label = communityAuthorLabelFromPublicProfile({
@@ -9666,6 +9899,7 @@
           }
         } catch (e) {
           if (empty) empty.hidden = true;
+          if (groupEmpty) groupEmpty.hidden = true;
           const err = document.getElementById("dmInboxErr");
           if (err) {
             err.textContent = e.message || "Could not load conversations";
@@ -9682,12 +9916,13 @@
         }
         hideDmPeerTyping();
         closeDmComposeView();
+        dmInboxActiveGroupId = null;
         dmInboxActiveThreadId = threadId;
         dmThreadPeerReadAt = null;
         const dmFab = document.getElementById("dmComposeBtn");
         const dmFabMenu = document.getElementById("dmFabMenu");
         if (dmFab) dmFab.style.display = "none";
-        if (dmFabMenu) dmFabMenu.hidden = true;
+        if (dmFabMenu) dmFabMenu.classList.remove("visible");
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
         const title = document.getElementById("dmInboxThreadTitle");
@@ -9725,11 +9960,63 @@
         }
       }
 
+      async function openDmGroupView(groupId, titleLabel) {
+        sendDmTypingWs(false);
+        if (dmTypingStopTimer) {
+          clearTimeout(dmTypingStopTimer);
+          dmTypingStopTimer = null;
+        }
+        hideDmPeerTyping();
+        closeDmComposeView();
+        dmInboxActiveThreadId = null;
+        dmInboxActiveGroupId = groupId;
+        dmThreadPeerReadAt = null;
+        const dmFab = document.getElementById("dmComposeBtn");
+        const dmFabMenu = document.getElementById("dmFabMenu");
+        if (dmFab) dmFab.style.display = "none";
+        if (dmFabMenu) dmFabMenu.classList.remove("visible");
+        const list = document.getElementById("dmInboxListView");
+        const tv = document.getElementById("dmInboxThreadView");
+        const title = document.getElementById("dmInboxThreadTitle");
+        const host = document.getElementById("dmInboxMessages");
+        const err = document.getElementById("dmInboxErr");
+        if (err) {
+          err.textContent = "";
+          err.style.display = "none";
+        }
+        if (title) title.textContent = titleLabel || "Group";
+        if (list) list.hidden = true;
+        if (tv) tv.hidden = false;
+        if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading…</p>";
+        try {
+          const data = await api("/api/dm/groups/" + encodeURIComponent(groupId) + "/messages?limit=80");
+          const msgs = data.messages || [];
+          if (host) {
+            host.innerHTML = "";
+            const uid = resolveUserId();
+            for (const msg of msgs) {
+              const me = Boolean(uid && msg.senderId === uid);
+              appendDmBubbleIfNew(msg, me, undefined);
+            }
+            host.scrollTop = host.scrollHeight;
+          }
+          await api("/api/dm/groups/" + encodeURIComponent(groupId) + "/read", { method: "POST", body: "{}" });
+          void refreshDmUnread();
+        } catch (e) {
+          if (host) host.innerHTML = "";
+          if (err) {
+            err.textContent = e.message || "Could not load messages";
+            err.style.display = "block";
+          }
+        }
+      }
+
       async function sendDmFromInbox() {
         const threadId = dmInboxActiveThreadId;
+        const groupId = dmInboxActiveGroupId;
         const input = document.getElementById("dmInboxInput");
         const err = document.getElementById("dmInboxErr");
-        if (!threadId || !input) return;
+        if ((!threadId && !groupId) || !input) return;
         const body = input.value.trim();
         if (!body) return;
         if (err) {
@@ -9742,14 +10029,22 @@
             clearTimeout(dmTypingStopTimer);
             dmTypingStopTimer = null;
           }
-          const out = await api("/api/dm/threads/" + encodeURIComponent(threadId) + "/messages", {
+          const url = groupId
+            ? "/api/dm/groups/" + encodeURIComponent(groupId) + "/messages"
+            : "/api/dm/threads/" + encodeURIComponent(threadId) + "/messages";
+          const out = await api(url, {
             method: "POST",
             body: JSON.stringify({ body }),
           });
           input.value = "";
           if (out.message) {
             const uid = resolveUserId();
-            appendDmBubbleIfNew(out.message, Boolean(uid && out.message.senderId === uid), false);
+            const me = Boolean(uid && out.message.senderId === uid);
+            if (groupId) {
+              appendDmBubbleIfNew(out.message, me, undefined);
+            } else {
+              appendDmBubbleIfNew(out.message, me, false);
+            }
             const sc = document.getElementById("dmInboxMessages");
             if (sc) sc.scrollTop = sc.scrollHeight;
           }
@@ -11674,7 +11969,7 @@
             }, i * 80);
           });
 
-          // ── General threads → vertical list below ──
+          // ── General threads → horizontal scrolling cards ──
           if (generalEl) {
             generalEl.innerHTML = "";
             if (generalHeading) generalHeading.hidden = generalThreads.length === 0;
@@ -11682,45 +11977,49 @@
               const li = document.createElement("li");
               const btn = document.createElement("button");
               btn.type = "button";
-              btn.className = "community-general-card";
-              const postLabel = th.postCount + " post" + (th.postCount === 1 ? "" : "s");
+              btn.className = "community-thread-card";
+              btn.dataset.threadKind = "general";
+              const postLabel = th.postCount + " repl" + (th.postCount === 1 ? "y" : "ies");
               const timeAgo = th.lastPostAt ? formatCommunityRelativeTime(th.lastPostAt) : "";
-              const avatarStyle = th.showImageUrl ? 'background-image:url(' + th.showImageUrl + ')' : '';
+
               btn.innerHTML =
-                '<div class="community-general-card-avatar" style="' + avatarStyle + '"></div>' +
-                '<div class="community-general-card-body">' +
-                '<div class="community-general-card-show">' + escapeHtml(th.showName || "Show") + '</div>' +
-                '<div class="community-general-card-meta">' +
-                '<span>\u{1F4AC} ' + postLabel + '</span>' +
-                (timeAgo ? '<span>\u{1F552} ' + timeAgo + '</span>' : '') +
+                '<div class="community-thread-card-image"></div>' +
+                '<div class="community-thread-card-body">' +
+                '<div class="community-thread-ep-show">' + escapeHtml(th.showName || "Show") + '</div>' +
+                '<div class="community-thread-ep-title" style="font-size:0.92rem;margin:0;line-height:1.3">General discussion</div>' +
+                '<div class="community-thread-footer" style="margin-top:auto;padding-top:0.35rem">' +
+                '<span class="community-thread-footer-stat">\u{1F4AC} ' + postLabel + '</span>' +
+                (timeAgo ? '<span class="community-thread-footer-stat">\u{1F552} ' + timeAgo + '</span>' : '') +
+                '<span style="margin-left:auto"><span class="community-thread-card-join">Join</span></span>' +
                 '</div>' +
                 '</div>';
 
-              if (!th.showImageUrl) {
-                (function(showId, btn) {
+              (function(showId, imgUrl, btn) {
+                const imgEl = btn.querySelector(".community-thread-card-image");
+                if (!imgEl) return;
+                if (imgUrl) {
+                  imgEl.style.backgroundImage = "url(" + imgUrl + ")";
+                } else {
                   fetch("https://api.tvmaze.com/shows/" + showId).then(r => r.json()).then(d => {
-                    if (d && d.image) {
-                      const av = btn.querySelector(".community-general-card-avatar");
-                      if (av) av.style.backgroundImage = "url(" + (d.image.medium || d.image.original) + ")";
-                    }
+                    if (d && d.image) imgEl.style.backgroundImage = "url(" + (d.image.original || d.image.medium) + ")";
                   }).catch(() => {});
-                })(th.tvmazeShowId, btn);
-              }
+                }
+              })(th.tvmazeShowId, th.showImageUrl, btn);
 
               btn.addEventListener("click", () =>
                 openCommunityThread(th.tvmazeShowId, th.showName, th.postCount, { episodeId: null }),
               );
               li.appendChild(btn);
               li.style.opacity = "0";
-              li.style.transform = "translateY(10px)";
+              li.style.transform = "translateX(20px)";
               generalEl.appendChild(li);
             }
             generalEl.querySelectorAll("li").forEach((li, i) => {
               setTimeout(() => {
-                li.style.transition = "opacity 0.35s cubic-bezier(0.16,1,0.3,1), transform 0.35s cubic-bezier(0.16,1,0.3,1)";
+                li.style.transition = "opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)";
                 li.style.opacity = "1";
-                li.style.transform = "translateY(0)";
-              }, i * 60);
+                li.style.transform = "translateX(0)";
+              }, i * 80);
             });
           }
 
@@ -14362,6 +14661,7 @@
         hideDmPeerTyping();
         closeDmComposeView();
         dmInboxActiveThreadId = null;
+        dmInboxActiveGroupId = null;
         dmThreadPeerReadAt = null;
         const dmFab = document.getElementById("dmComposeBtn");
         if (dmFab) dmFab.style.display = "";
@@ -14380,11 +14680,145 @@
           applyDmInboxRailFilter();
           const empty = document.getElementById("dmInboxEmpty");
           const host = document.getElementById("dmInboxThreadList");
+          const gEmpty = document.getElementById("dmInboxGroupEmpty");
+          const gHost = document.getElementById("dmInboxGroupList");
           if (empty && host && host.childElementCount === 0) {
             empty.hidden = !(dmInboxRailFilter === "all" || dmInboxRailFilter === "dms");
           }
+          if (gEmpty && gHost && gHost.childElementCount === 0) {
+            gEmpty.hidden = !(dmInboxRailFilter === "all" || dmInboxRailFilter === "groups");
+          }
         });
       });
+      let dmCreateGroupMembers = new Map();
+      let dmCreateGroupSearchTimer = null;
+      let dmCreateGroupSearchGen = 0;
+      function renderDmCreateGroupChips() {
+        const row = document.getElementById("dmCreateGroupChipRow");
+        if (!row) return;
+        row.innerHTML = "";
+        dmCreateGroupMembers.forEach((u, id) => {
+          const span = document.createElement("span");
+          span.className = "dm-create-group-chip";
+          span.innerHTML =
+            escapeHtml(u.label) +
+            ' <button type="button" aria-label="Remove">&times;</button>';
+          span.querySelector("button").addEventListener("click", () => {
+            dmCreateGroupMembers.delete(id);
+            renderDmCreateGroupChips();
+          });
+          row.appendChild(span);
+        });
+      }
+      function openDmCreateGroupModal() {
+        closeDmComposeView();
+        const modal = document.getElementById("dmCreateGroupModal");
+        const nameInp = document.getElementById("dmCreateGroupNameInput");
+        const searchInp = document.getElementById("dmCreateGroupSearchInput");
+        const res = document.getElementById("dmCreateGroupSearchResults");
+        const errEl = document.getElementById("dmCreateGroupErr");
+        dmCreateGroupMembers = new Map();
+        if (nameInp) nameInp.value = "";
+        if (searchInp) searchInp.value = "";
+        if (res) res.innerHTML = "";
+        if (errEl) {
+          errEl.style.display = "none";
+          errEl.textContent = "";
+        }
+        renderDmCreateGroupChips();
+        if (modal) modal.hidden = false;
+        setTimeout(() => nameInp && nameInp.focus(), 50);
+      }
+      function closeDmCreateGroupModal() {
+        const modal = document.getElementById("dmCreateGroupModal");
+        if (modal) modal.hidden = true;
+      }
+      (function initDmCreateGroupModal() {
+        document.getElementById("dmCreateGroupBackdrop")?.addEventListener("click", closeDmCreateGroupModal);
+        document.getElementById("dmCreateGroupCancelBtn")?.addEventListener("click", closeDmCreateGroupModal);
+        const searchInp = document.getElementById("dmCreateGroupSearchInput");
+        const res = document.getElementById("dmCreateGroupSearchResults");
+        if (searchInp) {
+          searchInp.addEventListener("input", () => {
+            const q = searchInp.value.trim();
+            if (dmCreateGroupSearchTimer) clearTimeout(dmCreateGroupSearchTimer);
+            if (!q || q.length < 2) {
+              if (res) res.innerHTML = "";
+              return;
+            }
+            dmCreateGroupSearchTimer = setTimeout(async () => {
+              const gen = ++dmCreateGroupSearchGen;
+              try {
+                const data = await api("/api/community/users/search?q=" + encodeURIComponent(q));
+                if (gen !== dmCreateGroupSearchGen) return;
+                const users = data.users || [];
+                if (!res) return;
+                res.innerHTML = "";
+                const selfId = sessionMeSnapshot?.id;
+                for (const u of users) {
+                  if (u.id === selfId) continue;
+                  if (dmCreateGroupMembers.has(u.id)) continue;
+                  const btn = document.createElement("button");
+                  btn.type = "button";
+                  btn.className = "dm-compose-result-btn";
+                  const avatarContent = u.avatarDataUrl
+                    ? '<img src="' + escapeHtml(u.avatarDataUrl) + '" alt="" />'
+                    : (u.displayName || u.username || "?").charAt(0).toUpperCase();
+                  btn.innerHTML =
+                    '<div class="dm-compose-result-avatar">' + avatarContent + '</div>' +
+                    '<div class="dm-compose-result-info">' +
+                    '<span class="dm-compose-result-name">' + escapeHtml(u.displayName || u.username) + '</span>' +
+                    '<span class="dm-compose-result-username">@' + escapeHtml(u.username) + '</span>' +
+                    '</div>';
+                  btn.addEventListener("click", () => {
+                    dmCreateGroupMembers.set(u.id, {
+                      label: u.displayName || u.username || "Member",
+                    });
+                    searchInp.value = "";
+                    if (res) res.innerHTML = "";
+                    renderDmCreateGroupChips();
+                  });
+                  res.appendChild(btn);
+                }
+              } catch {
+                if (res) res.innerHTML = '<p class="muted" style="font-size:0.82rem;margin:0.25rem 0">Search failed.</p>';
+              }
+            }, 250);
+          });
+        }
+        document.getElementById("dmCreateGroupSubmitBtn")?.addEventListener("click", async () => {
+          const errEl = document.getElementById("dmCreateGroupErr");
+          const nameInp = document.getElementById("dmCreateGroupNameInput");
+          const name = nameInp && nameInp.value.trim() ? nameInp.value.trim() : "Group chat";
+          const ids = [...dmCreateGroupMembers.keys()];
+          if (ids.length === 0) {
+            if (errEl) {
+              errEl.textContent = "Add at least one member.";
+              errEl.style.display = "block";
+            }
+            return;
+          }
+          if (errEl) {
+            errEl.style.display = "none";
+            errEl.textContent = "";
+          }
+          try {
+            const out = await api("/api/dm/groups", {
+              method: "POST",
+              body: JSON.stringify({ name, memberUserIds: ids }),
+            });
+            closeDmCreateGroupModal();
+            await renderDmThreadList();
+            void refreshDmUnread();
+            await openDmGroupView(out.groupId, name);
+          } catch (e) {
+            if (errEl) {
+              errEl.textContent = e.message || "Could not create group";
+              errEl.style.display = "block";
+            }
+          }
+        });
+      })();
       // ── Compose / New Message button ──
       (function initDmCompose() {
         const fabBtn = document.getElementById("dmComposeBtn");
@@ -14404,7 +14838,7 @@
 
         function closeFabMenu() {
           fabMenuOpen = false;
-          if (fabMenu) fabMenu.hidden = true;
+          if (fabMenu) fabMenu.classList.remove("visible");
           fabBtn.classList.remove("open");
         }
         function closeComposeView() {
@@ -14421,7 +14855,7 @@
             return;
           }
           fabMenuOpen = !fabMenuOpen;
-          if (fabMenu) fabMenu.hidden = !fabMenuOpen;
+          if (fabMenu) fabMenu.classList.toggle("visible", fabMenuOpen);
           fabBtn.classList.toggle("open", fabMenuOpen);
         }
         function openComposeForNewMessage() {
@@ -14444,7 +14878,7 @@
         if (newGroupBtn) {
           newGroupBtn.addEventListener("click", () => {
             closeFabMenu();
-            showToast("Group chats coming soon!");
+            openDmCreateGroupModal();
           });
         }
 
@@ -14522,7 +14956,7 @@
         }
       });
       document.getElementById("dmInboxInput")?.addEventListener("input", () => {
-        if (!dmInboxActiveThreadId) return;
+        if (!dmInboxActiveThreadId || dmInboxActiveGroupId) return;
         const now = Date.now();
         if (now - dmTypingTrueLastSent > 1800) {
           sendDmTypingWs(true);
@@ -14901,26 +15335,36 @@
         body.hidden = btn.getAttribute("aria-expanded") !== "true";
       }
 
-      (function setupAppTopScroll() {
+      (function setupMainScrollChrome() {
         const bar = document.getElementById("appTopBar");
         const scrollEl = document.getElementById("mainScroll");
-        if (!bar || !scrollEl) return;
+        if (!scrollEl) return;
+        const tabCommunity = document.getElementById("tab-community");
+        const tickerTrack = document.getElementById("communityTickerTrack");
         let raf = false;
-        function tick() {
+        let tickerResumeTimer = null;
+        function tickHeader() {
           raf = false;
-          bar.classList.toggle("is-scrolled", scrollEl.scrollTop > 28);
+          if (bar) bar.classList.toggle("is-scrolled", scrollEl.scrollTop > 28);
         }
         scrollEl.addEventListener(
           "scroll",
           () => {
             if (!raf) {
               raf = true;
-              requestAnimationFrame(tick);
+              requestAnimationFrame(tickHeader);
+            }
+            if (tickerTrack && tabCommunity && tabCommunity.classList.contains("active")) {
+              tickerTrack.style.animationPlayState = "paused";
+              if (tickerResumeTimer) clearTimeout(tickerResumeTimer);
+              tickerResumeTimer = setTimeout(() => {
+                tickerTrack.style.animationPlayState = "running";
+              }, 180);
             }
           },
           { passive: true },
         );
-        tick();
+        tickHeader();
       })();
 
       const subsEmptyCta = document.getElementById("subsEmptyCta");
