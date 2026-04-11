@@ -7581,11 +7581,6 @@
             Episode <span class="muted">(optional)</span>
             <select id="communityEditEpisodeSelect" class="community-episode-select"></select>
           </label>
-          <div id="communityEditAdminMove" class="community-admin-move" hidden>
-            <label for="communityEditMoveShowId">Move to TVMaze show ID <span class="muted">(admin)</span></label>
-            <input type="number" id="communityEditMoveShowId" min="1" step="1" placeholder="Numeric ID" />
-                <button type="button" class="secondary" id="communityEditApplyMoveBtn">Move thread</button>
-          </div>
           <div class="community-modal-actions">
             <button type="button" id="communityEditSaveBtn">Save</button>
             <button type="button" class="secondary" data-close-edit-modal>Cancel</button>
@@ -10247,6 +10242,7 @@
         document.getElementById("tabBtnAdmin")?.remove();
         document.getElementById("tab-admin")?.remove();
         document.getElementById("communityAdminMoveModal")?.remove();
+        document.getElementById("communityEditAdminMove")?.remove();
         const active = document.querySelector(".tab-panel.active");
         if (active && active.id === "tab-admin") {
           setTab("add");
@@ -10255,6 +10251,24 @@
 
       function userIsDbAdmin(me) {
         return Boolean(me && (me.isAdmin === true || me.isAdmin === 1));
+      }
+
+      /** In-app edit modal: admin-only “move thread” row is not in static HTML for non-admins; mounted when DB admin is confirmed. */
+      function syncCommunityEditAdminMoveUi() {
+        const panel = document.querySelector("#communityEditModal .community-modal-panel");
+        if (!panel) return;
+        const actions = panel.querySelector(".community-modal-actions");
+        if (!actions) return;
+        document.getElementById("communityEditAdminMove")?.remove();
+        if (!userIsDbAdmin(sessionMeSnapshot)) return;
+        const wrap = document.createElement("div");
+        wrap.id = "communityEditAdminMove";
+        wrap.className = "community-admin-move";
+        wrap.innerHTML =
+          '<label for="communityEditMoveShowId">Move to TVMaze show ID <span class="muted">(admin)</span></label>' +
+          '<input type="number" id="communityEditMoveShowId" min="1" step="1" placeholder="Numeric ID" />' +
+          '<button type="button" class="secondary" id="communityEditApplyMoveBtn">Move thread</button>';
+        panel.insertBefore(wrap, actions);
       }
 
       async function ensureAdminUiLoaded(me, epoch) {
@@ -10392,6 +10406,7 @@
             signed.hidden = true;
           }
         }
+        syncCommunityEditAdminMoveUi();
         void ensureAdminUiLoaded(me, epoch);
       }
 
@@ -14026,7 +14041,6 @@
         const modal = document.getElementById("communityEditModal");
         const bodyEl = document.getElementById("communityEditBody");
         const sp = document.getElementById("communityEditSpoiler");
-        const adminMove = document.getElementById("communityEditAdminMove");
         const err = document.getElementById("communityEditErr");
         if (err) {
           err.style.display = "none";
@@ -14034,9 +14048,9 @@
         }
         bodyEl.innerHTML = p.bodyHtml || "";
         sp.checked = Boolean(p.isSpoiler);
-        const isAdmin = sessionMeSnapshot && truthyBit(sessionMeSnapshot.isAdmin);
-        adminMove.hidden = !isAdmin;
-        document.getElementById("communityEditMoveShowId").value = "";
+        syncCommunityEditAdminMoveUi();
+        const moveInp = document.getElementById("communityEditMoveShowId");
+        if (moveInp) moveInp.value = "";
         await populateCommunityEpisodeSelect(p.tvmazeShowId, document.getElementById("communityEditEpisodeSelect"), p.tvmazeEpisodeId);
         modal.hidden = false;
         modal.setAttribute("aria-hidden", "false");
@@ -15706,10 +15720,14 @@
           }
         }
       });
-      document.getElementById("communityEditApplyMoveBtn").addEventListener("click", async () => {
+      document.getElementById("communityEditModal").addEventListener("click", async (e) => {
+        const btn = e.target && e.target.closest && e.target.closest("#communityEditApplyMoveBtn");
+        if (!btn) return;
         const id = communityState.editingPostId;
         if (!id) return;
-        const raw = document.getElementById("communityEditMoveShowId").value.trim();
+        const moveInp = document.getElementById("communityEditMoveShowId");
+        if (!moveInp) return;
+        const raw = moveInp.value.trim();
         const n = Number(raw);
         if (!Number.isInteger(n) || n < 1) {
           showToast("Enter a valid TVMaze show ID");
@@ -15727,9 +15745,9 @@
           communityState.episodeId = null;
           await loadCommunityThreadPosts();
           await loadCommunityThreads();
-        } catch (e) {
+        } catch (errMove) {
           if (err) {
-            err.textContent = e.message || "Move failed";
+            err.textContent = errMove.message || "Move failed";
             err.style.display = "block";
           }
         }
