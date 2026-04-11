@@ -333,6 +333,9 @@ export interface TickerItem {
   text: string;
   source?: string;
   url?: string;
+  /** TVMaze show id when known — client can load poster from api.tvmaze.com */
+  tvmazeShowId?: number;
+  showName?: string;
 }
 
 export function getTickerItems(): TickerItem[] {
@@ -351,12 +354,18 @@ export function getTickerItems(): TickerItem[] {
 
   const news = db
     .prepare(
-      `SELECT headline, source, url, show_name FROM breaking_news
+      `SELECT headline, source, url, show_name, show_id FROM breaking_news
        WHERE status IN ('auto', 'approved')
          AND created_at > datetime('now', '-48 hours')
        ORDER BY created_at DESC LIMIT 15`,
     )
-    .all() as { headline: string; source: string; url: string; show_name: string | null }[];
+    .all() as {
+      headline: string;
+      source: string;
+      url: string;
+      show_name: string | null;
+      show_id: number | null;
+    }[];
   for (const n of news) {
     items.push({
       type: "breaking",
@@ -364,25 +373,36 @@ export function getTickerItems(): TickerItem[] {
       text: n.headline,
       source: n.source,
       url: n.url,
+      tvmazeShowId: n.show_id != null && Number.isFinite(n.show_id) ? n.show_id : undefined,
+      showName: n.show_name ?? undefined,
     });
   }
 
   const airingToday = db
     .prepare(
-      `SELECT DISTINCT ec.network, ss.show_name, ec.season, ec.number, ec.name
+      `SELECT DISTINCT ec.tvmaze_show_id, ec.network, ss.show_name, ec.season, ec.number, ec.name
        FROM episodes_cache ec
        JOIN show_subscriptions ss ON ss.tvmaze_show_id = ec.tvmaze_show_id
        WHERE ec.airdate = date('now')
        ORDER BY ss.show_name
        LIMIT 10`,
     )
-    .all() as { network: string; show_name: string; season: number; number: number; name: string }[];
+    .all() as {
+      tvmaze_show_id: number;
+      network: string;
+      show_name: string;
+      season: number;
+      number: number;
+      name: string;
+    }[];
   for (const ep of airingToday) {
     const label = `S${String(ep.season).padStart(2, "0")}E${String(ep.number).padStart(2, "0")}`;
     items.push({
       type: "airing",
       emoji: "\u{1F4FA}",
       text: `${ep.show_name} ${label} "${ep.name}" airs tonight`,
+      tvmazeShowId: ep.tvmaze_show_id,
+      showName: ep.show_name,
     });
   }
 

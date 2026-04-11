@@ -154,8 +154,29 @@
         background-color: #020308;
         background-image: var(--galaxy-photo-url);
         background-size: cover;
-        background-position: center;
+        background-position: center 38%;
         background-repeat: no-repeat;
+      }
+      /**
+       * Cosmic atmosphere: layered nebula + edge glow + center scrim (above photo, below mesh/stars).
+       * Keeps the galaxy photo readable while adding premium cyan / purple / pink depth.
+       */
+      .cosmic-field {
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        pointer-events: none;
+        background:
+          radial-gradient(ellipse 88% 70% at 0% 18%, rgba(56, 189, 248, 0.16) 0%, transparent 58%),
+          radial-gradient(ellipse 72% 58% at 100% 10%, rgba(168, 85, 247, 0.13) 0%, transparent 52%),
+          radial-gradient(ellipse 95% 72% at 50% 100%, rgba(236, 72, 153, 0.11) 0%, transparent 54%),
+          radial-gradient(ellipse 58% 48% at 6% 88%, rgba(34, 211, 238, 0.09) 0%, transparent 56%),
+          radial-gradient(ellipse 65% 52% at 94% 78%, rgba(99, 102, 241, 0.1) 0%, transparent 54%),
+          radial-gradient(ellipse 100% 85% at 50% 38%, rgba(2, 3, 18, 0.4) 0%, rgba(2, 3, 18, 0.12) 48%, transparent 72%),
+          radial-gradient(ellipse 125% 100% at 50% 50%, rgba(1, 2, 12, 0.32) 0%, transparent 68%);
+      }
+      html:not([data-theme="nebula"]) .cosmic-field {
+        display: none;
       }
       html::before {
         content: "";
@@ -204,6 +225,9 @@
           0 0, 0 0, 0 0, 0 0, 0 0;
         animation: space-stars-twinkle 5.2s ease-in-out infinite;
       }
+      html[data-theme="nebula"]::before {
+        animation: space-stars-twinkle-nebula 7.5s ease-in-out infinite;
+      }
       @keyframes space-stars-twinkle {
         0%,
         100% {
@@ -217,6 +241,21 @@
         }
         78% {
           opacity: calc(var(--space-stars-opacity) * 1.12);
+        }
+      }
+      @keyframes space-stars-twinkle-nebula {
+        0%,
+        100% {
+          opacity: calc(var(--space-stars-opacity) * 0.92);
+        }
+        28% {
+          opacity: calc(var(--space-stars-opacity) * 1.12);
+        }
+        52% {
+          opacity: calc(var(--space-stars-opacity) * 0.78);
+        }
+        78% {
+          opacity: calc(var(--space-stars-opacity) * 1.06);
         }
       }
       html::after {
@@ -237,14 +276,17 @@
         background-size: 100% 100%;
         mix-blend-mode: screen;
       }
-      /** Nebula: drop extra pink/purple haze ellipses — only soft cyan/blue lifts from tokens */
+      /** Nebula: soft multi-stop haze — edge color without flattening the galaxy photo */
       html[data-theme="nebula"]::after {
         mix-blend-mode: soft-light;
         opacity: var(--space-haze-opacity);
         background-image:
           radial-gradient(ellipse 60% 40% at 50% 50%, var(--space-haze-a) 0%, transparent 42%),
           radial-gradient(ellipse 45% 55% at 80% 18%, var(--space-haze-b) 0%, transparent 38%),
-          radial-gradient(ellipse 50% 45% at 12% 72%, var(--space-haze-c) 0%, transparent 40%);
+          radial-gradient(ellipse 50% 45% at 12% 72%, var(--space-haze-c) 0%, transparent 40%),
+          radial-gradient(ellipse 38% 30% at 72% 80%, rgba(236, 72, 153, 0.07) 0%, transparent 52%),
+          radial-gradient(ellipse 40% 34% at 16% 26%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+          radial-gradient(ellipse 48% 36% at 88% 48%, rgba(167, 139, 250, 0.06) 0%, transparent 50%);
       }
       body {
         margin: 0;
@@ -587,10 +629,10 @@
         }
       }
 
-      /** Nebula: photo-first — CSS nebula layers were stacking on top of galaxy-inspiration-bg and reading as flat purple */
+      /** Nebula: photo-first — light milky-way adds depth without overpowering the photo */
       html[data-theme="nebula"] .space-milky-way {
-        opacity: 0.05;
-        filter: blur(64px) saturate(1.15);
+        opacity: 0.09;
+        filter: blur(64px) saturate(1.12);
       }
       html[data-theme="nebula"] .space-milky-rift {
         opacity: 0.06;
@@ -605,7 +647,10 @@
         opacity: 0.12;
       }
       html[data-theme="nebula"] .galaxy-photo-base {
-        filter: saturate(1.06) contrast(1.04);
+        filter: saturate(1.08) contrast(1.05) brightness(0.98);
+      }
+      html[data-theme="nebula"] .cosmic-field {
+        opacity: 1;
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -677,29 +722,29 @@
         background-image: none;
         --space-void: #020308;
         --space-gradient: none;
-        --space-stars-opacity: 0.26;
-        --space-stars-filter: saturate(1.15);
-        --space-haze-opacity: 0.045;
-        --space-haze-a: rgba(34, 211, 238, 0.1);
-        --space-haze-b: rgba(91, 156, 255, 0.07);
-        --space-haze-c: rgba(34, 211, 238, 0.06);
-        --orb-tr-opacity: 0.08;
+        --space-stars-opacity: 0.22;
+        --space-stars-filter: saturate(1.12);
+        --space-haze-opacity: 0.072;
+        --space-haze-a: rgba(34, 211, 238, 0.12);
+        --space-haze-b: rgba(91, 156, 255, 0.09);
+        --space-haze-c: rgba(167, 139, 250, 0.08);
+        --orb-tr-opacity: 0.12;
         --orb-tr: radial-gradient(
           circle,
-          rgba(34, 211, 238, 0.22) 0%,
-          rgba(91, 156, 255, 0.12) 40%,
-          rgba(59, 130, 246, 0.06) 58%,
+          rgba(34, 211, 238, 0.28) 0%,
+          rgba(91, 156, 255, 0.16) 38%,
+          rgba(168, 85, 247, 0.08) 52%,
           transparent 76%
         );
-        --orb-bl-opacity: 0.06;
+        --orb-bl-opacity: 0.1;
         --orb-bl: radial-gradient(
           circle,
-          rgba(34, 211, 238, 0.2) 0%,
-          rgba(91, 156, 255, 0.14) 45%,
-          rgba(30, 58, 138, 0.06) 65%,
+          rgba(56, 189, 248, 0.22) 0%,
+          rgba(91, 156, 255, 0.14) 42%,
+          rgba(236, 72, 153, 0.08) 58%,
           transparent 78%
         );
-        --mesh-opacity: 0.045;
+        --mesh-opacity: 0.055;
         --mesh-bg: radial-gradient(
             ellipse 95% 80% at 22% 42%,
             rgba(34, 211, 238, 0.09) 0%,
@@ -967,6 +1012,19 @@
         background-repeat: repeat;
         background-size: 180px 200px, 220px 240px, 160px 180px, 200px 220px, 190px 210px, 240px 190px;
         background-position: 0 0, 40px 60px, 80px 20px, 120px 100px, 20px 140px, 60px 80px;
+      }
+      /** Nebula: vignette-style scrim behind tab content — less busy than full-spectrum corner blobs */
+      html[data-theme="nebula"] .main-scroll::before {
+        background:
+          radial-gradient(ellipse 92% 78% at 50% 44%, rgba(2, 4, 22, 0.44) 0%, transparent 64%),
+          radial-gradient(ellipse 130% 95% at 50% 100%, rgba(0, 0, 0, 0.32) 0%, transparent 58%),
+          radial-gradient(ellipse 105% 70% at 50% 0%, rgba(0, 0, 0, 0.2) 0%, transparent 55%),
+          radial-gradient(ellipse 70% 90% at 0% 50%, rgba(2, 3, 18, 0.18) 0%, transparent 52%),
+          radial-gradient(ellipse 70% 90% at 100% 50%, rgba(2, 3, 18, 0.18) 0%, transparent 52%);
+        opacity: 0.94;
+      }
+      html[data-theme="nebula"] .main-scroll::after {
+        opacity: 0.16;
       }
       .main-scroll > .tab-panel {
         position: relative;
@@ -3867,58 +3925,90 @@
         flex-wrap: wrap;
         margin-bottom: 0.35rem;
       }
-      /* ── Breaking News Ticker ── */
-      .community-ticker {
+      /* ── Breaking news rail (matches General / Trending hero cards — horizontal scroll, not ticker) */
+      .community-headlines-rail-wrap {
+        margin: 0.15rem 0 0.55rem;
+      }
+      .community-headlines-rail-wrap .community-subsection-heading {
+        margin-bottom: 0.45rem;
+        font-size: 0.82rem;
+      }
+      .community-headlines-rail {
+        list-style: none;
+        margin: 0;
+        padding: 0 0 0.35rem;
+        display: flex;
+        flex-direction: row;
+        gap: 0.75rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x;
+      }
+      .community-headlines-rail::-webkit-scrollbar {
+        display: none;
+      }
+      .community-headlines-rail > li {
+        flex: 0 0 min(280px, 86vw);
+        min-width: min(280px, 86vw);
+        max-width: 300px;
+        scroll-snap-align: start;
+      }
+      a.community-headline-card {
+        -webkit-tap-highlight-color: transparent;
+      }
+      .community-headline-card.community-thread-card--hero {
+        min-height: 0;
+        padding: 0;
+        cursor: pointer;
+      }
+      .community-headline-card .community-thread-card-hero {
+        min-height: 236px;
+      }
+      .community-headline-card-title {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
         overflow: hidden;
-        white-space: nowrap;
-        margin: 0.45rem 0 0.65rem;
-        padding: 0.5rem 0;
-        border-top: 1px solid rgba(79, 195, 247, 0.15);
-        border-bottom: 1px solid rgba(79, 195, 247, 0.15);
-        background: rgba(3, 5, 8, 0.92);
-        border-radius: 10px;
-        position: relative;
-        contain: layout paint;
+        line-height: 1.32;
+        font-size: 0.88rem !important;
+        font-weight: 700;
       }
-      .community-ticker-track {
-        display: inline-flex;
-        gap: 0;
-        animation: ticker-scroll 48s linear infinite;
+      .community-headline-type-badge {
+        font-size: 0.6rem;
+        font-weight: 700;
+        padding: 0.15rem 0.45rem;
+        border-radius: 6px;
+        letter-spacing: 0.03em;
+        background: rgba(255, 64, 129, 0.22);
+        border: 1px solid rgba(255, 64, 129, 0.38);
+        color: #ff80ab;
       }
-      .community-ticker:hover .community-ticker-track,
-      .community-ticker:active .community-ticker-track {
-        animation-play-state: paused;
+      .community-headline-type-badge--airing {
+        background: rgba(0, 230, 118, 0.14);
+        border-color: rgba(0, 230, 118, 0.35);
+        color: #a7f3d0;
       }
-      .community-ticker-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0 0.85rem;
-        font-size: 0.78rem;
-        color: #4fc3f7;
-        white-space: nowrap;
-        flex-shrink: 0;
+      .community-headline-type-badge--admin {
+        background: rgba(251, 191, 36, 0.16);
+        border-color: rgba(251, 191, 36, 0.4);
+        color: #fde68a;
       }
-      .community-ticker-item a {
-        color: #4fc3f7;
-        text-decoration: none;
+      .community-headline-type-badge--stat {
+        background: rgba(79, 195, 247, 0.14);
+        border-color: rgba(79, 195, 247, 0.35);
+        color: #7dd3fc;
       }
-      .community-ticker-item a:hover {
-        text-decoration: underline;
-      }
-      .community-ticker-source {
-        font-size: 0.65rem;
-        color: rgba(79, 195, 247, 0.55);
-        margin-left: 0.2rem;
-      }
-      .community-ticker-divider {
-        color: rgba(79, 195, 247, 0.35);
-        padding: 0 0.5rem;
-        flex-shrink: 0;
-      }
-      @keyframes ticker-scroll {
-        from { transform: translateX(0); }
-        to { transform: translateX(-50%); }
+      .community-headline-card-art--placeholder {
+        background-color: #0a0e18 !important;
+        background-image:
+          radial-gradient(ellipse 85% 65% at 18% 22%, rgba(56, 189, 248, 0.14), transparent 58%),
+          radial-gradient(ellipse 72% 58% at 88% 78%, rgba(168, 85, 247, 0.12), transparent 52%),
+          linear-gradient(168deg, rgba(14, 18, 28, 0.96) 0%, rgba(4, 8, 18, 0.99) 100%) !important;
       }
       /* ── Filter Pills ── */
       .community-filter-pills {
@@ -6635,6 +6725,7 @@
   </head>
   <body>
     <div class="galaxy-photo-base" aria-hidden="true"></div>
+    <div class="cosmic-field" aria-hidden="true"></div>
     <div class="bg-mesh-mid" aria-hidden="true"></div>
     <div class="space-milky-way" aria-hidden="true"></div>
     <div class="space-milky-rift" aria-hidden="true"></div>
@@ -7062,9 +7153,10 @@
               <span class="community-live-badge" aria-hidden="true">● LIVE</span>
             </div>
 
-            <!-- Breaking News Ticker -->
-            <div class="community-ticker" id="communityTicker" hidden>
-              <div class="community-ticker-track" id="communityTickerTrack"></div>
+            <!-- Breaking news — horizontal card rail (TVMaze art when available) -->
+            <div class="community-headlines-rail-wrap" id="communityHeadlinesWrap" hidden>
+              <h3 class="community-subsection-heading">Breaking news</h3>
+              <ul class="community-headlines-rail" id="communityHeadlinesRail" role="list" aria-label="Breaking news"></ul>
             </div>
 
             <!-- Filter Pills -->
@@ -10111,14 +10203,14 @@
           if (!inp) return;
           await api("/api/admin/ticker-message", { method: "PUT", body: JSON.stringify({ message: inp.value.trim() }) });
           showToast("Ticker message saved");
-          loadCommunityTicker();
+          loadCommunityHeadlines();
         });
         document.getElementById("adminTickerMessageClearBtn")?.addEventListener("click", async () => {
           const inp = document.getElementById("adminTickerMessageInput");
           if (inp) inp.value = "";
           await api("/api/admin/ticker-message", { method: "PUT", body: JSON.stringify({ message: null }) });
           showToast("Ticker message cleared");
-          loadCommunityTicker();
+          loadCommunityHeadlines();
         });
         document.getElementById("adminRssPollBtn")?.addEventListener("click", async () => {
           showToast("Polling RSS feeds...");
@@ -10126,7 +10218,7 @@
             const pollRes = await api("/api/admin/rss-poll", { method: "POST", body: "{}" });
             showToast("RSS poll done: " + (pollRes.fetched || 0) + " new, " + (pollRes.autoPublished || 0) + " auto-published");
             loadAdminBreakingNews();
-            loadCommunityTicker();
+            loadCommunityHeadlines();
           } catch (e) {
             showToast(e.message || "RSS poll failed");
           }
@@ -11465,7 +11557,7 @@
         if (communityFab) communityFab.style.display = "";
         loadCommunityThreads();
         void loadCommunityChallenges();
-        void loadCommunityTicker();
+        void loadCommunityHeadlines();
         void loadLiveEpisodeBanner();
       }
 
@@ -11780,27 +11872,96 @@
         }
       }
 
-      /* ── Breaking News Ticker ── */
-      async function loadCommunityTicker() {
-        const ticker = document.getElementById("communityTicker");
-        const track = document.getElementById("communityTickerTrack");
-        if (!ticker || !track) return;
+      /* ── Community breaking news (horizontal card rail) ── */
+      function headlineBadgeClass(type) {
+        if (type === "airing") return "community-headline-type-badge community-headline-type-badge--airing";
+        if (type === "admin") return "community-headline-type-badge community-headline-type-badge--admin";
+        if (type === "stat") return "community-headline-type-badge community-headline-type-badge--stat";
+        return "community-headline-type-badge";
+      }
+
+      function headlineBadgeLabel(type) {
+        if (type === "breaking") return "Breaking";
+        if (type === "airing") return "Tonight";
+        if (type === "admin") return "Alert";
+        if (type === "stat") return "Community";
+        return "News";
+      }
+
+      async function loadCommunityHeadlines() {
+        const wrap = document.getElementById("communityHeadlinesWrap");
+        const rail = document.getElementById("communityHeadlinesRail");
+        if (!wrap || !rail) return;
         try {
           const data = await api("/api/ticker");
           const items = data.items || [];
-          if (!items.length) { ticker.hidden = true; return; }
-          ticker.hidden = false;
-          const html = items.map(it => {
-            const src = it.source ? '<span class="community-ticker-source">via ' + escapeHtml(it.source) + '</span>' : '';
-            const link = it.url ? '<a href="' + escapeHtml(it.url) + '" target="_blank" rel="noopener">' + escapeHtml(it.text) + '</a>' : escapeHtml(it.text);
-            return '<span class="community-ticker-item">' + it.emoji + ' ' + link + src + '</span>';
-          }).join('<span class="community-ticker-divider">\u2726</span>');
-          track.innerHTML = html + '<span class="community-ticker-divider">\u2726</span>' + html;
-          const totalW = track.scrollWidth / 2;
-          const speed = Math.max(20, totalW / 60);
-          track.style.animationDuration = speed + 's';
+          if (!items.length) {
+            wrap.hidden = true;
+            return;
+          }
+          wrap.hidden = false;
+          rail.innerHTML = "";
+          for (let i = 0; i < items.length; i++) {
+            const it = items[i];
+            const li = document.createElement("li");
+            const hasUrl = Boolean(it.url && String(it.url).trim());
+            const card = document.createElement(hasUrl ? "a" : "div");
+            card.className = "community-headline-card community-thread-card community-thread-card--hero";
+            if (hasUrl) {
+              card.href = it.url;
+              card.target = "_blank";
+              card.rel = "noopener";
+            } else {
+              card.setAttribute("role", "article");
+            }
+            const showLine = it.showName ? escapeHtml(it.showName) : "";
+            const metaParts = [];
+            if (it.source) metaParts.push('<span class="community-thread-footer-stat">via ' + escapeHtml(it.source) + "</span>");
+            if (hasUrl) metaParts.push('<span style="margin-left:auto"><span class="community-thread-card-join">Open</span></span>');
+            const footer = metaParts.length
+              ? '<div class="community-thread-footer" style="margin-top:0.35rem">' + metaParts.join("") + "</div>"
+              : "";
+
+            card.innerHTML =
+              '<div class="community-thread-card-hero community-headline-card-art" role="presentation">' +
+              '<div class="community-thread-card-scrim" aria-hidden="true"></div>' +
+              '<div class="community-thread-card-badges">' +
+              '<span class="' +
+              headlineBadgeClass(it.type) +
+              '">' +
+              headlineBadgeLabel(it.type) +
+              "</span>" +
+              "</div>" +
+              '<div class="community-thread-card-hero-inner">' +
+              '<div class="community-thread-ep-show">' +
+              (showLine || "\u00A0") +
+              "</div>" +
+              '<div class="community-thread-ep-title community-headline-card-title">' +
+              escapeHtml(it.text) +
+              "</div>" +
+              footer +
+              "</div></div>";
+
+            const label = (it.text || "Headline").slice(0, 140) + (hasUrl ? " — opens in new tab" : "");
+            card.setAttribute("aria-label", label);
+
+            const heroEl = card.querySelector(".community-headline-card-art");
+            applyCommunityHeadlineCardArt(heroEl, it.tvmazeShowId);
+
+            li.appendChild(card);
+            li.style.opacity = "0";
+            li.style.transform = "translateX(14px)";
+            rail.appendChild(li);
+          }
+          rail.querySelectorAll("li").forEach((row, j) => {
+            setTimeout(() => {
+              row.style.transition = "opacity 0.38s cubic-bezier(0.16,1,0.3,1), transform 0.38s cubic-bezier(0.16,1,0.3,1)";
+              row.style.opacity = "1";
+              row.style.transform = "translateX(0)";
+            }, j * 55);
+          });
         } catch (e) {
-          ticker.hidden = true;
+          wrap.hidden = true;
         }
       }
 
@@ -11938,20 +12099,35 @@
             }, i * 80);
           });
 
-          // Fallback: if no image yet, try fetching from TVMaze
           if (!showImg) {
-            fetch("https://api.tvmaze.com/shows/" + showId).then(r => r.json()).then(d => {
-              if (d && d.image) {
-                const url = d.image.original || d.image.medium;
-                list.querySelectorAll(".community-show-news-image").forEach(el => {
-                  el.style.backgroundImage = "url(" + url + ")";
-                });
-              }
-            }).catch(() => {});
+            fetchTvmazeShowImageUrl(showId).then((url) => {
+              if (!url) return;
+              list.querySelectorAll(".community-show-news-image").forEach((el) => {
+                el.style.backgroundImage = "url(" + url + ")";
+              });
+            });
           }
         } catch {
           panel.hidden = true;
         }
+      }
+
+      const tvmazeShowImageCache = Object.create(null);
+      function fetchTvmazeShowImageUrl(showId) {
+        const sid = Number(showId);
+        if (!Number.isFinite(sid) || sid < 1) return Promise.resolve(null);
+        if (tvmazeShowImageCache[sid] !== undefined) return Promise.resolve(tvmazeShowImageCache[sid]);
+        return fetch("https://api.tvmaze.com/shows/" + sid)
+          .then((r) => (r.ok ? r.json() : null))
+          .then((d) => {
+            const url = d && d.image ? d.image.medium || d.image.original : null;
+            tvmazeShowImageCache[sid] = url;
+            return url;
+          })
+          .catch(() => {
+            tvmazeShowImageCache[sid] = null;
+            return null;
+          });
       }
 
       function applyCommunityThreadHeroArt(heroEl, showId, showImageUrl) {
@@ -11965,12 +12141,20 @@
         }
         const sid = Number(showId);
         if (!Number.isFinite(sid) || sid < 1) return;
-        fetch("https://api.tvmaze.com/shows/" + sid)
-          .then((r) => r.json())
-          .then((d) => {
-            if (d && d.image) applyUrl(d.image.original || d.image.medium);
-          })
-          .catch(() => {});
+        fetchTvmazeShowImageUrl(sid).then(applyUrl);
+      }
+
+      function applyCommunityHeadlineCardArt(heroEl, tvmazeShowId) {
+        if (!heroEl) return;
+        heroEl.classList.remove("community-headline-card-art--placeholder");
+        if (tvmazeShowId == null) {
+          heroEl.classList.add("community-headline-card-art--placeholder");
+          return;
+        }
+        fetchTvmazeShowImageUrl(tvmazeShowId).then((url) => {
+          if (url) heroEl.style.backgroundImage = "url(" + url + ")";
+          else heroEl.classList.add("community-headline-card-art--placeholder");
+        });
       }
 
       async function loadCommunityThreads() {
@@ -14334,13 +14518,11 @@
           if (id) void loadWeekGuide(id);
         }
         if (name === "community") {
-          const tickerTrackOnEnter = document.getElementById("communityTickerTrack");
-          if (tickerTrackOnEnter) tickerTrackOnEnter.style.removeProperty("animation-play-state");
           syncCommunityFindFriendChrome();
           if (communityState.view === "list") {
             loadCommunityThreads();
             void loadCommunityChallenges();
-            void loadCommunityTicker();
+            void loadCommunityHeadlines();
             void loadLiveEpisodeBanner();
           } else if (communityState.showId != null) {
             loadCommunityThreadPosts();
@@ -14350,8 +14532,6 @@
         }
         if (prevName === "community" && name !== "community") {
           disconnectCommunityThreadLiveWs();
-          const tickerTrackOnLeave = document.getElementById("communityTickerTrack");
-          if (tickerTrackOnLeave) tickerTrackOnLeave.style.removeProperty("animation-play-state");
         }
         if (name === "messages") {
           if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot)) {
@@ -15426,12 +15606,7 @@
         const bar = document.getElementById("appTopBar");
         const scrollEl = document.getElementById("mainScroll");
         if (!scrollEl) return;
-        const tabCommunity = document.getElementById("tab-community");
-        const tickerTrack = document.getElementById("communityTickerTrack");
         let raf = false;
-        let tickerResumeTimer = null;
-        /** Only flip animation once per scroll burst — writing style every scroll event caused jank. */
-        let tickerPausedByMainScroll = false;
         function tickHeader() {
           raf = false;
           if (bar) bar.classList.toggle("is-scrolled", scrollEl.scrollTop > 28);
@@ -15442,17 +15617,6 @@
             if (!raf) {
               raf = true;
               requestAnimationFrame(tickHeader);
-            }
-            if (tickerTrack && tabCommunity && tabCommunity.classList.contains("active")) {
-              if (!tickerPausedByMainScroll) {
-                tickerPausedByMainScroll = true;
-                tickerTrack.style.animationPlayState = "paused";
-              }
-              if (tickerResumeTimer) clearTimeout(tickerResumeTimer);
-              tickerResumeTimer = setTimeout(() => {
-                tickerPausedByMainScroll = false;
-                tickerTrack.style.animationPlayState = "running";
-              }, 220);
             }
           },
           { passive: true },
