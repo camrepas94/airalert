@@ -327,6 +327,18 @@ export async function pollRssFeeds(): Promise<{
 
 /* ── Ticker Data (what the frontend fetches) ───────────────── */
 
+/** SQLite `datetime('now')` / `created_at` values are UTC strings without a TZ suffix — normalize for JSON + `Date` parsing. */
+function sqliteDatetimeToIsoUtc(sqlite: string | null | undefined): string | undefined {
+  if (sqlite == null || typeof sqlite !== "string") return undefined;
+  const s = sqlite.trim();
+  if (!s) return undefined;
+  const isoLike = s.includes("T") ? s : s.replace(" ", "T");
+  const withZ = /[zZ]|[+-][0-9]{2}:?[0-9]{2}$/.test(isoLike) ? isoLike : `${isoLike}Z`;
+  const ms = Date.parse(withZ);
+  if (!Number.isFinite(ms)) return undefined;
+  return new Date(ms).toISOString();
+}
+
 export interface TickerItem {
   type: "admin" | "breaking" | "airing" | "stat";
   emoji: string;
@@ -336,25 +348,28 @@ export interface TickerItem {
   /** TVMaze show id when known — client can load poster from api.tvmaze.com */
   tvmazeShowId?: number;
   showName?: string;
+  /** When this line was published / last relevant update (ISO 8601). Breaking rows use `breaking_news.created_at`. */
+  publishedAt?: string;
 }
 
 export function getTickerItems(): TickerItem[] {
   const items: TickerItem[] = [];
 
   const admin = db
-    .prepare(`SELECT message FROM admin_ticker_message WHERE id = 1`)
-    .get() as { message: string | null } | undefined;
+    .prepare(`SELECT message, updated_at FROM admin_ticker_message WHERE id = 1`)
+    .get() as { message: string | null; updated_at: string } | undefined;
   if (admin?.message) {
     items.push({
       type: "admin",
       emoji: "\u{1F6A8}",
       text: admin.message,
+      publishedAt: sqliteDatetimeToIsoUtc(admin.updated_at),
     });
   }
 
   const news = db
     .prepare(
-      `SELECT headline, source, url, show_name, show_id FROM breaking_news
+      `SELECT headline, source, url, show_name, show_id, created_at FROM breaking_news
        WHERE status IN ('auto', 'approved')
          AND created_at > datetime('now', '-48 hours')
        ORDER BY created_at DESC LIMIT 15`,
@@ -365,8 +380,11 @@ export function getTickerItems(): TickerItem[] {
       url: string;
       show_name: string | null;
       show_id: number | null;
+      created_at: string;
     }[];
   for (const n of news) {
+    const publishedAt = sqliteDatetimeToIsoUtc(n.created_at);
+    if (!publishedAt) continue;
     items.push({
       type: "breaking",
       emoji: "\u{1F534}",
@@ -375,8 +393,11 @@ export function getTickerItems(): TickerItem[] {
       url: n.url,
       tvmazeShowId: n.show_id != null && Number.isFinite(n.show_id) ? n.show_id : undefined,
       showName: n.show_name ?? undefined,
+      publishedAt,
     });
   }
+
+  const tickerNowIso = new Date().toISOString();
 
   const airingToday = db
     .prepare(
@@ -403,6 +424,7 @@ export function getTickerItems(): TickerItem[] {
       text: `${ep.show_name} ${label} "${ep.name}" airs tonight`,
       tvmazeShowId: ep.tvmaze_show_id,
       showName: ep.show_name,
+      publishedAt: tickerNowIso,
     });
   }
 
@@ -413,6 +435,7 @@ export function getTickerItems(): TickerItem[] {
       type: "stat",
       emoji: "\u{1F4AC}",
       text: `${userCount} members \u2022 ${postCount} community posts`,
+      publishedAt: tickerNowIso,
     });
   }
 

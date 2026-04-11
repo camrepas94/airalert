@@ -2295,46 +2295,108 @@
       .how-to-steps strong {
         color: var(--text);
       }
-      .quickstart-guide {
+      .quickstart-help-inner {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        flex: 1;
+        min-height: 0;
+        max-height: min(72vh, 520px);
       }
-      .quickstart-block {
-        margin: 0;
-        padding: 0.65rem 0 0;
-        border-top: 1px solid rgba(130, 200, 255, 0.12);
+      #quickStartHelpModalBody.modal-body-scroll {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0.85rem 1.05rem 0.5rem;
       }
-      .quickstart-block:first-of-type {
-        padding-top: 0;
-        border-top: none;
+      .quickstart-step-meta {
+        margin: 0.2rem 0 0;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
       }
-      .quickstart-block-title {
-        margin: 0 0 0.4rem;
-        font-size: 0.82rem;
+      .quickstart-step-lead {
+        margin: 0 0 0.65rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: var(--text);
+      }
+      .quickstart-step-title {
+        margin: 0 0 0.55rem;
+        font-size: 0.88rem;
         font-weight: 750;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
+        letter-spacing: 0.04em;
         color: var(--accent-hot);
       }
-      .quickstart-block p {
-        margin: 0 0 0.45rem;
-        font-size: 0.92rem;
+      .quickstart-step-list {
+        margin: 0;
+        padding-left: 1.15rem;
+        font-size: 0.88rem;
         line-height: 1.55;
         color: var(--text);
       }
-      .quickstart-block p:last-child {
-        margin-bottom: 0;
+      .quickstart-step-list li {
+        margin: 0.35rem 0;
       }
-      ul.quickstart-list {
-        margin: 0.35rem 0 0;
-        padding-left: 1.2rem;
-        font-size: 0.9rem;
-        line-height: 1.55;
-        color: var(--text);
+      .quickstart-step-list li:first-child {
+        margin-top: 0;
       }
-      ul.quickstart-list li {
-        margin: 0.25rem 0;
+      .quickstart-footer {
+        flex-shrink: 0;
+        padding: 0.65rem 1.05rem 0.95rem;
+        border-top: 1px solid rgba(130, 200, 255, 0.14);
+        background: linear-gradient(180deg, rgba(8, 10, 20, 0.5) 0%, rgba(12, 14, 24, 0.85) 100%);
+      }
+      .quickstart-dots {
+        display: flex;
+        justify-content: center;
+        gap: 0.35rem;
+        margin-bottom: 0.65rem;
+      }
+      .quickstart-dots[aria-hidden="true"] {
+        opacity: 0.85;
+      }
+      .quickstart-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: rgba(130, 200, 255, 0.22);
+        transition: background 0.2s ease, transform 0.2s ease;
+      }
+      .quickstart-dot--active {
+        background: rgba(34, 211, 238, 0.95);
+        transform: scale(1.15);
+        box-shadow: 0 0 10px rgba(34, 211, 238, 0.45);
+      }
+      .quickstart-footer-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+      }
+      @media (min-width: 480px) {
+        .quickstart-footer-actions {
+          flex-direction: row;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .quickstart-skip {
+          order: 0;
+        }
+        .quickstart-footer-nav {
+          order: 1;
+          margin-left: auto;
+        }
+      }
+      .quickstart-footer-nav {
+        display: flex;
+        gap: 0.45rem;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+      }
+      .quickstart-skip {
+        font-size: 0.82rem;
+        padding: 0.4rem 0.65rem;
       }
       .quickstart-tip {
         margin: 0.5rem 0 0;
@@ -3349,9 +3411,13 @@
           0 0 96px 12px rgba(34, 211, 238, 0.18), 0 0 80px -8px rgba(91, 156, 255, 0.35),
           0 28px 72px rgba(0, 0, 0, 0.65), var(--panel-glow-blue);
       }
+      .quickstart-help-head-text {
+        min-width: 0;
+        flex: 1;
+      }
       .quickstart-help-head {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 0.75rem;
         flex-shrink: 0;
@@ -3373,9 +3439,6 @@
         background-clip: text;
         color: transparent;
         filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.35)) drop-shadow(0 0 28px rgba(167, 139, 250, 0.2));
-      }
-      .quickstart-help-panel .modal-body-scroll {
-        padding-top: 0.65rem;
       }
       @media (min-width: 560px) {
         .modal-backdrop {
@@ -4004,7 +4067,7 @@
         scrollbar-width: none;
         -ms-overflow-style: none;
         -webkit-overflow-scrolling: touch;
-        touch-action: pan-x;
+        /** Do not use touch-action: pan-x — it blocks vertical page scroll when swiping on cards. Default (auto) lets the browser scroll this rail horizontally and chain vertical movement to the page. */
       }
       .community-headlines-rail[aria-busy="true"] {
         pointer-events: none;
@@ -4115,6 +4178,25 @@
         background: rgba(79, 195, 247, 0.14);
         border-color: rgba(79, 195, 247, 0.35);
         color: #7dd3fc;
+      }
+      .community-headline-published-badge {
+        font-size: 0.58rem;
+        font-weight: 600;
+        padding: 0.14rem 0.42rem;
+        border-radius: 999px;
+        letter-spacing: 0.02em;
+        max-width: min(5.5rem, 38%);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex-shrink: 0;
+        background: rgba(8, 10, 16, 0.62);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: rgba(248, 250, 252, 0.96);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
       }
       .community-headline-card-art--placeholder {
         background-color: #0a0e18 !important;
@@ -4902,7 +4984,6 @@
         overscroll-behavior-x: contain;
         scrollbar-width: none;
         -ms-overflow-style: none;
-        touch-action: pan-x;
       }
       .community-thread-list::-webkit-scrollbar { display: none; }
       .community-thread-list > li {
@@ -4922,7 +5003,6 @@
         overscroll-behavior-x: contain;
         scrollbar-width: none;
         -ms-overflow-style: none;
-        touch-action: pan-x;
       }
       .community-general-list::-webkit-scrollbar { display: none; }
       .community-general-list > li {
@@ -7924,87 +8004,86 @@
       role="dialog"
       aria-modal="true"
       aria-labelledby="quickStartHelpHeading"
+      aria-describedby="quickStartHelpSub"
     >
       <div class="modal-panel quickstart-help-panel">
         <div class="quickstart-help-head">
-          <h3 id="quickStartHelpHeading">Quick start</h3>
-          <button type="button" class="modal-close secondary" id="quickStartHelpClose" aria-label="Close quick start">×</button>
+          <div class="quickstart-help-head-text">
+            <h3 id="quickStartHelpHeading">Welcome to Airalert</h3>
+            <p id="quickStartHelpSub" class="quickstart-step-meta muted">Step 1 of 5</p>
+          </div>
+          <button type="button" class="modal-close secondary" id="quickStartHelpClose" aria-label="Close">×</button>
         </div>
-        <div class="modal-body-scroll" id="quickStartHelpModalBody">
-          <p class="how-to-lead muted">
-            Airalert helps you track what’s airing, check off what you’ve watched, and hang out with other fans. You land on
-            <strong>Add Shows</strong> first. Use the header for everything else:
-            <strong>?</strong> this guide · <strong>gear</strong> settings · <strong>person</strong> your profile ·
-            <strong>inbox</strong> (top right) when you’re signed in.
-          </p>
-          <div class="quickstart-guide">
-            <section class="quickstart-block">
-              <h4 class="quickstart-block-title">Build your list</h4>
-              <p>
-                On <strong>Add Shows</strong>, search by title (live results as you type, or press <strong>Enter</strong> for a deeper
-                search). <strong>Recent searches</strong> appear as chips. <strong>Trending</strong> surfaces popular streaming shows
-                that are airing; <strong>Recommended for you</strong> (expand the section) mixes genres, show type, and what
-                similar fans watch — tap <strong>Refresh</strong> anytime.
-              </p>
-              <p>
-                Tap <strong>Subscribe</strong> or <strong>Add show</strong> on a card. Open <strong>My List</strong> to see what you’re
-                following, tap a title for episode details, or check <strong>Binge later</strong> to mute air-day alerts and hide
-                episode-thread spoilers until you’re caught up.
-              </p>
-            </section>
-            <section class="quickstart-block">
-              <h4 class="quickstart-block-title">Guide &amp; tasks</h4>
-              <p>
-                <strong>My week</strong> is a Sun–Sat grid of what’s airing from your list in your timezone.
-                <strong>Tasks</strong> is your checklist: when an episode airs on its day, it shows up — mark
-                <strong>watched</strong>, <strong>skipped</strong>, or leave it open. Completed episodes fold into
-                <strong>Completed</strong> so the list stays tidy.
-              </p>
-            </section>
-            <section class="quickstart-block">
-              <h4 class="quickstart-block-title">Community</h4>
-              <p>
-                Each show has <strong>General discussion</strong> plus a thread per episode. Tap <strong>+</strong> to pick a show
-                and jump to a thread. You can <strong>follow thread notifications</strong> (push) when you’re on the show’s list or
-                after there’s activity.
-              </p>
-              <ul class="quickstart-list">
-                <li><strong>Spoiler-safe mode</strong> — Set “episodes behind” or turn on <strong>Binge later</strong> to blur posts you’re not ready for; tap to reveal. Authors can still tag spoilers.</li>
-                <li><strong>Polls &amp; scores</strong> — Vote in episode prediction polls before air; rate episodes 1–5 after. Season charts live in the general thread.</li>
-                <li><strong>Live rail</strong> — While you’re on a thread, you show in <strong>Watching now</strong> and can use the side rail for quick live chat.</li>
-                <li><strong>Watch challenges</strong> — Community goals (e.g. finish a show before a finale airs). Opt in and climb the leaderboard; progress uses the same episodes you mark watched on <strong>Tasks</strong>.</li>
-                <li><strong>Search username</strong> — From the profile menu (top right), find members and open profiles. Signed-in viewers see a <strong>compatibility %</strong> from shared list overlap and matching episode ratings.</li>
-              </ul>
-            </section>
-            <section class="quickstart-block">
-              <h4 class="quickstart-block-title">People you follow</h4>
-              <p>
-                On <strong>My List</strong>, search TVMaze people (cast, writers, directors) and tap <strong>Follow</strong>. When
-                a new show appears on their credits, you can get a push — toggle under <strong>Settings → Push notifications</strong>
-                (<strong>People you follow</strong>).
-              </p>
-            </section>
-            <section class="quickstart-block">
-              <h4 class="quickstart-block-title">Messages</h4>
-              <p>
-                Registered members can <strong>direct message</strong> from the <strong>inbox</strong> (top right) or from
-                someone’s profile. Create an account under <strong>Your profile</strong> if you don’t have one yet.
-              </p>
-            </section>
-            <section class="quickstart-block">
-              <h4 class="quickstart-block-title">Profile &amp; settings</h4>
-              <p>
-                <strong>Your profile</strong> (person icon): photo, display name, optional about-you fields,
-                <strong>Share your stats</strong> (PNG card for social), account, sign out. <strong>Settings</strong> (gear):
-                timezone, <strong>Refresh all show data</strong> (updates air dates for your shows), and
-                <strong>Push notifications</strong> — turn on the device, then choose which alerts you want (airs today, DMs,
-                community, task nudges, people you follow, and more).
-              </p>
-              <p class="quickstart-tip">
-                <strong>Tip:</strong> On iPhone, add Airalert to your Home Screen before enabling push for the most reliable
-                notifications.
-              </p>
-            </section>
+        <div class="quickstart-help-inner">
+          <div
+            class="modal-body-scroll"
+            id="quickStartHelpModalBody"
+            role="region"
+            aria-label="Onboarding steps"
+            aria-live="polite"
+          >
+            <div id="quickStartHelpSteps">
+              <section class="quickstart-step" data-step="0" aria-hidden="false">
+                <p class="quickstart-step-lead">
+                  Track what’s airing, check off episodes, and join fan chats — all in one place.
+                </p>
+                <ul class="quickstart-step-list">
+                  <li>You start on <strong>Add Shows</strong> (bottom nav).</li>
+                  <li>Use the top bar: <strong>?</strong> this guide · <strong>gear</strong> settings · <strong>person</strong> profile · <strong>inbox</strong> when signed in.</li>
+                </ul>
+              </section>
+              <section class="quickstart-step" data-step="1" hidden aria-hidden="true">
+                <h4 class="quickstart-step-title">Build your list</h4>
+                <ul class="quickstart-step-list">
+                  <li>Search by title on <strong>Add Shows</strong> — results appear as you type.</li>
+                  <li>Tap <strong>Subscribe</strong> on a card to follow a show.</li>
+                  <li>Open <strong>My List</strong> to see everything you follow and open episode details.</li>
+                  <li>Use <strong>Binge later</strong> on a show to reduce spoilers until you catch up.</li>
+                </ul>
+              </section>
+              <section class="quickstart-step" data-step="2" hidden aria-hidden="true">
+                <h4 class="quickstart-step-title">Guide &amp; tasks</h4>
+                <ul class="quickstart-step-list">
+                  <li><strong>My week</strong> — week view of what’s airing from your list (your timezone).</li>
+                  <li><strong>Tasks</strong> — episodes to watch; mark <strong>watched</strong> or <strong>skipped</strong>, or leave open.</li>
+                </ul>
+              </section>
+              <section class="quickstart-step" data-step="3" hidden aria-hidden="true">
+                <h4 class="quickstart-step-title">Community</h4>
+                <ul class="quickstart-step-list">
+                  <li>Each show has <strong>General discussion</strong> plus a thread per episode.</li>
+                  <li>Tap <strong>+</strong> to pick a show and start or join a thread.</li>
+                  <li><strong>Profile menu</strong> (person) → <strong>Search username</strong> to find people (signed-in: compatibility %).</li>
+                </ul>
+              </section>
+              <section class="quickstart-step" data-step="4" hidden aria-hidden="true">
+                <h4 class="quickstart-step-title">Settings &amp; profile</h4>
+                <ul class="quickstart-step-list">
+                  <li><strong>Settings</strong> — timezone, refresh show data, push notification choices.</li>
+                  <li><strong>Your profile</strong> — photo, name, account, share stats card.</li>
+                  <li><strong>My List</strong> — follow cast/crew; optional alerts when they’re credited on a new show.</li>
+                </ul>
+                <p class="quickstart-tip">
+                  <strong>Tip:</strong> On iPhone, add Airalert to your Home Screen before enabling push for the most reliable alerts.
+                </p>
+              </section>
+            </div>
+          </div>
+          <div class="quickstart-footer">
+            <div class="quickstart-dots" aria-hidden="true">
+              <span class="quickstart-dot quickstart-dot--active"></span>
+              <span class="quickstart-dot"></span>
+              <span class="quickstart-dot"></span>
+              <span class="quickstart-dot"></span>
+              <span class="quickstart-dot"></span>
+            </div>
+            <div class="quickstart-footer-actions">
+              <button type="button" class="secondary quickstart-skip" id="quickStartHelpSkip">Skip tour</button>
+              <div class="quickstart-footer-nav">
+                <button type="button" class="secondary" id="quickStartHelpPrev" hidden>Back</button>
+                <button type="button" id="quickStartHelpNext">Next</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -8308,6 +8387,16 @@
     <script>
       const LS_USER = "airalert_user_id";
       const LS_GUEST_PROMPT = "airalert_guest_prompt_dismissed";
+      /** Per-user id: onboarding tour dismissed or completed (local device). */
+      function onboardingDoneKey(userId) {
+        return "airalert_onboarding_v1_done_" + userId;
+      }
+      function isOnboardingDone(userId) {
+        return Boolean(userId && localStorage.getItem(onboardingDoneKey(userId)) === "1");
+      }
+      function setOnboardingDone(userId) {
+        if (userId) localStorage.setItem(onboardingDoneKey(userId), "1");
+      }
       function apiOrigin() {
         if (window.location.protocol === "file:") {
           return "http://127.0.0.1:3000";
@@ -11579,7 +11668,7 @@
 
       function openUsernameSearchModal() {
         closeHeaderMenus();
-        closeQuickStartHelpModal();
+        closeQuickStartHelpModal({ skipFocusRestore: true });
         const modal = document.getElementById("usernameSearchModal");
         if (!modal) return;
         hideUsernameSearchDropdown();
@@ -11760,6 +11849,23 @@
         if (h < 48) return h + "h ago";
         const d = Math.floor(h / 24);
         return d + "d ago";
+      }
+
+      /** Breaking news rail: concise relative label from ISO `publishedAt` (chip on hero cards). */
+      function formatHeadlinePublishedBadge(iso) {
+        if (!iso || typeof iso !== "string") return "";
+        const t = new Date(iso).getTime();
+        if (!Number.isFinite(t)) return "";
+        const sec = Math.floor((Date.now() - t) / 1000);
+        if (sec < 0) return "just now";
+        if (sec < 10) return "just now";
+        if (sec < 60) return sec + "s ago";
+        const m = Math.floor(sec / 60);
+        if (m < 60) return m + "m ago";
+        const h = Math.floor(m / 60);
+        if (h < 24) return h + "h ago";
+        const d = Math.floor(h / 24);
+        return d === 1 ? "1d ago" : d + "d ago";
       }
 
       function accountDisplayForCommunity(me) {
@@ -12341,7 +12447,25 @@
         try {
           const data = await api("/api/ticker");
           if (paintId !== communityHeadlinesPaintId) return;
-          const items = data.items || [];
+          const MS_48H = 48 * 60 * 60 * 1000;
+          function filterTickerBreakingFresh(raw) {
+            const list = Array.isArray(raw) ? raw : [];
+            const out = [];
+            for (const it of list) {
+              if (it.type !== "breaking") {
+                out.push(it);
+                continue;
+              }
+              const iso = it.publishedAt;
+              if (!iso || typeof iso !== "string") continue;
+              const ts = new Date(iso).getTime();
+              if (!Number.isFinite(ts)) continue;
+              if (Date.now() - ts > MS_48H) continue;
+              out.push(it);
+            }
+            return out;
+          }
+          const items = filterTickerBreakingFresh(data.items || []);
           rail.removeAttribute("aria-busy");
           if (!items.length) {
             wrap.hidden = true;
@@ -12351,6 +12475,8 @@
           rail.innerHTML = "";
           for (let i = 0; i < items.length; i++) {
             const it = items[i];
+            const publishedLabel = formatHeadlinePublishedBadge(it.publishedAt);
+            if (it.type === "breaking" && !publishedLabel) continue;
             const li = document.createElement("li");
             const hasUrl = Boolean(it.url && String(it.url).trim());
             const card = document.createElement(hasUrl ? "a" : "div");
@@ -12369,6 +12495,14 @@
             const footer = metaParts.length
               ? '<div class="community-thread-footer" style="margin-top:0.35rem">' + metaParts.join("") + "</div>"
               : "";
+            const publishedBadgeHtml =
+              publishedLabel && it.publishedAt
+                ? '<span class="community-headline-published-badge" title="' +
+                  escapeHtml(String(it.publishedAt)) +
+                  '">' +
+                  escapeHtml(publishedLabel) +
+                  "</span>"
+                : "";
 
             card.innerHTML =
               '<div class="community-thread-card-hero community-headline-card-art" role="presentation">' +
@@ -12379,6 +12513,7 @@
               '">' +
               headlineBadgeLabel(it.type) +
               "</span>" +
+              publishedBadgeHtml +
               "</div>" +
               '<div class="community-thread-card-hero-inner">' +
               '<div class="community-thread-ep-show">' +
@@ -14865,25 +15000,82 @@
         if (input) input.focus();
       }
 
-      function openQuickStartHelpModal() {
+      let quickStartFirstRunSession = false;
+      let quickStartStepIndex = 0;
+      const QUICKSTART_STEP_COUNT = 5;
+
+      function setQuickStartStep(i) {
+        quickStartStepIndex = Math.max(0, Math.min(QUICKSTART_STEP_COUNT - 1, i));
+        const steps = document.querySelectorAll("#quickStartHelpSteps .quickstart-step");
+        steps.forEach((panel, j) => {
+          const on = j === quickStartStepIndex;
+          panel.hidden = !on;
+          panel.setAttribute("aria-hidden", on ? "false" : "true");
+        });
+        const dots = document.querySelectorAll(".quickstart-dot");
+        dots.forEach((d, j) => {
+          d.classList.toggle("quickstart-dot--active", j === quickStartStepIndex);
+        });
+        const sub = document.getElementById("quickStartHelpSub");
+        if (sub) {
+          sub.textContent = "Step " + (quickStartStepIndex + 1) + " of " + QUICKSTART_STEP_COUNT;
+        }
+        const prev = document.getElementById("quickStartHelpPrev");
+        const next = document.getElementById("quickStartHelpNext");
+        if (prev) prev.hidden = quickStartStepIndex === 0;
+        if (next) {
+          next.textContent = quickStartStepIndex >= QUICKSTART_STEP_COUNT - 1 ? "Get started" : "Next";
+        }
+      }
+
+      /**
+       * @param {{ firstRun?: boolean}} [opts] firstRun: mark onboarding complete when closed (after register/guest).
+       */
+      function openQuickStartHelpModal(opts) {
         closeAppSettingsModal();
         closeAppProfileModal();
         closeUsernameSearchModal({ skipFocusRestore: true });
         const el = document.getElementById("quickStartHelpModal");
         const btn = document.getElementById("quickStartHelpBtn");
         if (!el) return;
+        quickStartFirstRunSession = Boolean(opts && opts.firstRun);
+        setQuickStartStep(0);
         el.classList.add("open");
         if (btn) {
           btn.setAttribute("aria-expanded", "true");
         }
+        requestAnimationFrame(() => {
+          const next = document.getElementById("quickStartHelpNext");
+          if (next) next.focus();
+        });
       }
 
-      function closeQuickStartHelpModal() {
+      async function offerOnboardingAfterAuth(me) {
+        if (!me || !me.id || isOnboardingDone(me.id)) return;
+        await new Promise((r) => requestAnimationFrame(r));
+        openQuickStartHelpModal({ firstRun: true });
+      }
+
+      /** @param {{ skipFocusRestore?: boolean }} [opts] Use skipFocusRestore when closing as a side effect of opening another surface. */
+      function closeQuickStartHelpModal(opts) {
         const el = document.getElementById("quickStartHelpModal");
         const btn = document.getElementById("quickStartHelpBtn");
+        const wasFirstRun = quickStartFirstRunSession;
+        const skipFocus = Boolean(opts && opts.skipFocusRestore);
         if (el) el.classList.remove("open");
         if (btn) {
           btn.setAttribute("aria-expanded", "false");
+        }
+        if (wasFirstRun && sessionMeSnapshot && sessionMeSnapshot.id) {
+          setOnboardingDone(sessionMeSnapshot.id);
+        }
+        quickStartFirstRunSession = false;
+        if (!skipFocus) {
+          if (wasFirstRun) {
+            document.querySelector('.tab-btn[data-tab="add"]')?.focus();
+          } else {
+            document.getElementById("quickStartHelpBtn")?.focus();
+          }
         }
       }
 
@@ -14901,7 +15093,7 @@
       /** @param {"refresh" | "reminders" | "push" | undefined} which */
       function openAppSettingsModal(which) {
         closeHeaderMenus();
-        closeQuickStartHelpModal();
+        closeQuickStartHelpModal({ skipFocusRestore: true });
         closeAppProfileModal();
         const el = document.getElementById("appSettingsModal");
         if (el) el.classList.add("open");
@@ -14923,7 +15115,7 @@
 
       async function openAppProfileModal() {
         closeHeaderMenus();
-        closeQuickStartHelpModal();
+        closeQuickStartHelpModal({ skipFocusRestore: true });
         closeAppSettingsModal();
         closeUsernameSearchModal();
         const el = document.getElementById("appProfileModal");
@@ -14968,7 +15160,7 @@
         closeAppProfileModal();
         closeUsernameSearchModal({ skipFocusRestore: true });
         const qsm = document.getElementById("quickStartHelpModal");
-        if (qsm && qsm.classList.contains("open")) closeQuickStartHelpModal();
+        if (qsm && qsm.classList.contains("open")) closeQuickStartHelpModal({ skipFocusRestore: true });
         document.querySelectorAll(".tab-panel").forEach((el) => {
           el.classList.toggle("active", el.id === "tab-" + name);
         });
@@ -16309,9 +16501,15 @@
           showAccountPromptStep("login");
           document.getElementById("apLoginUsername").focus();
         });
-        document.getElementById("accountPromptGuest").addEventListener("click", () => {
+        document.getElementById("accountPromptGuest").addEventListener("click", async () => {
           localStorage.setItem(LS_GUEST_PROMPT, "1");
           closeAccountPromptModal();
+          try {
+            const meGuest = await api("/api/users/me");
+            await offerOnboardingAfterAuth(meGuest);
+          } catch {
+            /* ignore */
+          }
         });
         document.getElementById("apRegBack").addEventListener("click", () => showAccountPromptStep("intro"));
         document.getElementById("apLoginBack").addEventListener("click", () => showAccountPromptStep("intro"));
@@ -16341,6 +16539,7 @@
             await refreshAllForUserId(meNow.id, meNow);
             closeAccountPromptModal();
             showToast("Account created");
+            await offerOnboardingAfterAuth(meNow);
           } catch (e) {
             setAccountPromptErr(e.message || "Register failed");
           }
@@ -16537,11 +16736,37 @@
           else openQuickStartHelpModal();
         });
         document.getElementById("quickStartHelpClose").addEventListener("click", () => closeQuickStartHelpModal());
+        document.getElementById("quickStartHelpSkip").addEventListener("click", () => closeQuickStartHelpModal());
+        document.getElementById("quickStartHelpNext").addEventListener("click", () => {
+          if (quickStartStepIndex >= QUICKSTART_STEP_COUNT - 1) {
+            closeQuickStartHelpModal();
+            return;
+          }
+          setQuickStartStep(quickStartStepIndex + 1);
+        });
+        document.getElementById("quickStartHelpPrev").addEventListener("click", () => {
+          setQuickStartStep(quickStartStepIndex - 1);
+        });
         document.getElementById("quickStartHelpModal").addEventListener("click", (e) => {
           if (e.target.id === "quickStartHelpModal") closeQuickStartHelpModal();
         });
 
         document.addEventListener("keydown", (e) => {
+          const qsNav = document.getElementById("quickStartHelpModal");
+          if (
+            qsNav &&
+            qsNav.classList.contains("open") &&
+            (e.key === "ArrowRight" || e.key === "ArrowLeft")
+          ) {
+            e.preventDefault();
+            if (e.key === "ArrowRight") {
+              if (quickStartStepIndex >= QUICKSTART_STEP_COUNT - 1) closeQuickStartHelpModal();
+              else setQuickStartStep(quickStartStepIndex + 1);
+            } else if (quickStartStepIndex > 0) {
+              setQuickStartStep(quickStartStepIndex - 1);
+            }
+            return;
+          }
           if (e.key !== "Escape") return;
           const plb = document.getElementById("profilePhotoLightbox");
           if (plb && !plb.hidden) {
@@ -16625,7 +16850,7 @@
 
         document.getElementById("headerSettingsBtn")?.addEventListener("click", (e) => {
           e.stopPropagation();
-          closeQuickStartHelpModal();
+          closeQuickStartHelpModal({ skipFocusRestore: true });
           closeAppProfileModal();
           closeUsernameSearchModal({ skipFocusRestore: true });
           const d = document.getElementById("headerSettingsDropdown");
@@ -16640,7 +16865,7 @@
         });
         document.getElementById("headerProfileBtn")?.addEventListener("click", (e) => {
           e.stopPropagation();
-          closeQuickStartHelpModal();
+          closeQuickStartHelpModal({ skipFocusRestore: true });
           closeAppSettingsModal();
           closeUsernameSearchModal({ skipFocusRestore: true });
           const d = document.getElementById("headerProfileDropdown");
@@ -16732,6 +16957,7 @@
             const me = await api("/api/users/me");
             await refreshAllForUserId(me.id, me);
             showToast("Account created");
+            await offerOnboardingAfterAuth(me);
           } catch (e) {
             accountErr.textContent = e.message || "Register failed";
             accountErr.classList.add("err");
