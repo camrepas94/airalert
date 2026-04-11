@@ -1117,47 +1117,7 @@
       #tab-messages .dm-inbox-main {
         background: transparent;
       }
-      .dm-inbox-header-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-        margin-bottom: 0.35rem;
-      }
-      .dm-inbox-header-row h2 { flex: 1; }
-      .dm-compose-btn {
-        flex-shrink: 0;
-        width: 2.25rem;
-        height: 2.25rem;
-        border-radius: 50%;
-        border: 1px solid rgba(34, 211, 238, 0.4);
-        background: rgba(34, 211, 238, 0.1);
-        color: #7dd3fc;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        padding: 0;
-        transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-      }
-      .dm-compose-btn:hover {
-        background: rgba(34, 211, 238, 0.2);
-        border-color: rgba(34, 211, 238, 0.6);
-        transform: scale(1.08);
-      }
-      .dm-compose-btn:active { transform: scale(0.95); }
-      .dm-compose-btn svg {
-        width: 1rem;
-        height: 1rem;
-      }
-      .dm-compose-btn.active {
-        background: rgba(34, 211, 238, 0.25);
-        border-color: rgba(34, 211, 238, 0.65);
-        transform: rotate(45deg);
-      }
-      .dm-compose-btn.active:hover {
-        transform: rotate(45deg) scale(1.08);
-      }
+      
       .dm-compose-view {
         margin-bottom: 0.65rem;
         border-radius: 14px;
@@ -3981,42 +3941,100 @@
       /* ── Show News ── */
       .community-show-news-panel {
         margin: 0 0 0.65rem;
-        padding: 0.65rem 0.85rem;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(255, 255, 255, 0.04);
+        padding: 0;
       }
       .community-show-news-list {
         display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
+        flex-direction: row;
+        gap: 0.75rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 0 0.35rem;
       }
+      .community-show-news-list::-webkit-scrollbar { display: none; }
       .community-show-news-item {
-        display: block;
-        padding: 0.55rem 0.7rem;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        background: rgba(0, 0, 0, 0.2);
+        flex: 0 0 270px;
+        min-width: 270px;
+        max-width: 310px;
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(14, 18, 28, 0.92);
         text-decoration: none;
         color: inherit;
-        transition: border-color 0.15s ease;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+        transition: border-color 0.2s ease, transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease;
       }
       .community-show-news-item:hover {
-        border-color: rgba(79, 195, 247, 0.3);
+        border-color: rgba(79, 195, 247, 0.35);
+        box-shadow: 0 8px 32px rgba(79, 195, 247, 0.12), 0 4px 16px rgba(0, 0, 0, 0.3);
+        transform: translateY(-3px);
+      }
+      .community-show-news-item:active {
+        transform: translateY(0);
+      }
+      .community-show-news-image {
+        position: relative;
+        width: 100%;
+        height: 110px;
+        background-size: cover;
+        background-position: center top;
+        background-color: rgba(20, 28, 44, 0.8);
+        flex-shrink: 0;
+      }
+      .community-show-news-image::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0) 20%, rgba(14,18,28,0.95) 100%);
+      }
+      .community-show-news-image-badge {
+        position: absolute;
+        top: 0.45rem;
+        left: 0.5rem;
+        z-index: 2;
+        font-size: 0.6rem;
+        font-weight: 700;
+        padding: 0.15rem 0.45rem;
+        border-radius: 6px;
+        background: rgba(255, 64, 129, 0.2);
+        border: 1px solid rgba(255, 64, 129, 0.35);
+        color: #ff80ab;
+        letter-spacing: 0.03em;
+      }
+      .community-show-news-body {
+        padding: 0.55rem 0.75rem 0.65rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        flex: 1;
       }
       .community-show-news-headline {
         font-size: 0.84rem;
-        font-weight: 600;
+        font-weight: 700;
         color: var(--text);
-        margin: 0 0 0.2rem;
-        line-height: 1.35;
+        margin: 0;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
       .community-show-news-meta {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        font-size: 0.7rem;
+        gap: 0.45rem;
+        font-size: 0.68rem;
         color: var(--muted);
+        margin-top: auto;
+        padding-top: 0.3rem;
       }
       .community-show-news-source {
         display: inline-flex;
@@ -4026,12 +4044,15 @@
         border-radius: 6px;
         background: rgba(79, 195, 247, 0.12);
         color: #7dd3fc;
-        font-size: 0.65rem;
+        font-size: 0.62rem;
         font-weight: 600;
+        white-space: nowrap;
       }
       .community-show-news-readmore {
         color: #4fc3f7;
         font-weight: 600;
+        margin-left: auto;
+        white-space: nowrap;
       }
       /* ── @mention autocomplete ── */
       .community-mention-dropdown {
@@ -4319,33 +4340,117 @@
         font-size: 0.8rem;
         line-height: 1.45;
       }
-      .community-fab-plus {
+      .app-fab {
         position: fixed;
-        bottom: max(1.25rem, env(safe-area-inset-bottom));
+        bottom: calc(max(1.25rem, env(safe-area-inset-bottom)) + 3.5rem);
         right: max(1rem, env(safe-area-inset-right));
         z-index: 35;
-        width: 3.25rem;
-        height: 3.25rem;
+        width: 3.75rem;
+        height: 3.75rem;
         border-radius: 50%;
-        font-size: 1.75rem;
-        font-weight: 300;
-        line-height: 1;
         padding: 0;
         margin: 0;
         min-height: unset;
-        display: flex;
+        display: none;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(165deg, rgba(34, 211, 238, 0.45) 0%, rgba(91, 156, 255, 0.25) 100%);
-        border: 1px solid rgba(34, 211, 238, 0.45);
-        box-shadow: 0 4px 24px rgba(34, 211, 238, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-        color: #ecfeff;
+        background: radial-gradient(circle at 45% 40%, rgba(34,211,238,0.18) 0%, rgba(10,14,26,0.95) 70%);
+        border: 2px solid rgba(255,255,255,0.18);
+        color: #fff;
+        cursor: pointer;
+        transition: transform 0.2s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease, border-color 0.25s ease;
+        box-shadow:
+          0 0 18px rgba(34,211,238,0.2),
+          0 0 14px rgba(168,85,247,0.15),
+          0 4px 20px rgba(0,0,0,0.4);
       }
-      .community-fab-plus {
-        display: none;
+      /* Outer rainbow gradient ring */
+      .app-fab::before {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        padding: 3px;
+        background: conic-gradient(from 0deg, #22d3ee, #5b9cff, #a855f7, #ec4899, #ffab40, #22d3ee);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+        animation: fab-ring-spin 4s linear infinite;
+      }
+      @keyframes fab-ring-spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+      .app-fab:hover {
+        transform: scale(1.12);
+        border-color: rgba(255,255,255,0.3);
+        box-shadow:
+          0 0 28px rgba(34,211,238,0.35),
+          0 0 22px rgba(168,85,247,0.25),
+          0 0 16px rgba(236,72,153,0.18),
+          0 6px 28px rgba(0,0,0,0.4);
+      }
+      .app-fab:active {
+        transform: scale(0.93);
+      }
+      .app-fab svg {
+        width: 1.4rem;
+        height: 1.4rem;
+        filter: drop-shadow(0 0 4px rgba(34,211,238,0.5));
+        transition: transform 0.25s cubic-bezier(0.16,1,0.3,1);
+      }
+      .app-fab.open svg {
+        transform: rotate(45deg);
       }
       #tab-community.active .community-fab-plus {
         display: flex;
+      }
+      #tab-messages.active .dm-fab-plus {
+        display: flex;
+      }
+      .app-fab-menu {
+        position: fixed;
+        z-index: 34;
+        bottom: calc(max(1.25rem, env(safe-area-inset-bottom)) + 3.5rem + 4.25rem);
+        right: max(1rem, env(safe-area-inset-right));
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        align-items: flex-end;
+        animation: fab-menu-in 0.2s cubic-bezier(0.16,1,0.3,1);
+      }
+      @keyframes fab-menu-in {
+        from { opacity: 0; transform: translateY(10px) scale(0.9); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      .app-fab-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.55rem 0.85rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(14,18,28,0.95);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        color: var(--text);
+        font-size: 0.84rem;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        transition: background 0.12s ease, border-color 0.12s ease;
+      }
+      .app-fab-menu-item:hover {
+        background: rgba(34,211,238,0.1);
+        border-color: rgba(34,211,238,0.3);
+      }
+      .app-fab-menu-item svg {
+        width: 1.1rem;
+        height: 1.1rem;
+        flex-shrink: 0;
+        stroke: #7dd3fc;
       }
       .community-challenges-block {
         position: relative;
@@ -4530,6 +4635,70 @@
         scroll-snap-align: start;
         min-width: 280px;
         max-width: 320px;
+      }
+      .community-general-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .community-general-card {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        text-align: left;
+        padding: 0.7rem 0.85rem;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        touch-action: manipulation;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+        transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s cubic-bezier(0.16,1,0.3,1);
+      }
+      .community-general-card:hover {
+        border-color: rgba(79, 195, 247, 0.3);
+        background: rgba(255, 255, 255, 0.06);
+        transform: translateY(-1px);
+      }
+      .community-general-card:active:not(:disabled) {
+        transform: translateY(0);
+      }
+      .community-general-card-avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 10px;
+        background-size: cover;
+        background-position: center;
+        background-color: rgba(20, 28, 44, 0.6);
+        flex-shrink: 0;
+      }
+      .community-general-card-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .community-general-card-show {
+        font-weight: 700;
+        font-size: 0.88rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--text);
+      }
+      .community-general-card-meta {
+        font-size: 0.72rem;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin-top: 0.1rem;
       }
       .community-thread-card {
         display: flex;
@@ -6893,11 +7062,17 @@
               <p class="err" id="communityChallengesErr" style="display: none; margin: 0.35rem 0"></p>
               <ul class="community-challenges-list" id="communityChallengesList" role="list"></ul>
             </div>
-            <button type="button" class="community-fab-plus" id="communityNewThreadBtn" title="New discussion">+</button>
+            <button type="button" class="app-fab community-fab-plus" id="communityNewThreadBtn" title="New discussion">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
             <h3 style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(180,200,230,0.6);margin:0.75rem 0 0.45rem;font-weight:700">Trending Discussions</h3>
             <div id="communityThreadsLoading" class="muted community-loading" hidden>Loading threads…</div>
             <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
             <ul class="community-thread-list" id="communityThreadList"></ul>
+            <h3 style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(180,200,230,0.6);margin:0.75rem 0 0.45rem;font-weight:700" id="communityGeneralHeading" hidden>General Discussion</h3>
+            <ul class="community-general-list" id="communityGeneralList"></ul>
           </div>
           <div class="community-challenge-create-view hidden" id="communityChallengeCreateView">
             <button type="button" class="secondary community-show-back-btn" id="challengeCreateBackBtn">← Community</button>
@@ -7323,15 +7498,7 @@
                   </button>
                 </nav>
                 <div class="dm-inbox-main">
-                  <div class="dm-inbox-header-row">
-                    <h2 id="dmInboxTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Inbox</h2>
-                    <button type="button" class="dm-compose-btn" id="dmComposeBtn" title="New message">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                      </svg>
-                    </button>
-                  </div>
+                  <h2 id="dmInboxTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Inbox</h2>
                   <div id="dmComposeView" class="dm-compose-view" hidden>
                     <div class="dm-compose-search-wrap">
                       <label for="dmComposeSearchInput" class="visually-hidden">Search users</label>
@@ -7385,6 +7552,27 @@
             <p class="err" id="dmInboxErr" style="display: none; margin-top: 0.5rem"></p>
           </div>
         </section>
+        <div id="dmFabMenu" class="app-fab-menu" hidden>
+          <button type="button" class="app-fab-menu-item" id="dmFabNewMessage">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <path d="M5 5.5h14a1 1 0 011 1v8.5a1 1 0 01-1 1h-5.2L9.5 19.5V16H5a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke-linejoin="round"/>
+            </svg>
+            New Message
+          </button>
+          <button type="button" class="app-fab-menu-item" id="dmFabNewGroup">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <circle cx="9" cy="8" r="3"/>
+              <circle cx="17" cy="9" r="2.5"/>
+              <path d="M4.5 18.2c.4-2.5 2.6-4.2 5.1-4.2 1.5 0 2.8.6 3.7 1.6M14.2 16c1.6.4 2.8 1.7 3.2 3.3" stroke-linecap="round"/>
+            </svg>
+            Create Group
+          </button>
+        </div>
+        <button type="button" class="app-fab dm-fab-plus" id="dmComposeBtn" title="New message">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
       </div>
 
       <div id="tab-admin" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnAdmin">
@@ -9294,9 +9482,11 @@
         const cv = document.getElementById("dmComposeView");
         const btn = document.getElementById("dmComposeBtn");
         const hub = document.getElementById("dmInboxHubScroll");
+        const fabMenu = document.getElementById("dmFabMenu");
         if (cv) cv.hidden = true;
-        if (btn) btn.classList.remove("active");
+        if (btn) { btn.classList.remove("active"); btn.classList.remove("open"); }
         if (hub) hub.style.display = "";
+        if (fabMenu) fabMenu.hidden = true;
       }
 
       async function openDmInboxModal(opts) {
@@ -9491,8 +9681,13 @@
           dmTypingStopTimer = null;
         }
         hideDmPeerTyping();
+        closeDmComposeView();
         dmInboxActiveThreadId = threadId;
         dmThreadPeerReadAt = null;
+        const dmFab = document.getElementById("dmComposeBtn");
+        const dmFabMenu = document.getElementById("dmFabMenu");
+        if (dmFab) dmFab.style.display = "none";
+        if (dmFabMenu) dmFabMenu.hidden = true;
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
         const title = document.getElementById("dmInboxThreadTitle");
@@ -10934,6 +11129,8 @@
         if (lv) lv.classList.remove("hidden");
         if (tv) tv.classList.add("hidden");
         if (ccv) ccv.classList.add("hidden");
+        const communityFab = document.getElementById("communityNewThreadBtn");
+        if (communityFab) communityFab.style.display = "";
         loadCommunityThreads();
         void loadCommunityChallenges();
         void loadCommunityTicker();
@@ -11172,6 +11369,8 @@
         if (listView) listView.classList.add("hidden");
         if (threadView) threadView.classList.add("hidden");
         view.classList.remove("hidden");
+        const fab = document.getElementById("communityNewThreadBtn");
+        if (fab) fab.style.display = "none";
       }
 
       function closeCommunityChallengeCreateModal() {
@@ -11179,6 +11378,8 @@
         const listView = document.getElementById("communityListView");
         if (view) view.classList.add("hidden");
         if (listView) listView.classList.remove("hidden");
+        const fab = document.getElementById("communityNewThreadBtn");
+        if (fab) fab.style.display = "";
       }
 
       async function loadDeadlineEpisodesForChallenge(showId) {
@@ -11285,20 +11486,26 @@
       })();
 
       function applyCommunityFilter() {
-        const cards = document.querySelectorAll("#communityThreadList > li");
-        cards.forEach(li => {
-          const card = li.querySelector(".community-thread-card");
-          if (!card) return;
-          let show = true;
-          if (communityActiveFilter === "live") {
-            show = card.dataset.live === "1";
-          } else if (communityActiveFilter === "theories" || communityActiveFilter === "hot") {
-            show = card.dataset.threadKind === "general";
-          } else if (communityActiveFilter === "spoiler-free") {
-            show = true;
-          }
-          li.style.display = show ? "" : "none";
-        });
+        const trendingCards = document.querySelectorAll("#communityThreadList > li");
+        const generalCards = document.querySelectorAll("#communityGeneralList > li");
+        const generalHeading = document.getElementById("communityGeneralHeading");
+
+        if (communityActiveFilter === "live") {
+          trendingCards.forEach(li => {
+            const card = li.querySelector(".community-thread-card");
+            li.style.display = (card && card.dataset.live === "1") ? "" : "none";
+          });
+          generalCards.forEach(li => { li.style.display = "none"; });
+          if (generalHeading) generalHeading.hidden = true;
+        } else if (communityActiveFilter === "theories" || communityActiveFilter === "hot") {
+          trendingCards.forEach(li => { li.style.display = "none"; });
+          generalCards.forEach(li => { li.style.display = ""; });
+          if (generalHeading) generalHeading.hidden = generalCards.length === 0;
+        } else {
+          trendingCards.forEach(li => { li.style.display = ""; });
+          generalCards.forEach(li => { li.style.display = ""; });
+          if (generalHeading) generalHeading.hidden = generalCards.length === 0;
+        }
       }
 
       async function loadShowNews(showId) {
@@ -11306,6 +11513,15 @@
         const list = document.getElementById("communityShowNewsList");
         const empty = document.getElementById("communityShowNewsEmpty");
         if (!panel || !list) return;
+
+        // Get show image from the thread hero background or fetch from TVMaze
+        let showImg = "";
+        const heroEl = document.getElementById("communityShowHeroBg");
+        if (heroEl && heroEl.style.backgroundImage) {
+          const m = heroEl.style.backgroundImage.match(/url\(["']?([^"')]+)/);
+          if (m) showImg = m[1];
+        }
+
         try {
           const data = await api("/api/shows/" + showId + "/news");
           const items = data.items || [];
@@ -11324,14 +11540,42 @@
             a.href = it.url;
             a.target = "_blank";
             a.rel = "noopener";
+            const imgStyle = showImg ? 'background-image:url(' + showImg + ')' : '';
             a.innerHTML =
+              '<div class="community-show-news-image" style="' + imgStyle + '">' +
+              '<span class="community-show-news-image-badge">\u{1F4F0} Breaking</span>' +
+              '</div>' +
+              '<div class="community-show-news-body">' +
               '<p class="community-show-news-headline">' + escapeHtml(it.headline) + '</p>' +
               '<div class="community-show-news-meta">' +
               '<span class="community-show-news-source">via ' + escapeHtml(it.source) + '</span>' +
               '<span>' + formatCommunityRelativeTime(it.createdAt) + '</span>' +
               '<span class="community-show-news-readmore">Read more \u2192</span>' +
+              '</div>' +
               '</div>';
+            a.style.opacity = "0";
+            a.style.transform = "translateX(20px)";
             list.appendChild(a);
+          }
+          // Staggered animation
+          list.querySelectorAll(".community-show-news-item").forEach((el, i) => {
+            setTimeout(() => {
+              el.style.transition = "opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)";
+              el.style.opacity = "1";
+              el.style.transform = "translateX(0)";
+            }, i * 80);
+          });
+
+          // Fallback: if no image yet, try fetching from TVMaze
+          if (!showImg) {
+            fetch("https://api.tvmaze.com/shows/" + showId).then(r => r.json()).then(d => {
+              if (d && d.image) {
+                const url = d.image.original || d.image.medium;
+                list.querySelectorAll(".community-show-news-image").forEach(el => {
+                  el.style.backgroundImage = "url(" + url + ")";
+                });
+              }
+            }).catch(() => {});
           }
         } catch {
           panel.hidden = true;
@@ -11340,6 +11584,8 @@
 
       async function loadCommunityThreads() {
         const listEl = document.getElementById("communityThreadList");
+        const generalEl = document.getElementById("communityGeneralList");
+        const generalHeading = document.getElementById("communityGeneralHeading");
         const errEl = document.getElementById("communityThreadsErr");
         const loadEl = document.getElementById("communityThreadsLoading");
         if (!listEl) return;
@@ -11351,23 +11597,31 @@
         try {
           const data = await api("/api/community/threads");
           const threads = data.threads || [];
-          listEl.innerHTML = "";
+          const episodeThreads = [];
+          const generalThreads = [];
           for (const th of threads) {
+            if (th.threadKind === "general" || th.tvmazeEpisodeId == null) {
+              generalThreads.push(th);
+            } else {
+              episodeThreads.push(th);
+            }
+          }
+
+          // ── Episode threads → horizontal carousel ──
+          listEl.innerHTML = "";
+          for (const th of episodeThreads) {
             const li = document.createElement("li");
             const btn = document.createElement("button");
             btn.type = "button";
-            const isGeneral = th.threadKind === "general" || th.tvmazeEpisodeId == null;
             const isLive = th.episodeAirsToday === true;
             const isHot = th.postCount > 50;
             btn.className = "community-thread-card";
-            btn.dataset.threadKind = isGeneral ? "general" : "episode";
+            btn.dataset.threadKind = "episode";
             if (isLive) btn.dataset.live = "1";
             const postLabel = th.postCount + " repl" + (th.postCount === 1 ? "y" : "ies");
             const timeAgo = th.lastPostAt ? formatCommunityRelativeTime(th.lastPostAt) : "";
-            const epTitle = isGeneral
-              ? "General discussion"
-              : escapeHtml(th.episodeLabel || "Episode");
-            const epTag = isGeneral ? "" : (th.airdate ? " \u00b7 " + (isLive ? "Aired Tonight" : escapeHtml(String(th.airdate))) : "");
+            const epTitle = escapeHtml(th.episodeLabel || "Episode");
+            const epTag = th.airdate ? " \u00b7 " + (isLive ? "Aired Tonight" : escapeHtml(String(th.airdate))) : "";
 
             const trendBadge = isHot
               ? '<span class="community-thread-badge-hot" style="font-size:0.62rem;padding:0.2rem 0.5rem">\u{1F525} Trending Now</span>'
@@ -11377,7 +11631,7 @@
               : '';
 
             btn.innerHTML =
-              '<div class="community-thread-card-image" id="threadImg' + th.tvmazeShowId + '">' +
+              '<div class="community-thread-card-image">' +
               '<div class="community-thread-card-badges">' + trendBadge + liveBadge + '</div>' +
               '</div>' +
               '<div class="community-thread-card-body">' +
@@ -11390,7 +11644,6 @@
               '</div>' +
               '</div>';
 
-            // Set show image from cached URL or fallback to TVMaze API
             (function(showId, imgUrl, btn) {
               const imgEl = btn.querySelector(".community-thread-card-image");
               if (!imgEl) return;
@@ -11405,7 +11658,7 @@
 
             btn.addEventListener("click", () =>
               openCommunityThread(th.tvmazeShowId, th.showName, th.postCount, {
-                episodeId: isGeneral ? null : th.tvmazeEpisodeId,
+                episodeId: th.tvmazeEpisodeId,
               }),
             );
             li.appendChild(btn);
@@ -11420,6 +11673,57 @@
               li.style.transform = "translateX(0)";
             }, i * 80);
           });
+
+          // ── General threads → vertical list below ──
+          if (generalEl) {
+            generalEl.innerHTML = "";
+            if (generalHeading) generalHeading.hidden = generalThreads.length === 0;
+            for (const th of generalThreads) {
+              const li = document.createElement("li");
+              const btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "community-general-card";
+              const postLabel = th.postCount + " post" + (th.postCount === 1 ? "" : "s");
+              const timeAgo = th.lastPostAt ? formatCommunityRelativeTime(th.lastPostAt) : "";
+              const avatarStyle = th.showImageUrl ? 'background-image:url(' + th.showImageUrl + ')' : '';
+              btn.innerHTML =
+                '<div class="community-general-card-avatar" style="' + avatarStyle + '"></div>' +
+                '<div class="community-general-card-body">' +
+                '<div class="community-general-card-show">' + escapeHtml(th.showName || "Show") + '</div>' +
+                '<div class="community-general-card-meta">' +
+                '<span>\u{1F4AC} ' + postLabel + '</span>' +
+                (timeAgo ? '<span>\u{1F552} ' + timeAgo + '</span>' : '') +
+                '</div>' +
+                '</div>';
+
+              if (!th.showImageUrl) {
+                (function(showId, btn) {
+                  fetch("https://api.tvmaze.com/shows/" + showId).then(r => r.json()).then(d => {
+                    if (d && d.image) {
+                      const av = btn.querySelector(".community-general-card-avatar");
+                      if (av) av.style.backgroundImage = "url(" + (d.image.medium || d.image.original) + ")";
+                    }
+                  }).catch(() => {});
+                })(th.tvmazeShowId, btn);
+              }
+
+              btn.addEventListener("click", () =>
+                openCommunityThread(th.tvmazeShowId, th.showName, th.postCount, { episodeId: null }),
+              );
+              li.appendChild(btn);
+              li.style.opacity = "0";
+              li.style.transform = "translateY(10px)";
+              generalEl.appendChild(li);
+            }
+            generalEl.querySelectorAll("li").forEach((li, i) => {
+              setTimeout(() => {
+                li.style.transition = "opacity 0.35s cubic-bezier(0.16,1,0.3,1), transform 0.35s cubic-bezier(0.16,1,0.3,1)";
+                li.style.opacity = "1";
+                li.style.transform = "translateY(0)";
+              }, i * 60);
+            });
+          }
+
           applyCommunityFilter();
         } catch (e) {
           if (errEl) {
@@ -11434,6 +11738,8 @@
       async function openCommunityThread(showId, showNameFallback, postCountHint, episodeDeepLink) {
         hideCommunityFindFriendDropdown();
         communityState.view = "thread";
+        const communityFab = document.getElementById("communityNewThreadBtn");
+        if (communityFab) communityFab.style.display = "none";
         communityState.showId = showId;
         communityState.showNameFallback = showNameFallback || "";
         if (episodeDeepLink && Object.prototype.hasOwnProperty.call(episodeDeepLink, "episodeId")) {
@@ -14057,6 +14363,8 @@
         closeDmComposeView();
         dmInboxActiveThreadId = null;
         dmThreadPeerReadAt = null;
+        const dmFab = document.getElementById("dmComposeBtn");
+        if (dmFab) dmFab.style.display = "";
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
         if (list) list.hidden = false;
@@ -14079,96 +14387,131 @@
       });
       // ── Compose / New Message button ──
       (function initDmCompose() {
-        const composeBtn = document.getElementById("dmComposeBtn");
+        const fabBtn = document.getElementById("dmComposeBtn");
+        const fabMenu = document.getElementById("dmFabMenu");
+        const newMsgBtn = document.getElementById("dmFabNewMessage");
+        const newGroupBtn = document.getElementById("dmFabNewGroup");
         const composeView = document.getElementById("dmComposeView");
         const hubScroll = document.getElementById("dmInboxHubScroll");
         const searchInput = document.getElementById("dmComposeSearchInput");
         const resultsEl = document.getElementById("dmComposeResults");
         const hintEl = document.getElementById("dmComposeHint");
-        if (!composeBtn || !composeView || !searchInput) return;
+        if (!fabBtn) return;
         let searchTimer = null;
         let searchGen = 0;
+        let fabMenuOpen = false;
         let composeOpen = false;
 
-        function toggleCompose() {
-          composeOpen = !composeOpen;
-          composeView.hidden = !composeOpen;
-          composeBtn.classList.toggle("active", composeOpen);
-          if (composeOpen) {
-            if (hubScroll) hubScroll.style.display = "none";
-            searchInput.value = "";
-            if (resultsEl) resultsEl.innerHTML = "";
-            if (hintEl) hintEl.hidden = false;
-            setTimeout(() => searchInput.focus(), 60);
-          } else {
-            if (hubScroll) hubScroll.style.display = "";
-            searchInput.value = "";
-            if (resultsEl) resultsEl.innerHTML = "";
-          }
+        function closeFabMenu() {
+          fabMenuOpen = false;
+          if (fabMenu) fabMenu.hidden = true;
+          fabBtn.classList.remove("open");
         }
-
-        composeBtn.addEventListener("click", toggleCompose);
-
-        searchInput.addEventListener("input", () => {
-          const q = searchInput.value.trim();
-          if (searchTimer) clearTimeout(searchTimer);
-          if (!q || q.length < 2) {
-            if (resultsEl) resultsEl.innerHTML = "";
-            if (hintEl) hintEl.hidden = false;
+        function closeComposeView() {
+          composeOpen = false;
+          if (composeView) composeView.hidden = true;
+          if (hubScroll) hubScroll.style.display = "";
+          if (searchInput) searchInput.value = "";
+          if (resultsEl) resultsEl.innerHTML = "";
+        }
+        function toggleFabMenu() {
+          if (composeOpen) {
+            closeComposeView();
+            closeFabMenu();
             return;
           }
-          if (hintEl) hintEl.hidden = true;
-          searchTimer = setTimeout(async () => {
-            const gen = ++searchGen;
-            try {
-              const data = await api("/api/community/users/search?q=" + encodeURIComponent(q));
-              if (gen !== searchGen) return;
-              const users = data.users || [];
-              if (!resultsEl) return;
-              resultsEl.innerHTML = "";
-              if (!users.length) {
-                resultsEl.innerHTML = '<p class="muted" style="font-size:0.82rem;margin:0.25rem 0">No users found.</p>';
-                return;
-              }
-              const selfId = sessionMeSnapshot?.id;
-              for (const u of users) {
-                if (u.id === selfId) continue;
-                const btn = document.createElement("button");
-                btn.type = "button";
-                btn.className = "dm-compose-result-btn";
-                const avatarContent = u.avatarDataUrl
-                  ? '<img src="' + escapeHtml(u.avatarDataUrl) + '" alt="" />'
-                  : (u.displayName || u.username || "?").charAt(0).toUpperCase();
-                btn.innerHTML =
-                  '<div class="dm-compose-result-avatar">' + avatarContent + '</div>' +
-                  '<div class="dm-compose-result-info">' +
-                  '<span class="dm-compose-result-name">' + escapeHtml(u.displayName || u.username) + '</span>' +
-                  '<span class="dm-compose-result-username">@' + escapeHtml(u.username) + '</span>' +
-                  '</div>';
-                btn.addEventListener("click", async () => {
-                  try {
-                    const out = await api("/api/dm/threads", {
-                      method: "POST",
-                      body: JSON.stringify({ otherUserId: u.id }),
-                    });
-                    composeOpen = false;
-                    composeView.hidden = true;
-                    composeBtn.classList.remove("active");
-                    if (hubScroll) hubScroll.style.display = "";
-                    searchInput.value = "";
-                    resultsEl.innerHTML = "";
-                    await openDmThreadView(out.threadId, u.displayName || u.username);
-                  } catch (e) {
-                    showToast(e.message || "Could not start chat");
-                  }
-                });
-                resultsEl.appendChild(btn);
-              }
-            } catch {
-              if (resultsEl) resultsEl.innerHTML = '<p class="muted" style="font-size:0.82rem;margin:0.25rem 0">Search failed.</p>';
-            }
-          }, 250);
+          fabMenuOpen = !fabMenuOpen;
+          if (fabMenu) fabMenu.hidden = !fabMenuOpen;
+          fabBtn.classList.toggle("open", fabMenuOpen);
+        }
+        function openComposeForNewMessage() {
+          closeFabMenu();
+          if (!composeView || !searchInput) return;
+          composeOpen = true;
+          composeView.hidden = false;
+          if (hubScroll) hubScroll.style.display = "none";
+          if (searchInput) searchInput.value = "";
+          if (resultsEl) resultsEl.innerHTML = "";
+          if (hintEl) hintEl.hidden = false;
+          setTimeout(() => searchInput.focus(), 60);
+        }
+
+        fabBtn.addEventListener("click", toggleFabMenu);
+
+        if (newMsgBtn) {
+          newMsgBtn.addEventListener("click", openComposeForNewMessage);
+        }
+        if (newGroupBtn) {
+          newGroupBtn.addEventListener("click", () => {
+            closeFabMenu();
+            showToast("Group chats coming soon!");
+          });
+        }
+
+        // Close menu on outside click
+        document.addEventListener("click", (e) => {
+          if (fabMenuOpen && fabMenu && !fabMenu.contains(e.target) && !fabBtn.contains(e.target)) {
+            closeFabMenu();
+          }
         });
+
+        if (searchInput) {
+          searchInput.addEventListener("input", () => {
+            const q = searchInput.value.trim();
+            if (searchTimer) clearTimeout(searchTimer);
+            if (!q || q.length < 2) {
+              if (resultsEl) resultsEl.innerHTML = "";
+              if (hintEl) hintEl.hidden = false;
+              return;
+            }
+            if (hintEl) hintEl.hidden = true;
+            searchTimer = setTimeout(async () => {
+              const gen = ++searchGen;
+              try {
+                const data = await api("/api/community/users/search?q=" + encodeURIComponent(q));
+                if (gen !== searchGen) return;
+                const users = data.users || [];
+                if (!resultsEl) return;
+                resultsEl.innerHTML = "";
+                if (!users.length) {
+                  resultsEl.innerHTML = '<p class="muted" style="font-size:0.82rem;margin:0.25rem 0">No users found.</p>';
+                  return;
+                }
+                const selfId = sessionMeSnapshot?.id;
+                for (const u of users) {
+                  if (u.id === selfId) continue;
+                  const btn = document.createElement("button");
+                  btn.type = "button";
+                  btn.className = "dm-compose-result-btn";
+                  const avatarContent = u.avatarDataUrl
+                    ? '<img src="' + escapeHtml(u.avatarDataUrl) + '" alt="" />'
+                    : (u.displayName || u.username || "?").charAt(0).toUpperCase();
+                  btn.innerHTML =
+                    '<div class="dm-compose-result-avatar">' + avatarContent + '</div>' +
+                    '<div class="dm-compose-result-info">' +
+                    '<span class="dm-compose-result-name">' + escapeHtml(u.displayName || u.username) + '</span>' +
+                    '<span class="dm-compose-result-username">@' + escapeHtml(u.username) + '</span>' +
+                    '</div>';
+                  btn.addEventListener("click", async () => {
+                    try {
+                      const out = await api("/api/dm/threads", {
+                        method: "POST",
+                        body: JSON.stringify({ otherUserId: u.id }),
+                      });
+                      closeComposeView();
+                      await openDmThreadView(out.threadId, u.displayName || u.username);
+                    } catch (e) {
+                      showToast(e.message || "Could not start chat");
+                    }
+                  });
+                  resultsEl.appendChild(btn);
+                }
+              } catch {
+                if (resultsEl) resultsEl.innerHTML = '<p class="muted" style="font-size:0.82rem;margin:0.25rem 0">Search failed.</p>';
+              }
+            }, 250);
+          });
+        }
       })();
 
       document.getElementById("dmInboxSendBtn")?.addEventListener("click", () => void sendDmFromInbox());
