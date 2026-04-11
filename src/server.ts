@@ -250,6 +250,37 @@ function isRequestAdmin(request: FastifyRequest): boolean {
   return Boolean(row?.is_admin);
 }
 
+/**
+ * Enforce admin for API routes: 401 when unauthenticated, 403 when authenticated but not admin.
+ * Env-password admin cookie alone counts as admin (no user session).
+ */
+function replyForbiddenUnlessAdmin(request: FastifyRequest, reply: FastifyReply): boolean {
+  if (isRequestAdmin(request)) return false;
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401).send({ error: "Unauthorized" });
+  } else {
+    reply.code(403).send({ error: "Forbidden" });
+  }
+  return true;
+}
+
+/** HTML responses for admin-only pages (not JSON). */
+function replyHtmlDenied(reply: FastifyReply, sid: string | undefined): void {
+  reply.code(sid ? 403 : 401);
+  reply.type("text/html; charset=utf-8");
+  reply.header("Cache-Control", "no-store");
+  reply.send(
+    "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Access denied</title></head><body style=\"font-family:system-ui,sans-serif;padding:2rem;background:#0a0c12;color:#e2e8f0\"><h1>Access denied</h1><p>You do not have permission to view this page.</p></body></html>",
+  );
+}
+
+function replyForbiddenUnlessAdminPage(request: FastifyRequest, reply: FastifyReply): boolean {
+  if (isRequestAdmin(request)) return false;
+  replyHtmlDenied(reply, sessionUserIdFromRequest(request));
+  return true;
+}
+
 function assertSelfOrAdmin(request: FastifyRequest, reply: FastifyReply, userId: string): boolean {
   if (isRequestAdmin(request)) return true;
   const sid = sessionUserIdFromRequest(request);
@@ -604,10 +635,15 @@ app.get("/api/health", async () => ({
   sqlite: getSqlitePersistenceInfo(),
 }));
 
-app.get("/api/admin/status", async (request) => ({
-  authenticated: isRequestAdmin(request),
-  envPasswordLoginAvailable: Boolean(adminPasswordConfigured()),
-}));
+app.get("/api/admin/status", async (request) => {
+  if (!isRequestAdmin(request)) {
+    return { authenticated: false };
+  }
+  return {
+    authenticated: true,
+    envPasswordLoginAvailable: Boolean(adminPasswordConfigured()),
+  };
+});
 
 app.post("/api/admin/login", async (request, reply) => {
   const pw = adminPasswordConfigured();
@@ -632,11 +668,22 @@ app.post("/api/admin/logout", async (request, reply) => {
   return { ok: true };
 });
 
-app.get("/api/admin/overview", async (request, reply) => {
-  if (!isRequestAdmin(request)) {
-    reply.code(401);
-    return { error: "Unauthorized" };
+/** Injected into the main app shell only after the server verifies admin (401/403 for others). */
+app.get("/api/admin/ui-fragment", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  try {
+    const html = readPublicHtml("admin-ui-fragment.html");
+    reply.header("Cache-Control", "no-store");
+    return reply.type("text/html; charset=utf-8").send(html);
+  } catch (err) {
+    app.log.error(err, "admin-ui-fragment read failed");
+    reply.code(500);
+    return { error: "Admin UI fragment unavailable" };
   }
+});
+
+app.get("/api/admin/overview", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const rows = db
     .prepare(
       `SELECT
@@ -728,10 +775,7 @@ app.get("/api/admin/overview", async (request, reply) => {
 });
 
 app.get("/api/admin/community-log", async (request, reply) => {
-  if (!isRequestAdmin(request)) {
-    reply.code(401);
-    return { error: "Unauthorized" };
-  }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const limitRaw = Number((request.query as { limit?: string }).limit);
   const limit = Number.isFinite(limitRaw) ? Math.min(200, Math.max(1, Math.floor(limitRaw))) : 80;
   const rows = db
@@ -798,10 +842,7 @@ app.get("/api/admin/community-log", async (request, reply) => {
 });
 
 app.post("/api/admin/community/posts/:postId/restore", async (request, reply) => {
-  if (!isRequestAdmin(request)) {
-    reply.code(401);
-    return { error: "Unauthorized" };
-  }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { postId } = request.params as { postId: string };
   const row = db
     .prepare(`SELECT id, deleted_at FROM community_posts WHERE id = ?`)
@@ -826,10 +867,7 @@ app.post("/api/admin/community/posts/:postId/restore", async (request, reply) =>
 });
 
 app.get("/api/admin/dm-log", async (request, reply) => {
-  if (!isRequestAdmin(request)) {
-    reply.code(401);
-    return { error: "Unauthorized" };
-  }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const limitRaw = Number((request.query as { limit?: string }).limit);
   const limit = Number.isFinite(limitRaw) ? Math.min(500, Math.max(1, Math.floor(limitRaw))) : 200;
   const offsetRaw = Number((request.query as { offset?: string }).offset);
@@ -1248,10 +1286,7 @@ function challengeIsActive(deadlineAirdate: string): boolean {
 }
 
 app.delete("/api/admin/users/:userId", async (request, reply) => {
-  if (!isRequestAdmin(request)) {
-    reply.code(401);
-    return { error: "Unauthorized" };
-  }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { userId } = request.params as { userId: string };
   const row = db
     .prepare(`SELECT username, is_admin FROM users WHERE id = ?`)
@@ -1275,10 +1310,7 @@ app.delete("/api/admin/users/:userId", async (request, reply) => {
 });
 
 app.get("/api/admin/users/:userId", async (request, reply) => {
-  if (!isRequestAdmin(request)) {
-    reply.code(401);
-    return { error: "Unauthorized" };
-  }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { userId } = request.params as { userId: string };
   const user = db
     .prepare(
@@ -1326,10 +1358,7 @@ app.get("/api/admin/users/:userId", async (request, reply) => {
 });
 
 app.patch("/api/admin/users/:userId", async (request, reply) => {
-  if (!isRequestAdmin(request)) {
-    reply.code(401);
-    return { error: "Unauthorized" };
-  }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { userId } = request.params as { userId: string };
   const body = (request.body ?? {}) as { isAdmin?: boolean; resetPasswordToDefault?: boolean };
   const existing = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
@@ -1368,10 +1397,7 @@ app.patch("/api/admin/users/:userId", async (request, reply) => {
 });
 
 app.post("/api/admin/users/:userId/test-push", async (request, reply) => {
-  if (!isRequestAdmin(request)) {
-    reply.code(401);
-    return { error: "Unauthorized" };
-  }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { userId } = request.params as { userId: string };
   const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
   if (!u) {
@@ -1396,10 +1422,7 @@ app.post("/api/admin/users/:userId/test-push", async (request, reply) => {
 });
 
 app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
-  if (!isRequestAdmin(request)) {
-    reply.code(401);
-    return { error: "Unauthorized" };
-  }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { userId } = request.params as { userId: string };
   const body = (request.body ?? {}) as { tvmazeShowId?: number };
   const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
@@ -1438,10 +1461,7 @@ app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
 });
 
 app.delete("/api/admin/subscriptions/:subscriptionId", async (request, reply) => {
-  if (!isRequestAdmin(request)) {
-    reply.code(401);
-    return { error: "Unauthorized" };
-  }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { subscriptionId } = request.params as { subscriptionId: string };
   const r = db.prepare(`DELETE FROM show_subscriptions WHERE id = ?`).run(subscriptionId);
   if (r.changes === 0) {
@@ -1458,7 +1478,7 @@ app.get("/api/ticker", async () => {
 });
 
 app.get("/api/admin/breaking-news", async (request, reply) => {
-  if (!isRequestAdmin(request)) { reply.code(401); return { error: "Unauthorized" }; }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const pending = db.prepare(
     `SELECT id, headline, snippet, source, url, show_id, show_name, score, status, created_at
      FROM breaking_news WHERE status = 'pending' ORDER BY score DESC, created_at DESC`
@@ -1472,21 +1492,21 @@ app.get("/api/admin/breaking-news", async (request, reply) => {
 });
 
 app.post("/api/admin/breaking-news/:id/approve", async (request, reply) => {
-  if (!isRequestAdmin(request)) { reply.code(401); return { error: "Unauthorized" }; }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { id } = request.params as { id: string };
   db.prepare(`UPDATE breaking_news SET status = 'approved' WHERE id = ? AND status = 'pending'`).run(id);
   return { ok: true };
 });
 
 app.post("/api/admin/breaking-news/:id/dismiss", async (request, reply) => {
-  if (!isRequestAdmin(request)) { reply.code(401); return { error: "Unauthorized" }; }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { id } = request.params as { id: string };
   db.prepare(`UPDATE breaking_news SET status = 'dismissed' WHERE id = ?`).run(id);
   return { ok: true };
 });
 
 app.put("/api/admin/ticker-message", async (request, reply) => {
-  if (!isRequestAdmin(request)) { reply.code(401); return { error: "Unauthorized" }; }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { message } = (request.body ?? {}) as { message?: string };
   db.prepare(`UPDATE admin_ticker_message SET message = ?, updated_at = datetime('now') WHERE id = 1`).run(message || null);
   return { ok: true, message: message || null };
@@ -1505,7 +1525,7 @@ app.get("/api/shows/:showId/news", async (request, reply) => {
 });
 
 app.post("/api/admin/rss-poll", async (request, reply) => {
-  if (!isRequestAdmin(request)) { reply.code(401); return { error: "Unauthorized" }; }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const result = await pollRssFeeds();
   return result;
 });
@@ -1577,7 +1597,7 @@ app.get("/api/users/:userId/follow-status", async (request, reply) => {
 /* ── Google News RSS for top followed shows ────────────── */
 
 app.get("/api/admin/google-news-poll", async (request, reply) => {
-  if (!isRequestAdmin(request)) { reply.code(401); return { error: "Unauthorized" }; }
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { pollGoogleNewsForTopShows } = await import("./breakingNews.js");
   const result = await pollGoogleNewsForTopShows();
   return result;
@@ -1701,7 +1721,13 @@ app.get("/api/users/me", async (request, reply) => {
     reply.code(401);
     return { error: "Session invalid" };
   }
-  return { ...userJsonWithPushPrefs(row), watchSummary: getWatchSummaryCounts(sid) };
+  const payload = { ...userJsonWithPushPrefs(row), watchSummary: getWatchSummaryCounts(sid) } as Record<string, unknown>;
+  if (!Number(row.isAdmin)) {
+    delete payload.isAdmin;
+  } else {
+    payload.isAdmin = true;
+  }
+  return payload;
 });
 
 /** Clears the HttpOnly session cookie so the next bootstrap creates a fresh user on this device. */
@@ -4664,11 +4690,13 @@ app.get("/embed-ratings.html", async (_req, reply) => {
   reply.header("Cache-Control", "no-store, max-age=0");
   reply.type("text/html; charset=utf-8").send(readPublicHtml("embed-ratings.html"));
 });
-app.get("/admin.html", async (_req, reply) => {
+app.get("/admin.html", async (request, reply) => {
+  if (replyForbiddenUnlessAdminPage(request, reply)) return;
   reply.header("Cache-Control", "no-store, max-age=0");
   reply.type("text/html; charset=utf-8").send(readPublicHtml("admin.html"));
 });
-app.get("/admin", async (_req, reply) => {
+app.get("/admin", async (request, reply) => {
+  if (replyForbiddenUnlessAdminPage(request, reply)) return;
   reply.redirect("/admin.html", 302);
 });
 

@@ -6825,18 +6825,6 @@
             >
               <span class="tab-label">Community</span>
             </button>
-            <button
-              type="button"
-              class="tab-btn"
-              role="tab"
-              aria-selected="false"
-              data-tab="admin"
-              id="tabBtnAdmin"
-              aria-label="Admin"
-              title="Admin"
-            >
-              <span class="tab-label">Admin</span>
-            </button>
           </div>
         </nav>
       </header>
@@ -7352,21 +7340,6 @@
         </section>
       </div>
 
-      <div id="communityAdminMoveModal" class="community-modal" hidden aria-hidden="true">
-        <div class="community-modal-backdrop" data-close-community-move-modal></div>
-        <div class="community-modal-panel" role="dialog" aria-labelledby="communityAdminMoveTitle">
-          <h3 id="communityAdminMoveTitle" class="community-modal-title">Move post to another show</h3>
-          <p class="muted" style="margin: 0 0 0.65rem; font-size: 0.86rem">
-            Pick the correct show (TVMaze). The episode tag is cleared when moving — open the target episode thread after moving if needed.
-          </p>
-          <label for="communityAdminMoveSearch">Show title</label>
-          <input type="text" id="communityAdminMoveSearch" class="community-modal-search" placeholder="Search…" autocomplete="off" />
-          <div id="communityAdminMoveResults" class="community-modal-results"></div>
-          <p class="msg err" id="communityAdminMoveErr" style="display: none; margin: 0.35rem 0 0"></p>
-          <button type="button" class="secondary" data-close-community-move-modal>Cancel</button>
-        </div>
-      </div>
-
       <div id="communityNewModal" class="community-modal" hidden aria-hidden="true">
         <div class="community-modal-backdrop" data-close-community-modal></div>
         <div class="community-modal-panel" role="dialog" aria-labelledby="communityModalTitle">
@@ -7651,59 +7624,6 @@
         </div>
       </div>
 
-      <div id="tab-admin" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnAdmin">
-        <section class="panel-rail-cyan" aria-label="Admin">
-          <h2 class="section-header-highlight header-gold" style="margin-top: 0">Admin</h2>
-          <button type="button" class="secondary" id="adminRefreshBtn">Refresh data</button>
-          <div id="adminTotals" class="admin-stats-grid" aria-live="polite"></div>
-          <details class="admin-mod-log-details">
-            <summary class="section-header-highlight header-gold admin-mod-log-summary">
-              Breaking news manager
-            </summary>
-            <div style="margin-bottom: 0.75rem">
-              <label for="adminTickerMessageInput" style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.35rem; display: block">Manual Ticker Message</label>
-              <div style="display: flex; gap: 0.4rem; align-items: stretch">
-                <input type="text" id="adminTickerMessageInput" maxlength="300" placeholder="Breaking news that appears immediately for all users..." style="flex: 1; min-width: 0; padding: 0.5rem 0.65rem; border-radius: 10px; border: 1px solid rgba(130,200,255,0.22); background: rgba(0,0,0,0.35); color: inherit; font: inherit; box-sizing: border-box" />
-                <button type="button" class="secondary" id="adminTickerMessageSaveBtn" style="margin: 0; white-space: nowrap">Save</button>
-                <button type="button" class="secondary" id="adminTickerMessageClearBtn" style="margin: 0; white-space: nowrap">Clear</button>
-              </div>
-            </div>
-            <div style="margin-bottom: 0.75rem">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem">
-                <strong style="font-size: 0.8rem">Pending Review</strong>
-                <button type="button" class="secondary" id="adminRssPollBtn" style="margin: 0; font-size: 0.72rem; padding: 0.3rem 0.55rem">Poll RSS Now</button>
-              </div>
-              <div id="adminBreakingNewsPending" class="admin-accounts-host"></div>
-            </div>
-            <div>
-              <strong style="font-size: 0.8rem; display: block; margin-bottom: 0.35rem">Auto-Published / Approved</strong>
-              <div id="adminBreakingNewsPublished" class="admin-accounts-host"></div>
-            </div>
-          </details>
-          <details class="admin-mod-log-details">
-            <summary class="section-header-highlight header-gold admin-mod-log-summary">
-              User accounts
-            </summary>
-            <div id="adminAccountsHost" class="admin-accounts-host"></div>
-          </details>
-          <details class="admin-mod-log-details">
-            <summary class="section-header-highlight header-gold admin-mod-log-summary">
-              Community moderation log
-            </summary>
-            <div id="adminCommunityLog" class="admin-accounts-host"></div>
-          </details>
-          <details class="admin-mod-log-details">
-            <summary class="section-header-highlight header-gold admin-mod-log-summary">
-              Direct messages (QA)
-            </summary>
-            <p class="muted" style="font-size: 0.75rem; margin: 0 0 0.45rem; line-height: 1.45">
-              Newest DMs on this server for review. Full paging is on the standalone <a href="/admin.html">admin console</a>.
-            </p>
-            <div id="adminDmLog" class="admin-accounts-host"></div>
-          </details>
-          <p class="msg err" id="adminErr" style="display: none; margin-top: 0.5rem"></p>
-        </section>
-      </div>
       </div>
     </main>
 
@@ -10111,6 +10031,111 @@
         }
       }
 
+      let adminUiListenersWired = false;
+
+      function removeAdminUiFromDom() {
+        adminUiListenersWired = false;
+        document.getElementById("tabBtnAdmin")?.remove();
+        document.getElementById("tab-admin")?.remove();
+        document.getElementById("communityAdminMoveModal")?.remove();
+        const active = document.querySelector(".tab-panel.active");
+        if (active && active.id === "tab-admin") {
+          setTab("add");
+        }
+      }
+
+      async function ensureAdminUiLoaded(me) {
+        let st = { authenticated: false };
+        try {
+          st = await api("/api/admin/status");
+        } catch {
+          /* ignore */
+        }
+        const canAdmin = (me && me.isAdmin === true) || (st && st.authenticated === true);
+        if (!canAdmin) {
+          removeAdminUiFromDom();
+          return;
+        }
+        if (document.getElementById("tab-admin")) {
+          const b = document.getElementById("tabBtnAdmin");
+          if (b) b.classList.add("visible");
+          return;
+        }
+        let r;
+        try {
+          r = await fetch(new URL("/api/admin/ui-fragment", apiOrigin()).href, { credentials: "include" });
+        } catch {
+          return;
+        }
+        if (r.status === 401 || r.status === 403) return;
+        if (!r.ok) return;
+        const text = await r.text();
+        const parts = text.split(/<!--\s*AIRALERT_PART:(\w+)\s*-->/);
+        const map = {};
+        for (let i = 1; i < parts.length; i += 2) {
+          map[parts[i]] = parts[i + 1] ? parts[i + 1].trim() : "";
+        }
+        const rail = document.querySelector(".tab-rail");
+        if (rail && map.nav) {
+          const wrap = document.createElement("div");
+          wrap.innerHTML = map.nav;
+          const btn = wrap.firstElementChild;
+          if (btn) rail.appendChild(btn);
+        }
+        const mainScroll = document.getElementById("mainScroll");
+        if (mainScroll && map.panel) {
+          const wrap = document.createElement("div");
+          wrap.innerHTML = map.panel;
+          const panel = wrap.firstElementChild;
+          if (panel) mainScroll.appendChild(panel);
+        }
+        if (map.moveModal) {
+          const wrap = document.createElement("div");
+          wrap.innerHTML = map.moveModal;
+          const modal = wrap.firstElementChild;
+          if (modal) document.body.appendChild(modal);
+        }
+        wireAdminPanelListeners();
+        const tabBtn = document.getElementById("tabBtnAdmin");
+        if (tabBtn) tabBtn.classList.add("visible");
+      }
+
+      function wireAdminPanelListeners() {
+        if (adminUiListenersWired) return;
+        const ar = document.getElementById("adminRefreshBtn");
+        if (!ar) return;
+        adminUiListenersWired = true;
+        ar.addEventListener("click", () => {
+          loadAdminOverview();
+          loadAdminBreakingNews();
+        });
+        document.getElementById("adminTickerMessageSaveBtn")?.addEventListener("click", async () => {
+          const inp = document.getElementById("adminTickerMessageInput");
+          if (!inp) return;
+          await api("/api/admin/ticker-message", { method: "PUT", body: JSON.stringify({ message: inp.value.trim() }) });
+          showToast("Ticker message saved");
+          loadCommunityTicker();
+        });
+        document.getElementById("adminTickerMessageClearBtn")?.addEventListener("click", async () => {
+          const inp = document.getElementById("adminTickerMessageInput");
+          if (inp) inp.value = "";
+          await api("/api/admin/ticker-message", { method: "PUT", body: JSON.stringify({ message: null }) });
+          showToast("Ticker message cleared");
+          loadCommunityTicker();
+        });
+        document.getElementById("adminRssPollBtn")?.addEventListener("click", async () => {
+          showToast("Polling RSS feeds...");
+          try {
+            const pollRes = await api("/api/admin/rss-poll", { method: "POST", body: "{}" });
+            showToast("RSS poll done: " + (pollRes.fetched || 0) + " new, " + (pollRes.autoPublished || 0) + " auto-published");
+            loadAdminBreakingNews();
+            loadCommunityTicker();
+          } catch (e) {
+            showToast(e.message || "RSS poll failed");
+          }
+        });
+      }
+
       function applyMeToUI(me) {
         sessionMeSnapshot = me;
         syncInboxChromeFromMe(me);
@@ -10126,26 +10151,22 @@
         if (signOutSec) {
           signOutSec.hidden = !(me && (me.username || truthyBit(me.hasPassword)));
         }
-        const tabBtn = document.getElementById("tabBtnAdmin");
         const guest = document.getElementById("accountGuest");
         const signed = document.getElementById("accountSignedIn");
-        if (!tabBtn || !guest || !signed) return;
-        if (me && truthyBit(me.isAdmin)) {
-          tabBtn.classList.add("visible");
-        } else {
-          tabBtn.classList.remove("visible");
+        if (guest && signed) {
+          if (me && (me.username || truthyBit(me.hasPassword))) {
+            guest.hidden = true;
+            signed.hidden = false;
+            const lab = document.getElementById("accountUsernameLabel");
+            if (lab) lab.textContent = me.username || "account";
+            const chPw = document.getElementById("accountChangePassword");
+            if (chPw) chPw.hidden = !truthyBit(me.hasPassword);
+          } else {
+            guest.hidden = false;
+            signed.hidden = true;
+          }
         }
-        if (me && (me.username || truthyBit(me.hasPassword))) {
-          guest.hidden = true;
-          signed.hidden = false;
-          const lab = document.getElementById("accountUsernameLabel");
-          if (lab) lab.textContent = me.username || "account";
-          const chPw = document.getElementById("accountChangePassword");
-          if (chPw) chPw.hidden = !truthyBit(me.hasPassword);
-        } else {
-          guest.hidden = false;
-          signed.hidden = true;
-        }
+        void ensureAdminUiLoaded(me);
       }
 
       function adminPillClass(from) {
@@ -14277,6 +14298,9 @@
       }
 
       function setTab(name) {
+        if (name === "admin" && !document.getElementById("tab-admin")) {
+          name = "add";
+        }
         const prevPanel = document.querySelector(".tab-panel.active");
         const prevName =
           prevPanel && prevPanel.id && prevPanel.id.startsWith("tab-") ? prevPanel.id.slice(4) : "";
@@ -14435,10 +14459,10 @@
         }
       }
 
-      document.querySelectorAll(".tab-nav .tab-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          setTab(btn.getAttribute("data-tab"));
-        });
+      document.querySelector(".tab-nav")?.addEventListener("click", (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest(".tab-btn") : null;
+        if (!btn || !btn.getAttribute("data-tab")) return;
+        setTab(btn.getAttribute("data-tab"));
       });
 
       document.getElementById("communityBackBtn").addEventListener("click", () => openCommunityListView());
@@ -14671,17 +14695,19 @@
       document.querySelectorAll("[data-close-community-modal]").forEach((el) => {
         el.addEventListener("click", () => closeCommunityNewModal());
       });
-      document.querySelectorAll("[data-close-community-move-modal]").forEach((el) => {
-        el.addEventListener("click", () => closeCommunityAdminMoveModal());
+      document.addEventListener("click", (e) => {
+        const t = e.target && e.target.closest && e.target.closest("[data-close-community-move-modal]");
+        if (t) closeCommunityAdminMoveModal();
       });
       document.querySelectorAll("[data-close-edit-modal]").forEach((el) => {
         el.addEventListener("click", () => closeCommunityEditModal());
       });
-      document.getElementById("communityAdminMoveSearch")?.addEventListener("input", () => {
-        const inp = document.getElementById("communityAdminMoveSearch");
+      document.addEventListener("input", (e) => {
+        const inp = e.target;
+        if (!inp || inp.id !== "communityAdminMoveSearch") return;
         const box = document.getElementById("communityAdminMoveResults");
         const err = document.getElementById("communityAdminMoveErr");
-        const q = inp && inp.value.trim();
+        const q = inp.value.trim();
         if (err) {
           err.style.display = "none";
           err.textContent = "";
@@ -16127,34 +16153,6 @@
           });
         }
 
-        const ar = document.getElementById("adminRefreshBtn");
-        if (ar) ar.addEventListener("click", () => { loadAdminOverview(); loadAdminBreakingNews(); });
-
-        document.getElementById("adminTickerMessageSaveBtn")?.addEventListener("click", async () => {
-          const inp = document.getElementById("adminTickerMessageInput");
-          if (!inp) return;
-          await api("/api/admin/ticker-message", { method: "PUT", body: JSON.stringify({ message: inp.value.trim() }) });
-          showToast("Ticker message saved");
-          loadCommunityTicker();
-        });
-        document.getElementById("adminTickerMessageClearBtn")?.addEventListener("click", async () => {
-          const inp = document.getElementById("adminTickerMessageInput");
-          if (inp) inp.value = "";
-          await api("/api/admin/ticker-message", { method: "PUT", body: JSON.stringify({ message: null }) });
-          showToast("Ticker message cleared");
-          loadCommunityTicker();
-        });
-        document.getElementById("adminRssPollBtn")?.addEventListener("click", async () => {
-          showToast("Polling RSS feeds...");
-          try {
-            const r = await api("/api/admin/rss-poll", { method: "POST", body: "{}" });
-            showToast("RSS poll done: " + (r.fetched || 0) + " new, " + (r.autoPublished || 0) + " auto-published");
-            loadAdminBreakingNews();
-            loadCommunityTicker();
-          } catch (e) {
-            showToast(e.message || "RSS poll failed");
-          }
-        });
       })();
     </script>
   </body>

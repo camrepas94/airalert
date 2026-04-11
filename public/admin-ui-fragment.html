@@ -1,0 +1,82 @@
+<!-- AIRALERT_PART:nav -->
+            <button
+              type="button"
+              class="tab-btn"
+              role="tab"
+              aria-selected="false"
+              data-tab="admin"
+              id="tabBtnAdmin"
+              aria-label="Admin"
+              title="Admin"
+            >
+              <span class="tab-label">Admin</span>
+            </button>
+<!-- AIRALERT_PART:panel -->
+      <div id="tab-admin" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnAdmin">
+        <section class="panel-rail-cyan" aria-label="Admin">
+          <h2 class="section-header-highlight header-gold" style="margin-top: 0">Admin</h2>
+          <button type="button" class="secondary" id="adminRefreshBtn">Refresh data</button>
+          <div id="adminTotals" class="admin-stats-grid" aria-live="polite"></div>
+          <details class="admin-mod-log-details">
+            <summary class="section-header-highlight header-gold admin-mod-log-summary">
+              Breaking news manager
+            </summary>
+            <div style="margin-bottom: 0.75rem">
+              <label for="adminTickerMessageInput" style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.35rem; display: block">Manual Ticker Message</label>
+              <div style="display: flex; gap: 0.4rem; align-items: stretch">
+                <input type="text" id="adminTickerMessageInput" maxlength="300" placeholder="Breaking news that appears immediately for all users..." style="flex: 1; min-width: 0; padding: 0.5rem 0.65rem; border-radius: 10px; border: 1px solid rgba(130,200,255,0.22); background: rgba(0,0,0,0.35); color: inherit; font: inherit; box-sizing: border-box" />
+                <button type="button" class="secondary" id="adminTickerMessageSaveBtn" style="margin: 0; white-space: nowrap">Save</button>
+                <button type="button" class="secondary" id="adminTickerMessageClearBtn" style="margin: 0; white-space: nowrap">Clear</button>
+              </div>
+            </div>
+            <div style="margin-bottom: 0.75rem">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem">
+                <strong style="font-size: 0.8rem">Pending Review</strong>
+                <button type="button" class="secondary" id="adminRssPollBtn" style="margin: 0; font-size: 0.72rem; padding: 0.3rem 0.55rem">Poll RSS Now</button>
+              </div>
+              <div id="adminBreakingNewsPending" class="admin-accounts-host"></div>
+            </div>
+            <div>
+              <strong style="font-size: 0.8rem; display: block; margin-bottom: 0.35rem">Auto-Published / Approved</strong>
+              <div id="adminBreakingNewsPublished" class="admin-accounts-host"></div>
+            </div>
+          </details>
+          <details class="admin-mod-log-details">
+            <summary class="section-header-highlight header-gold admin-mod-log-summary">
+              User accounts
+            </summary>
+            <div id="adminAccountsHost" class="admin-accounts-host"></div>
+          </details>
+          <details class="admin-mod-log-details">
+            <summary class="section-header-highlight header-gold admin-mod-log-summary">
+              Community moderation log
+            </summary>
+            <div id="adminCommunityLog" class="admin-accounts-host"></div>
+          </details>
+          <details class="admin-mod-log-details">
+            <summary class="section-header-highlight header-gold admin-mod-log-summary">
+              Direct messages (QA)
+            </summary>
+            <p class="muted" style="font-size: 0.75rem; margin: 0 0 0.45rem; line-height: 1.45">
+              Newest DMs on this server for review. Full paging is on the standalone <a href="/admin.html">admin console</a>.
+            </p>
+            <div id="adminDmLog" class="admin-accounts-host"></div>
+          </details>
+          <p class="msg err" id="adminErr" style="display: none; margin-top: 0.5rem"></p>
+        </section>
+      </div>
+<!-- AIRALERT_PART:moveModal -->
+      <div id="communityAdminMoveModal" class="community-modal" hidden aria-hidden="true">
+        <div class="community-modal-backdrop" data-close-community-move-modal></div>
+        <div class="community-modal-panel" role="dialog" aria-labelledby="communityAdminMoveTitle">
+          <h3 id="communityAdminMoveTitle" class="community-modal-title">Move post to another show</h3>
+          <p class="muted" style="margin: 0 0 0.65rem; font-size: 0.86rem">
+            Pick the correct show (TVMaze). The episode tag is cleared when moving — open the target episode thread after moving if needed.
+          </p>
+          <label for="communityAdminMoveSearch">Show title</label>
+          <input type="text" id="communityAdminMoveSearch" class="community-modal-search" placeholder="Search…" autocomplete="off" />
+          <div id="communityAdminMoveResults" class="community-modal-results"></div>
+          <p class="msg err" id="communityAdminMoveErr" style="display: none; margin: 0.35rem 0 0"></p>
+          <button type="button" class="secondary" data-close-community-move-modal>Cancel</button>
+        </div>
+      </div>
