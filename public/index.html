@@ -4214,43 +4214,6 @@
           opacity: 0.5;
         }
       }
-      /* ── Filter Pills ── */
-      .community-filter-pills {
-        display: flex;
-        gap: 0.4rem;
-        overflow-x: auto;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        padding: 0.15rem 0 0.65rem;
-        margin: 0 -0.15rem;
-      }
-      .community-filter-pills::-webkit-scrollbar { display: none; }
-      .community-pill {
-        flex-shrink: 0;
-        padding: 0.38rem 0.75rem;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(255, 255, 255, 0.04);
-        color: rgba(255, 255, 255, 0.55);
-        font-size: 0.76rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        cursor: pointer;
-        transition: all 0.18s ease;
-        -webkit-tap-highlight-color: transparent;
-        min-height: 36px;
-        display: flex;
-        align-items: center;
-      }
-      .community-pill:hover {
-        border-color: rgba(79, 195, 247, 0.25);
-        color: rgba(255, 255, 255, 0.8);
-      }
-      .community-pill.active {
-        background: rgba(79, 195, 247, 0.15);
-        border-color: rgba(79, 195, 247, 0.45);
-        color: #4fc3f7;
-      }
       /* ── Live Episode Banner ── */
       .community-live-episode-banner {
         display: flex;
@@ -4844,15 +4807,6 @@
         flex-shrink: 0;
         stroke: #7dd3fc;
       }
-      .community-challenges-block {
-        position: relative;
-        z-index: 1;
-        margin: 0 0 1rem;
-        padding: 0;
-        border: none;
-        background: none;
-        box-shadow: none;
-      }
       .community-subsection-heading {
         font-size: 0.78rem;
         text-transform: uppercase;
@@ -4860,39 +4814,6 @@
         color: rgba(180, 200, 230, 0.6);
         margin: 0.75rem 0 0.45rem;
         font-weight: 700;
-      }
-      .community-challenges-block .community-subsection-heading {
-        margin-top: 0;
-      }
-      .community-challenges-toolbar {
-        margin: 0 0 0.55rem;
-      }
-      /** Same horizontal carousel + hero cards as Trending Discussions */
-      .community-challenges-list.community-thread-list {
-        padding-bottom: 0.35rem;
-      }
-      .community-thread-card--challenge {
-        border-left: 3px solid rgba(167, 139, 250, 0.5);
-      }
-      .community-challenge-card-badge {
-        display: inline-block;
-        font-size: 0.62rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        padding: 0.2rem 0.5rem;
-        border-radius: 6px;
-        vertical-align: middle;
-      }
-      .community-challenge-card-badge--active {
-        background: rgba(34, 197, 94, 0.18);
-        border: 1px solid rgba(34, 197, 94, 0.35);
-        color: #86efac;
-      }
-      .community-challenge-card-badge--ended {
-        background: rgba(148, 163, 184, 0.15);
-        border: 1px solid rgba(148, 163, 184, 0.28);
-        color: #cbd5e1;
       }
       .community-challenge-create-view {
         padding: 0.35rem 0 1rem;
@@ -7376,16 +7297,6 @@
               <ul class="community-headlines-rail" id="communityHeadlinesRail" role="list" aria-label="Breaking news"></ul>
             </div>
 
-            <!-- Filter Pills -->
-            <div class="community-filter-pills" id="communityFilterPills">
-              <button type="button" class="community-pill active" data-filter="all">All</button>
-              <button type="button" class="community-pill" data-filter="following">Following</button>
-              <button type="button" class="community-pill" data-filter="live">● Live</button>
-              <button type="button" class="community-pill" data-filter="theories">Theories</button>
-              <button type="button" class="community-pill" data-filter="spoiler-free">Spoiler-Free</button>
-              <button type="button" class="community-pill" data-filter="hot">Hot Takes</button>
-            </div>
-
             <!-- Live Episode Banner -->
             <div class="community-live-episode-banner" id="communityLiveEpisodeBanner" hidden>
               <div class="community-live-episode-dot"></div>
@@ -7396,15 +7307,6 @@
               <button type="button" class="community-live-episode-join" id="communityLiveEpisodeJoinBtn">Join</button>
             </div>
 
-            <div class="community-challenges-block" id="communityChallengesBlock" aria-label="Watch challenges">
-              <h3 class="community-subsection-heading">Watch challenges</h3>
-              <div class="community-challenges-toolbar">
-                <button type="button" class="secondary" id="communityChallengeCreateBtn">Start a challenge</button>
-              </div>
-              <p class="muted community-loading" id="communityChallengesLoading" hidden>Loading challenges…</p>
-              <p class="err" id="communityChallengesErr" style="display: none; margin: 0.35rem 0"></p>
-              <ul class="community-thread-list community-challenges-list" id="communityChallengesList" role="list"></ul>
-            </div>
             <button type="button" class="app-fab community-fab-plus" id="communityNewThreadBtn" title="New discussion">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -11915,7 +11817,6 @@
         const communityFab = document.getElementById("communityNewThreadBtn");
         if (communityFab) communityFab.style.display = "";
         loadCommunityThreads();
-        void loadCommunityChallenges();
         void loadCommunityHeadlines();
         void loadLiveEpisodeBanner();
       }
@@ -12265,8 +12166,10 @@
       }
 
       /**
-       * Seamless loop: duplicates list items (second set `aria-hidden` for AT), rAF ~22px/s, pause on hover/focus/pointer/touch/wheel.
-       * Disabled when `prefers-reduced-motion: reduce`.
+       * Seamless loop: duplicate items (`aria-hidden` on clones), advance `scrollLeft` via rAF.
+       * Programmatic scroll fires `scroll` asynchronously in some browsers; a microtask flag cleared
+       * too early made `onScroll` treat auto-scroll as user input and left the rail paused — fixed
+       * with `autoScrollApplying` cleared after `requestAnimationFrame` (and loop span from layout).
        */
       function setupCommunityHeadlinesAutoScroll(rail) {
         teardownCommunityHeadlinesAutoScroll();
@@ -12274,29 +12177,43 @@
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
         const firstSet = Array.from(rail.querySelectorAll(":scope > li"));
-        if (firstSet.length < 1) return;
+        const originalCount = firstSet.length;
+        if (originalCount < 1) return;
 
         firstSet.forEach((li) => {
           const clone = li.cloneNode(true);
           clone.setAttribute("aria-hidden", "true");
-          const focusables = clone.querySelectorAll('a[href], button, [tabindex]:not([tabindex="-1"])');
-          focusables.forEach((el) => {
+          clone.querySelectorAll('a[href], button, [tabindex]:not([tabindex="-1"])').forEach((el) => {
             el.setAttribute("tabindex", "-1");
           });
           rail.appendChild(clone);
         });
 
-        const firstClone = rail.children[firstSet.length];
-        const loopSpan = firstClone ? firstClone.offsetLeft : rail.scrollWidth / 2;
-        if (loopSpan < 24) return;
+        if (rail.scrollWidth <= rail.clientWidth + 8) {
+          while (rail.children.length > originalCount) {
+            rail.removeChild(rail.lastElementChild);
+          }
+          return;
+        }
+
+        const firstClone = rail.children[originalCount];
+        let loopSpan = firstClone ? firstClone.offsetLeft : Math.floor(rail.scrollWidth / 2);
+        loopSpan = Math.round(loopSpan);
+        if (!Number.isFinite(loopSpan) || loopSpan < 40) {
+          while (rail.children.length > originalCount) {
+            rail.removeChild(rail.lastElementChild);
+          }
+          return;
+        }
+
         let rafId = 0;
         let lastT = performance.now();
-        const speedPxPerSec = 20;
+        const speedPxPerSec = 34;
         let paused = false;
         let resumeTimer = null;
         const resumeDelayMs = 2600;
         let docPointerUpAttached = false;
-        let scrollFromAuto = false;
+        let autoScrollApplying = false;
 
         function setPaused(next) {
           if (paused === next) return;
@@ -12335,6 +12252,14 @@
           scheduleResume();
         }
 
+        function clearAutoScrollFlag() {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              autoScrollApplying = false;
+            });
+          });
+        }
+
         function tick(t) {
           rafId = requestAnimationFrame(tick);
           if (paused || document.visibilityState === "hidden") {
@@ -12343,18 +12268,16 @@
           }
           const dt = Math.min(48, t - lastT) / 1000;
           lastT = t;
-          scrollFromAuto = true;
+          autoScrollApplying = true;
           rail.scrollLeft += speedPxPerSec * dt;
           if (rail.scrollLeft >= loopSpan - 0.5) {
             rail.scrollLeft -= loopSpan;
           }
-          queueMicrotask(() => {
-            scrollFromAuto = false;
-          });
+          clearAutoScrollFlag();
         }
 
         const onScroll = () => {
-          if (scrollFromAuto) return;
+          if (autoScrollApplying) return;
           pauseInteraction();
           scheduleResume();
         };
@@ -12421,6 +12344,11 @@
           rail.removeEventListener("touchend", onTouchEnd);
           rail.removeEventListener("touchcancel", onTouchEnd);
           rail.removeEventListener("scroll", onScroll);
+          if (rail.children.length > originalCount) {
+            while (rail.children.length > originalCount) {
+              rail.removeChild(rail.lastElementChild);
+            }
+          }
         };
       }
 
@@ -12546,7 +12474,12 @@
           const staggerMs = Math.max(480, items.length * 55 + 200);
           setTimeout(() => {
             if (paintId !== communityHeadlinesPaintId) return;
-            setupCommunityHeadlinesAutoScroll(rail);
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                if (paintId !== communityHeadlinesPaintId) return;
+                setupCommunityHeadlinesAutoScroll(rail);
+              });
+            });
           }, staggerMs);
         } catch (e) {
           if (paintId !== communityHeadlinesPaintId) return;
@@ -12598,42 +12531,17 @@
         }
       }
 
-      /* ── Filter Pills ── */
-      let communityActiveFilter = "all";
-      (function initFilterPills() {
-        const pillsHost = document.getElementById("communityFilterPills");
-        if (!pillsHost) return;
-        pillsHost.addEventListener("click", e => {
-          const pill = e.target.closest(".community-pill");
-          if (!pill) return;
-          communityActiveFilter = pill.dataset.filter || "all";
-          pillsHost.querySelectorAll(".community-pill").forEach(p => p.classList.remove("active"));
-          pill.classList.add("active");
-          applyCommunityFilter();
-        });
-      })();
-
       function applyCommunityFilter() {
         const trendingCards = document.querySelectorAll("#communityThreadList > li");
         const generalCards = document.querySelectorAll("#communityGeneralList > li");
         const generalHeading = document.getElementById("communityGeneralHeading");
-
-        if (communityActiveFilter === "live") {
-          trendingCards.forEach(li => {
-            const card = li.querySelector(".community-thread-card");
-            li.style.display = (card && card.dataset.live === "1") ? "" : "none";
-          });
-          generalCards.forEach(li => { li.style.display = "none"; });
-          if (generalHeading) generalHeading.hidden = true;
-        } else if (communityActiveFilter === "theories" || communityActiveFilter === "hot") {
-          trendingCards.forEach(li => { li.style.display = "none"; });
-          generalCards.forEach(li => { li.style.display = ""; });
-          if (generalHeading) generalHeading.hidden = generalCards.length === 0;
-        } else {
-          trendingCards.forEach(li => { li.style.display = ""; });
-          generalCards.forEach(li => { li.style.display = ""; });
-          if (generalHeading) generalHeading.hidden = generalCards.length === 0;
-        }
+        trendingCards.forEach((li) => {
+          li.style.display = "";
+        });
+        generalCards.forEach((li) => {
+          li.style.display = "";
+        });
+        if (generalHeading) generalHeading.hidden = generalCards.length === 0;
       }
 
       async function loadShowNews(showId) {
@@ -15188,7 +15096,6 @@
         if (name === "community") {
           if (communityState.view === "list") {
             loadCommunityThreads();
-            void loadCommunityChallenges();
             void loadCommunityHeadlines();
             void loadLiveEpisodeBanner();
           } else if (communityState.showId != null) {
@@ -15311,13 +15218,6 @@
 
       document.getElementById("communityBackBtn").addEventListener("click", () => openCommunityListView());
       document.getElementById("communityNewThreadBtn").addEventListener("click", () => openCommunityNewModal());
-      document.getElementById("communityChallengeCreateBtn")?.addEventListener("click", () => {
-        if (!accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an account to start a challenge.");
-          return;
-        }
-        openCommunityChallengeCreateModal();
-      });
       document.getElementById("challengeCreateBackBtn")?.addEventListener("click", () => closeCommunityChallengeCreateModal());
       document.getElementById("challengeCreateCancelBtn")?.addEventListener("click", () => closeCommunityChallengeCreateModal());
       document.querySelectorAll("[data-close-challenge-detail]").forEach((el) => {

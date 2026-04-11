@@ -8,7 +8,7 @@
     "start": "node dist/server.js",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/admin-gate.mjs"
+    "test": "node --test test/admin-gate.mjs && tsx --test test/breakingNewsDedupe.test.ts"
   },
   "engines": {
     "node": ">=20"

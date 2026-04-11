@@ -1,5 +1,10 @@
 import { db } from "./db.js";
 import { v4 as uuid } from "uuid";
+import {
+  dedupeBreakingNewsCandidates,
+  normalizeBreakingNewsUrl,
+  type BreakingNewsDedupeRow,
+} from "./breakingNewsDedupe.js";
 
 /* ── RSS Feed Sources ─────────────────────────────────────────── */
 const RSS_FEEDS: { name: string; url: string }[] = [
@@ -247,7 +252,7 @@ export async function pollRssFeeds(): Promise<{
     .all() as CastMember[];
 
   const existingUrls = new Set(
-    (db.prepare(`SELECT url FROM breaking_news`).all() as { url: string }[]).map((r) => r.url),
+    (db.prepare(`SELECT url FROM breaking_news`).all() as { url: string }[]).map((r) => normalizeBreakingNewsUrl(r.url)),
   );
 
   let fetched = 0;
@@ -275,8 +280,9 @@ export async function pollRssFeeds(): Promise<{
       const items = parseRssFeed(xml).slice(0, 20);
 
       for (const item of items) {
-        if (existingUrls.has(item.link)) continue;
-        existingUrls.add(item.link);
+        const urlKey = normalizeBreakingNewsUrl(item.link);
+        if (existingUrls.has(urlKey)) continue;
+        existingUrls.add(urlKey);
         fetched++;
 
         const { score, matchedShowId, matchedShowName } = scoreHeadline(
@@ -367,21 +373,18 @@ export function getTickerItems(): TickerItem[] {
     });
   }
 
-  const news = db
+  const newsRows = db
     .prepare(
-      `SELECT headline, source, url, show_name, show_id, created_at FROM breaking_news
+      `SELECT id, headline, source, url, show_name, show_id, created_at, score, snippet FROM breaking_news
        WHERE status IN ('auto', 'approved')
          AND created_at > datetime('now', '-48 hours')
-       ORDER BY created_at DESC LIMIT 15`,
+       ORDER BY created_at DESC LIMIT 45`,
     )
-    .all() as {
-      headline: string;
-      source: string;
-      url: string;
-      show_name: string | null;
-      show_id: number | null;
-      created_at: string;
-    }[];
+    .all() as BreakingNewsDedupeRow[];
+
+  const { kept: newsDeduped } = dedupeBreakingNewsCandidates(newsRows);
+  const news = newsDeduped.slice(0, 15);
+
   for (const n of news) {
     const publishedAt = sqliteDatetimeToIsoUtc(n.created_at);
     if (!publishedAt) continue;
@@ -460,7 +463,7 @@ export async function pollGoogleNewsForTopShows(): Promise<{
     .all() as { tvmaze_show_id: number; show_name: string; followers: number }[];
 
   const existingUrls = new Set(
-    (db.prepare(`SELECT url FROM breaking_news`).all() as { url: string }[]).map((r) => r.url),
+    (db.prepare(`SELECT url FROM breaking_news`).all() as { url: string }[]).map((r) => normalizeBreakingNewsUrl(r.url)),
   );
 
   const shows = db
@@ -502,8 +505,9 @@ export async function pollGoogleNewsForTopShows(): Promise<{
       const items = parseRssFeed(xml).slice(0, 10);
 
       for (const item of items) {
-        if (existingUrls.has(item.link)) continue;
-        existingUrls.add(item.link);
+        const urlKey = normalizeBreakingNewsUrl(item.link);
+        if (existingUrls.has(urlKey)) continue;
+        existingUrls.add(urlKey);
 
         const { score } = scoreHeadline(item.title, shows, cast);
         const effectiveScore = Math.max(score, 80);

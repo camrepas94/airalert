@@ -40,6 +40,7 @@ import {
   refreshAllCastCache,
   getTickerItems,
 } from "./breakingNews.js";
+import { dedupeBreakingNewsCandidates, type BreakingNewsDedupeRow } from "./breakingNewsDedupe.js";
 import {
   configureWebPush,
   getVapidPublicKey,
@@ -1559,12 +1560,23 @@ app.put("/api/admin/ticker-message", async (request, reply) => {
 app.get("/api/shows/:showId/news", async (request, reply) => {
   const showId = Number((request.params as { showId: string }).showId);
   if (!Number.isFinite(showId)) { reply.code(400); return { error: "Invalid show id" }; }
-  const items = db.prepare(
-    `SELECT id, headline, snippet, source, url, created_at AS createdAt
-     FROM breaking_news
-     WHERE show_id = ? AND status IN ('auto', 'approved') AND created_at > datetime('now', '-48 hours')
-     ORDER BY created_at DESC LIMIT 15`
-  ).all(showId);
+  const rows = db
+    .prepare(
+      `SELECT id, headline, snippet, source, url, show_id, show_name, created_at, score
+       FROM breaking_news
+       WHERE show_id = ? AND status IN ('auto', 'approved') AND created_at > datetime('now', '-48 hours')
+       ORDER BY created_at DESC LIMIT 35`,
+    )
+    .all(showId) as BreakingNewsDedupeRow[];
+  const { kept } = dedupeBreakingNewsCandidates(rows);
+  const items = kept.slice(0, 15).map((r) => ({
+    id: r.id,
+    headline: r.headline,
+    snippet: r.snippet,
+    source: r.source,
+    url: r.url,
+    createdAt: r.created_at,
+  }));
   return { items };
 });
 
