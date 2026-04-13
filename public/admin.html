@@ -1379,6 +1379,41 @@
                 "\" " +
                 (isAdm ? "checked" : "") +
                 " /> Grant this user access to the Admin tab &amp; this page</label>" +
+                "</div>";
+              const vroAdm =
+                d.viewerRoleOverride != null && String(d.viewerRoleOverride).trim() !== ""
+                  ? String(d.viewerRoleOverride).trim()
+                  : "";
+              const effAdm = d.viewerRole != null ? String(d.viewerRole) : "—";
+              const derAdm = d.viewerRoleDerived != null ? String(d.viewerRoleDerived) : "—";
+              html +=
+                "<div class=\"detail-admin-box\" style='margin-top:0.65rem'>" +
+                "<strong>Viewer role (progression)</strong>" +
+                "<p class=\"muted\" style='margin:0.35rem 0 0.45rem;font-size:0.8rem;line-height:1.45'>Effective: <strong>" +
+                escapeHtml(effAdm) +
+                "</strong> · From show count: <strong>" +
+                escapeHtml(derAdm) +
+                "</strong></p>" +
+                "<label for=\"admRoleSel_" +
+                u.id +
+                "\">Manual override</label> " +
+                "<select id=\"admRoleSel_" +
+                u.id +
+                "\" style='margin-left:0.35rem;max-width:14rem;font:inherit'>" +
+                "<option value=\"\">Automatic (from show count)</option>" +
+                "<option value=\"newb\"" +
+                (vroAdm === "newb" ? " selected" : "") +
+                ">newb (locked social)</option>" +
+                "<option value=\"tv_watcher\"" +
+                (vroAdm === "tv_watcher" ? " selected" : "") +
+                ">tv_watcher</option>" +
+                "<option value=\"tv_binger\"" +
+                (vroAdm === "tv_binger" ? " selected" : "") +
+                ">tv_binger</option>" +
+                "</select> " +
+                "<button type='button' class='secondary' id=\"admRoleSave_" +
+                u.id +
+                "\">Save</button>" +
                 "</div>" +
                 "<div style='margin-bottom:0.65rem'><strong>Tasks:</strong> " +
                 d.tasks.completed +
@@ -1483,6 +1518,25 @@
                     await loadDash();
                   } catch (e) {
                     showToast(e.message || "Reset failed");
+                  }
+                });
+              }
+
+              const roleSel = document.getElementById("admRoleSel_" + u.id);
+              const roleSave = document.getElementById("admRoleSave_" + u.id);
+              if (roleSel && roleSave) {
+                roleSave.addEventListener("click", async (ev) => {
+                  ev.stopPropagation();
+                  const val = roleSel.value;
+                  try {
+                    await api("/api/admin/users/" + encodeURIComponent(u.id), {
+                      method: "PATCH",
+                      body: JSON.stringify({ viewerRoleOverride: val ? val : null }),
+                    });
+                    showToast("Viewer role override saved");
+                    await loadDash();
+                  } catch (e) {
+                    showToast(e.message || "Failed to save role");
                   }
                 });
               }

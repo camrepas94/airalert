@@ -430,9 +430,13 @@ export function listDmMessages(threadId: string, userId: string, limit: number, 
 
 /* ── Group DMs ───────────────────────────────────────────── */
 
+const MAX_GROUP_AVATAR_DATA_URL_LEN = 450_000;
+
 export type DmGroupListRow = {
   groupId: string;
   name: string;
+  /** Custom group photo; when null, clients may show initials or member stack. */
+  avatarDataUrl: string | null;
   lastMessageAt: string;
   lastBody: string | null;
   lastSenderId: string | null;
@@ -534,11 +538,19 @@ export type DmGroupDetailMember = {
 export function getDmGroupDetail(
   groupId: string,
   requesterId: string,
-): { groupId: string; name: string; createdBy: string; members: DmGroupDetailMember[] } | null {
+): {
+  groupId: string;
+  name: string;
+  createdBy: string;
+  avatarDataUrl: string | null;
+  members: DmGroupDetailMember[];
+} | null {
   if (!assertGroupMember(groupId, requesterId)) return null;
   const g = db
-    .prepare(`SELECT id, name, created_by AS createdBy FROM dm_group_threads WHERE id = ?`)
-    .get(groupId) as { id: string; name: string; createdBy: string } | undefined;
+    .prepare(
+      `SELECT id, name, created_by AS createdBy, avatar_data_url AS avatarDataUrl FROM dm_group_threads WHERE id = ?`,
+    )
+    .get(groupId) as { id: string; name: string; createdBy: string; avatarDataUrl: string | null } | undefined;
   if (!g) return null;
   const mems = db.prepare(`SELECT user_id AS userId FROM dm_group_members WHERE group_id = ?`).all(groupId) as { userId: string }[];
   const members: DmGroupDetailMember[] = mems.map((m) => {
@@ -551,7 +563,13 @@ export function getDmGroupDetail(
       isOwner: g.createdBy === m.userId,
     };
   });
-  return { groupId: g.id, name: g.name, createdBy: g.createdBy, members };
+  return {
+    groupId: g.id,
+    name: g.name,
+    createdBy: g.createdBy,
+    avatarDataUrl: g.avatarDataUrl ?? null,
+    members,
+  };
 }
 
 export function createDmGroup(creatorId: string, rawName: string, memberUserIds: string[]): string {
@@ -582,12 +600,12 @@ export function createDmGroup(creatorId: string, rawName: string, memberUserIds:
 export function listDmGroupsForUser(userId: string): DmGroupListRow[] {
   const rows = db
     .prepare(
-      `SELECT g.id AS groupId, g.name, g.last_message_at AS lastMessageAt
+      `SELECT g.id AS groupId, g.name, g.avatar_data_url AS avatarDataUrl, g.last_message_at AS lastMessageAt
        FROM dm_group_threads g
        INNER JOIN dm_group_members m ON m.group_id = g.id AND m.user_id = ?
        ORDER BY datetime(g.last_message_at) DESC`,
     )
-    .all(userId) as { groupId: string; name: string; lastMessageAt: string }[];
+    .all(userId) as { groupId: string; name: string; avatarDataUrl: string | null; lastMessageAt: string }[];
 
   const lastMsgStmt = db.prepare(
     `SELECT body, sender_id AS senderId FROM dm_group_messages WHERE group_id = ? ORDER BY datetime(created_at) DESC, id DESC LIMIT 1`,
@@ -610,6 +628,7 @@ export function listDmGroupsForUser(userId: string): DmGroupListRow[] {
     return {
       groupId: t.groupId,
       name: t.name,
+      avatarDataUrl: t.avatarDataUrl ?? null,
       lastMessageAt: t.lastMessageAt,
       lastBody: lm?.body ?? null,
       lastSenderId: lm?.senderId ?? null,
@@ -694,24 +713,58 @@ export function markDmGroupUnread(groupId: string, userId: string): void {
   broadcastDmUnreadTotal(userId);
 }
 
-export function renameDmGroup(
+export function patchDmGroup(
   groupId: string,
   requesterId: string,
-  rawName: string,
+  patch: { rawName?: string; avatarDataUrl?: string | null },
 ): { ok: true } | { error: string } {
   const g = db
     .prepare(`SELECT created_by AS createdBy FROM dm_group_threads WHERE id = ?`)
     .get(groupId) as { createdBy: string } | undefined;
   if (!g) return { error: "Group not found" };
-  if (g.createdBy !== requesterId) return { error: "Only the group owner can rename" };
+  if (g.createdBy !== requesterId) return { error: "Only the group owner can update the group" };
   if (!assertGroupMember(groupId, requesterId)) return { error: "Not a member" };
-  const name = normalizeGroupName(rawName) || "Group chat";
-  db.prepare(`UPDATE dm_group_threads SET name = ? WHERE id = ?`).run(name, groupId);
+
+  const hasName = patch.rawName !== undefined;
+  const hasAvatar = patch.avatarDataUrl !== undefined;
+  if (!hasName && !hasAvatar) return { error: "Nothing to update" };
+
+  if (hasName) {
+    const name = normalizeGroupName(patch.rawName!) || "Group chat";
+    db.prepare(`UPDATE dm_group_threads SET name = ? WHERE id = ?`).run(name, groupId);
+  }
+  if (hasAvatar) {
+    const av = patch.avatarDataUrl;
+    if (av === null || av === "") {
+      db.prepare(`UPDATE dm_group_threads SET avatar_data_url = NULL WHERE id = ?`).run(groupId);
+    } else if (typeof av === "string") {
+      const trimmed = av.trim();
+      const ok =
+        /^\s*data:image\/(jpeg|jpg|png|webp);base64,/i.test(trimmed) &&
+        trimmed.length > 0 &&
+        trimmed.length <= MAX_GROUP_AVATAR_DATA_URL_LEN;
+      if (!ok) {
+        return { error: "Avatar must be a JPEG, PNG, or WebP data URL under the size limit" };
+      }
+      db.prepare(`UPDATE dm_group_threads SET avatar_data_url = ? WHERE id = ?`).run(trimmed, groupId);
+    } else {
+      return { error: "Invalid avatar" };
+    }
+  }
+
+  const row = db
+    .prepare(`SELECT name, avatar_data_url AS avatarDataUrl FROM dm_group_threads WHERE id = ?`)
+    .get(groupId) as { name: string; avatarDataUrl: string | null };
   const memberIds = db
     .prepare(`SELECT user_id AS userId FROM dm_group_members WHERE group_id = ?`)
     .all(groupId) as { userId: string }[];
   for (const m of memberIds) {
-    broadcastToUser(m.userId, { type: "dm_group_meta" as const, groupId, name });
+    broadcastToUser(m.userId, {
+      type: "dm_group_meta" as const,
+      groupId,
+      name: row.name,
+      avatarDataUrl: row.avatarDataUrl ?? null,
+    });
   }
   return { ok: true };
 }

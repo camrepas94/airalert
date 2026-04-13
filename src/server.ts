@@ -72,7 +72,7 @@ import {
   markDmGroupUnread,
   leaveOrDeleteDmGroup,
   getDmGroupDetail,
-  renameDmGroup,
+  patchDmGroup,
   addDmGroupMembers,
   removeDmGroupMember,
 } from "./dm.js";
@@ -93,6 +93,11 @@ import {
 import { episodeHasAiredUtc } from "./episodeRatings.js";
 import { computeRecommendedShows, computeTrendingShows } from "./recommend.js";
 import { hashPassword, verifyPassword } from "./password.js";
+import {
+  hasFullSocialAccess,
+  UNLOCK_SOCIAL_FEATURES_MESSAGE,
+  viewerRolePayloadForUser,
+} from "./userRole.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 const publicDir = path.join(process.cwd(), "public");
@@ -372,6 +377,13 @@ function authorPublicHandle(row: { display_name: string | null; username: string
   if (row.display_name && String(row.display_name).trim()) return String(row.display_name).trim();
   if (row.username && String(row.username).trim()) return "@" + String(row.username).trim();
   return "Member";
+}
+
+/** Registered user must have 3+ subscribed shows (unless admin) for DMs, inbox, and community writes. */
+function assertFullSocialAccess(reply: FastifyReply, userId: string): boolean {
+  if (hasFullSocialAccess(userId)) return true;
+  reply.code(403).send({ error: UNLOCK_SOCIAL_FEATURES_MESSAGE, code: "newb_restricted" });
+  return false;
 }
 
 async function notifyCommunityThreadSubscribers(opts: {
@@ -1403,13 +1415,18 @@ app.get("/api/admin/users/:userId", async (request, reply) => {
       skipped: tasksSkipped,
       open: tasksTotal - tasksCompleted - tasksSkipped,
     },
+    ...viewerRolePayloadForUser(userId),
   };
 });
 
 app.patch("/api/admin/users/:userId", async (request, reply) => {
   if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { userId } = request.params as { userId: string };
-  const body = (request.body ?? {}) as { isAdmin?: boolean; resetPasswordToDefault?: boolean };
+  const body = (request.body ?? {}) as {
+    isAdmin?: boolean;
+    resetPasswordToDefault?: boolean;
+    viewerRoleOverride?: string | null;
+  };
   const existing = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
   if (!existing) {
     reply.code(404);
@@ -1430,9 +1447,22 @@ app.patch("/api/admin/users/:userId", async (request, reply) => {
     db.prepare(`UPDATE users SET is_admin = ? WHERE id = ?`).run(body.isAdmin ? 1 : 0, userId);
     did = true;
   }
+  if ("viewerRoleOverride" in body) {
+    const v = body.viewerRoleOverride;
+    if (v === null || v === "") {
+      db.prepare(`UPDATE users SET viewer_role_override = NULL WHERE id = ?`).run(userId);
+      did = true;
+    } else if (v === "newb" || v === "tv_watcher" || v === "tv_binger") {
+      db.prepare(`UPDATE users SET viewer_role_override = ? WHERE id = ?`).run(v, userId);
+      did = true;
+    } else {
+      reply.code(400);
+      return { error: "viewerRoleOverride must be newb, tv_watcher, tv_binger, null, or empty string" };
+    }
+  }
   if (!did) {
     reply.code(400);
-    return { error: "Set isAdmin and/or resetPasswordToDefault: true" };
+    return { error: "Set isAdmin, resetPasswordToDefault, and/or viewerRoleOverride" };
   }
   const row = db
     .prepare(
@@ -1442,7 +1472,8 @@ app.patch("/api/admin/users/:userId", async (request, reply) => {
        FROM users WHERE id = ?`,
     )
     .get(userId) as Record<string, unknown> | undefined;
-  return row ? userJsonWithPushPrefs(row) : row;
+  if (!row) return row;
+  return { ...userJsonWithPushPrefs(row), ...viewerRolePayloadForUser(userId) };
 });
 
 app.post("/api/admin/users/:userId/test-push", async (request, reply) => {
@@ -1630,6 +1661,7 @@ app.patch("/api/notification-preferences", async (request, reply) => {
 app.post("/api/users/:userId/follow", async (request, reply) => {
   const followerId = sessionUserIdFromRequest(request);
   if (!followerId) { reply.code(401); return { error: "Unauthorized" }; }
+  if (!assertFullSocialAccess(reply, followerId)) return;
   const { userId } = request.params as { userId: string };
   if (followerId === userId) { reply.code(400); return { error: "Cannot follow yourself" }; }
   db.prepare(`INSERT OR IGNORE INTO user_follows (follower_id, followed_id) VALUES (?, ?)`).run(followerId, userId);
@@ -1639,6 +1671,7 @@ app.post("/api/users/:userId/follow", async (request, reply) => {
 app.delete("/api/users/:userId/follow", async (request, reply) => {
   const followerId = sessionUserIdFromRequest(request);
   if (!followerId) { reply.code(401); return { error: "Unauthorized" }; }
+  if (!assertFullSocialAccess(reply, followerId)) return;
   const { userId } = request.params as { userId: string };
   db.prepare(`DELETE FROM user_follows WHERE follower_id = ? AND followed_id = ?`).run(followerId, userId);
   return { ok: true, following: false };
@@ -1782,6 +1815,7 @@ app.get("/api/users/me", async (request, reply) => {
     return { error: "Session invalid" };
   }
   const payload = { ...userJsonWithPushPrefs(row), watchSummary: getWatchSummaryCounts(sid) } as Record<string, unknown>;
+  Object.assign(payload, viewerRolePayloadForUser(sid));
   if (!Number(row.isAdmin)) {
     delete payload.isAdmin;
   } else {
@@ -1814,7 +1848,11 @@ app.get("/api/users/:id", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
-  return { ...userJsonWithPushPrefs(row), watchSummary: getWatchSummaryCounts(id) };
+  return {
+    ...userJsonWithPushPrefs(row),
+    watchSummary: getWatchSummaryCounts(id),
+    ...viewerRolePayloadForUser(id),
+  };
 });
 
 app.patch("/api/users/:id", async (request, reply) => {
@@ -2605,6 +2643,7 @@ app.post("/api/users/:userId/person-follows", async (request, reply) => {
     return { error: "User not found" };
   }
   if (!assertSelfOrAdmin(request, reply, userId)) return;
+  if (!assertFullSocialAccess(reply, userId)) return;
   if (typeof body.tvmazePersonId !== "number" || !Number.isInteger(body.tvmazePersonId) || body.tvmazePersonId < 1) {
     reply.code(400);
     return { error: "tvmazePersonId required" };
@@ -2652,6 +2691,7 @@ app.delete("/api/person-follows/:followId", async (request, reply) => {
     return { error: "Not found" };
   }
   if (!assertSelfOrAdmin(request, reply, row.user_id)) return;
+  if (!assertFullSocialAccess(reply, row.user_id)) return;
   db.prepare(`DELETE FROM user_person_follows WHERE id = ?`).run(followId);
   return { ok: true };
 });
@@ -3438,6 +3478,7 @@ app.get("/api/community/threads/:showId/episode-polls", async (request, reply) =
 app.post("/api/community/episode-polls", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const body = (request.body ?? {}) as {
     tvmazeShowId?: number;
     tvmazeEpisodeId?: number;
@@ -3493,6 +3534,7 @@ app.post("/api/community/episode-polls", async (request, reply) => {
 app.post("/api/community/episode-polls/:pollId/vote", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { pollId } = request.params as { pollId: string };
   const body = (request.body ?? {}) as { optionIndex?: number };
   const optionIndex = Number(body.optionIndex);
@@ -3533,6 +3575,7 @@ app.post("/api/community/episode-polls/:pollId/vote", async (request, reply) => 
 app.patch("/api/community/episode-polls/:pollId", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { pollId } = request.params as { pollId: string };
   const body = (request.body ?? {}) as { correctOptionIndex?: number };
   const poll = db
@@ -3589,6 +3632,7 @@ app.patch("/api/community/episode-polls/:pollId", async (request, reply) => {
 app.delete("/api/community/episode-polls/:pollId", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { pollId } = request.params as { pollId: string };
   const poll = db
     .prepare(`SELECT user_id, tvmaze_show_id, tvmaze_episode_id FROM community_episode_polls WHERE id = ?`)
@@ -3726,6 +3770,7 @@ app.get("/api/community/shows/:showId/episode-rating", async (request, reply) =>
 app.put("/api/community/episode-ratings", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const body = (request.body ?? {}) as { tvmazeShowId?: number; tvmazeEpisodeId?: number; rating?: number };
   const showId = Number(body.tvmazeShowId);
   const ep = Number(body.tvmazeEpisodeId);
@@ -3778,6 +3823,7 @@ app.put("/api/community/episode-ratings", async (request, reply) => {
 app.post("/api/community/post-watch-review", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const body = (request.body ?? {}) as {
     tvmazeShowId?: number;
     tvmazeEpisodeId?: number;
@@ -3970,6 +4016,7 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
 app.post("/api/community/posts", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const body = (request.body ?? {}) as {
     tvmazeShowId?: number;
     bodyHtml?: string;
@@ -4108,6 +4155,7 @@ app.patch("/api/community/posts/:postId", async (request, reply) => {
   if (owner && !admin) {
     const reg = sessionRegisteredUserId(request, reply);
     if (!reg) return;
+    if (!assertFullSocialAccess(reply, reg)) return;
   }
   const body = (request.body ?? {}) as {
     bodyHtml?: string;
@@ -4256,6 +4304,11 @@ app.delete("/api/community/posts/:postId", async (request, reply) => {
     reply.code(403);
     return { error: "Forbidden" };
   }
+  if (!admin) {
+    const reg = sessionRegisteredUserId(request, reply);
+    if (!reg) return;
+    if (!assertFullSocialAccess(reply, reg)) return;
+  }
   logCommunityModeration({
     postId,
     actorUserId: sid || null,
@@ -4285,6 +4338,7 @@ app.get("/api/community/thread-subscriptions/:showId", async (request, reply) =>
 app.post("/api/community/thread-subscriptions", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const body = (request.body ?? {}) as { tvmazeShowId?: number };
   const showId = Number(body.tvmazeShowId);
   if (!Number.isInteger(showId) || showId < 1) {
@@ -4313,6 +4367,7 @@ app.post("/api/community/thread-subscriptions", async (request, reply) => {
 app.delete("/api/community/thread-subscriptions/:showId", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const showId = Number((request.params as { showId: string }).showId);
   if (!Number.isInteger(showId) || showId < 1) {
     reply.code(400);
@@ -4326,6 +4381,10 @@ app.get("/api/dm/ws", { websocket: true }, (socket: WebSocket, request: FastifyR
   const uid = getRegisteredSessionUserId(request);
   if (!uid) {
     socket.close(4401, "Unauthorized");
+    return;
+  }
+  if (!hasFullSocialAccess(uid)) {
+    socket.close(4403, UNLOCK_SOCIAL_FEATURES_MESSAGE);
     return;
   }
   registerDmSocket(uid, socket);
@@ -4360,18 +4419,21 @@ app.get("/api/community/thread-live/ws", { websocket: true }, (socket: WebSocket
 app.get("/api/dm/unread", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   return { total: getDmUnreadTotal(uid) };
 });
 
 app.get("/api/dm/threads", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   return { threads: listDmThreadsForUser(uid), groups: listDmGroupsForUser(uid) };
 });
 
 app.post("/api/dm/threads", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const body = (request.body ?? {}) as { otherUserId?: string };
   const other = typeof body.otherUserId === "string" ? body.otherUserId.trim() : "";
   if (!other || other === uid) {
@@ -4390,6 +4452,7 @@ app.post("/api/dm/threads", async (request, reply) => {
 app.get("/api/dm/threads/:threadId/messages", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { threadId } = request.params as { threadId: string };
   const inThread = db
     .prepare(`SELECT 1 FROM dm_threads WHERE id = ? AND (user_low = ? OR user_high = ?)`)
@@ -4412,6 +4475,7 @@ app.get("/api/dm/threads/:threadId/messages", async (request, reply) => {
 app.post("/api/dm/threads/:threadId/messages", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { threadId } = request.params as { threadId: string };
   const body = (request.body ?? {}) as { body?: string };
   const text = typeof body.body === "string" ? body.body : "";
@@ -4426,6 +4490,7 @@ app.post("/api/dm/threads/:threadId/messages", async (request, reply) => {
 app.post("/api/dm/threads/:threadId/read", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { threadId } = request.params as { threadId: string };
   const member = db
     .prepare(`SELECT 1 FROM dm_threads WHERE id = ? AND (user_low = ? OR user_high = ?)`)
@@ -4441,6 +4506,7 @@ app.post("/api/dm/threads/:threadId/read", async (request, reply) => {
 app.post("/api/dm/threads/:threadId/unread", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { threadId } = request.params as { threadId: string };
   const member = db
     .prepare(`SELECT 1 FROM dm_threads WHERE id = ? AND (user_low = ? OR user_high = ?)`)
@@ -4456,6 +4522,7 @@ app.post("/api/dm/threads/:threadId/unread", async (request, reply) => {
 app.delete("/api/dm/threads/:threadId", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { threadId } = request.params as { threadId: string };
   const ok = deleteDmThreadAsMember(threadId, uid);
   if (!ok) {
@@ -4468,6 +4535,7 @@ app.delete("/api/dm/threads/:threadId", async (request, reply) => {
 app.post("/api/dm/groups", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const body = (request.body ?? {}) as { name?: string; memberUserIds?: unknown };
   const name = typeof body.name === "string" ? body.name : "";
   const raw = body.memberUserIds;
@@ -4485,6 +4553,7 @@ app.post("/api/dm/groups", async (request, reply) => {
 app.get("/api/dm/groups/:groupId", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { groupId } = request.params as { groupId: string };
   const detail = getDmGroupDetail(groupId, uid);
   if (!detail) {
@@ -4497,12 +4566,23 @@ app.get("/api/dm/groups/:groupId", async (request, reply) => {
 app.patch("/api/dm/groups/:groupId", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { groupId } = request.params as { groupId: string };
-  const body = (request.body ?? {}) as { name?: string };
-  const name = typeof body.name === "string" ? body.name : "";
-  const r = renameDmGroup(groupId, uid, name);
+  const body = (request.body ?? {}) as { name?: string; avatarDataUrl?: string | null };
+  const hasName = typeof body.name === "string";
+  const hasAvatar = "avatarDataUrl" in body;
+  if (!hasName && !hasAvatar) {
+    reply.code(400);
+    return { error: "Nothing to update" };
+  }
+  const r = patchDmGroup(groupId, uid, {
+    rawName: hasName ? body.name : undefined,
+    avatarDataUrl: hasAvatar ? body.avatarDataUrl : undefined,
+  });
   if ("error" in r) {
-    reply.code(r.error.includes("not found") ? 404 : 403);
+    const code =
+      r.error.includes("not found") ? 404 : r.error.includes("Nothing") || r.error.includes("Avatar") ? 400 : 403;
+    reply.code(code);
     return { error: r.error };
   }
   return { ok: true };
@@ -4511,6 +4591,7 @@ app.patch("/api/dm/groups/:groupId", async (request, reply) => {
 app.post("/api/dm/groups/:groupId/members", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { groupId } = request.params as { groupId: string };
   const body = (request.body ?? {}) as { userIds?: unknown };
   const raw = body.userIds;
@@ -4526,6 +4607,7 @@ app.post("/api/dm/groups/:groupId/members", async (request, reply) => {
 app.delete("/api/dm/groups/:groupId/members/:memberUserId", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { groupId, memberUserId } = request.params as { groupId: string; memberUserId: string };
   const r = removeDmGroupMember(groupId, uid, memberUserId);
   if ("error" in r) {
@@ -4538,6 +4620,7 @@ app.delete("/api/dm/groups/:groupId/members/:memberUserId", async (request, repl
 app.get("/api/dm/groups/:groupId/messages", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { groupId } = request.params as { groupId: string };
   const q = request.query as { limit?: string };
   const limitRaw = Number(q.limit);
@@ -4556,6 +4639,7 @@ app.get("/api/dm/groups/:groupId/messages", async (request, reply) => {
 app.post("/api/dm/groups/:groupId/messages", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { groupId } = request.params as { groupId: string };
   const body = (request.body ?? {}) as { body?: string };
   const text = typeof body.body === "string" ? body.body : "";
@@ -4570,6 +4654,7 @@ app.post("/api/dm/groups/:groupId/messages", async (request, reply) => {
 app.post("/api/dm/groups/:groupId/read", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { groupId } = request.params as { groupId: string };
   markDmGroupRead(groupId, uid);
   return { ok: true };
@@ -4578,6 +4663,7 @@ app.post("/api/dm/groups/:groupId/read", async (request, reply) => {
 app.post("/api/dm/groups/:groupId/unread", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { groupId } = request.params as { groupId: string };
   markDmGroupUnread(groupId, uid);
   return { ok: true };
@@ -4586,6 +4672,7 @@ app.post("/api/dm/groups/:groupId/unread", async (request, reply) => {
 app.delete("/api/dm/groups/:groupId", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { groupId } = request.params as { groupId: string };
   const ok = leaveOrDeleteDmGroup(groupId, uid);
   if (!ok) {
@@ -4599,6 +4686,7 @@ app.delete("/api/dm/groups/:groupId", async (request, reply) => {
 app.get("/api/community/users/search", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const raw = (request.query as { q?: string }).q;
   const q = typeof raw === "string" ? raw.trim().slice(0, 64) : "";
   if (q.length < 1) {
@@ -4789,6 +4877,7 @@ app.get("/api/community/challenges/:challengeId", async (request, reply) => {
 app.post("/api/community/challenges", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const body = (request.body ?? {}) as {
     title?: string;
     summary?: string;
@@ -4878,6 +4967,7 @@ app.post("/api/community/challenges", async (request, reply) => {
 app.post("/api/community/challenges/:challengeId/join", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { challengeId } = request.params as { challengeId: string };
   const c = db.prepare(`SELECT deadline_airdate FROM community_watch_challenges WHERE id = ?`).get(challengeId) as
     | { deadline_airdate: string }
@@ -4910,6 +5000,7 @@ app.post("/api/community/challenges/:challengeId/join", async (request, reply) =
 app.delete("/api/community/challenges/:challengeId/join", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
+  if (!assertFullSocialAccess(reply, uid)) return;
   const { challengeId } = request.params as { challengeId: string };
   const r = db
     .prepare(`DELETE FROM community_watch_challenge_participants WHERE challenge_id = ? AND user_id = ?`)
@@ -4959,7 +5050,14 @@ app.get("/api/community/users/:userId/profile", async (request, reply) => {
      ORDER BY cp.created_at DESC LIMIT 3`
   ).all(userId);
 
-  return { ...row, watchStats, viewerCompatibility, postsCount, recentPosts };
+  return {
+    ...row,
+    watchStats,
+    viewerCompatibility,
+    postsCount,
+    recentPosts,
+    ...viewerRolePayloadForUser(userId),
+  };
 });
 
 app.get("/calendar/:filename", async (request, reply) => {

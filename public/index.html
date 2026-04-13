@@ -1704,11 +1704,13 @@
         margin-bottom: 0.15rem;
       }
       .dm-inbox-group-title-btn {
-        display: block;
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
         width: 100%;
         max-width: 100%;
         margin: 0.35rem 0 0.15rem;
-        padding: 0.2rem 0.15rem;
+        padding: 0.25rem 0.15rem;
         text-align: left;
         background: transparent;
         border: none;
@@ -1722,12 +1724,71 @@
         text-decoration: underline;
         text-underline-offset: 3px;
       }
+      .dm-inbox-group-header-avatar-wrap {
+        flex-shrink: 0;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid rgba(34, 211, 238, 0.45);
+        background: rgba(0, 0, 0, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .dm-inbox-group-header-avatar {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .dm-inbox-group-header-avatar-fb {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: rgba(186, 230, 253, 0.95);
+      }
       .dm-inbox-group-title-text {
         display: block;
+        flex: 1;
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         max-width: 100%;
+      }
+      .dm-group-settings-photo-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0 0 0.85rem;
+        flex-wrap: wrap;
+      }
+      .dm-group-settings-photo-preview {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid rgba(34, 211, 238, 0.45);
+        background: rgba(0, 0, 0, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .dm-group-settings-photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .dm-group-settings-photo-preview .fb {
+        font-size: 1.35rem;
+        font-weight: 600;
+        color: rgba(186, 230, 253, 0.95);
+      }
+      .dm-group-settings-photo-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        align-items: flex-start;
       }
       .dm-inbox-messages--group {
         gap: 0.25rem;
@@ -2747,6 +2808,48 @@
       .profile-readonly-value {
         color: var(--text);
         font-weight: 600;
+      }
+      .profile-role-badge-row .role-badge {
+        flex: 1 1 auto;
+      }
+      .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.28rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 0.22rem 0.5rem;
+        border-radius: 999px;
+        border: 1px solid;
+        line-height: 1;
+        white-space: nowrap;
+      }
+      .role-badge__icon {
+        font-size: 0.75rem;
+        opacity: 0.95;
+      }
+      .role-badge--newb {
+        background: linear-gradient(145deg, rgba(34, 211, 238, 0.12) 0%, rgba(91, 156, 255, 0.08) 100%);
+        border-color: rgba(34, 211, 238, 0.42);
+        color: #a5f3fc;
+        box-shadow: 0 0 12px -2px rgba(34, 211, 238, 0.25);
+      }
+      .role-badge--watcher {
+        background: linear-gradient(145deg, rgba(91, 156, 255, 0.18) 0%, rgba(34, 211, 238, 0.1) 100%);
+        border-color: rgba(91, 156, 255, 0.45);
+        color: #bfdbfe;
+        box-shadow: 0 0 14px -2px rgba(91, 156, 255, 0.28);
+      }
+      .role-badge--binger {
+        background: linear-gradient(145deg, rgba(232, 121, 249, 0.2) 0%, rgba(236, 72, 153, 0.12) 100%);
+        border-color: rgba(232, 121, 249, 0.48);
+        color: #f5d0fe;
+        box-shadow: 0 0 16px -2px rgba(232, 121, 249, 0.35);
+      }
+      body.aa-newb-session .tab-nav .tab-btn[data-tab="community"] {
+        opacity: 0.78;
       }
       .profile-identity-actions {
         display: flex;
@@ -4393,6 +4496,8 @@
         scrollbar-width: none;
         -ms-overflow-style: none;
         -webkit-overflow-scrolling: touch;
+        /* Prevent scroll anchoring from fighting programmatic scroll when backgrounds resolve */
+        overflow-anchor: none;
       }
       .community-headlines-rail[aria-busy="true"] {
         pointer-events: none;
@@ -4408,6 +4513,9 @@
       }
       .community-headlines-rail.community-headlines-rail--auto-active {
         scroll-snap-type: none;
+      }
+      .community-headlines-rail.community-headlines-rail--auto-active > li {
+        scroll-snap-align: none;
       }
       a.community-headline-card {
         display: block;
@@ -7396,15 +7504,6 @@
 
       <div class="main-scroll" id="mainScroll">
       <div id="tab-add" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnAdd">
-        <div
-          class="contextual-tip"
-          id="contextualTipAddShows"
-          role="status"
-          hidden
-        >
-          <p class="contextual-tip-text">Search and add a few shows to personalize your feed.</p>
-          <button type="button" class="contextual-tip-dismiss" id="contextualTipAddShowsDismiss" aria-label="Dismiss tip">×</button>
-        </div>
         <section class="search-shell" aria-label="Search and subscribe">
           <div class="add-shows-hero-bar">
             <div class="section-header-highlight search-hero-unified" aria-labelledby="searchHeroHeading">
@@ -7856,6 +7955,7 @@
               <p class="muted community-guest-hint" id="communityGuestHint" hidden>
                 <a href="#" id="communityGoProfileLink">Create an account</a> (profile icon → Your profile) to post and subscribe to threads.
               </p>
+              <p class="muted community-guest-hint" id="communityUnlockHint" hidden></p>
               <div class="community-format-bar" id="communityFormatBar" hidden>
                 <button type="button" class="secondary community-fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>
                 <button type="button" class="secondary community-fmt-btn" data-cmd="italic" title="Italic"><i>I</i></button>
@@ -8210,6 +8310,10 @@
                 hidden
                 aria-label="Group details and settings"
               >
+                <span class="dm-inbox-group-header-avatar-wrap" aria-hidden="true">
+                  <img id="dmInboxGroupHeaderAvatar" class="dm-inbox-group-header-avatar" alt="" width="36" height="36" hidden decoding="async" />
+                  <span id="dmInboxGroupHeaderAvatarFb" class="dm-inbox-group-header-avatar-fb">G</span>
+                </span>
                 <span id="dmInboxThreadTitleGroup" class="section-header-highlight header-cyan-glow dm-inbox-group-title-text">Group</span>
               </button>
               <div id="dmInboxMessages" class="dm-inbox-messages"></div>
@@ -8264,6 +8368,17 @@
           <div class="dm-create-group-backdrop" id="dmGroupSettingsBackdrop"></div>
           <div class="dm-create-group-sheet" role="dialog" aria-labelledby="dmGroupSettingsTitle" aria-modal="true">
             <h3 id="dmGroupSettingsTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Group</h3>
+            <div id="dmGroupSettingsPhotoSection" class="dm-group-settings-photo-row">
+              <div class="dm-group-settings-photo-preview" id="dmGroupSettingsPhotoPreview">
+                <img id="dmGroupSettingsPhotoImg" alt="" width="64" height="64" hidden decoding="async" />
+                <span id="dmGroupSettingsPhotoFb" class="fb" aria-hidden="true">G</span>
+              </div>
+              <div class="dm-group-settings-photo-actions">
+                <input type="file" id="dmGroupSettingsPhotoInput" accept="image/jpeg,image/png,image/webp" hidden />
+                <button type="button" id="dmGroupSettingsPhotoChooseBtn">Change photo</button>
+                <button type="button" class="secondary" id="dmGroupSettingsPhotoRemoveBtn" hidden>Remove photo</button>
+              </div>
+            </div>
             <label class="dm-create-group-label" for="dmGroupSettingsNameInput">Group name</label>
             <div class="dm-group-settings-name-row">
               <input type="text" id="dmGroupSettingsNameInput" class="dm-compose-search-input" maxlength="80" autocomplete="off" />
@@ -8516,6 +8631,10 @@
                   <span class="profile-readonly-label">Member since</span>
                   <span id="profileMemberSince" class="profile-readonly-value">—</span>
                 </div>
+                <div class="profile-readonly-row profile-role-badge-row">
+                  <span class="profile-readonly-label">Role</span>
+                  <span id="profileRoleBadge" class="role-badge" hidden></span>
+                </div>
                 <div class="profile-identity-actions">
                   <button type="button" id="saveProfileInfoBtn">Save name &amp; photo</button>
                   <button type="button" class="secondary" id="removeAvatarBtn">Remove photo</button>
@@ -8694,15 +8813,16 @@
       function updateContextualTipsVisibility(activeTab) {
         const uid = resolveUserId();
         const tips = [
-          { id: "contextualTipAddShows", tipId: "add", tab: "add" },
           { id: "contextualTipTasks", tipId: "tasks", tab: "tasks" },
-          { id: "contextualTipCommunity", tipId: "community", tab: "community" },
+          { id: "contextualTipCommunity", tipId: "community", tab: "community", skip: () =>
+            sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && !hasFullSocialUiAccess(sessionMeSnapshot) },
         ];
         for (const t of tips) {
           const el = document.getElementById(t.id);
           if (!el) continue;
           const dismissed = !uid || isContextualTipDismissed(uid, t.tipId);
-          el.hidden = dismissed || activeTab !== t.tab;
+          const skip = typeof t.skip === "function" ? t.skip() : false;
+          el.hidden = dismissed || skip || activeTab !== t.tab;
         }
       }
       function apiOrigin() {
@@ -8874,6 +8994,36 @@
           };
         } else {
           profileWatchSummary = { episodesCompleted: 0, showsTracked: 0 };
+        }
+        const badge = document.getElementById("profileRoleBadge");
+        if (badge) {
+          badge.className = "role-badge";
+          badge.innerHTML = "";
+          if (u && accountIsRegistered(u)) {
+            const role = u.viewerRole;
+            const n = Number(u.subscribedShowCount);
+            const eff =
+              role ||
+              (Number.isFinite(n) && n <= 2 ? "newb" : Number.isFinite(n) && n <= 9 ? "tv_watcher" : "tv_binger");
+            if (eff === "tv_binger") {
+              badge.className = "role-badge role-badge--binger";
+              badge.innerHTML =
+                '<span class="role-badge__icon" aria-hidden="true">\uD83D\uDD25</span><span>TV Binger</span>';
+              badge.hidden = false;
+            } else if (eff === "tv_watcher") {
+              badge.className = "role-badge role-badge--watcher";
+              badge.innerHTML =
+                '<span class="role-badge__icon" aria-hidden="true">\uD83D\uDCFA</span><span>TV Watcher</span>';
+              badge.hidden = false;
+            } else {
+              badge.className = "role-badge role-badge--newb";
+              badge.innerHTML =
+                '<span class="role-badge__icon" aria-hidden="true">\u2728</span><span>Getting started</span>';
+              badge.hidden = false;
+            }
+          } else {
+            badge.hidden = true;
+          }
         }
       }
 
@@ -9255,6 +9405,15 @@
           li.appendChild(left);
           li.appendChild(btn);
           ul.appendChild(li);
+        }
+        try {
+          const uidRefresh = resolveUserId();
+          if (uidRefresh) {
+            const meNow = await api("/api/users/me");
+            applyMeToUI(meNow);
+          }
+        } catch {
+          /* ignore */
         }
       }
 
@@ -9732,6 +9891,10 @@
       }
 
       function openPostWatchReviewModal(ctx) {
+        if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && !hasFullSocialUiAccess(sessionMeSnapshot)) {
+          showUnlockSocialToast();
+          return;
+        }
         postWatchReviewContext = ctx;
         postWatchReviewSelectedRating = 0;
         ensurePostWatchReviewStarsBound();
@@ -9973,7 +10136,7 @@
       }
 
       async function refreshDmUnread() {
-        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
+        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot) || !hasFullSocialUiAccess(sessionMeSnapshot)) {
           setDmInboxBadge(0);
           return;
         }
@@ -10240,6 +10403,11 @@
           if (dmInboxActiveGroupId === data.groupId) {
             const tg = document.getElementById("dmInboxThreadTitleGroup");
             if (tg) tg.textContent = data.name;
+            const avMeta =
+              data.avatarDataUrl != null && String(data.avatarDataUrl).trim()
+                ? String(data.avatarDataUrl).trim()
+                : null;
+            syncDmGroupHeaderAvatar(avMeta, data.name);
           }
           void renderDmThreadList();
         }
@@ -10312,6 +10480,24 @@
         const gb = document.getElementById("dmInboxGroupTitleBtn");
         if (dm) dm.hidden = !!isGroup;
         if (gb) gb.hidden = !isGroup;
+      }
+
+      function syncDmGroupHeaderAvatar(avatarDataUrl, titleForInitial) {
+        const img = document.getElementById("dmInboxGroupHeaderAvatar");
+        const fb = document.getElementById("dmInboxGroupHeaderAvatarFb");
+        if (!img || !fb) return;
+        const raw = avatarDataUrl != null ? String(avatarDataUrl).trim() : "";
+        if (raw && /^data:image\//i.test(raw)) {
+          img.src = raw;
+          img.hidden = false;
+          fb.hidden = true;
+        } else {
+          img.removeAttribute("src");
+          img.hidden = true;
+          fb.hidden = false;
+          const t = String(titleForInitial || "G").trim();
+          fb.textContent = t ? t[0].toUpperCase() : "?";
+        }
       }
 
       function groupSenderLabelFromMsg(msg) {
@@ -10423,7 +10609,9 @@
       }
 
       function ensureDmWebSocket() {
-        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) return;
+        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot) || !hasFullSocialUiAccess(sessionMeSnapshot)) {
+          return;
+        }
         if (dmWebSocket && dmWebSocket.readyState === 1) return;
         disconnectDmWebSocket();
         try {
@@ -10440,7 +10628,11 @@
           };
           dmWebSocket.onclose = () => {
             dmWebSocket = null;
-            if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot)) {
+            if (
+              sessionMeSnapshot &&
+              accountIsRegistered(sessionMeSnapshot) &&
+              hasFullSocialUiAccess(sessionMeSnapshot)
+            ) {
               dmWebSocketReconnectTimer = setTimeout(ensureDmWebSocket, 3500);
             }
           };
@@ -10556,6 +10748,10 @@
         closeHeaderMenus();
         if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
           showToast("Create an account (profile icon → Your profile) to use messages.");
+          return;
+        }
+        if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
+          showUnlockSocialToast();
           return;
         }
         closeDmComposeView();
@@ -10897,7 +11093,13 @@
 
               const main = document.createElement("span");
               main.className = "dm-inbox-thread-row-main";
-              const av = dmInboxCreateAvatarEl(null, dmInboxAvatarInitial(gname), true);
+              const av = dmInboxCreateAvatarEl(
+                g.avatarDataUrl && /^data:image\//i.test(String(g.avatarDataUrl).trim())
+                  ? String(g.avatarDataUrl).trim()
+                  : null,
+                dmInboxAvatarInitial(gname),
+                true,
+              );
               const bodyCol = document.createElement("span");
               bodyCol.className = "dm-inbox-thread-body";
               const nameEl = document.createElement("span");
@@ -11003,10 +11205,33 @@
             nameInp.disabled = !isOwner;
           }
           if (saveBtn) saveBtn.hidden = !isOwner;
+          const photoImg = document.getElementById("dmGroupSettingsPhotoImg");
+          const photoFb = document.getElementById("dmGroupSettingsPhotoFb");
+          const removeBtn = document.getElementById("dmGroupSettingsPhotoRemoveBtn");
+          const chooseBtn = document.getElementById("dmGroupSettingsPhotoChooseBtn");
+          if (chooseBtn) chooseBtn.hidden = !isOwner;
+          if (removeBtn) {
+            const hasPhoto = !!(d.avatarDataUrl && /^data:image\//i.test(String(d.avatarDataUrl).trim()));
+            removeBtn.hidden = !isOwner || !hasPhoto;
+          }
+          if (photoImg && photoFb) {
+            const av = d.avatarDataUrl && String(d.avatarDataUrl).trim();
+            if (av && /^data:image\//i.test(av)) {
+              photoImg.src = av;
+              photoImg.hidden = false;
+              photoFb.hidden = true;
+            } else {
+              photoImg.removeAttribute("src");
+              photoImg.hidden = true;
+              photoFb.hidden = false;
+              const lab = d.name || "G";
+              photoFb.textContent = lab.trim() ? lab[0].toUpperCase() : "?";
+            }
+          }
           if (ownerNote) {
             ownerNote.textContent = isOwner
-              ? "You created this group. You can rename it, add people, and remove members."
-              : "Only the group owner can rename the chat or add or remove members.";
+              ? "You created this group. You can change the photo, rename it, add people, and remove members."
+              : "Only the group owner can change the photo, rename the chat, or add or remove members.";
           }
           if (addHeading) addHeading.hidden = !isOwner;
           if (searchInp) {
@@ -11194,6 +11419,7 @@
         }
         setDmChatHeaderMode(true);
         if (titleG) titleG.textContent = titleLabel || "Group";
+        syncDmGroupHeaderAvatar(null, titleLabel || "Group");
         if (host) {
           host.classList.add("dm-inbox-messages--group");
         }
@@ -11201,6 +11427,9 @@
         if (tv) tv.hidden = false;
         if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading…</p>";
         try {
+          const detail = await api("/api/dm/groups/" + encodeURIComponent(groupId));
+          if (titleG) titleG.textContent = detail.name || titleLabel || "Group";
+          syncDmGroupHeaderAvatar(detail.avatarDataUrl, detail.name || titleLabel || "Group");
           const data = await api("/api/dm/groups/" + encodeURIComponent(groupId) + "/messages?limit=80");
           const msgs = data.messages || [];
           if (host) {
@@ -11280,6 +11509,10 @@
           showToast("Create an account (profile icon → Your profile) to send messages.");
           return;
         }
+        if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
+          showUnlockSocialToast();
+          return;
+        }
         if (otherUserId === sessionMeSnapshot.id) return;
         try {
           const out = await api("/api/dm/threads", {
@@ -11296,7 +11529,7 @@
       function syncInboxChromeFromMe(me) {
         const wrap = document.getElementById("headerInboxWrap");
         if (!wrap) return;
-        if (me && accountIsRegistered(me)) {
+        if (me && accountIsRegistered(me) && hasFullSocialUiAccess(me)) {
           wrap.hidden = false;
           void refreshDmUnread();
           ensureDmWebSocket();
@@ -11472,6 +11705,10 @@
         adminUiEpoch++;
         const epoch = adminUiEpoch;
         sessionMeSnapshot = me;
+        document.body.classList.toggle(
+          "aa-newb-session",
+          !!(me && accountIsRegistered(me) && !hasFullSocialUiAccess(me)),
+        );
         if (!userIsDbAdmin(me)) removeAdminUiFromDom();
         syncInboxChromeFromMe(me);
         syncUsernameSearchChrome();
@@ -11682,6 +11919,41 @@
                 "\" " +
                 (isAdm ? "checked" : "") +
                 "/> Admin access</label></div>";
+              const vro =
+                d.viewerRoleOverride != null && String(d.viewerRoleOverride).trim() !== ""
+                  ? String(d.viewerRoleOverride).trim()
+                  : "";
+              const eff = d.viewerRole != null ? String(d.viewerRole) : "—";
+              const der = d.viewerRoleDerived != null ? String(d.viewerRoleDerived) : "—";
+              html +=
+                "<div style='margin:0 0 0.65rem 0;padding:0.5rem;border-radius:10px;border:1px solid rgba(34,211,238,0.28);background:rgba(34,211,238,0.06)'>" +
+                "<strong style='font-size:0.82rem'>Viewer role (progression)</strong>" +
+                "<p class='muted' style='margin:0.25rem 0 0.35rem;font-size:0.76rem;line-height:1.4'>Effective: <strong>" +
+                escapeHtml(eff) +
+                "</strong> · From show count: <strong>" +
+                escapeHtml(der) +
+                "</strong></p>" +
+                "<label for=\"admRoleSel_" +
+                u.id +
+                "\" style='font-size:0.78rem'>Manual override</label> " +
+                "<select id=\"admRoleSel_" +
+                u.id +
+                "\" style='margin-left:0.35rem;max-width:14rem;font:inherit'>" +
+                "<option value=\"\">Automatic (from show count)</option>" +
+                "<option value=\"newb\"" +
+                (vro === "newb" ? " selected" : "") +
+                ">newb (locked social)</option>" +
+                "<option value=\"tv_watcher\"" +
+                (vro === "tv_watcher" ? " selected" : "") +
+                ">tv_watcher</option>" +
+                "<option value=\"tv_binger\"" +
+                (vro === "tv_binger" ? " selected" : "") +
+                ">tv_binger</option>" +
+                "</select> " +
+                "<button type='button' class='secondary' id=\"admRoleSave_" +
+                u.id +
+                "\" style='margin-left:0.35rem'>Save</button>" +
+                "</div>";
               html +=
                 "<div style='margin:0.5rem 0'><strong>Add show (TVMaze id)</strong> " +
                 "<input type='number' id=\"admAddShow_" +
@@ -11756,6 +12028,24 @@
                     await loadAdminOverview();
                   } catch (e) {
                     showToast(e.message || "Reset failed");
+                  }
+                });
+              }
+              const roleSel = document.getElementById("admRoleSel_" + u.id);
+              const roleSave = document.getElementById("admRoleSave_" + u.id);
+              if (roleSel && roleSave) {
+                roleSave.addEventListener("click", async (ev) => {
+                  ev.stopPropagation();
+                  const val = roleSel.value;
+                  try {
+                    await api("/api/admin/users/" + encodeURIComponent(u.id), {
+                      method: "PATCH",
+                      body: JSON.stringify({ viewerRoleOverride: val ? val : null }),
+                    });
+                    showToast("Viewer role override saved");
+                    await loadAdminOverview();
+                  } catch (e) {
+                    showToast(e.message || "Failed to save role");
                   }
                 });
               }
@@ -12348,7 +12638,10 @@
       function syncCommunityLiveRailCompose() {
         const inp = document.getElementById("communityLiveRailInput");
         const btn = document.getElementById("communityLiveRailSendBtn");
+        const social =
+          sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && hasFullSocialUiAccess(sessionMeSnapshot);
         const can =
+          social &&
           communityThreadLiveRailOpen &&
           communityThreadLiveWs &&
           communityThreadLiveWs.readyState === 1;
@@ -12484,6 +12777,10 @@
 
       function handleCommunityThreadLivePayload(data) {
         if (!data || typeof data !== "object") return;
+        if (data.type === "thread_live_error" && data.code === "newb_restricted") {
+          showUnlockSocialToast();
+          return;
+        }
         if (data.type === "thread_live_presence") applyCommunityThreadLivePresence(data);
         if (data.type === "thread_live_chat") appendCommunityLiveRailChatLine(data);
       }
@@ -12992,8 +13289,16 @@
         body.innerHTML = "<p class=\"muted\">Loading…</p>";
         if (titleEl) titleEl.textContent = "Challenge";
         const reg = accountIsRegistered(sessionMeSnapshot);
-        if (joinRow) joinRow.style.display = reg ? "inline-flex" : "none";
-        if (guestHint) guestHint.hidden = reg;
+        const canSocial = reg && hasFullSocialUiAccess(sessionMeSnapshot);
+        if (joinRow) joinRow.style.display = canSocial ? "inline-flex" : "none";
+        if (guestHint) {
+          if (canSocial) {
+            guestHint.hidden = true;
+          } else {
+            guestHint.hidden = false;
+            guestHint.textContent = reg ? UNLOCK_SOCIAL_UX_MESSAGE : "Sign in to join.";
+          }
+        }
         try {
           const data = await api("/api/community/challenges/" + encodeURIComponent(challengeId));
           const ch = data.challenge;
@@ -13108,6 +13413,14 @@
       }
 
       function openCommunityChallengeCreateModal() {
+        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
+          showToast("Create an account (profile icon → Your profile) to create a challenge.");
+          return;
+        }
+        if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
+          showUnlockSocialToast();
+          return;
+        }
         const view = document.getElementById("communityChallengeCreateView");
         const listView = document.getElementById("communityListView");
         const threadView = document.getElementById("communityThreadView");
@@ -13212,10 +13525,9 @@
       }
 
       /**
-       * Seamless loop: duplicate items (`aria-hidden` on clones), advance `scrollLeft` via rAF.
-       * Programmatic scroll fires `scroll` asynchronously in some browsers; a microtask flag cleared
-       * too early made `onScroll` treat auto-scroll as user input and left the rail paused — fixed
-       * with `autoScrollApplying` cleared after `requestAnimationFrame` (and loop span from layout).
+       * Breaking news rail: seamless loop via duplicated `<li>`s, smooth motion via
+       * a float `marqueePos` (not rounded `scrollLeft` feedback), rAF + dt, ResizeObserver
+       * when layout/loop length changes, and stable posters (prefetched before measure).
        */
       function setupCommunityHeadlinesAutoScroll(rail) {
         teardownCommunityHeadlinesAutoScroll();
@@ -13242,15 +13554,24 @@
           return;
         }
 
-        const firstClone = rail.children[originalCount];
-        let loopSpan = firstClone ? firstClone.offsetLeft : Math.floor(rail.scrollWidth / 2);
-        loopSpan = Math.round(loopSpan);
-        if (!Number.isFinite(loopSpan) || loopSpan < 40) {
+        let loopSpan = 0;
+        function measureLoopSpan() {
+          const fc = rail.children[originalCount];
+          if (!fc) return false;
+          const span = Math.round(fc.offsetLeft);
+          if (!Number.isFinite(span) || span < 40) return false;
+          loopSpan = span;
+          return true;
+        }
+        if (!measureLoopSpan()) {
           while (rail.children.length > originalCount) {
             rail.removeChild(rail.lastElementChild);
           }
           return;
         }
+
+        let marqueePos = 0;
+        rail.scrollLeft = 0;
 
         let rafId = 0;
         let lastT = performance.now();
@@ -13259,15 +13580,19 @@
         let resumeTimer = null;
         const resumeDelayMs = 2600;
         let docPointerUpAttached = false;
+        let resizeRo = null;
+        let resizeRaf = 0;
 
         function setPaused(next) {
           if (paused === next) return;
           paused = next;
           if (paused) {
             rail.classList.remove("community-headlines-rail--auto-active");
+            marqueePos = rail.scrollLeft;
           } else {
             rail.classList.add("community-headlines-rail--auto-active");
             lastT = performance.now();
+            marqueePos = rail.scrollLeft;
           }
         }
 
@@ -13297,6 +13622,27 @@
           scheduleResume();
         }
 
+        function onResizeStable() {
+          const prevSpan = loopSpan;
+          if (!measureLoopSpan()) return;
+          if (prevSpan > 0 && loopSpan !== prevSpan) {
+            marqueePos = (marqueePos / prevSpan) * loopSpan;
+          }
+          while (marqueePos >= loopSpan) marqueePos -= loopSpan;
+          while (marqueePos < 0) marqueePos += loopSpan;
+          rail.scrollLeft = marqueePos;
+        }
+
+        try {
+          resizeRo = new ResizeObserver(() => {
+            cancelAnimationFrame(resizeRaf);
+            resizeRaf = requestAnimationFrame(onResizeStable);
+          });
+          resizeRo.observe(rail);
+        } catch {
+          resizeRo = null;
+        }
+
         function tick(t) {
           rafId = requestAnimationFrame(tick);
           if (paused || document.visibilityState === "hidden") {
@@ -13305,14 +13651,16 @@
           }
           const dt = Math.min(48, t - lastT) / 1000;
           lastT = t;
-          rail.scrollLeft += speedPxPerSec * dt;
-          if (rail.scrollLeft >= loopSpan - 0.5) {
-            rail.scrollLeft -= loopSpan;
+          marqueePos += speedPxPerSec * dt;
+          while (marqueePos >= loopSpan) {
+            marqueePos -= loopSpan;
           }
+          rail.scrollLeft = marqueePos;
         }
 
         const onScroll = () => {
           if (!paused) return;
+          marqueePos = rail.scrollLeft;
           scheduleResume();
         };
 
@@ -13362,6 +13710,15 @@
 
         communityHeadlinesAutoScrollCleanup = () => {
           cancelAnimationFrame(rafId);
+          cancelAnimationFrame(resizeRaf);
+          if (resizeRo) {
+            try {
+              resizeRo.disconnect();
+            } catch {
+              /* ignore */
+            }
+            resizeRo = null;
+          }
           if (resumeTimer) clearTimeout(resumeTimer);
           if (docPointerUpAttached) {
             document.removeEventListener("pointerup", onDocPointerUp, true);
@@ -13434,11 +13791,25 @@
             rail.innerHTML = "";
             return;
           }
-          rail.innerHTML = "";
+          const headlineRows = [];
           for (let i = 0; i < items.length; i++) {
             const it = items[i];
             const publishedLabel = formatHeadlinePublishedBadge(it.publishedAt);
             if (it.type === "breaking" && !publishedLabel) continue;
+            headlineRows.push({ it, publishedLabel });
+          }
+          if (!headlineRows.length) {
+            wrap.hidden = true;
+            rail.innerHTML = "";
+            return;
+          }
+          const posterUrls = await Promise.all(headlineRows.map((r) => fetchTvmazeShowImageUrl(r.it.tvmazeShowId)));
+          if (paintId !== communityHeadlinesPaintId) return;
+
+          rail.innerHTML = "";
+          for (let i = 0; i < headlineRows.length; i++) {
+            const { it, publishedLabel } = headlineRows[i];
+            const posterUrl = posterUrls[i];
             const li = document.createElement("li");
             const hasUrl = Boolean(it.url && String(it.url).trim());
             const card = document.createElement(hasUrl ? "a" : "div");
@@ -13494,7 +13865,7 @@
             card.setAttribute("aria-label", label);
 
             const heroEl = card.querySelector(".community-headline-card-art");
-            applyCommunityHeadlineCardArt(heroEl, it.tvmazeShowId, paintId);
+            applyCommunityHeadlineCardArtSync(heroEl, posterUrl);
 
             li.appendChild(card);
             li.style.opacity = "0";
@@ -13508,7 +13879,7 @@
               row.style.transform = "translateX(0)";
             }, j * 55);
           });
-          const staggerMs = Math.max(480, items.length * 55 + 200);
+          const staggerMs = Math.max(480, headlineRows.length * 55 + 200);
           setTimeout(() => {
             if (paintId !== communityHeadlinesPaintId) return;
             requestAnimationFrame(() => {
@@ -13682,6 +14053,19 @@
         const sid = Number(showId);
         if (!Number.isFinite(sid) || sid < 1) return;
         fetchTvmazeShowImageUrl(sid).then(applyUrl);
+      }
+
+      /** Apply poster immediately when URL was prefetched (stable layout before auto-scroll). */
+      function applyCommunityHeadlineCardArtSync(heroEl, posterUrl) {
+        if (!heroEl) return;
+        heroEl.classList.remove("community-headline-card-art--placeholder", "community-headline-card-art--loading");
+        if (posterUrl) {
+          heroEl.classList.remove("community-headline-card-art--placeholder");
+          const safe = String(posterUrl).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+          heroEl.style.setProperty("background-image", 'url("' + safe + '")', "important");
+        } else {
+          heroEl.classList.add("community-headline-card-art--placeholder");
+        }
       }
 
       function applyCommunityHeadlineCardArt(heroEl, tvmazeShowId, paintId) {
@@ -13890,14 +14274,21 @@
 
       function updateCommunityThreadUi() {
         const reg = accountIsRegistered(sessionMeSnapshot);
+        const canPost = reg && hasFullSocialUiAccess(sessionMeSnapshot);
         const postAs = document.getElementById("communityPostAsName");
         if (postAs) postAs.textContent = accountDisplayForCommunity(sessionMeSnapshot);
         document.getElementById("communityPostAsLine").hidden = !reg;
-        document.getElementById("communityGuestHint").hidden = reg;
-        document.getElementById("communityFormatBar").hidden = !reg;
-        document.getElementById("communityPostSubmitBtn").disabled = !reg;
-        document.getElementById("communityComposer").contentEditable = reg ? "true" : "false";
-        if (!reg) document.getElementById("communityComposer").innerHTML = "";
+        const guestHint = document.getElementById("communityGuestHint");
+        const unlockHint = document.getElementById("communityUnlockHint");
+        if (guestHint) guestHint.hidden = reg;
+        if (unlockHint) {
+          unlockHint.hidden = !(reg && !canPost);
+          unlockHint.textContent = reg && !canPost ? UNLOCK_SOCIAL_UX_MESSAGE : "";
+        }
+        document.getElementById("communityFormatBar").hidden = !canPost;
+        document.getElementById("communityPostSubmitBtn").disabled = !canPost;
+        document.getElementById("communityComposer").contentEditable = canPost ? "true" : "false";
+        if (!canPost) document.getElementById("communityComposer").innerHTML = "";
         const epRow = document.getElementById("communityComposerEpisodeRow");
         if (epRow) epRow.hidden = typeof communityState.episodeId === "number";
       }
@@ -13932,6 +14323,10 @@
       function handleCommunityReplyClick(p) {
         if (!accountIsRegistered(sessionMeSnapshot)) {
           showToast("Create an account (profile \u2192 Your profile) to reply.");
+          return;
+        }
+        if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
+          showUnlockSocialToast();
           return;
         }
         const un = p.authorUsername && String(p.authorUsername).trim();
@@ -14532,11 +14927,14 @@
         const sum = document.getElementById("communityEpisodeRatingSummary");
         const lead = document.getElementById("communityEpisodeRatingLead");
         const reg = accountIsRegistered(sessionMeSnapshot);
+        const canScore = reg && hasFullSocialUiAccess(sessionMeSnapshot);
         if (!stars || !sum) return;
         stars.innerHTML = "";
-        if (lead && reg) {
+        if (lead && reg && canScore) {
           lead.textContent =
             "How was this episode? One score per member — you can change it anytime.";
+        } else if (lead && reg && !canScore) {
+          lead.textContent = UNLOCK_SOCIAL_UX_MESSAGE;
         } else if (lead) {
           lead.textContent = "Create an account to add your score.";
         }
@@ -14545,6 +14943,18 @@
           return;
         }
         if (!reg) {
+          sum.textContent =
+            data.ratingCount > 0
+              ? "Community avg " +
+                String(data.avgRating != null ? data.avgRating : "—") +
+                " · " +
+                String(data.ratingCount) +
+                " vote" +
+                (data.ratingCount === 1 ? "" : "s")
+              : "No votes yet.";
+          return;
+        }
+        if (!canScore) {
           sum.textContent =
             data.ratingCount > 0
               ? "Community avg " +
@@ -14580,6 +14990,10 @@
 
       async function submitCommunityEpisodeRating(showId, rating) {
         if (!accountIsRegistered(sessionMeSnapshot) || typeof communityState.episodeId !== "number") return;
+        if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
+          showUnlockSocialToast();
+          return;
+        }
         try {
           await api("/api/community/episode-ratings", {
             method: "PUT",
@@ -14657,6 +15071,7 @@
         const lead = document.getElementById("communityPollsLead");
         const uid = resolveUserId();
         const reg = accountIsRegistered(sessionMeSnapshot);
+        const canSocial = reg && hasFullSocialUiAccess(sessionMeSnapshot);
         const airOk = data.airdateKnown === true;
         const votingOpen = data.votingOpen === true;
         const polls = data.polls || [];
@@ -14681,16 +15096,16 @@
         if (list) {
           list.innerHTML = "";
           for (const p of polls) {
-            list.appendChild(renderCommunityPollCard(p, uid, reg));
+            list.appendChild(renderCommunityPollCard(p, uid, canSocial));
           }
         }
         if (create) {
-          create.hidden = !reg || !votingOpen || !airOk;
+          create.hidden = !canSocial || !votingOpen || !airOk;
           if (!create.hidden) initCommunityPollOptionInputs();
         }
       }
 
-      function renderCommunityPollCard(p, uid, reg) {
+      function renderCommunityPollCard(p, uid, canParticipate) {
         const card = document.createElement("article");
         card.className = "community-poll-card";
         const h = document.createElement("h4");
@@ -14735,8 +15150,8 @@
             btn.className = "community-poll-opt-btn";
             if (p.myVote === i) btn.classList.add("is-chosen");
             btn.textContent = label + (total ? " · " + String(count) : "");
-            btn.disabled = !reg;
-            if (reg) {
+            btn.disabled = !canParticipate;
+            if (canParticipate) {
               btn.addEventListener("click", () => void voteCommunityPoll(p.id, i));
             }
             opts.appendChild(btn);
@@ -14788,6 +15203,10 @@
 
       async function voteCommunityPoll(pollId, optionIndex) {
         if (!accountIsRegistered(sessionMeSnapshot)) return;
+        if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
+          showUnlockSocialToast();
+          return;
+        }
         try {
           await api("/api/community/episode-polls/" + encodeURIComponent(pollId) + "/vote", {
             method: "POST",
@@ -15119,6 +15538,35 @@
             "</span>";
           heroText.appendChild(rowSince);
 
+          if (d.viewerRole) {
+            const rowRole = document.createElement("div");
+            rowRole.className = "profile-readonly-row";
+            rowRole.style.marginTop = "0.35rem";
+            const labR = document.createElement("span");
+            labR.className = "profile-readonly-label";
+            labR.textContent = "Role";
+            const valR = document.createElement("span");
+            valR.className = "profile-readonly-value";
+            const rb = document.createElement("span");
+            if (d.viewerRole === "tv_binger") {
+              rb.className = "role-badge role-badge--binger";
+              rb.innerHTML =
+                '<span class="role-badge__icon" aria-hidden="true">\uD83D\uDD25</span><span>TV Binger</span>';
+            } else if (d.viewerRole === "tv_watcher") {
+              rb.className = "role-badge role-badge--watcher";
+              rb.innerHTML =
+                '<span class="role-badge__icon" aria-hidden="true">\uD83D\uDCFA</span><span>TV Watcher</span>';
+            } else {
+              rb.className = "role-badge role-badge--newb";
+              rb.innerHTML =
+                '<span class="role-badge__icon" aria-hidden="true">\u2728</span><span>Getting started</span>';
+            }
+            valR.appendChild(rb);
+            rowRole.appendChild(labR);
+            rowRole.appendChild(valR);
+            heroText.appendChild(rowRole);
+          }
+
           if (d.username && String(d.username).trim()) {
             const rowUn = document.createElement("div");
             rowUn.className = "profile-readonly-row";
@@ -15355,6 +15803,12 @@
             } else if (!accountIsRegistered(sessionMeSnapshot)) {
               dmBtn.hidden = true;
               dmHint.hidden = false;
+              dmHint.textContent =
+                "Create an account (profile icon → Your profile) to send direct messages.";
+            } else if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
+              dmBtn.hidden = true;
+              dmHint.hidden = false;
+              dmHint.textContent = UNLOCK_SOCIAL_UX_MESSAGE;
             } else {
               dmBtn.hidden = false;
               dmHint.hidden = true;
@@ -15363,7 +15817,14 @@
           const followBar = document.getElementById("communityProfileFollowBar");
           const followBtn = document.getElementById("communityProfileFollowBtn");
           const followStats = document.getElementById("communityProfileFollowStats");
-          if (followBar && followBtn && selfId && userId !== selfId && accountIsRegistered(sessionMeSnapshot)) {
+          if (
+            followBar &&
+            followBtn &&
+            selfId &&
+            userId !== selfId &&
+            accountIsRegistered(sessionMeSnapshot) &&
+            hasFullSocialUiAccess(sessionMeSnapshot)
+          ) {
             followBar.hidden = false;
             try {
               const fs = await api("/api/users/" + encodeURIComponent(userId) + "/follow-status");
@@ -15433,6 +15894,14 @@
       }
 
       function openCommunityNewModal() {
+        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
+          showToast("Create an account (profile icon → Your profile) to start a discussion.");
+          return;
+        }
+        if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
+          showUnlockSocialToast();
+          return;
+        }
         const modal = document.getElementById("communityNewModal");
         document.getElementById("communityModalSearch").value = "";
         document.getElementById("communityModalResults").innerHTML = "";
@@ -16189,9 +16658,13 @@
           disconnectCommunityThreadLiveWs();
         }
         if (name === "messages") {
-          if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot)) {
+          if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && hasFullSocialUiAccess(sessionMeSnapshot)) {
             ensureDmWebSocket();
             void renderDmInboxHub();
+          } else if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && !hasFullSocialUiAccess(sessionMeSnapshot)) {
+            showUnlockSocialToast();
+            setTab("add");
+            return;
           }
         }
         if (name === "admin") {
@@ -16771,11 +17244,84 @@
             });
             const tg = document.getElementById("dmInboxThreadTitleGroup");
             if (tg) tg.textContent = name || "Group";
+            const hImg = document.getElementById("dmInboxGroupHeaderAvatar");
+            const url = hImg && !hImg.hidden && hImg.getAttribute("src") ? hImg.src : null;
+            syncDmGroupHeaderAvatar(url, name || "Group");
             void renderDmThreadList();
           } catch (e) {
             if (errEl) {
               errEl.style.display = "block";
               errEl.textContent = e.message || "Could not save name";
+            }
+          }
+        });
+        document.getElementById("dmGroupSettingsPhotoChooseBtn")?.addEventListener("click", () => {
+          document.getElementById("dmGroupSettingsPhotoInput")?.click();
+        });
+        document.getElementById("dmGroupSettingsPhotoInput")?.addEventListener("change", async (ev) => {
+          const gid = dmInboxActiveGroupId;
+          const errEl = document.getElementById("dmGroupSettingsErr");
+          const inp = ev.target;
+          const f = inp && inp.files && inp.files[0];
+          if (!gid || !f) return;
+          if (errEl) {
+            errEl.style.display = "none";
+            errEl.textContent = "";
+          }
+          try {
+            const dataUrl = await new Promise((resolve, reject) => {
+              const r = new FileReader();
+              r.onload = () => resolve(r.result);
+              r.onerror = () => reject(new Error("Could not read file"));
+              r.readAsDataURL(f);
+            });
+            if (typeof dataUrl !== "string" || dataUrl.length > 440000) {
+              if (errEl) {
+                errEl.style.display = "block";
+                errEl.textContent = "Image is too large. Try a smaller photo.";
+              }
+              inp.value = "";
+              return;
+            }
+            await api("/api/dm/groups/" + encodeURIComponent(gid), {
+              method: "PATCH",
+              body: JSON.stringify({ avatarDataUrl: dataUrl }),
+            });
+            inp.value = "";
+            const tg = document.getElementById("dmInboxThreadTitleGroup");
+            const title = tg ? tg.textContent : "Group";
+            syncDmGroupHeaderAvatar(dataUrl, title);
+            await loadDmGroupSettingsDetail();
+            void renderDmThreadList();
+          } catch (e) {
+            if (errEl) {
+              errEl.style.display = "block";
+              errEl.textContent = e.message || "Could not update photo";
+            }
+          }
+        });
+        document.getElementById("dmGroupSettingsPhotoRemoveBtn")?.addEventListener("click", async () => {
+          const gid = dmInboxActiveGroupId;
+          const errEl = document.getElementById("dmGroupSettingsErr");
+          if (!gid) return;
+          if (errEl) {
+            errEl.style.display = "none";
+            errEl.textContent = "";
+          }
+          try {
+            await api("/api/dm/groups/" + encodeURIComponent(gid), {
+              method: "PATCH",
+              body: JSON.stringify({ avatarDataUrl: null }),
+            });
+            const tg = document.getElementById("dmInboxThreadTitleGroup");
+            const title = tg ? tg.textContent : "Group";
+            syncDmGroupHeaderAvatar(null, title);
+            await loadDmGroupSettingsDetail();
+            void renderDmThreadList();
+          } catch (e) {
+            if (errEl) {
+              errEl.style.display = "block";
+              errEl.textContent = e.message || "Could not remove photo";
             }
           }
         });
@@ -17449,6 +17995,24 @@
         return !!(me && (me.username || truthyBit(me.hasPassword)));
       }
 
+      const UNLOCK_SOCIAL_UX_MESSAGE = "Add 3 shows to unlock Community posting and Inbox.";
+
+      /** Matches server {@link hasFullSocialAccess}: registered + 3+ shows (or admin). */
+      function hasFullSocialUiAccess(me) {
+        if (!me || !accountIsRegistered(me)) return false;
+        if (me.isAdmin === true || me.isAdmin === 1) return true;
+        const r = me.viewerRole;
+        if (r === "tv_watcher" || r === "tv_binger") return true;
+        if (r === "newb") return false;
+        const n = Number(me.subscribedShowCount);
+        if (Number.isFinite(n)) return n > 2;
+        return false;
+      }
+
+      function showUnlockSocialToast() {
+        showToast(UNLOCK_SOCIAL_UX_MESSAGE);
+      }
+
       function shouldShowAccountPrompt(me) {
         if (localStorage.getItem(LS_GUEST_PROMPT) === "1") return false;
         if (!me || !me.id) return false;
@@ -17866,7 +18430,6 @@
             updateContextualTipsVisibility(tabName);
           });
         }
-        wireContextualTipDismiss("add", "contextualTipAddShowsDismiss");
         wireContextualTipDismiss("tasks", "contextualTipTasksDismiss");
         wireContextualTipDismiss("community", "contextualTipCommunityDismiss");
 

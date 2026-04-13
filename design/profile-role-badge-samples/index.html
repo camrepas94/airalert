@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="nebula">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AirAlert — Role badge samples</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #050508;
+        --text: #f4f7fc;
+        --muted: #8a9bb8;
+        --neon-cyan: #22d3ee;
+        --neon-magenta: #e879f9;
+        --accent: #5b9cff;
+        --panel: rgba(10, 12, 20, 0.74);
+        --border: rgba(130, 200, 255, 0.14);
+        --font: "Inter", system-ui, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: var(--font);
+        background: var(--bg);
+        color: var(--text);
+        padding: 1.25rem 1rem 2.5rem;
+        line-height: 1.45;
+      }
+      .samples-wrap {
+        max-width: 36rem;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 0 0 0.35rem;
+        font-size: 1.15rem;
+        font-weight: 750;
+        letter-spacing: -0.02em;
+        background: linear-gradient(105deg, #7af5ff 0%, #a5d8ff 38%, #7c9cff 72%, #e9d5ff 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .lead {
+        margin: 0 0 1.25rem;
+        font-size: 0.86rem;
+        color: var(--muted);
+      }
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding: 0.85rem 1rem;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(8, 10, 20, 0.65);
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.06) inset;
+      }
+      .badge-row-label {
+        width: 100%;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 0.15rem;
+      }
+
+      /**
+       * Role badges — drop-in classes for profiles / community.
+       * Map: newb | tv_watcher | tv_binger (or your DB enum).
+       */
+      .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.28rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 0.22rem 0.5rem;
+        border-radius: 999px;
+        border: 1px solid;
+        line-height: 1;
+        white-space: nowrap;
+      }
+      .role-badge__icon {
+        font-size: 0.75rem;
+        opacity: 0.95;
+      }
+      /* Newb: soft cyan — fresh, onboarding energy */
+      .role-badge--newb {
+        background: linear-gradient(145deg, rgba(34, 211, 238, 0.12) 0%, rgba(91, 156, 255, 0.08) 100%);
+        border-color: rgba(34, 211, 238, 0.42);
+        color: #a5f3fc;
+        box-shadow: 0 0 12px -2px rgba(34, 211, 238, 0.25);
+      }
+      /* TV Watcher: core brand blue — steady, regular viewer */
+      .role-badge--watcher {
+        background: linear-gradient(145deg, rgba(91, 156, 255, 0.18) 0%, rgba(34, 211, 238, 0.1) 100%);
+        border-color: rgba(91, 156, 255, 0.45);
+        color: #bfdbfe;
+        box-shadow: 0 0 14px -2px rgba(91, 156, 255, 0.28);
+      }
+      /* TV Binger: magenta punch — power user */
+      .role-badge--binger {
+        background: linear-gradient(145deg, rgba(232, 121, 249, 0.2) 0%, rgba(236, 72, 153, 0.12) 100%);
+        border-color: rgba(232, 121, 249, 0.48);
+        color: #f5d0fe;
+        box-shadow: 0 0 16px -2px rgba(232, 121, 249, 0.35);
+      }
+
+      .profile-card {
+        margin-bottom: 0.75rem;
+        padding: 1rem 1.05rem;
+        border-radius: 16px;
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        background: var(--panel);
+        box-shadow: 0 4px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(34, 211, 238, 0.06) inset,
+          -6px 0 32px -12px rgba(34, 211, 238, 0.12), 6px 0 32px -12px rgba(91, 156, 255, 0.1);
+      }
+      .profile-card-top {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+      .profile-avatar {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        font-weight: 700;
+        border: 2px solid rgba(34, 211, 238, 0.35);
+        background: rgba(0, 0, 0, 0.35);
+        color: rgba(186, 230, 253, 0.95);
+      }
+      .profile-meta h2 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .profile-meta .handle {
+        margin: 0.15rem 0 0.35rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .profile-bio {
+        margin: 0.65rem 0 0;
+        font-size: 0.82rem;
+        color: rgba(226, 232, 240, 0.88);
+        line-height: 1.5;
+      }
+      .section-note {
+        margin-top: 1.75rem;
+        font-size: 0.78rem;
+        color: var(--muted);
+        padding-top: 1rem;
+        border-top: 1px solid rgba(130, 200, 255, 0.12);
+      }
+      code {
+        font-size: 0.76rem;
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+        background: rgba(34, 211, 238, 0.08);
+        border: 1px solid rgba(130, 200, 255, 0.15);
+        color: #a5f3fc;
+      }
+      .samples-figure {
+        margin: 0 0 1.25rem;
+        padding: 0.75rem;
+        border-radius: 14px;
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        background: rgba(6, 8, 18, 0.6);
+      }
+      .samples-figure figcaption {
+        margin: 0 0 0.5rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .samples-figure img {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="samples-wrap">
+      <h1>Role badge samples</h1>
+      <p class="lead">
+        Preview for <strong>Newb</strong>, <strong>TV Watcher</strong>, and <strong>TV Binger</strong> — same neon-glass vibe as AirAlert. Use the classes below
+        on profile headers, community posts, or DM chips when you wire roles to the backend.
+      </p>
+
+      <figure class="samples-figure">
+        <figcaption>Generated reference — three role badges (PNG)</figcaption>
+        <img src="role-badges-strip.png" alt="Newb, TV Watcher, and TV Binger badges in neon glass style" loading="lazy" decoding="async" />
+      </figure>
+      <figure class="samples-figure">
+        <figcaption>Generated reference — profile card with Newb badge (PNG)</figcaption>
+        <img src="profile-card-example-newb.png" alt="Example profile card with avatar and Newb role badge" loading="lazy" decoding="async" />
+      </figure>
+
+      <div class="badge-row">
+        <span class="badge-row-label">Badge components</span>
+        <span class="role-badge role-badge--newb"><span class="role-badge__icon" aria-hidden="true">◇</span> Newb</span>
+        <span class="role-badge role-badge--watcher"><span class="role-badge__icon" aria-hidden="true">◇</span> TV Watcher</span>
+        <span class="role-badge role-badge--binger"><span class="role-badge__icon" aria-hidden="true">◆</span> TV Binger</span>
+      </div>
+
+      <p class="lead" style="margin-bottom: 0.65rem"><strong>Five example profiles</strong> (copy/paste personas for fixtures or seed data)</p>
+
+      <article class="profile-card">
+        <div class="profile-card-top">
+          <div class="profile-avatar" aria-hidden="true">A</div>
+          <div class="profile-meta">
+            <h2>Alex Rivera</h2>
+            <p class="handle">@alex_air</p>
+            <span class="role-badge role-badge--newb"><span class="role-badge__icon" aria-hidden="true">◇</span> Newb</span>
+          </div>
+        </div>
+        <p class="profile-bio">
+          Just landed. Building a watchlist from zero — hit me with recommendations that aren’t the same three shows everyone talks about.
+        </p>
+      </article>
+
+      <article class="profile-card">
+        <div class="profile-card-top">
+          <div class="profile-avatar" aria-hidden="true">J</div>
+          <div class="profile-meta">
+            <h2>Jordan Kim</h2>
+            <p class="handle">@jk_weekly</p>
+            <span class="role-badge role-badge--watcher"><span class="role-badge__icon" aria-hidden="true">◇</span> TV Watcher</span>
+          </div>
+        </div>
+        <p class="profile-bio">
+          One episode a night, same timezone as the air date. I’m here for the weekly threads and the “did you catch that?” moments.
+        </p>
+      </article>
+
+      <article class="profile-card">
+        <div class="profile-card-top">
+          <div class="profile-avatar" aria-hidden="true">S</div>
+          <div class="profile-meta">
+            <h2>Sam Okonkwo</h2>
+            <p class="handle">@sam_binge</p>
+            <span class="role-badge role-badge--binger"><span class="role-badge__icon" aria-hidden="true">◆</span> TV Binger</span>
+          </div>
+        </div>
+        <p class="profile-bio">
+          If the season dropped, I’ve probably finished it by Sunday. Spoiler-aware in Community; chaos in the group chat.
+        </p>
+      </article>
+
+      <article class="profile-card">
+        <div class="profile-card-top">
+          <div class="profile-avatar" aria-hidden="true">R</div>
+          <div class="profile-meta">
+            <h2>Riley Chen</h2>
+            <p class="handle">@riley_c</p>
+            <span class="role-badge role-badge--watcher"><span class="role-badge__icon" aria-hidden="true">◇</span> TV Watcher</span>
+          </div>
+        </div>
+        <p class="profile-bio">
+          Drama + weird sci-fi. I rate episodes, argue about finales politely, and never skip the cold open.
+        </p>
+      </article>
+
+      <article class="profile-card">
+        <div class="profile-card-top">
+          <div class="profile-avatar" aria-hidden="true">M</div>
+          <div class="profile-meta">
+            <h2>Morgan Patel</h2>
+            <p class="handle">@morgan_marathon</p>
+            <span class="role-badge role-badge--binger"><span class="role-badge__icon" aria-hidden="true">◆</span> TV Binger</span>
+          </div>
+        </div>
+        <p class="profile-bio">
+          Tasks list is my villain arc. I clear whole shows between work shifts — notifications on, sleep optional.
+        </p>
+      </article>
+
+      <p class="section-note">
+        Suggested CSS classes for production: <code>role-badge</code> + <code>role-badge--newb</code> |
+        <code>role-badge--watcher</code> | <code>role-badge--binger</code>. Optional icon is decorative; hide from AT with
+        <code>aria-hidden="true"</code> and keep the role text in the badge. Raster previews:
+        <code>role-badges-strip.png</code>, <code>profile-card-example-newb.png</code>. Open
+        <code>design/profile-role-badge-samples/index.html</code> in a browser (same folder as the PNGs) to see HTML + images together.
+      </p>
+    </div>
+  </body>
+</html>

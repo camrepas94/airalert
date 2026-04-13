@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { WebSocket } from "ws";
 import { db } from "./db.js";
 import { normalizeEpisodeAirdate } from "./time.js";
+import { hasFullSocialAccess, UNLOCK_SOCIAL_FEATURES_MESSAGE } from "./userRole.js";
 
 const MAX_LIVE_CHAT_LEN = 280;
 const CHAT_COOLDOWN_MS = 1200;
@@ -202,6 +203,20 @@ export function handleCommunityThreadLiveMessage(userId: string, socket: WebSock
   }
 
   if (d.type === "chat") {
+    if (!hasFullSocialAccess(userId)) {
+      try {
+        socket.send(
+          JSON.stringify({
+            type: "thread_live_error",
+            code: "newb_restricted",
+            message: UNLOCK_SOCIAL_FEATURES_MESSAGE,
+          }),
+        );
+      } catch {
+        /* ignore */
+      }
+      return;
+    }
     const set = rooms.get(meta.roomKey);
     if (!set) return;
     const body = normalizeLiveChatBody(d.body);

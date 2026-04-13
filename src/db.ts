@@ -224,6 +224,9 @@ if (!userColNames.has("last_login_at")) {
 if (!userColNames.has("push_prefs_json")) {
   db.exec(`ALTER TABLE users ADD COLUMN push_prefs_json TEXT`);
 }
+if (!userColNames.has("viewer_role_override")) {
+  db.exec(`ALTER TABLE users ADD COLUMN viewer_role_override TEXT`);
+}
 
 try {
   db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username_lower ON users(lower(username)) WHERE username IS NOT NULL`);
@@ -329,7 +332,8 @@ db.exec(`
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     created_by TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    last_message_at TEXT NOT NULL DEFAULT (datetime('now'))
+    last_message_at TEXT NOT NULL DEFAULT (datetime('now')),
+    avatar_data_url TEXT
   );
 
   CREATE TABLE IF NOT EXISTS dm_group_members (
@@ -356,6 +360,13 @@ db.exec(`
     PRIMARY KEY (group_id, user_id)
   );
 `);
+
+const dmGroupThreadColNames = new Set(
+  (db.prepare(`PRAGMA table_info(dm_group_threads)`).all() as { name: string }[]).map((r) => r.name),
+);
+if (!dmGroupThreadColNames.has("avatar_data_url")) {
+  db.exec(`ALTER TABLE dm_group_threads ADD COLUMN avatar_data_url TEXT`);
+}
 
 const communityPostColNames = new Set(
   (db.prepare(`PRAGMA table_info(community_posts)`).all() as { name: string }[]).map((r) => r.name),
