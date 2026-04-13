@@ -66,11 +66,15 @@ import {
   handleDmClientSocketMessage,
   createDmGroup,
   listDmGroupsForUser,
-  listDmGroupMessages,
+  listDmGroupMessagesForApi,
   sendDmGroupMessage,
   markDmGroupRead,
   markDmGroupUnread,
   leaveOrDeleteDmGroup,
+  getDmGroupDetail,
+  renameDmGroup,
+  addDmGroupMembers,
+  removeDmGroupMember,
 } from "./dm.js";
 import {
   parseThreadLiveRoomQuery,
@@ -2434,7 +2438,7 @@ app.get("/api/users/:userId/trending-shows", async (request, reply) => {
     .all(userId) as { id: number }[];
   const ids = rows.map((r) => Number(r.id)).filter((n) => Number.isInteger(n) && n > 0);
   try {
-    const shows = await computeTrendingShows(ids);
+    const shows = await computeTrendingShows(ids, userId);
     return { shows };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -3765,6 +3769,204 @@ app.put("/api/community/episode-ratings", async (request, reply) => {
   };
 });
 
+/**
+ * After Tasks → Watched: save episode rating and/or publish a Community review in one shot.
+ * - One review post per user per episode (`tag=episode_review`): create or update body on repeat submit.
+ * - Rating-only updates `community_episode_ratings` without creating a post.
+ * - Written review without a new rating uses the stored rating for the header line when present.
+ */
+app.post("/api/community/post-watch-review", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const body = (request.body ?? {}) as {
+    tvmazeShowId?: number;
+    tvmazeEpisodeId?: number;
+    rating?: number | null;
+    reviewText?: string | null;
+  };
+  const showId = Number(body.tvmazeShowId);
+  const ep = Number(body.tvmazeEpisodeId);
+  const ratingRaw = body.rating;
+  const reviewRaw = typeof body.reviewText === "string" ? body.reviewText : "";
+  const reviewTrim = reviewRaw.trim().slice(0, 4000);
+
+  if (!Number.isInteger(showId) || showId < 1 || !Number.isInteger(ep) || ep < 1) {
+    reply.code(400);
+    return { error: "Invalid show or episode" };
+  }
+
+  let ratingNum: number | null = null;
+  if (ratingRaw != null && String(ratingRaw).trim() !== "") {
+    const n = Number(ratingRaw);
+    if (!Number.isInteger(n) || n < 1 || n > 5) {
+      reply.code(400);
+      return { error: "Rating must be between 1 and 5" };
+    }
+    ratingNum = n;
+  }
+  const hasRating = ratingNum != null;
+
+  if (!hasRating && !reviewTrim) {
+    reply.code(400);
+    return { error: "Provide a rating and/or a written review" };
+  }
+
+  if (!episodeHasAiredUtc(showId, ep)) {
+    reply.code(400);
+    return { error: "Ratings open after the episode’s listed air date" };
+  }
+
+  const label = await resolveCommunityEpisodeLabel(showId, ep);
+  if (!label) {
+    reply.code(400);
+    return { error: "Episode not found for this show" };
+  }
+
+  let ratingOut: {
+    tvmazeShowId: number;
+    tvmazeEpisodeId: number;
+    myRating: number;
+    avgRating: number | null;
+    ratingCount: number;
+  } | null = null;
+
+  if (hasRating && ratingNum != null) {
+    db.prepare(
+      `INSERT INTO community_episode_ratings (user_id, tvmaze_show_id, tvmaze_episode_id, rating, updated_at)
+       VALUES (?, ?, ?, ?, datetime('now'))
+       ON CONFLICT(user_id, tvmaze_show_id, tvmaze_episode_id) DO UPDATE SET
+         rating = excluded.rating,
+         updated_at = excluded.updated_at`,
+    ).run(uid, showId, ep, ratingNum);
+    const agg = db
+      .prepare(
+        `SELECT AVG(rating) AS a, COUNT(*) AS c FROM community_episode_ratings WHERE tvmaze_show_id = ? AND tvmaze_episode_id = ?`,
+      )
+      .get(showId, ep) as { a: number | null; c: number };
+    ratingOut = {
+      tvmazeShowId: showId,
+      tvmazeEpisodeId: ep,
+      myRating: ratingNum,
+      avgRating: agg.a != null ? Math.round(Number(agg.a) * 100) / 100 : null,
+      ratingCount: Number(agg.c) || 0,
+    };
+  }
+
+  let postFormatted: ReturnType<typeof formatCommunityPost> | null = null;
+  let postUpdated = false;
+
+  if (reviewTrim) {
+    const stored = db
+      .prepare(
+        `SELECT rating FROM community_episode_ratings WHERE user_id = ? AND tvmaze_show_id = ? AND tvmaze_episode_id = ?`,
+      )
+      .get(uid, showId, ep) as { rating: number } | undefined;
+    const starsN = ratingNum ?? stored?.rating ?? null;
+    const starsStr =
+      starsN != null && starsN >= 1 && starsN <= 5
+        ? `${"\u2605".repeat(starsN)}${"\u2606".repeat(5 - starsN)}`
+        : "";
+    const ratingLine =
+      starsN != null
+        ? `<p><strong>Episode rating:</strong> ${starsN}/5 <span aria-hidden="true">${starsStr}</span></p>`
+        : "";
+    const paras = reviewTrim
+      .split(/\n+/)
+      .map((line) => sanitizeCommunityHtml(line))
+      .filter((x) => stripHtml(x).length > 0)
+      .map((line) => `<p>${line}</p>`)
+      .join("");
+    const bodyHtml = ratingLine + paras;
+    if (!stripHtml(bodyHtml)) {
+      reply.code(400);
+      return { error: "Review cannot be empty" };
+    }
+
+    let showDetail: Awaited<ReturnType<typeof fetchShow>>;
+    try {
+      showDetail = await fetchShow(showId);
+    } catch {
+      reply.code(400);
+      return { error: "Could not verify show with TVMaze" };
+    }
+    const showName = showDetail.name?.trim() || "Unknown show";
+
+    const existing = db
+      .prepare(
+        `SELECT id FROM community_posts WHERE user_id = ? AND tvmaze_show_id = ? AND tvmaze_episode_id = ? AND tag = 'episode_review' AND deleted_at IS NULL`,
+      )
+      .get(uid, showId, ep) as { id: string } | undefined;
+
+    const tx = db.transaction(() => {
+      if (existing) {
+        db.prepare(
+          `UPDATE community_posts SET body_html = ?, edited_at = datetime('now'), edited_by_user_id = ?, show_name = ? WHERE id = ?`,
+        ).run(bodyHtml, uid, showName, existing.id);
+        postUpdated = true;
+      } else {
+        const id = uuidv4();
+        db.prepare(
+          `INSERT INTO community_posts (id, user_id, tvmaze_show_id, show_name, tvmaze_episode_id, episode_label, body_html, is_spoiler, parent_post_id, tag)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ).run(id, uid, showId, showName, ep, label, bodyHtml, 0, null, "episode_review");
+      }
+    });
+    tx();
+
+    const postId = existing?.id ?? (db.prepare(`SELECT id FROM community_posts WHERE user_id = ? AND tvmaze_show_id = ? AND tvmaze_episode_id = ? AND tag = 'episode_review' AND deleted_at IS NULL`).get(uid, showId, ep) as { id: string } | undefined)?.id;
+    if (!postId) {
+      reply.code(500);
+      return { error: "Could not save review" };
+    }
+
+    if (!existing) {
+      const author = db
+        .prepare(`SELECT display_name, username FROM users WHERE id = ?`)
+        .get(uid) as { display_name: string | null; username: string | null } | undefined;
+      const authorLabel = authorPublicHandle(author ?? { display_name: null, username: null });
+      await notifyCommunityThreadSubscribers({
+        tvmazeShowId: showId,
+        showName,
+        authorUserId: uid,
+        authorLabel,
+        tvmazeEpisodeId: ep,
+        episodeLabel: label,
+      });
+      await notifyCommunityMentionedUsers({
+        bodyHtml,
+        previousBodyHtml: null,
+        taggerUserId: uid,
+        taggerLabel: authorLabel,
+        tvmazeShowId: showId,
+        showName,
+        tvmazeEpisodeId: ep,
+      });
+    }
+
+    const row = db
+      .prepare(
+        `SELECT p.id, p.user_id, p.tvmaze_show_id, p.show_name, p.tvmaze_episode_id, p.episode_label,
+                p.body_html, p.is_spoiler, p.created_at, p.edited_at, p.edited_by_user_id,
+                p.parent_post_id, p.tag,
+                au.display_name AS authorDisplayName, au.username AS authorUsername, au.avatar_data_url AS authorAvatarDataUrl,
+                eu.display_name AS editorDisplayName, eu.username AS editorUsername
+         FROM community_posts p
+         JOIN users au ON au.id = p.user_id
+         LEFT JOIN users eu ON eu.id = p.edited_by_user_id
+         WHERE p.id = ?`,
+      )
+      .get(postId) as CommunityPostRow & { parent_post_id: string | null; tag: string | null };
+    if (row) postFormatted = formatCommunityPost(row as CommunityPostRow);
+  }
+
+  return {
+    ok: true,
+    rating: ratingOut,
+    post: postFormatted,
+    postUpdated,
+  };
+});
+
 app.post("/api/community/posts", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
@@ -3814,7 +4016,7 @@ app.post("/api/community/posts", async (request, reply) => {
   const id = uuidv4();
   const isSpoiler = body.isSpoiler === true ? 1 : 0;
   const parentPostId = typeof body.parentPostId === "string" && body.parentPostId.trim() ? body.parentPostId.trim() : null;
-  const allowedTags = ["theory", "spoiler-free", "hot-take"];
+  const allowedTags = ["theory", "spoiler-free", "hot-take", "episode_review"];
   const tag = typeof body.tag === "string" && allowedTags.includes(body.tag) ? body.tag : null;
 
   db.prepare(
@@ -4280,6 +4482,59 @@ app.post("/api/dm/groups", async (request, reply) => {
   }
 });
 
+app.get("/api/dm/groups/:groupId", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { groupId } = request.params as { groupId: string };
+  const detail = getDmGroupDetail(groupId, uid);
+  if (!detail) {
+    reply.code(404);
+    return { error: "Group not found" };
+  }
+  return detail;
+});
+
+app.patch("/api/dm/groups/:groupId", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { groupId } = request.params as { groupId: string };
+  const body = (request.body ?? {}) as { name?: string };
+  const name = typeof body.name === "string" ? body.name : "";
+  const r = renameDmGroup(groupId, uid, name);
+  if ("error" in r) {
+    reply.code(r.error.includes("not found") ? 404 : 403);
+    return { error: r.error };
+  }
+  return { ok: true };
+});
+
+app.post("/api/dm/groups/:groupId/members", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { groupId } = request.params as { groupId: string };
+  const body = (request.body ?? {}) as { userIds?: unknown };
+  const raw = body.userIds;
+  const userIds = Array.isArray(raw) ? raw.filter((x): x is string => typeof x === "string") : [];
+  const r = addDmGroupMembers(groupId, uid, userIds);
+  if ("error" in r) {
+    reply.code(400);
+    return { error: r.error };
+  }
+  return { ok: true };
+});
+
+app.delete("/api/dm/groups/:groupId/members/:memberUserId", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { groupId, memberUserId } = request.params as { groupId: string; memberUserId: string };
+  const r = removeDmGroupMember(groupId, uid, memberUserId);
+  if ("error" in r) {
+    reply.code(400);
+    return { error: r.error };
+  }
+  return { ok: true };
+});
+
 app.get("/api/dm/groups/:groupId/messages", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
@@ -4287,7 +4542,7 @@ app.get("/api/dm/groups/:groupId/messages", async (request, reply) => {
   const q = request.query as { limit?: string };
   const limitRaw = Number(q.limit);
   const limit = Number.isFinite(limitRaw) ? limitRaw : 80;
-  const messages = listDmGroupMessages(groupId, uid, limit);
+  const messages = listDmGroupMessagesForApi(groupId, uid, limit);
   if (messages.length === 0) {
     const ok = db.prepare(`SELECT 1 FROM dm_group_members WHERE group_id = ? AND user_id = ?`).get(groupId, uid);
     if (!ok) {

@@ -139,6 +139,11 @@ export function handleDmClientSocketMessage(userId: string, raw: unknown): void 
       relayDmTyping(userId, d.threadId, d.typing);
     }
   }
+  if (d.type === "dm_group_typing") {
+    if (typeof d.groupId === "string" && typeof d.typing === "boolean") {
+      relayDmGroupTyping(userId, d.groupId, d.typing);
+    }
+  }
 }
 
 export function relayDmTyping(fromUserId: string, threadId: string, typing: boolean): void {
@@ -151,6 +156,25 @@ export function relayDmTyping(fromUserId: string, threadId: string, typing: bool
     userId: fromUserId,
     typing,
   });
+}
+
+/** Relay typing in a group to all other members (WebSocket). */
+export function relayDmGroupTyping(fromUserId: string, groupId: string, typing: boolean): void {
+  if (!assertGroupMember(groupId, fromUserId)) return;
+  const members = db
+    .prepare(`SELECT user_id AS userId FROM dm_group_members WHERE group_id = ?`)
+    .all(groupId) as { userId: string }[];
+  const label = authorLabelForUser(fromUserId);
+  for (const m of members) {
+    if (m.userId === fromUserId) continue;
+    broadcastToUser(m.userId, {
+      type: "dm_group_typing" as const,
+      groupId,
+      userId: fromUserId,
+      typing,
+      label,
+    });
+  }
 }
 
 export function getOtherParticipantLastReadAt(threadId: string, meUserId: string): string | null {
@@ -431,6 +455,105 @@ function assertGroupMember(groupId: string, userId: string): boolean {
   return Boolean(r);
 }
 
+type UserPublicProfile = {
+  displayName: string | null;
+  username: string | null;
+  avatarDataUrl: string | null;
+};
+
+function getUserPublicProfile(userId: string): UserPublicProfile {
+  const row = db
+    .prepare(`SELECT display_name AS displayName, username, avatar_data_url AS avatarDataUrl FROM users WHERE id = ?`)
+    .get(userId) as UserPublicProfile | undefined;
+  return row ?? { displayName: null, username: null, avatarDataUrl: null };
+}
+
+export type DmGroupMessageApiRow = DmGroupMessageRow & {
+  senderDisplayName: string | null;
+  senderUsername: string | null;
+  senderAvatarDataUrl: string | null;
+  /** Populated for messages you sent: other members whose read cursor covers this message. */
+  seenBy?: { userId: string; label: string }[];
+};
+
+function enrichDmGroupMessagesForViewer(
+  groupId: string,
+  messages: DmGroupMessageRow[],
+  viewerId: string,
+): DmGroupMessageApiRow[] {
+  const senderIds = [...new Set(messages.map((m) => m.senderId))];
+  const profiles = new Map<string, UserPublicProfile>();
+  for (const id of senderIds) {
+    profiles.set(id, getUserPublicProfile(id));
+  }
+  const memberRows = db
+    .prepare(`SELECT user_id AS userId FROM dm_group_members WHERE group_id = ?`)
+    .all(groupId) as { userId: string }[];
+  const reads = new Map<string, string>();
+  for (const m of memberRows) {
+    const r = db
+      .prepare(`SELECT last_read_at AS lastReadAt FROM dm_group_reads WHERE group_id = ? AND user_id = ?`)
+      .get(groupId, m.userId) as { lastReadAt: string } | undefined;
+    if (r?.lastReadAt) reads.set(m.userId, r.lastReadAt);
+  }
+  return messages.map((m) => {
+    const p = profiles.get(m.senderId)!;
+    const base: DmGroupMessageApiRow = {
+      ...m,
+      senderDisplayName: p.displayName,
+      senderUsername: p.username,
+      senderAvatarDataUrl: p.avatarDataUrl,
+    };
+    if (m.senderId === viewerId) {
+      const seen: { userId: string; label: string }[] = [];
+      for (const mem of memberRows) {
+        if (mem.userId === m.senderId) continue;
+        const ra = reads.get(mem.userId);
+        if (ra && dmInstantMs(ra) >= dmInstantMs(m.createdAt)) {
+          seen.push({ userId: mem.userId, label: authorLabelForUser(mem.userId) });
+        }
+      }
+      base.seenBy = seen;
+    }
+    return base;
+  });
+}
+
+export function enrichSingleDmGroupMessage(groupId: string, row: DmGroupMessageRow, viewerId: string): DmGroupMessageApiRow {
+  return enrichDmGroupMessagesForViewer(groupId, [row], viewerId)[0];
+}
+
+export type DmGroupDetailMember = {
+  userId: string;
+  displayName: string | null;
+  username: string | null;
+  avatarDataUrl: string | null;
+  isOwner: boolean;
+};
+
+export function getDmGroupDetail(
+  groupId: string,
+  requesterId: string,
+): { groupId: string; name: string; createdBy: string; members: DmGroupDetailMember[] } | null {
+  if (!assertGroupMember(groupId, requesterId)) return null;
+  const g = db
+    .prepare(`SELECT id, name, created_by AS createdBy FROM dm_group_threads WHERE id = ?`)
+    .get(groupId) as { id: string; name: string; createdBy: string } | undefined;
+  if (!g) return null;
+  const mems = db.prepare(`SELECT user_id AS userId FROM dm_group_members WHERE group_id = ?`).all(groupId) as { userId: string }[];
+  const members: DmGroupDetailMember[] = mems.map((m) => {
+    const p = getUserPublicProfile(m.userId);
+    return {
+      userId: m.userId,
+      displayName: p.displayName,
+      username: p.username,
+      avatarDataUrl: p.avatarDataUrl,
+      isOwner: g.createdBy === m.userId,
+    };
+  });
+  return { groupId: g.id, name: g.name, createdBy: g.createdBy, members };
+}
+
 export function createDmGroup(creatorId: string, rawName: string, memberUserIds: string[]): string {
   const name = normalizeGroupName(rawName) || "Group chat";
   const ids = [...new Set((memberUserIds || []).map((x) => String(x).trim()).filter(Boolean))].filter((id) => id !== creatorId);
@@ -508,7 +631,13 @@ export function listDmGroupMessages(groupId: string, userId: string, limit: numb
   return raw.slice().reverse();
 }
 
-export function sendDmGroupMessage(senderId: string, groupId: string, body: string): DmGroupMessageRow | null {
+/** Group messages with sender profile + per-viewer read receipts (for your own messages). */
+export function listDmGroupMessagesForApi(groupId: string, userId: string, limit: number): DmGroupMessageApiRow[] {
+  const raw = listDmGroupMessages(groupId, userId, limit);
+  return enrichDmGroupMessagesForViewer(groupId, raw, userId);
+}
+
+export function sendDmGroupMessage(senderId: string, groupId: string, body: string): DmGroupMessageApiRow | null {
   if (!assertGroupMember(groupId, senderId)) return null;
   const text = normalizeDmBody(body);
   if (!text) return null;
@@ -531,25 +660,19 @@ export function sendDmGroupMessage(senderId: string, groupId: string, body: stri
     .prepare(`SELECT user_id AS userId FROM dm_group_members WHERE group_id = ?`)
     .all(groupId) as { userId: string }[];
 
-  const payload = {
-    type: "dm_group_message" as const,
-    groupId,
-    message: {
-      id: row.id,
-      senderId: row.senderId,
-      body: row.body,
-      createdAt: row.createdAt,
-    },
-  };
-
   for (const m of members) {
-    broadcastToUser(m.userId, payload);
+    const message = enrichSingleDmGroupMessage(groupId, row, m.userId);
+    broadcastToUser(m.userId, {
+      type: "dm_group_message" as const,
+      groupId,
+      message,
+    });
     if (m.userId !== senderId) {
       broadcastDmUnreadTotal(m.userId);
     }
   }
 
-  return row;
+  return enrichSingleDmGroupMessage(groupId, row, senderId);
 }
 
 export function markDmGroupRead(groupId: string, userId: string): void {
@@ -569,6 +692,94 @@ export function markDmGroupUnread(groupId: string, userId: string): void {
   if (!assertGroupMember(groupId, userId)) return;
   db.prepare(`DELETE FROM dm_group_reads WHERE group_id = ? AND user_id = ?`).run(groupId, userId);
   broadcastDmUnreadTotal(userId);
+}
+
+export function renameDmGroup(
+  groupId: string,
+  requesterId: string,
+  rawName: string,
+): { ok: true } | { error: string } {
+  const g = db
+    .prepare(`SELECT created_by AS createdBy FROM dm_group_threads WHERE id = ?`)
+    .get(groupId) as { createdBy: string } | undefined;
+  if (!g) return { error: "Group not found" };
+  if (g.createdBy !== requesterId) return { error: "Only the group owner can rename" };
+  if (!assertGroupMember(groupId, requesterId)) return { error: "Not a member" };
+  const name = normalizeGroupName(rawName) || "Group chat";
+  db.prepare(`UPDATE dm_group_threads SET name = ? WHERE id = ?`).run(name, groupId);
+  const memberIds = db
+    .prepare(`SELECT user_id AS userId FROM dm_group_members WHERE group_id = ?`)
+    .all(groupId) as { userId: string }[];
+  for (const m of memberIds) {
+    broadcastToUser(m.userId, { type: "dm_group_meta" as const, groupId, name });
+  }
+  return { ok: true };
+}
+
+export function addDmGroupMembers(
+  groupId: string,
+  requesterId: string,
+  rawIds: string[],
+): { ok: true } | { error: string } {
+  const g = db
+    .prepare(`SELECT created_by AS createdBy FROM dm_group_threads WHERE id = ?`)
+    .get(groupId) as { createdBy: string } | undefined;
+  if (!g) return { error: "Group not found" };
+  if (g.createdBy !== requesterId) return { error: "Only the group owner can add members" };
+  if (!assertGroupMember(groupId, requesterId)) return { error: "Not a member" };
+  const ids = [...new Set(rawIds.map((x) => String(x).trim()).filter(Boolean))];
+  if (ids.length === 0) return { error: "No users to add" };
+  const mcRow = db.prepare(`SELECT COUNT(*) AS c FROM dm_group_members WHERE group_id = ?`).get(groupId) as { c: number };
+  let current = Number(mcRow.c) || 0;
+  const ins = db.prepare(`INSERT INTO dm_group_members (group_id, user_id) VALUES (?, ?)`);
+  let added = 0;
+  for (const uid of ids) {
+    if (current >= MAX_GROUP_MEMBERS) {
+      return { error: `Group is full (${MAX_GROUP_MEMBERS} members)` };
+    }
+    const exists = db.prepare(`SELECT 1 FROM dm_group_members WHERE group_id = ? AND user_id = ?`).get(groupId, uid);
+    if (exists) continue;
+    const u = db.prepare(`SELECT 1 FROM users WHERE id = ?`).get(uid);
+    if (!u) continue;
+    ins.run(groupId, uid);
+    current++;
+    added++;
+    broadcastDmUnreadTotal(uid);
+  }
+  if (added === 0) return { error: "No new members added (already in group or invalid users)" };
+  const memberIds = db
+    .prepare(`SELECT user_id AS userId FROM dm_group_members WHERE group_id = ?`)
+    .all(groupId) as { userId: string }[];
+  for (const m of memberIds) {
+    broadcastToUser(m.userId, { type: "dm_group_members_updated" as const, groupId });
+  }
+  return { ok: true };
+}
+
+export function removeDmGroupMember(
+  groupId: string,
+  requesterId: string,
+  targetUserId: string,
+): { ok: true } | { error: string } {
+  const g = db
+    .prepare(`SELECT created_by AS createdBy FROM dm_group_threads WHERE id = ?`)
+    .get(groupId) as { createdBy: string } | undefined;
+  if (!g) return { error: "Group not found" };
+  if (g.createdBy !== requesterId) return { error: "Only the group owner can remove members" };
+  if (requesterId === targetUserId) {
+    return { error: "To leave the group, use Leave from the inbox swipe menu" };
+  }
+  if (!assertGroupMember(groupId, targetUserId)) return { error: "User is not in this group" };
+  db.prepare(`DELETE FROM dm_group_members WHERE group_id = ? AND user_id = ?`).run(groupId, targetUserId);
+  broadcastDmUnreadTotal(targetUserId);
+  broadcastToUser(targetUserId, { type: "dm_group_removed" as const, groupId });
+  const memberIds = db
+    .prepare(`SELECT user_id AS userId FROM dm_group_members WHERE group_id = ?`)
+    .all(groupId) as { userId: string }[];
+  for (const m of memberIds) {
+    broadcastToUser(m.userId, { type: "dm_group_members_updated" as const, groupId });
+  }
+  return { ok: true };
 }
 
 /** Creator deleting the group removes it for everyone; others only leave. */

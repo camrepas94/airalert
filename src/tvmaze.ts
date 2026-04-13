@@ -207,13 +207,13 @@ export async function scanShowsCatalogForGenreFit(
 const TRENDING_AIRING_STATUSES = new Set(["running"]);
 
 /** Minimum TVMaze `rating.average` (0–10) so trending skews toward popular, not obscure catalog filler. */
-const TRENDING_MIN_RATING = 6.5;
+const TRENDING_MIN_RATING = 5.8;
 
 /**
  * When the user has subscription genres but a show does not overlap, still allow it as a
  * “general population” pick if rating is strong enough.
  */
-const TRENDING_GENERAL_MIN_RATING = 7.5;
+const TRENDING_GENERAL_MIN_RATING = 7.0;
 
 /**
  * Like {@link scanShowsCatalogForGenreFit}, but scores by genre overlap × TVMaze rating (popular / well-known shows).
@@ -248,10 +248,6 @@ export async function scanShowsCatalogForTrending(
         if (!show?.id || excludeIds.has(show.id)) continue;
         const statusNorm = (show.status ?? "").trim().toLowerCase();
         if (!TRENDING_AIRING_STATUSES.has(statusNorm)) continue;
-
-        /** Trending is limited to streaming (web) shows — broadcast-only listings are excluded. */
-        const streaming = Boolean(show.webChannel?.name?.trim());
-        if (!streaming) continue;
 
         const avgRaw = show.rating?.average;
         const avg = typeof avgRaw === "number" && Number.isFinite(avgRaw) ? avgRaw : null;

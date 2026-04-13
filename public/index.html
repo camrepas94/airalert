@@ -1508,7 +1508,7 @@
       .dm-inbox-thread-list {
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
+        gap: 0.45rem;
         flex: 1 1 auto;
         min-height: 0;
         max-height: none;
@@ -1518,10 +1518,10 @@
       .dm-inbox-thread-row {
         display: flex;
         align-items: center;
-        gap: 0.6rem;
+        gap: 0.5rem;
         width: 100%;
         text-align: left;
-        padding: 0.55rem 0.65rem;
+        padding: 0.5rem 0.6rem;
         border-radius: 12px;
         border: 2px solid transparent;
         background: linear-gradient(rgba(6, 10, 24, 0.52), rgba(4, 8, 20, 0.66)) padding-box,
@@ -1542,14 +1542,85 @@
         background-clip: padding-box, border-box;
         box-shadow: var(--dm-glow-hover, 0 0 18px rgba(91, 156, 255, 0.25));
       }
-      .dm-inbox-thread-preview {
-        flex: 1;
+      .dm-inbox-thread-row-main {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        flex: 1 1 auto;
         min-width: 0;
-        font-size: 0.82rem;
-        color: var(--muted);
-        white-space: nowrap;
+      }
+      .dm-inbox-thread-avatar-wrap {
+        flex-shrink: 0;
+        width: 48px;
+        height: 48px;
+      }
+      .dm-inbox-thread-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+        display: block;
+        border: 2px solid rgba(91, 156, 255, 0.38);
+        box-shadow: 0 0 16px rgba(34, 211, 238, 0.22);
+        background: rgba(6, 10, 24, 0.95);
+      }
+      .dm-inbox-thread-avatar--fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: rgba(241, 245, 249, 0.96);
+        background: linear-gradient(140deg, rgba(91, 156, 255, 0.65), rgba(34, 211, 238, 0.42), rgba(236, 72, 153, 0.48));
+        border: 2px solid rgba(129, 180, 255, 0.45);
+        box-shadow: 0 0 14px rgba(34, 211, 238, 0.28);
+      }
+      .dm-inbox-thread-avatar--group.dm-inbox-thread-avatar--fallback {
+        background: linear-gradient(140deg, rgba(52, 211, 153, 0.55), rgba(34, 211, 238, 0.48), rgba(91, 156, 255, 0.42));
+        border-color: rgba(45, 212, 191, 0.42);
+      }
+      .dm-inbox-thread-body {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.18rem;
+        align-items: stretch;
+      }
+      .dm-inbox-thread-name {
+        font-size: 0.93rem;
+        font-weight: 650;
+        line-height: 1.25;
+        color: rgba(241, 245, 249, 0.98);
         overflow: hidden;
         text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .dm-inbox-thread-preview {
+        font-size: 0.8rem;
+        line-height: 1.38;
+        color: rgba(148, 163, 184, 0.95);
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        max-width: 100%;
+      }
+      .dm-inbox-thread-meta {
+        font-size: 0.74rem;
+        font-weight: 500;
+        color: rgba(148, 163, 184, 0.88);
+      }
+      .dm-inbox-thread-unread-slot {
+        flex-shrink: 0;
+        width: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-self: center;
       }
       .dm-inbox-unread-dot {
         width: 8px;
@@ -1628,6 +1699,188 @@
       }
       .dm-inbox-read-receipt.is-read {
         opacity: 0.92;
+      }
+      .dm-inbox-chat-heading {
+        margin-bottom: 0.15rem;
+      }
+      .dm-inbox-group-title-btn {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        margin: 0.35rem 0 0.15rem;
+        padding: 0.2rem 0.15rem;
+        text-align: left;
+        background: transparent;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font: inherit;
+        color: inherit;
+      }
+      .dm-inbox-group-title-btn:hover .dm-inbox-group-title-text,
+      .dm-inbox-group-title-btn:focus-visible .dm-inbox-group-title-text {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .dm-inbox-group-title-text {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+      }
+      .dm-inbox-messages--group {
+        gap: 0.25rem;
+      }
+      .dm-inbox-group-msg {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 0.45rem;
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 0.15rem;
+      }
+      .dm-inbox-group-msg.is-me {
+        flex-direction: row-reverse;
+      }
+      .dm-inbox-group-msg-avatar-col {
+        flex-shrink: 0;
+        width: 38px;
+        display: flex;
+        justify-content: center;
+      }
+      .dm-inbox-group-msg-avatar-col--spacer {
+        visibility: hidden;
+        pointer-events: none;
+        min-height: 36px;
+      }
+      .dm-inbox-group-msg-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(91, 156, 255, 0.35);
+        background: rgba(6, 10, 24, 0.95);
+      }
+      .dm-inbox-group-msg-avatar--fb {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: rgba(241, 245, 249, 0.95);
+        background: linear-gradient(140deg, rgba(91, 156, 255, 0.55), rgba(236, 72, 153, 0.42));
+        border: 2px solid rgba(129, 180, 255, 0.4);
+      }
+      .dm-inbox-group-msg-body {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        align-items: flex-start;
+        max-width: calc(100% - 44px);
+      }
+      .dm-inbox-group-msg.is-me .dm-inbox-group-msg-body {
+        align-items: flex-end;
+      }
+      .dm-inbox-group-msg-name {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: rgba(186, 200, 220, 0.95);
+        line-height: 1.2;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding: 0 0.1rem;
+      }
+      .dm-inbox-group-msg--stacked .dm-inbox-group-msg-body {
+        padding-top: 0.1rem;
+      }
+      .dm-inbox-group-msg.is-me .dm-inbox-bubble.them {
+        align-self: flex-end;
+      }
+      .dm-inbox-group-seen {
+        font-size: 0.65rem;
+        line-height: 1.25;
+        color: rgba(148, 163, 184, 0.88);
+        max-width: 100%;
+        padding: 0 0.1rem 0.1rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .dm-group-settings-name-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .dm-group-settings-name-row .dm-compose-search-input {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .dm-group-settings-sub {
+        font-size: 0.78rem;
+        font-weight: 600;
+        margin: 0.65rem 0 0.35rem;
+        color: rgba(226, 232, 240, 0.92);
+      }
+      .dm-group-settings-member-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        max-height: min(40dvh, 14rem);
+        overflow-y: auto;
+      }
+      .dm-group-settings-member {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.45rem;
+        border-radius: 10px;
+        background: rgba(6, 10, 24, 0.45);
+        border: 1px solid rgba(91, 156, 255, 0.2);
+      }
+      .dm-group-settings-member-av {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        border: 2px solid rgba(91, 156, 255, 0.3);
+        background: rgba(8, 12, 28, 0.9);
+      }
+      .dm-group-settings-member-av.fb {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+      .dm-group-settings-member-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .dm-group-settings-member-meta strong {
+        display: block;
+        font-size: 0.86rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .dm-group-settings-member-meta .muted {
+        font-size: 0.72rem;
+      }
+      .dm-group-settings-remove {
+        flex-shrink: 0;
+        font-size: 0.78rem;
+        padding: 0.25rem 0.45rem;
       }
       .dm-inbox-typing-row {
         min-height: 1.1rem;
@@ -2295,118 +2548,124 @@
       .how-to-steps strong {
         color: var(--text);
       }
-      .quickstart-help-inner {
+      /* First-run welcome sheet (single screen, no stepper) */
+      .welcome-sheet-panel {
+        max-width: 22rem;
+        padding: 0;
         display: flex;
         flex-direction: column;
-        flex: 1;
-        min-height: 0;
-        max-height: min(72vh, 520px);
+        gap: 0;
       }
-      #quickStartHelpModalBody.modal-body-scroll {
-        flex: 1;
-        min-height: 0;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        padding: 0.85rem 1.05rem 0.5rem;
+      .welcome-sheet-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 1.1rem 1.15rem 0.5rem;
       }
-      .quickstart-step-meta {
-        margin: 0.2rem 0 0;
-        font-size: 0.78rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
+      .welcome-sheet-head-text {
+        min-width: 0;
       }
-      .quickstart-step-lead {
-        margin: 0 0 0.65rem;
-        font-size: 0.95rem;
-        line-height: 1.5;
-        color: var(--text);
-      }
-      .quickstart-step-title {
-        margin: 0 0 0.55rem;
-        font-size: 0.88rem;
-        font-weight: 750;
-        letter-spacing: 0.04em;
-        color: var(--accent-hot);
-      }
-      .quickstart-step-list {
+      .welcome-sheet-title {
         margin: 0;
-        padding-left: 1.15rem;
-        font-size: 0.88rem;
+        font-size: 1.22rem;
+        font-weight: 750;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+        background: linear-gradient(105deg, #7af5ff 0%, #a5d8ff 38%, #7c9cff 72%, #e9d5ff 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.28));
+      }
+      .welcome-sheet-lead {
+        margin: 0.45rem 0 0;
+        font-size: 0.9rem;
+        line-height: 1.45;
+        color: rgba(226, 232, 240, 0.88);
+        font-weight: 500;
+      }
+      .welcome-sheet-body {
+        padding: 0.35rem 1.15rem 1rem;
+      }
+      .welcome-sheet-bullets {
+        margin: 0;
+        padding-left: 1.2rem;
+        font-size: 0.86rem;
         line-height: 1.55;
-        color: var(--text);
+        color: rgba(214, 226, 248, 0.92);
       }
-      .quickstart-step-list li {
-        margin: 0.35rem 0;
+      .welcome-sheet-bullets li {
+        margin: 0.4rem 0;
+        padding-left: 0.15rem;
       }
-      .quickstart-step-list li:first-child {
+      .welcome-sheet-bullets li:first-child {
         margin-top: 0;
       }
-      .quickstart-footer {
-        flex-shrink: 0;
-        padding: 0.65rem 1.05rem 0.95rem;
-        border-top: 1px solid rgba(130, 200, 255, 0.14);
-        background: linear-gradient(180deg, rgba(8, 10, 20, 0.5) 0%, rgba(12, 14, 24, 0.85) 100%);
-      }
-      .quickstart-dots {
+      .welcome-sheet-actions {
         display: flex;
-        justify-content: center;
-        gap: 0.35rem;
-        margin-bottom: 0.65rem;
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+        padding: 0.85rem 1.15rem 1.1rem;
+        border-top: 1px solid rgba(130, 200, 255, 0.12);
+        background: linear-gradient(180deg, transparent 0%, rgba(10, 14, 26, 0.65) 100%);
       }
-      .quickstart-dots[aria-hidden="true"] {
-        opacity: 0.85;
-      }
-      .quickstart-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 999px;
-        background: rgba(130, 200, 255, 0.22);
-        transition: background 0.2s ease, transform 0.2s ease;
-      }
-      .quickstart-dot--active {
-        background: rgba(34, 211, 238, 0.95);
-        transform: scale(1.15);
-        box-shadow: 0 0 10px rgba(34, 211, 238, 0.45);
-      }
-      .quickstart-footer-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 0.65rem;
-      }
-      @media (min-width: 480px) {
-        .quickstart-footer-actions {
+      @media (min-width: 420px) {
+        .welcome-sheet-actions {
           flex-direction: row;
-          flex-wrap: wrap;
+          justify-content: flex-end;
           align-items: center;
-          justify-content: space-between;
         }
-        .quickstart-skip {
-          order: 0;
-        }
-        .quickstart-footer-nav {
-          order: 1;
-          margin-left: auto;
+        .welcome-sheet-actions .secondary {
+          margin-right: auto;
         }
       }
-      .quickstart-footer-nav {
+      .welcome-sheet-actions button {
+        min-height: 44px;
+        padding: 0.55rem 1.1rem;
+        font-size: 0.9rem;
+      }
+      /* One-time section tips (not full-screen) */
+      .contextual-tip {
         display: flex;
-        gap: 0.45rem;
-        justify-content: flex-end;
-        flex-wrap: wrap;
-      }
-      .quickstart-skip {
-        font-size: 0.82rem;
-        padding: 0.4rem 0.65rem;
-      }
-      .quickstart-tip {
-        margin: 0.5rem 0 0;
-        padding: 0.5rem 0.65rem;
+        align-items: flex-start;
+        gap: 0.55rem;
+        margin: 0 0 0.85rem;
+        padding: 0.55rem 0.65rem 0.55rem 0.75rem;
         border-radius: 10px;
-        font-size: 0.86rem;
+        font-size: 0.82rem;
         line-height: 1.45;
-        background: rgba(34, 211, 238, 0.08);
-        border: 1px solid rgba(130, 200, 255, 0.18);
+        color: rgba(226, 232, 240, 0.92);
+        background: rgba(34, 211, 238, 0.06);
+        border: 1px solid rgba(130, 200, 255, 0.16);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+      }
+      .contextual-tip-text {
+        margin: 0;
+        flex: 1;
+        min-width: 0;
+      }
+      .contextual-tip-dismiss {
+        flex-shrink: 0;
+        width: 2rem;
+        height: 2rem;
+        margin: -0.2rem -0.15rem -0.2rem 0;
+        padding: 0;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: rgba(180, 210, 255, 0.75);
+        font-size: 1.35rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .contextual-tip-dismiss:hover {
         color: var(--text);
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .contextual-tip-dismiss:focus-visible {
+        outline: 2px solid rgba(34, 211, 238, 0.65);
+        outline-offset: 2px;
       }
       section.profile-identity {
         border-left-color: var(--neon-cyan);
@@ -2758,6 +3017,69 @@
       #foldTasksCompletedBody .tasks-list,
       #foldTasksSkippedBody .tasks-list {
         margin-top: 0.35rem;
+      }
+      /* Post-watch rating modal (Tasks → Watched) */
+      .post-watch-review-modal .post-watch-review-panel {
+        max-width: 420px;
+      }
+      .post-watch-review-ep {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: rgba(232, 240, 255, 0.95);
+        margin: 0 0 0.65rem;
+        line-height: 1.35;
+      }
+      .post-watch-star-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin: 0 0 0.75rem;
+        justify-content: flex-start;
+      }
+      .post-watch-star-btn {
+        flex: 0 0 auto;
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+        padding: 0;
+        font-size: 1.35rem;
+        line-height: 1;
+        border-radius: 10px;
+        border: 2px solid rgba(255, 255, 255, 0.14);
+        background: rgba(8, 12, 28, 0.75);
+        color: rgba(148, 163, 184, 0.85);
+        cursor: pointer;
+        touch-action: manipulation;
+        transition: color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .post-watch-star-btn.is-active {
+        color: #fde047;
+        border-color: rgba(253, 224, 71, 0.55);
+        box-shadow: 0 0 16px rgba(253, 224, 71, 0.22);
+      }
+      .post-watch-star-btn:focus-visible {
+        outline: 2px solid rgba(34, 211, 238, 0.85);
+        outline-offset: 2px;
+      }
+      .post-watch-review-label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 600;
+        margin: 0 0 0.35rem;
+        color: rgba(186, 210, 240, 0.95);
+      }
+      #postWatchReviewText {
+        width: 100%;
+        box-sizing: border-box;
+        min-height: 5.5rem;
+        padding: 0.55rem 0.65rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(4, 8, 20, 0.65);
+        color: inherit;
+        font: inherit;
+        font-size: 0.88rem;
+        line-height: 1.45;
+        resize: vertical;
       }
       .search-results button {
         width: 100%;
@@ -3411,6 +3733,10 @@
           0 0 96px 12px rgba(34, 211, 238, 0.18), 0 0 80px -8px rgba(91, 156, 255, 0.35),
           0 28px 72px rgba(0, 0, 0, 0.65), var(--panel-glow-blue);
       }
+      .quickstart-help-panel.welcome-sheet-panel {
+        max-width: min(22rem, calc(100vw - 2rem));
+        max-height: none;
+      }
       .quickstart-help-head-text {
         min-width: 0;
         flex: 1;
@@ -4040,26 +4366,26 @@
         flex-wrap: wrap;
         margin-bottom: 0.35rem;
       }
-      /* ── Breaking news rail: same hero DNA as General Discussion (image-led, scroll-snap rail, not ticker) */
+      /* ── Breaking news rail: compact hero cards (image-led, scroll-snap, auto-scroll) */
       .community-headlines-rail-wrap {
-        margin: 0.15rem 0 0.55rem;
+        margin: 0.1rem 0 0.35rem;
       }
       .community-headlines-rail-wrap .community-subsection-heading {
-        margin-bottom: 0.45rem;
-        font-size: 0.82rem;
+        margin-bottom: 0.3rem;
+        font-size: 0.72rem;
       }
       .community-headlines-err {
-        font-size: 0.78rem;
-        margin: 0 0 0.45rem;
-        line-height: 1.35;
+        font-size: 0.72rem;
+        margin: 0 0 0.3rem;
+        line-height: 1.3;
       }
       .community-headlines-rail {
         list-style: none;
         margin: 0;
-        padding: 0 0 0.35rem;
+        padding: 0 0 0.2rem;
         display: flex;
         flex-direction: row;
-        gap: 0.75rem;
+        gap: 0.5rem;
         overflow-x: auto;
         overflow-y: hidden;
         overscroll-behavior-x: contain;
@@ -4067,7 +4393,6 @@
         scrollbar-width: none;
         -ms-overflow-style: none;
         -webkit-overflow-scrolling: touch;
-        /** Do not use touch-action: pan-x — it blocks vertical page scroll when swiping on cards. Default (auto) lets the browser scroll this rail horizontally and chain vertical movement to the page. */
       }
       .community-headlines-rail[aria-busy="true"] {
         pointer-events: none;
@@ -4076,12 +4401,11 @@
         display: none;
       }
       .community-headlines-rail > li {
-        flex: 0 0 min(300px, 85vw);
-        min-width: min(300px, 85vw);
-        max-width: 320px;
+        flex: 0 0 min(200px, 62vw);
+        min-width: min(200px, 62vw);
+        max-width: 220px;
         scroll-snap-align: start;
       }
-      /** While programmatic auto-scroll runs, disable snap so motion stays smooth (manual scroll restores snap when paused). */
       .community-headlines-rail.community-headlines-rail--auto-active {
         scroll-snap-type: none;
       }
@@ -4091,45 +4415,58 @@
         -webkit-tap-highlight-color: transparent;
       }
       .community-headline-card.community-thread-card--hero {
-        min-height: 272px;
+        min-height: 132px;
         padding: 0;
         cursor: pointer;
       }
-      /** Match `.community-thread-card--hero` / General Discussion tile height */
       .community-headline-card .community-thread-card-hero {
-        min-height: 272px;
+        min-height: 132px;
       }
-      /** Stronger scrim than default episode hero — headline text must stay readable on busy posters */
       .community-headline-card .community-thread-card-scrim {
         background: linear-gradient(
           165deg,
           rgba(0, 0, 0, 0.12) 0%,
-          rgba(4, 6, 14, 0.35) 38%,
-          rgba(4, 6, 18, 0.78) 58%,
-          rgba(2, 3, 10, 0.96) 100%
+          rgba(4, 6, 14, 0.4) 34%,
+          rgba(4, 6, 18, 0.82) 54%,
+          rgba(2, 3, 10, 0.97) 100%
         );
+      }
+      .community-headline-card .community-thread-card-hero-inner {
+        padding: 0.3rem 0.45rem 0.35rem;
+      }
+      .community-headline-card .community-thread-ep-show {
+        font-size: 0.6rem;
+        margin-bottom: 0.1rem;
+      }
+      .community-headline-card .community-thread-card-badges {
+        padding: 0.3rem 0.4rem 0;
+        gap: 0.25rem;
       }
       .community-headline-card-title {
         display: -webkit-box;
-        -webkit-line-clamp: 3;
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        line-height: 1.32;
-        font-size: 0.88rem !important;
+        line-height: 1.28;
+        font-size: 0.74rem !important;
         font-weight: 700;
       }
+      .community-headline-card .community-thread-footer {
+        margin-top: 0.15rem !important;
+        font-size: 0.6rem;
+      }
       .community-headline-skeleton-li {
-        flex: 0 0 min(300px, 85vw);
-        min-width: min(300px, 85vw);
-        max-width: 320px;
+        flex: 0 0 min(200px, 62vw);
+        min-width: min(200px, 62vw);
+        max-width: 220px;
         scroll-snap-align: start;
       }
       .community-headline-skeleton-card {
-        height: 272px;
-        border-radius: 16px;
+        height: 132px;
+        border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.08);
         background: rgba(10, 14, 22, 0.92);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 3px 14px rgba(0, 0, 0, 0.3);
         overflow: hidden;
         position: relative;
       }
@@ -4155,10 +4492,10 @@
         }
       }
       .community-headline-type-badge {
-        font-size: 0.6rem;
+        font-size: 0.52rem;
         font-weight: 700;
-        padding: 0.15rem 0.45rem;
-        border-radius: 6px;
+        padding: 0.1rem 0.32rem;
+        border-radius: 5px;
         letter-spacing: 0.03em;
         background: rgba(255, 64, 129, 0.22);
         border: 1px solid rgba(255, 64, 129, 0.38);
@@ -4180,12 +4517,12 @@
         color: #7dd3fc;
       }
       .community-headline-published-badge {
-        font-size: 0.58rem;
+        font-size: 0.5rem;
         font-weight: 600;
-        padding: 0.14rem 0.42rem;
+        padding: 0.1rem 0.3rem;
         border-radius: 999px;
         letter-spacing: 0.02em;
-        max-width: min(5.5rem, 38%);
+        max-width: min(4.5rem, 38%);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -4196,7 +4533,7 @@
         border: 1px solid rgba(255, 255, 255, 0.16);
         color: rgba(248, 250, 252, 0.96);
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
       }
       .community-headline-card-art--placeholder {
         background-color: #0a0e18 !important;
@@ -6967,10 +7304,10 @@
               type="button"
               class="header-icon-btn"
               id="quickStartHelpBtn"
-              aria-label="Quick start guide"
+              aria-label="Welcome and tips"
               aria-expanded="false"
-              aria-controls="quickStartHelpModalBody"
-              title="Quick start"
+              aria-controls="welcomeSheetPanel"
+              title="Welcome"
             >
               <svg
                 class="header-icon-svg"
@@ -7059,6 +7396,15 @@
 
       <div class="main-scroll" id="mainScroll">
       <div id="tab-add" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnAdd">
+        <div
+          class="contextual-tip"
+          id="contextualTipAddShows"
+          role="status"
+          hidden
+        >
+          <p class="contextual-tip-text">Search and add a few shows to personalize your feed.</p>
+          <button type="button" class="contextual-tip-dismiss" id="contextualTipAddShowsDismiss" aria-label="Dismiss tip">×</button>
+        </div>
         <section class="search-shell" aria-label="Search and subscribe">
           <div class="add-shows-hero-bar">
             <div class="section-header-highlight search-hero-unified" aria-labelledby="searchHeroHeading">
@@ -7220,6 +7566,15 @@
       </div>
 
       <div id="tab-tasks" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnTasks">
+        <div
+          class="contextual-tip"
+          id="contextualTipTasks"
+          role="status"
+          hidden
+        >
+          <p class="contextual-tip-text">Mark episodes watched and rate them.</p>
+          <button type="button" class="contextual-tip-dismiss" id="contextualTipTasksDismiss" aria-label="Dismiss tip">×</button>
+        </div>
         <section class="panel-rail-magenta" aria-label="Watch checklist">
           <h2 class="section-header-highlight">Watch checklist</h2>
           <div class="tasks-stats-section" id="tasksStatsSection" aria-live="polite">
@@ -7280,9 +7635,52 @@
             </div>
           </div>
         </section>
+        <div
+          id="postWatchReviewModal"
+          class="community-modal post-watch-review-modal"
+          hidden
+          aria-hidden="true"
+        >
+          <div class="community-modal-backdrop" data-close-post-watch-review tabindex="-1"></div>
+          <div
+            class="community-modal-panel post-watch-review-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="postWatchReviewTitle"
+          >
+            <h3 id="postWatchReviewTitle" class="community-modal-title">Rate this episode?</h3>
+            <p class="muted" id="postWatchReviewLead" style="margin: 0 0 0.65rem; font-size: 0.86rem; line-height: 1.45">
+              Would you like to rate this episode out of 5? You can also leave an optional review for the Community.
+            </p>
+            <p class="post-watch-review-ep" id="postWatchReviewEpLine"></p>
+            <div class="post-watch-star-row" id="postWatchReviewStars" role="radiogroup" aria-label="Episode rating"></div>
+            <label for="postWatchReviewText" class="post-watch-review-label">Review (optional)</label>
+            <textarea
+              id="postWatchReviewText"
+              rows="4"
+              maxlength="4000"
+              placeholder="What did you think?"
+              autocomplete="off"
+            ></textarea>
+            <p class="msg err" id="postWatchReviewErr" style="display: none; margin: 0.35rem 0 0"></p>
+            <div class="community-modal-actions" style="margin-top: 0.75rem">
+              <button type="button" id="postWatchReviewSubmitBtn">Submit review</button>
+              <button type="button" class="secondary" id="postWatchReviewSkipBtn">Skip for now</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="tab-community" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnCommunity">
+        <div
+          class="contextual-tip"
+          id="contextualTipCommunity"
+          role="status"
+          hidden
+        >
+          <p class="contextual-tip-text">See reviews, discussions, and breaking news.</p>
+          <button type="button" class="contextual-tip-dismiss" id="contextualTipCommunityDismiss" aria-label="Dismiss tip">×</button>
+        </div>
         <section class="panel-rail-cyan community-root" aria-label="Community">
           <div class="community-list-view" id="communityListView">
             <div class="community-list-head">
@@ -7798,7 +8196,22 @@
             </div>
             <div id="dmInboxThreadView" hidden>
               <button type="button" class="secondary dm-inbox-back" id="dmInboxBackBtn">← Inbox</button>
-              <h3 id="dmInboxThreadTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0.35rem">Chat</h3>
+              <h3
+                id="dmInboxThreadTitleDm"
+                class="section-header-highlight header-cyan-glow dm-inbox-chat-heading"
+                style="margin-top: 0.35rem"
+              >
+                Chat
+              </h3>
+              <button
+                type="button"
+                id="dmInboxGroupTitleBtn"
+                class="dm-inbox-group-title-btn"
+                hidden
+                aria-label="Group details and settings"
+              >
+                <span id="dmInboxThreadTitleGroup" class="section-header-highlight header-cyan-glow dm-inbox-group-title-text">Group</span>
+              </button>
               <div id="dmInboxMessages" class="dm-inbox-messages"></div>
               <p id="dmInboxTypingRow" class="dm-inbox-typing-row" hidden aria-live="polite"></p>
               <div class="dm-inbox-compose">
@@ -7844,6 +8257,34 @@
             <div class="dm-create-group-actions">
               <button type="button" class="secondary" id="dmCreateGroupCancelBtn">Cancel</button>
               <button type="button" id="dmCreateGroupSubmitBtn">Create group</button>
+            </div>
+          </div>
+        </div>
+        <div id="dmGroupSettingsModal" class="dm-create-group-modal" hidden>
+          <div class="dm-create-group-backdrop" id="dmGroupSettingsBackdrop"></div>
+          <div class="dm-create-group-sheet" role="dialog" aria-labelledby="dmGroupSettingsTitle" aria-modal="true">
+            <h3 id="dmGroupSettingsTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Group</h3>
+            <label class="dm-create-group-label" for="dmGroupSettingsNameInput">Group name</label>
+            <div class="dm-group-settings-name-row">
+              <input type="text" id="dmGroupSettingsNameInput" class="dm-compose-search-input" maxlength="80" autocomplete="off" />
+              <button type="button" id="dmGroupSettingsSaveNameBtn">Save</button>
+            </div>
+            <p class="muted" id="dmGroupSettingsOwnerNote" style="margin: 0.25rem 0 0.5rem; font-size: 0.78rem"></p>
+            <h4 class="dm-group-settings-sub">Members</h4>
+            <ul id="dmGroupSettingsMemberList" class="dm-group-settings-member-list"></ul>
+            <h4 class="dm-group-settings-sub" id="dmGroupSettingsAddHeading">Add people</h4>
+            <input
+              type="text"
+              id="dmGroupSettingsSearchInput"
+              class="dm-compose-search-input"
+              placeholder="Search by username…"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <div id="dmGroupSettingsSearchResults" class="dm-compose-results"></div>
+            <p class="muted" id="dmGroupSettingsErr" style="display: none; margin: 0.35rem 0 0; font-size: 0.82rem"></p>
+            <div class="dm-create-group-actions">
+              <button type="button" class="secondary" id="dmGroupSettingsCloseBtn">Done</button>
             </div>
           </div>
         </div>
@@ -7906,87 +8347,28 @@
       role="dialog"
       aria-modal="true"
       aria-labelledby="quickStartHelpHeading"
-      aria-describedby="quickStartHelpSub"
+      aria-describedby="welcomeSheetSubtitle"
     >
-      <div class="modal-panel quickstart-help-panel">
-        <div class="quickstart-help-head">
-          <div class="quickstart-help-head-text">
-            <h3 id="quickStartHelpHeading">Welcome to Airalert</h3>
-            <p id="quickStartHelpSub" class="quickstart-step-meta muted">Step 1 of 5</p>
+      <div class="modal-panel quickstart-help-panel welcome-sheet-panel" id="welcomeSheetPanel">
+        <div class="welcome-sheet-head">
+          <div class="welcome-sheet-head-text">
+            <h3 id="quickStartHelpHeading">Welcome to AirAlert</h3>
+            <p id="welcomeSheetSubtitle" class="welcome-sheet-lead">
+              Track what’s airing, mark episodes watched, and join fan discussions.
+            </p>
           </div>
-          <button type="button" class="modal-close secondary" id="quickStartHelpClose" aria-label="Close">×</button>
+          <button type="button" class="modal-close secondary" id="quickStartHelpClose" aria-label="Close welcome">×</button>
         </div>
-        <div class="quickstart-help-inner">
-          <div
-            class="modal-body-scroll"
-            id="quickStartHelpModalBody"
-            role="region"
-            aria-label="Onboarding steps"
-            aria-live="polite"
-          >
-            <div id="quickStartHelpSteps">
-              <section class="quickstart-step" data-step="0" aria-hidden="false">
-                <p class="quickstart-step-lead">
-                  Track what’s airing, check off episodes, and join fan chats — all in one place.
-                </p>
-                <ul class="quickstart-step-list">
-                  <li>You start on <strong>Add Shows</strong> (bottom nav).</li>
-                  <li>Use the top bar: <strong>?</strong> this guide · <strong>gear</strong> settings · <strong>person</strong> profile · <strong>inbox</strong> when signed in.</li>
-                </ul>
-              </section>
-              <section class="quickstart-step" data-step="1" hidden aria-hidden="true">
-                <h4 class="quickstart-step-title">Build your list</h4>
-                <ul class="quickstart-step-list">
-                  <li>Search by title on <strong>Add Shows</strong> — results appear as you type.</li>
-                  <li>Tap <strong>Subscribe</strong> on a card to follow a show.</li>
-                  <li>Open <strong>My List</strong> to see everything you follow and open episode details.</li>
-                  <li>Use <strong>Binge later</strong> on a show to reduce spoilers until you catch up.</li>
-                </ul>
-              </section>
-              <section class="quickstart-step" data-step="2" hidden aria-hidden="true">
-                <h4 class="quickstart-step-title">Guide &amp; tasks</h4>
-                <ul class="quickstart-step-list">
-                  <li><strong>My week</strong> — week view of what’s airing from your list (your timezone).</li>
-                  <li><strong>Tasks</strong> — episodes to watch; mark <strong>watched</strong> or <strong>skipped</strong>, or leave open.</li>
-                </ul>
-              </section>
-              <section class="quickstart-step" data-step="3" hidden aria-hidden="true">
-                <h4 class="quickstart-step-title">Community</h4>
-                <ul class="quickstart-step-list">
-                  <li>Each show has <strong>General discussion</strong> plus a thread per episode.</li>
-                  <li>Tap <strong>+</strong> to pick a show and start or join a thread.</li>
-                  <li><strong>Profile menu</strong> (person) → <strong>Search username</strong> to find people (signed-in: compatibility %).</li>
-                </ul>
-              </section>
-              <section class="quickstart-step" data-step="4" hidden aria-hidden="true">
-                <h4 class="quickstart-step-title">Settings &amp; profile</h4>
-                <ul class="quickstart-step-list">
-                  <li><strong>Settings</strong> — timezone, refresh show data, push notification choices.</li>
-                  <li><strong>Your profile</strong> — photo, name, account, share stats card.</li>
-                  <li><strong>My List</strong> — follow cast/crew; optional alerts when they’re credited on a new show.</li>
-                </ul>
-                <p class="quickstart-tip">
-                  <strong>Tip:</strong> On iPhone, add Airalert to your Home Screen before enabling push for the most reliable alerts.
-                </p>
-              </section>
-            </div>
-          </div>
-          <div class="quickstart-footer">
-            <div class="quickstart-dots" aria-hidden="true">
-              <span class="quickstart-dot quickstart-dot--active"></span>
-              <span class="quickstart-dot"></span>
-              <span class="quickstart-dot"></span>
-              <span class="quickstart-dot"></span>
-              <span class="quickstart-dot"></span>
-            </div>
-            <div class="quickstart-footer-actions">
-              <button type="button" class="secondary quickstart-skip" id="quickStartHelpSkip">Skip tour</button>
-              <div class="quickstart-footer-nav">
-                <button type="button" class="secondary" id="quickStartHelpPrev" hidden>Back</button>
-                <button type="button" id="quickStartHelpNext">Next</button>
-              </div>
-            </div>
-          </div>
+        <div class="welcome-sheet-body">
+          <ul class="welcome-sheet-bullets">
+            <li>Add shows to build your watchlist</li>
+            <li>Check Tasks for upcoming episodes</li>
+            <li>Join Community to see reviews and breaking news</li>
+          </ul>
+        </div>
+        <div class="welcome-sheet-actions">
+          <button type="button" class="secondary" id="welcomeSkipBtn">Skip</button>
+          <button type="button" id="welcomeGetStartedBtn">Get Started</button>
         </div>
       </div>
     </div>
@@ -8289,7 +8671,7 @@
     <script>
       const LS_USER = "airalert_user_id";
       const LS_GUEST_PROMPT = "airalert_guest_prompt_dismissed";
-      /** Per-user id: onboarding tour dismissed or completed (local device). */
+      /** Per-user: first-run welcome sheet completed or skipped (local device). */
       function onboardingDoneKey(userId) {
         return "airalert_onboarding_v1_done_" + userId;
       }
@@ -8298,6 +8680,30 @@
       }
       function setOnboardingDone(userId) {
         if (userId) localStorage.setItem(onboardingDoneKey(userId), "1");
+      }
+      /** One-time section tips; per user + tip id (local device). */
+      function contextualTipKey(userId, tipId) {
+        return "airalert_ctx_tip_v1_" + tipId + "_" + userId;
+      }
+      function isContextualTipDismissed(userId, tipId) {
+        return Boolean(userId && localStorage.getItem(contextualTipKey(userId, tipId)) === "1");
+      }
+      function dismissContextualTip(userId, tipId) {
+        if (userId) localStorage.setItem(contextualTipKey(userId, tipId), "1");
+      }
+      function updateContextualTipsVisibility(activeTab) {
+        const uid = resolveUserId();
+        const tips = [
+          { id: "contextualTipAddShows", tipId: "add", tab: "add" },
+          { id: "contextualTipTasks", tipId: "tasks", tab: "tasks" },
+          { id: "contextualTipCommunity", tipId: "community", tab: "community" },
+        ];
+        for (const t of tips) {
+          const el = document.getElementById(t.id);
+          if (!el) continue;
+          const dismissed = !uid || isContextualTipDismissed(uid, t.tipId);
+          el.hidden = dismissed || activeTab !== t.tab;
+        }
       }
       function apiOrigin() {
         if (window.location.protocol === "file:") {
@@ -9231,6 +9637,18 @@
           btnWatch.addEventListener("click", async () => {
             try {
               await patchWatchTaskAfterUi(userId, li, t, { status: "watched" });
+              if (accountIsRegistered(sessionMeSnapshot)) {
+                const sid = Number(t.tvmazeShowId);
+                const eid = Number(t.tvmazeEpisodeId);
+                if (Number.isInteger(sid) && sid > 0 && Number.isInteger(eid) && eid > 0) {
+                  openPostWatchReviewModal({
+                    tvmazeShowId: sid,
+                    tvmazeEpisodeId: eid,
+                    showName: String(t.showName || ""),
+                    episodeLabel: String(t.episodeLabel || ""),
+                  });
+                }
+              }
             } catch (e) {
               showToast(e.message || "Could not update task");
             }
@@ -9278,6 +9696,156 @@
         }
         return li;
       }
+
+      let postWatchReviewContext = null;
+      let postWatchReviewSelectedRating = 0;
+      let postWatchReviewLastFocus = null;
+      let postWatchReviewStarsBound = false;
+
+      function ensurePostWatchReviewStarsBound() {
+        if (postWatchReviewStarsBound) return;
+        const host = document.getElementById("postWatchReviewStars");
+        if (!host) return;
+        postWatchReviewStarsBound = true;
+        for (let n = 1; n <= 5; n++) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "post-watch-star-btn";
+          b.dataset.rating = String(n);
+          b.setAttribute("aria-label", n === 1 ? "1 star" : n + " stars");
+          b.setAttribute("role", "radio");
+          b.textContent = "\u2605";
+          b.addEventListener("click", () => {
+            postWatchReviewSelectedRating = n;
+            updatePostWatchStarUi();
+          });
+          host.appendChild(b);
+        }
+      }
+
+      function updatePostWatchStarUi() {
+        document.querySelectorAll("#postWatchReviewStars .post-watch-star-btn").forEach((btn) => {
+          const v = Number(btn.dataset.rating);
+          btn.classList.toggle("is-active", v <= postWatchReviewSelectedRating);
+          btn.setAttribute("aria-checked", v === postWatchReviewSelectedRating ? "true" : "false");
+        });
+      }
+
+      function openPostWatchReviewModal(ctx) {
+        postWatchReviewContext = ctx;
+        postWatchReviewSelectedRating = 0;
+        ensurePostWatchReviewStarsBound();
+        updatePostWatchStarUi();
+        const epLine = document.getElementById("postWatchReviewEpLine");
+        if (epLine) {
+          epLine.textContent =
+            (ctx.showName || "") + (ctx.episodeLabel ? " \u00b7 " + ctx.episodeLabel : "");
+        }
+        const ta = document.getElementById("postWatchReviewText");
+        if (ta) ta.value = "";
+        const err = document.getElementById("postWatchReviewErr");
+        if (err) {
+          err.style.display = "none";
+          err.textContent = "";
+        }
+        const modal = document.getElementById("postWatchReviewModal");
+        if (modal) {
+          modal.hidden = false;
+          modal.setAttribute("aria-hidden", "false");
+        }
+        postWatchReviewLastFocus = document.activeElement;
+        requestAnimationFrame(() => {
+          document.querySelector("#postWatchReviewStars .post-watch-star-btn")?.focus();
+        });
+      }
+
+      function closePostWatchReviewModal() {
+        const modal = document.getElementById("postWatchReviewModal");
+        if (modal) {
+          modal.hidden = true;
+          modal.setAttribute("aria-hidden", "true");
+        }
+        postWatchReviewContext = null;
+        postWatchReviewSelectedRating = 0;
+        const sub = document.getElementById("postWatchReviewSubmitBtn");
+        if (sub) sub.disabled = false;
+        if (postWatchReviewLastFocus && typeof postWatchReviewLastFocus.focus === "function") {
+          try {
+            postWatchReviewLastFocus.focus();
+          } catch {
+            /* ignore */
+          }
+        }
+        postWatchReviewLastFocus = null;
+      }
+
+      async function submitPostWatchReviewFromModal() {
+        const ctx = postWatchReviewContext;
+        if (!ctx) return;
+        const errEl = document.getElementById("postWatchReviewErr");
+        const reviewRaw = document.getElementById("postWatchReviewText");
+        const review = (reviewRaw && reviewRaw.value ? reviewRaw.value : "").trim();
+        const rating = postWatchReviewSelectedRating;
+        if (rating < 1 || rating > 5) {
+          if (errEl) {
+            errEl.style.display = "block";
+            errEl.textContent = "Tap the stars to choose a rating from 1 to 5.";
+          }
+          return;
+        }
+        if (errEl) {
+          errEl.style.display = "none";
+          errEl.textContent = "";
+        }
+        const btn = document.getElementById("postWatchReviewSubmitBtn");
+        if (btn) btn.disabled = true;
+        try {
+          await api("/api/community/post-watch-review", {
+            method: "POST",
+            body: JSON.stringify({
+              tvmazeShowId: ctx.tvmazeShowId,
+              tvmazeEpisodeId: ctx.tvmazeEpisodeId,
+              rating,
+              reviewText: review.length ? review : null,
+            }),
+          });
+          showToast(review.length ? "Thanks! Your review is on Community." : "Rating saved.");
+          closePostWatchReviewModal();
+          if (
+            typeof communityState !== "undefined" &&
+            communityState &&
+            communityState.view === "thread" &&
+            communityState.showId === ctx.tvmazeShowId
+          ) {
+            void loadCommunityThreadPosts();
+          }
+        } catch (e) {
+          const msg = e && e.message ? String(e.message) : "Could not save";
+          if (errEl) {
+            errEl.style.display = "block";
+            errEl.textContent = msg;
+          } else {
+            showToast(msg);
+          }
+        } finally {
+          if (btn) btn.disabled = false;
+        }
+      }
+
+      (function setupPostWatchReviewModal() {
+        document.getElementById("postWatchReviewSkipBtn")?.addEventListener("click", () => closePostWatchReviewModal());
+        document.getElementById("postWatchReviewSubmitBtn")?.addEventListener("click", () => void submitPostWatchReviewFromModal());
+        document.querySelectorAll("[data-close-post-watch-review]").forEach((el) => {
+          el.addEventListener("click", () => closePostWatchReviewModal());
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key !== "Escape") return;
+          const modal = document.getElementById("postWatchReviewModal");
+          if (!modal || modal.hidden) return;
+          e.preventDefault();
+          closePostWatchReviewModal();
+        });
+      })();
 
       async function loadTasks(userId) {
         const ulOpen = document.getElementById("tasksList");
@@ -9362,6 +9930,14 @@
           .replace(/"/g, "&quot;");
       }
 
+      /** Decode HTML entities (named + numeric) via the browser's native parser. Safe: uses textContent, never innerHTML on live DOM. */
+      const _decodeHtmlEntitiesEl = document.createElement("textarea");
+      function decodeHtmlEntities(s) {
+        if (typeof s !== "string" || (!s.includes("&") && !s.includes("&#"))) return s;
+        _decodeHtmlEntitiesEl.innerHTML = s;
+        return _decodeHtmlEntitiesEl.value;
+      }
+
       function truthyBit(v) {
         return v === true || v === 1;
       }
@@ -9380,6 +9956,15 @@
       let dmPeerTypingHideTimer = null;
       let dmTypingTrueLastSent = 0;
       let dmThreadListGen = 0;
+      let dmGroupStackSenderId = null;
+      /** @type {Map<string, { label: string; timer: ReturnType<typeof setTimeout> | null }>} */
+      let dmGroupTypingPeers = new Map();
+      let dmGroupTypingLastSent = 0;
+      let dmGroupTypingStopTimer = null;
+      let dmGroupSettingsSearchTimer = null;
+      let dmGroupSettingsSearchGen = 0;
+      /** Current group member ids while settings modal detail is loaded (for add-member search). */
+      let dmGroupSettingsMemberIds = new Set();
 
       function setDmInboxBadge(total) {
         const b = document.getElementById("headerInboxBadge");
@@ -9436,12 +10021,21 @@
 
       function leaveMessagesTab() {
         sendDmTypingWs(false);
+        sendDmGroupTypingWs(false);
         if (dmTypingStopTimer) {
           clearTimeout(dmTypingStopTimer);
           dmTypingStopTimer = null;
         }
+        if (dmGroupTypingStopTimer) {
+          clearTimeout(dmGroupTypingStopTimer);
+          dmGroupTypingStopTimer = null;
+        }
         hideDmPeerTyping();
+        clearGroupTypingState();
+        closeDmGroupSettingsModal();
+        closeDmComposeView();
         dmInboxActiveThreadId = null;
+        dmInboxActiveGroupId = null;
         dmThreadPeerReadAt = null;
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
@@ -9460,6 +10054,48 @@
           dmWebSocket.send(JSON.stringify({ type: "dm_typing", threadId: dmInboxActiveThreadId, typing: !!typing }));
         } catch {
           /* ignore */
+        }
+      }
+
+      function sendDmGroupTypingWs(typing) {
+        if (!dmWebSocket || dmWebSocket.readyState !== 1 || !dmInboxActiveGroupId) return;
+        try {
+          dmWebSocket.send(
+            JSON.stringify({ type: "dm_group_typing", groupId: dmInboxActiveGroupId, typing: !!typing }),
+          );
+        } catch {
+          /* ignore */
+        }
+      }
+
+      function renderGroupTypingRow() {
+        const row = document.getElementById("dmInboxTypingRow");
+        if (!row) return;
+        if (!dmInboxActiveGroupId || dmGroupTypingPeers.size === 0) {
+          row.hidden = true;
+          row.textContent = "";
+          return;
+        }
+        const labels = [];
+        dmGroupTypingPeers.forEach((v) => labels.push(v.label));
+        const uniq = [...new Set(labels)];
+        let text = "";
+        if (uniq.length === 1) text = uniq[0] + " is typing";
+        else if (uniq.length === 2) text = uniq[0] + " and " + uniq[1] + " are typing";
+        else text = "Several people are typing";
+        row.hidden = false;
+        row.textContent = text;
+      }
+
+      function clearGroupTypingState() {
+        dmGroupTypingPeers.forEach((v) => {
+          if (v.timer) clearTimeout(v.timer);
+        });
+        dmGroupTypingPeers.clear();
+        const row = document.getElementById("dmInboxTypingRow");
+        if (row) {
+          row.hidden = true;
+          row.textContent = "";
         }
       }
 
@@ -9571,6 +10207,66 @@
           }
           void refreshDmUnread();
         }
+        if (data.type === "dm_group_typing" && data.groupId) {
+          const uid = resolveUserId();
+          if (uid && data.userId === uid) return;
+          const threadView = document.getElementById("dmInboxThreadView");
+          if (
+            !isDmMessagesTabActive() ||
+            !threadView ||
+            threadView.hidden ||
+            dmInboxActiveGroupId !== data.groupId
+          ) {
+            return;
+          }
+          const label = data.label || "Someone";
+          if (data.typing) {
+            const prev = dmGroupTypingPeers.get(data.userId);
+            if (prev && prev.timer) clearTimeout(prev.timer);
+            const timer = setTimeout(() => {
+              dmGroupTypingPeers.delete(data.userId);
+              renderGroupTypingRow();
+            }, 4200);
+            dmGroupTypingPeers.set(data.userId, { label, timer });
+            renderGroupTypingRow();
+          } else {
+            const prev = dmGroupTypingPeers.get(data.userId);
+            if (prev && prev.timer) clearTimeout(prev.timer);
+            dmGroupTypingPeers.delete(data.userId);
+            renderGroupTypingRow();
+          }
+        }
+        if (data.type === "dm_group_meta" && data.groupId && typeof data.name === "string") {
+          if (dmInboxActiveGroupId === data.groupId) {
+            const tg = document.getElementById("dmInboxThreadTitleGroup");
+            if (tg) tg.textContent = data.name;
+          }
+          void renderDmThreadList();
+        }
+        if (data.type === "dm_group_members_updated" && data.groupId) {
+          const modal = document.getElementById("dmGroupSettingsModal");
+          if (modal && !modal.hidden && dmInboxActiveGroupId === data.groupId) {
+            void loadDmGroupSettingsDetail();
+          }
+          void renderDmThreadList();
+        }
+        if (data.type === "dm_group_removed" && data.groupId) {
+          const uid = resolveUserId();
+          if (dmInboxActiveGroupId === data.groupId) {
+            sendDmGroupTypingWs(false);
+            clearGroupTypingState();
+            dmInboxActiveGroupId = null;
+            const list = document.getElementById("dmInboxListView");
+            const tv = document.getElementById("dmInboxThreadView");
+            if (list) list.hidden = false;
+            if (tv) tv.hidden = true;
+            const dmFab = document.getElementById("dmComposeBtn");
+            if (dmFab) dmFab.style.display = "";
+            showToast("You were removed from this group");
+            void renderDmThreadList();
+            void refreshDmUnread();
+          }
+        }
         if (data.type === "dm_group_message" && data.message && data.groupId) {
           const threadView = document.getElementById("dmInboxThreadView");
           if (
@@ -9581,7 +10277,7 @@
           ) {
             const uid = resolveUserId();
             const isMe = Boolean(uid && data.message.senderId === uid);
-            appendDmBubbleIfNew(data.message, isMe, undefined);
+            dmGroupStackSenderId = appendGroupDmBubble(data.message, isMe, dmGroupStackSenderId);
             const sc = document.getElementById("dmInboxMessages");
             if (sc) sc.scrollTop = sc.scrollHeight;
             void api("/api/dm/groups/" + encodeURIComponent(data.groupId) + "/read", { method: "POST", body: "{}" });
@@ -9591,11 +10287,13 @@
         if (data.type === "dm_group_deleted" && data.groupId) {
           if (dmInboxActiveGroupId === data.groupId) {
             sendDmTypingWs(false);
+            sendDmGroupTypingWs(false);
             if (dmTypingStopTimer) {
               clearTimeout(dmTypingStopTimer);
               dmTypingStopTimer = null;
             }
             hideDmPeerTyping();
+            clearGroupTypingState();
             dmInboxActiveGroupId = null;
             const list = document.getElementById("dmInboxListView");
             const tv = document.getElementById("dmInboxThreadView");
@@ -9607,6 +10305,93 @@
           void renderDmThreadList();
           void refreshDmUnread();
         }
+      }
+
+      function setDmChatHeaderMode(isGroup) {
+        const dm = document.getElementById("dmInboxThreadTitleDm");
+        const gb = document.getElementById("dmInboxGroupTitleBtn");
+        if (dm) dm.hidden = !!isGroup;
+        if (gb) gb.hidden = !isGroup;
+      }
+
+      function groupSenderLabelFromMsg(msg) {
+        return communityAuthorLabelFromPublicProfile({
+          displayName: msg.senderDisplayName,
+          username: msg.senderUsername,
+        });
+      }
+
+      function dmGroupMiniAvatarFallback(label) {
+        const sp = document.createElement("span");
+        sp.className = "dm-inbox-group-msg-avatar dm-inbox-group-msg-avatar--fb";
+        sp.setAttribute("aria-hidden", "true");
+        const s = String(label || "").trim();
+        sp.textContent = !s ? "?" : s[0] === "@" && s.length > 1 ? s[1].toUpperCase() : s[0].toUpperCase();
+        return sp;
+      }
+
+      /** @returns {string} sender id for stacking */
+      function appendGroupDmBubble(msg, isMe, prevSenderId) {
+        const host = document.getElementById("dmInboxMessages");
+        if (!host || !msg || !msg.id) return prevSenderId || null;
+        if (host.querySelector(".dm-inbox-group-msg[data-msg-id=\"" + msg.id + "\"]")) return msg.senderId;
+        const stacked = Boolean(prevSenderId && prevSenderId === msg.senderId);
+        const row = document.createElement("div");
+        row.className =
+          "dm-inbox-group-msg" +
+          (stacked ? " dm-inbox-group-msg--stacked" : "") +
+          (isMe ? " is-me" : "");
+        row.dataset.msgId = msg.id;
+
+        const avCol = document.createElement("div");
+        avCol.className = "dm-inbox-group-msg-avatar-col";
+        if (!stacked) {
+          const raw = msg.senderAvatarDataUrl;
+          if (typeof raw === "string" && /^data:image\//i.test(raw.trim())) {
+            const img = document.createElement("img");
+            img.className = "dm-inbox-group-msg-avatar";
+            img.alt = "";
+            img.referrerPolicy = "no-referrer";
+            img.src = raw.trim();
+            img.addEventListener("error", () => {
+              img.replaceWith(dmGroupMiniAvatarFallback(groupSenderLabelFromMsg(msg)));
+            });
+            avCol.appendChild(img);
+          } else {
+            avCol.appendChild(dmGroupMiniAvatarFallback(groupSenderLabelFromMsg(msg)));
+          }
+        } else {
+          avCol.classList.add("dm-inbox-group-msg-avatar-col--spacer");
+        }
+
+        const body = document.createElement("div");
+        body.className = "dm-inbox-group-msg-body";
+        if (!stacked) {
+          const nameEl = document.createElement("div");
+          nameEl.className = "dm-inbox-group-msg-name";
+          nameEl.textContent = groupSenderLabelFromMsg(msg);
+          body.appendChild(nameEl);
+        }
+        const div = document.createElement("div");
+        div.className = "dm-inbox-bubble " + (isMe ? "me" : "them");
+        if (msg.createdAt) div.dataset.createdAt = msg.createdAt;
+        div.textContent = msg.body || "";
+        body.appendChild(div);
+        if (isMe && msg.seenBy && msg.seenBy.length) {
+          const seen = document.createElement("div");
+          seen.className = "dm-inbox-group-seen";
+          const names = msg.seenBy.map((s) => s.label);
+          const show = names.slice(0, 4);
+          let t = "Seen by " + show.join(", ");
+          if (names.length > 4) t += " +" + (names.length - 4);
+          seen.textContent = t;
+          seen.setAttribute("aria-label", t);
+          body.appendChild(seen);
+        }
+        row.appendChild(avCol);
+        row.appendChild(body);
+        host.appendChild(row);
+        return msg.senderId;
       }
 
       function appendDmBubbleIfNew(msg, isMe, readOverride) {
@@ -9672,18 +10457,28 @@
       /** Escape / leave full inbox: thread → list; list → another tab. */
       function escapeDmInboxChrome() {
         sendDmTypingWs(false);
+        sendDmGroupTypingWs(false);
         if (dmTypingStopTimer) {
           clearTimeout(dmTypingStopTimer);
           dmTypingStopTimer = null;
         }
+        if (dmGroupTypingStopTimer) {
+          clearTimeout(dmGroupTypingStopTimer);
+          dmGroupTypingStopTimer = null;
+        }
         const tv = document.getElementById("dmInboxThreadView");
         if (tv && !tv.hidden) {
           hideDmPeerTyping();
+          clearGroupTypingState();
           dmInboxActiveThreadId = null;
+          dmInboxActiveGroupId = null;
           dmThreadPeerReadAt = null;
+          const host = document.getElementById("dmInboxMessages");
+          if (host) host.classList.remove("dm-inbox-messages--group");
           const list = document.getElementById("dmInboxListView");
           if (list) list.hidden = false;
           tv.hidden = true;
+          closeDmGroupSettingsModal();
           const err = document.getElementById("dmInboxErr");
           if (err) {
             err.textContent = "";
@@ -10003,6 +10798,68 @@
         );
       }
 
+      function dmInboxPreviewPlain(body) {
+        if (body == null || body === "") return "";
+        return String(body).replace(/\s+/g, " ").trim();
+      }
+
+      function dmInboxAvatarInitial(label) {
+        const s = String(label || "").trim();
+        if (!s) return "?";
+        if (s[0] === "@" && s.length > 1) return s[1].toUpperCase();
+        return s[0].toUpperCase();
+      }
+
+      function dmInboxCreateAvatarEl(avatarDataUrl, initialChar, isGroup) {
+        const wrap = document.createElement("span");
+        wrap.className = "dm-inbox-thread-avatar-wrap";
+        const raw = typeof avatarDataUrl === "string" ? avatarDataUrl.trim() : "";
+        if (raw && /^data:image\//i.test(raw)) {
+          const img = document.createElement("img");
+          img.className = "dm-inbox-thread-avatar";
+          img.alt = "";
+          img.loading = "lazy";
+          img.decoding = "async";
+          img.referrerPolicy = "no-referrer";
+          img.src = raw;
+          img.addEventListener("error", () => {
+            img.replaceWith(
+              (function fallbackEl() {
+                const fb = document.createElement("span");
+                fb.className =
+                  "dm-inbox-thread-avatar dm-inbox-thread-avatar--fallback" +
+                  (isGroup ? " dm-inbox-thread-avatar--group" : "");
+                fb.setAttribute("aria-hidden", "true");
+                fb.textContent = initialChar;
+                return fb;
+              })(),
+            );
+          });
+          wrap.appendChild(img);
+        } else {
+          const fb = document.createElement("span");
+          fb.className =
+            "dm-inbox-thread-avatar dm-inbox-thread-avatar--fallback" +
+            (isGroup ? " dm-inbox-thread-avatar--group" : "");
+          fb.setAttribute("aria-hidden", "true");
+          fb.textContent = initialChar;
+          wrap.appendChild(fb);
+        }
+        return wrap;
+      }
+
+      function dmInboxAppendUnreadSlot(btn, unreadCount) {
+        const slot = document.createElement("span");
+        slot.className = "dm-inbox-thread-unread-slot";
+        if (unreadCount > 0) {
+          const dot = document.createElement("span");
+          dot.className = "dm-inbox-unread-dot";
+          dot.setAttribute("aria-hidden", "true");
+          slot.appendChild(dot);
+        }
+        btn.appendChild(slot);
+      }
+
       async function renderDmThreadList() {
         const host = document.getElementById("dmInboxThreadList");
         const groupHost = document.getElementById("dmInboxGroupList");
@@ -10027,24 +10884,48 @@
           }
           if (groupHost) {
             for (const g of groups) {
+              const gname = g.name || "Group";
               const btn = document.createElement("button");
               btn.type = "button";
               btn.className = "dm-inbox-thread-row";
               btn.title = "Open group · Swipe right: mark unread · Swipe left: leave group";
-              const dot = g.unreadCount > 0 ? "<span class=\"dm-inbox-unread-dot\" aria-hidden=\"true\"></span>" : "<span style=\"width:8px;flex-shrink:0\"></span>";
-              const prev = g.lastBody ? escapeHtml(g.lastBody.slice(0, 80) + (g.lastBody.length > 80 ? "…" : "")) : "—";
-              const sub = (g.memberCount || 0) + " member" + (g.memberCount === 1 ? "" : "s");
-              btn.innerHTML =
-                dot +
-                "<span style=\"flex:1;min-width:0\"><strong style=\"display:block;font-size:0.92rem\">" +
-                escapeHtml(g.name || "Group") +
-                "</strong><span class=\"muted\" style=\"font-size:0.72rem;display:block\">" +
-                escapeHtml(sub) +
-                "</span><span class=\"dm-inbox-thread-preview\">" +
-                prev +
-                "</span></span>";
-              btn.addEventListener("click", () => void openDmGroupView(g.groupId, g.name || "Group"));
-              attachDmInboxGroupRowSwipe(btn, g.groupId, g.name || "Group");
+              const aria =
+                "Open group " +
+                gname +
+                (g.unreadCount > 0 ? ", " + g.unreadCount + " unread" : "");
+              btn.setAttribute("aria-label", aria);
+
+              const main = document.createElement("span");
+              main.className = "dm-inbox-thread-row-main";
+              const av = dmInboxCreateAvatarEl(null, dmInboxAvatarInitial(gname), true);
+              const bodyCol = document.createElement("span");
+              bodyCol.className = "dm-inbox-thread-body";
+              const nameEl = document.createElement("span");
+              nameEl.className = "dm-inbox-thread-name";
+              nameEl.textContent = gname;
+              const previewEl = document.createElement("span");
+              previewEl.className = "dm-inbox-thread-preview";
+              const mc = g.memberCount || 0;
+              const sub = mc + " member" + (mc === 1 ? "" : "s");
+              const prevText = dmInboxPreviewPlain(g.lastBody);
+              if (prevText) {
+                const meta = document.createElement("span");
+                meta.className = "dm-inbox-thread-meta";
+                meta.textContent = sub + " · ";
+                previewEl.appendChild(meta);
+                previewEl.appendChild(document.createTextNode(prevText));
+              } else {
+                previewEl.textContent = sub;
+              }
+              bodyCol.appendChild(nameEl);
+              bodyCol.appendChild(previewEl);
+              main.appendChild(av);
+              main.appendChild(bodyCol);
+              btn.appendChild(main);
+              dmInboxAppendUnreadSlot(btn, g.unreadCount);
+
+              btn.addEventListener("click", () => void openDmGroupView(g.groupId, gname));
+              attachDmInboxGroupRowSwipe(btn, g.groupId, gname);
               groupHost.appendChild(btn);
             }
           }
@@ -10057,15 +10938,32 @@
             btn.type = "button";
             btn.className = "dm-inbox-thread-row";
             btn.title = "Open chat · Swipe right: mark unread · Swipe left: delete";
-            const dot = t.unreadCount > 0 ? "<span class=\"dm-inbox-unread-dot\" aria-hidden=\"true\"></span>" : "<span style=\"width:8px;flex-shrink:0\"></span>";
-            const prev = t.lastBody ? escapeHtml(t.lastBody.slice(0, 80) + (t.lastBody.length > 80 ? "…" : "")) : "—";
-            btn.innerHTML =
-              dot +
-              "<span style=\"flex:1;min-width:0\"><strong style=\"display:block;font-size:0.92rem\">" +
-              escapeHtml(label) +
-              "</strong><span class=\"dm-inbox-thread-preview\">" +
-              prev +
-              "</span></span>";
+            const aria =
+              "Open direct message with " +
+              label +
+              (t.unreadCount > 0 ? ", " + t.unreadCount + " unread" : "");
+            btn.setAttribute("aria-label", aria);
+
+            const main = document.createElement("span");
+            main.className = "dm-inbox-thread-row-main";
+            const av = dmInboxCreateAvatarEl(t.otherAvatarDataUrl, dmInboxAvatarInitial(label), false);
+            const bodyCol = document.createElement("span");
+            bodyCol.className = "dm-inbox-thread-body";
+            const nameEl = document.createElement("span");
+            nameEl.className = "dm-inbox-thread-name";
+            nameEl.textContent = label;
+            const previewEl = document.createElement("span");
+            previewEl.className = "dm-inbox-thread-preview";
+            const prevText = dmInboxPreviewPlain(t.lastBody);
+            previewEl.textContent = prevText || "—";
+
+            bodyCol.appendChild(nameEl);
+            bodyCol.appendChild(previewEl);
+            main.appendChild(av);
+            main.appendChild(bodyCol);
+            btn.appendChild(main);
+            dmInboxAppendUnreadSlot(btn, t.unreadCount);
+
             btn.addEventListener("click", () => void openDmThreadView(t.threadId, label));
             attachDmInboxThreadRowSwipe(btn, t.threadId, label);
             host.appendChild(btn);
@@ -10081,13 +10979,140 @@
         }
       }
 
+      async function loadDmGroupSettingsDetail() {
+        const gid = dmInboxActiveGroupId;
+        if (!gid) return;
+        const errEl = document.getElementById("dmGroupSettingsErr");
+        const nameInp = document.getElementById("dmGroupSettingsNameInput");
+        const ownerNote = document.getElementById("dmGroupSettingsOwnerNote");
+        const listEl = document.getElementById("dmGroupSettingsMemberList");
+        const addHeading = document.getElementById("dmGroupSettingsAddHeading");
+        const searchInp = document.getElementById("dmGroupSettingsSearchInput");
+        const saveBtn = document.getElementById("dmGroupSettingsSaveNameBtn");
+        if (errEl) {
+          errEl.style.display = "none";
+          errEl.textContent = "";
+        }
+        try {
+          const d = await api("/api/dm/groups/" + encodeURIComponent(gid));
+          dmGroupSettingsMemberIds = new Set((d.members || []).map((m) => m.userId));
+          const me = resolveUserId();
+          const isOwner = d.createdBy === me;
+          if (nameInp) {
+            nameInp.value = d.name || "";
+            nameInp.disabled = !isOwner;
+          }
+          if (saveBtn) saveBtn.hidden = !isOwner;
+          if (ownerNote) {
+            ownerNote.textContent = isOwner
+              ? "You created this group. You can rename it, add people, and remove members."
+              : "Only the group owner can rename the chat or add or remove members.";
+          }
+          if (addHeading) addHeading.hidden = !isOwner;
+          if (searchInp) {
+            searchInp.hidden = !isOwner;
+            searchInp.disabled = !isOwner;
+            searchInp.value = "";
+          }
+          const res = document.getElementById("dmGroupSettingsSearchResults");
+          if (res) res.innerHTML = "";
+          if (listEl) {
+            listEl.innerHTML = "";
+            for (const m of d.members || []) {
+              const li = document.createElement("li");
+              li.className = "dm-group-settings-member";
+              const lab = communityAuthorLabelFromPublicProfile({
+                displayName: m.displayName,
+                username: m.username,
+              });
+              let av;
+              if (m.avatarDataUrl && /^data:image\//i.test(String(m.avatarDataUrl).trim())) {
+                av = document.createElement("img");
+                av.className = "dm-group-settings-member-av";
+                av.src = String(m.avatarDataUrl).trim();
+                av.alt = "";
+                av.referrerPolicy = "no-referrer";
+              } else {
+                av = document.createElement("span");
+                av.className = "dm-group-settings-member-av fb";
+                av.textContent = dmInboxAvatarInitial(lab);
+                av.setAttribute("aria-hidden", "true");
+              }
+              const meta = document.createElement("div");
+              meta.className = "dm-group-settings-member-meta";
+              const strong = document.createElement("strong");
+              strong.textContent = lab;
+              meta.appendChild(strong);
+              if (m.isOwner) {
+                const span = document.createElement("span");
+                span.className = "muted";
+                span.style.display = "block";
+                span.style.fontSize = "0.72rem";
+                span.textContent = "Owner";
+                meta.appendChild(span);
+              }
+              li.appendChild(av);
+              li.appendChild(meta);
+              if (isOwner && !m.isOwner) {
+                const rm = document.createElement("button");
+                rm.type = "button";
+                rm.className = "secondary dm-group-settings-remove";
+                rm.textContent = "Remove";
+                rm.addEventListener("click", async () => {
+                  if (!window.confirm("Remove " + lab + " from this group?")) return;
+                  try {
+                    await api(
+                      "/api/dm/groups/" + encodeURIComponent(gid) + "/members/" + encodeURIComponent(m.userId),
+                      { method: "DELETE", body: "{}" },
+                    );
+                    await loadDmGroupSettingsDetail();
+                    void renderDmThreadList();
+                  } catch (e) {
+                    if (errEl) {
+                      errEl.style.display = "block";
+                      errEl.textContent = e.message || "Could not remove";
+                    }
+                  }
+                });
+                li.appendChild(rm);
+              }
+              listEl.appendChild(li);
+            }
+          }
+        } catch (e) {
+          if (errEl) {
+            errEl.style.display = "block";
+            errEl.textContent = e.message || "Could not load group";
+          }
+        }
+      }
+
+      function openDmGroupSettingsModal() {
+        const modal = document.getElementById("dmGroupSettingsModal");
+        if (!modal || !dmInboxActiveGroupId) return;
+        modal.hidden = false;
+        void loadDmGroupSettingsDetail();
+      }
+
+      function closeDmGroupSettingsModal() {
+        const modal = document.getElementById("dmGroupSettingsModal");
+        if (modal) modal.hidden = true;
+      }
+
       async function openDmThreadView(threadId, titleLabel) {
         sendDmTypingWs(false);
+        sendDmGroupTypingWs(false);
         if (dmTypingStopTimer) {
           clearTimeout(dmTypingStopTimer);
           dmTypingStopTimer = null;
         }
+        if (dmGroupTypingStopTimer) {
+          clearTimeout(dmGroupTypingStopTimer);
+          dmGroupTypingStopTimer = null;
+        }
         hideDmPeerTyping();
+        clearGroupTypingState();
+        closeDmGroupSettingsModal();
         closeDmComposeView();
         dmInboxActiveGroupId = null;
         dmInboxActiveThreadId = threadId;
@@ -10098,14 +11123,16 @@
         if (dmFabMenu) dmFabMenu.classList.remove("visible");
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
-        const title = document.getElementById("dmInboxThreadTitle");
+        const titleDm = document.getElementById("dmInboxThreadTitleDm");
         const host = document.getElementById("dmInboxMessages");
         const err = document.getElementById("dmInboxErr");
         if (err) {
           err.textContent = "";
           err.style.display = "none";
         }
-        if (title) title.textContent = titleLabel || "Chat";
+        setDmChatHeaderMode(false);
+        if (titleDm) titleDm.textContent = titleLabel || "Chat";
+        if (host) host.classList.remove("dm-inbox-messages--group");
         if (list) list.hidden = true;
         if (tv) tv.hidden = false;
         if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading…</p>";
@@ -10135,29 +11162,41 @@
 
       async function openDmGroupView(groupId, titleLabel) {
         sendDmTypingWs(false);
+        sendDmGroupTypingWs(false);
         if (dmTypingStopTimer) {
           clearTimeout(dmTypingStopTimer);
           dmTypingStopTimer = null;
         }
+        if (dmGroupTypingStopTimer) {
+          clearTimeout(dmGroupTypingStopTimer);
+          dmGroupTypingStopTimer = null;
+        }
         hideDmPeerTyping();
+        clearGroupTypingState();
+        closeDmGroupSettingsModal();
         closeDmComposeView();
         dmInboxActiveThreadId = null;
         dmInboxActiveGroupId = groupId;
         dmThreadPeerReadAt = null;
+        dmGroupStackSenderId = null;
         const dmFab = document.getElementById("dmComposeBtn");
         const dmFabMenu = document.getElementById("dmFabMenu");
         if (dmFab) dmFab.style.display = "none";
         if (dmFabMenu) dmFabMenu.classList.remove("visible");
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
-        const title = document.getElementById("dmInboxThreadTitle");
+        const titleG = document.getElementById("dmInboxThreadTitleGroup");
         const host = document.getElementById("dmInboxMessages");
         const err = document.getElementById("dmInboxErr");
         if (err) {
           err.textContent = "";
           err.style.display = "none";
         }
-        if (title) title.textContent = titleLabel || "Group";
+        setDmChatHeaderMode(true);
+        if (titleG) titleG.textContent = titleLabel || "Group";
+        if (host) {
+          host.classList.add("dm-inbox-messages--group");
+        }
         if (list) list.hidden = true;
         if (tv) tv.hidden = false;
         if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading…</p>";
@@ -10167,11 +11206,13 @@
           if (host) {
             host.innerHTML = "";
             const uid = resolveUserId();
+            let prev = null;
             for (const msg of msgs) {
               const me = Boolean(uid && msg.senderId === uid);
-              appendDmBubbleIfNew(msg, me, undefined);
+              prev = appendGroupDmBubble(msg, me, prev);
             }
             host.scrollTop = host.scrollHeight;
+            dmGroupStackSenderId = prev;
           }
           await api("/api/dm/groups/" + encodeURIComponent(groupId) + "/read", { method: "POST", body: "{}" });
           void refreshDmUnread();
@@ -10198,9 +11239,14 @@
         }
         try {
           sendDmTypingWs(false);
+          sendDmGroupTypingWs(false);
           if (dmTypingStopTimer) {
             clearTimeout(dmTypingStopTimer);
             dmTypingStopTimer = null;
+          }
+          if (dmGroupTypingStopTimer) {
+            clearTimeout(dmGroupTypingStopTimer);
+            dmGroupTypingStopTimer = null;
           }
           const url = groupId
             ? "/api/dm/groups/" + encodeURIComponent(groupId) + "/messages"
@@ -10214,7 +11260,7 @@
             const uid = resolveUserId();
             const me = Boolean(uid && out.message.senderId === uid);
             if (groupId) {
-              appendDmBubbleIfNew(out.message, me, undefined);
+              dmGroupStackSenderId = appendGroupDmBubble(out.message, me, dmGroupStackSenderId);
             } else {
               appendDmBubbleIfNew(out.message, me, false);
             }
@@ -12213,7 +13259,6 @@
         let resumeTimer = null;
         const resumeDelayMs = 2600;
         let docPointerUpAttached = false;
-        let autoScrollApplying = false;
 
         function setPaused(next) {
           if (paused === next) return;
@@ -12252,14 +13297,6 @@
           scheduleResume();
         }
 
-        function clearAutoScrollFlag() {
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              autoScrollApplying = false;
-            });
-          });
-        }
-
         function tick(t) {
           rafId = requestAnimationFrame(tick);
           if (paused || document.visibilityState === "hidden") {
@@ -12268,17 +13305,14 @@
           }
           const dt = Math.min(48, t - lastT) / 1000;
           lastT = t;
-          autoScrollApplying = true;
           rail.scrollLeft += speedPxPerSec * dt;
           if (rail.scrollLeft >= loopSpan - 0.5) {
             rail.scrollLeft -= loopSpan;
           }
-          clearAutoScrollFlag();
         }
 
         const onScroll = () => {
-          if (autoScrollApplying) return;
-          pauseInteraction();
+          if (!paused) return;
           scheduleResume();
         };
 
@@ -12416,9 +13450,12 @@
             } else {
               card.setAttribute("role", "article");
             }
-            const showLine = it.showName ? escapeHtml(it.showName) : "";
+            const headlineText = decodeHtmlEntities(it.text || "");
+            const headlineShowName = decodeHtmlEntities(it.showName || "");
+            const headlineSource = decodeHtmlEntities(it.source || "");
+            const showLine = headlineShowName ? escapeHtml(headlineShowName) : "";
             const metaParts = [];
-            if (it.source) metaParts.push('<span class="community-thread-footer-stat">via ' + escapeHtml(it.source) + "</span>");
+            if (headlineSource) metaParts.push('<span class="community-thread-footer-stat">via ' + escapeHtml(headlineSource) + "</span>");
             if (hasUrl) metaParts.push('<span style="margin-left:auto"><span class="community-thread-card-join">Open</span></span>');
             const footer = metaParts.length
               ? '<div class="community-thread-footer" style="margin-top:0.35rem">' + metaParts.join("") + "</div>"
@@ -12448,12 +13485,12 @@
               (showLine || "\u00A0") +
               "</div>" +
               '<div class="community-thread-ep-title community-headline-card-title">' +
-              escapeHtml(it.text) +
+              escapeHtml(headlineText) +
               "</div>" +
               footer +
               "</div></div>";
 
-            const label = (it.text || "Headline").slice(0, 140) + (hasUrl ? " — opens in new tab" : "");
+            const label = (headlineText || "Headline").slice(0, 140) + (hasUrl ? " — opens in new tab" : "");
             card.setAttribute("aria-label", label);
 
             const heroEl = card.querySelector(".community-headline-card-art");
@@ -12582,9 +13619,9 @@
               '<span class="community-show-news-image-badge">\u{1F4F0} Breaking</span>' +
               '</div>' +
               '<div class="community-show-news-body">' +
-              '<p class="community-show-news-headline">' + escapeHtml(it.headline) + '</p>' +
+              '<p class="community-show-news-headline">' + escapeHtml(decodeHtmlEntities(it.headline)) + '</p>' +
               '<div class="community-show-news-meta">' +
-              '<span class="community-show-news-source">via ' + escapeHtml(it.source) + '</span>' +
+              '<span class="community-show-news-source">via ' + escapeHtml(decodeHtmlEntities(it.source || "")) + '</span>' +
               '<span>' + formatCommunityRelativeTime(it.createdAt) + '</span>' +
               '<span class="community-show-news-readmore">Read more \u2192</span>' +
               '</div>' +
@@ -13822,6 +14859,11 @@
             tagBadge.style.color = "#ff80ab";
             tagBadge.style.border = "1px solid rgba(255,64,129,0.3)";
             tagBadge.textContent = "Hot Take";
+          } else if (p.tag === "episode_review") {
+            tagBadge.style.background = "rgba(251, 191, 36, 0.14)";
+            tagBadge.style.color = "#fcd34d";
+            tagBadge.style.border = "1px solid rgba(251, 191, 36, 0.38)";
+            tagBadge.textContent = "Episode review";
           }
           wrap.appendChild(tagBadge);
         }
@@ -14909,32 +15951,6 @@
       }
 
       let quickStartFirstRunSession = false;
-      let quickStartStepIndex = 0;
-      const QUICKSTART_STEP_COUNT = 5;
-
-      function setQuickStartStep(i) {
-        quickStartStepIndex = Math.max(0, Math.min(QUICKSTART_STEP_COUNT - 1, i));
-        const steps = document.querySelectorAll("#quickStartHelpSteps .quickstart-step");
-        steps.forEach((panel, j) => {
-          const on = j === quickStartStepIndex;
-          panel.hidden = !on;
-          panel.setAttribute("aria-hidden", on ? "false" : "true");
-        });
-        const dots = document.querySelectorAll(".quickstart-dot");
-        dots.forEach((d, j) => {
-          d.classList.toggle("quickstart-dot--active", j === quickStartStepIndex);
-        });
-        const sub = document.getElementById("quickStartHelpSub");
-        if (sub) {
-          sub.textContent = "Step " + (quickStartStepIndex + 1) + " of " + QUICKSTART_STEP_COUNT;
-        }
-        const prev = document.getElementById("quickStartHelpPrev");
-        const next = document.getElementById("quickStartHelpNext");
-        if (prev) prev.hidden = quickStartStepIndex === 0;
-        if (next) {
-          next.textContent = quickStartStepIndex >= QUICKSTART_STEP_COUNT - 1 ? "Get started" : "Next";
-        }
-      }
 
       /**
        * @param {{ firstRun?: boolean}} [opts] firstRun: mark onboarding complete when closed (after register/guest).
@@ -14947,14 +15963,13 @@
         const btn = document.getElementById("quickStartHelpBtn");
         if (!el) return;
         quickStartFirstRunSession = Boolean(opts && opts.firstRun);
-        setQuickStartStep(0);
         el.classList.add("open");
         if (btn) {
           btn.setAttribute("aria-expanded", "true");
         }
         requestAnimationFrame(() => {
-          const next = document.getElementById("quickStartHelpNext");
-          if (next) next.focus();
+          const primary = document.getElementById("welcomeGetStartedBtn");
+          if (primary) primary.focus();
         });
       }
 
@@ -14978,13 +15993,17 @@
           setOnboardingDone(sessionMeSnapshot.id);
         }
         quickStartFirstRunSession = false;
-        if (!skipFocus) {
-          if (wasFirstRun) {
-            document.querySelector('.tab-btn[data-tab="add"]')?.focus();
-          } else {
-            document.getElementById("quickStartHelpBtn")?.focus();
-          }
+        if (!skipFocus && !wasFirstRun) {
+          document.getElementById("quickStartHelpBtn")?.focus();
         }
+      }
+
+      function welcomeGetStarted() {
+        closeQuickStartHelpModal({ skipFocusRestore: true });
+        setTab("add");
+        requestAnimationFrame(() => {
+          document.getElementById("searchTitle")?.focus();
+        });
       }
 
       function closeAppSettingsModal() {
@@ -15048,6 +16067,68 @@
         if (pd) pd.hidden = true;
         if (sb) sb.setAttribute("aria-expanded", "false");
         if (pb) pb.setAttribute("aria-expanded", "false");
+      }
+
+      function scrollMainScrollToTop() {
+        const ms = document.getElementById("mainScroll");
+        if (ms) ms.scrollTop = 0;
+      }
+
+      /**
+       * When the user taps the tab for the section they're already on, return nested UI
+       * to that section's root without calling setTab (avoids duplicate loaders and flicker).
+       */
+      function resetActiveSectionToRoot(tabName) {
+        closeHeaderMenus();
+        if (tabName === "community") {
+          closeCommunityMemberProfile();
+          closeCommunityNewModal();
+          closeCommunityEditModal();
+          closeCommunityAdminMoveModal();
+          closeCommunityChallengeDetailModal();
+          const ccv = document.getElementById("communityChallengeCreateView");
+          const inChallengeCreate = ccv && !ccv.classList.contains("hidden");
+          if (communityState.view === "thread" || inChallengeCreate) {
+            openCommunityListView();
+          }
+          scrollMainScrollToTop();
+          return;
+        }
+        if (tabName === "guide") {
+          const uid = resolveUserId();
+          if (!uid) return;
+          if (weekGuideWeekStart) {
+            weekGuideWeekStart = null;
+            void loadWeekGuide(uid);
+          }
+          scrollMainScrollToTop();
+          return;
+        }
+        if (tabName === "tasks") {
+          const pwm = document.getElementById("postWatchReviewModal");
+          if (pwm && !pwm.hidden) {
+            closePostWatchReviewModal();
+            return;
+          }
+          scrollMainScrollToTop();
+          return;
+        }
+        if (tabName === "add") {
+          const sm = document.getElementById("showModal");
+          if (sm && sm.classList.contains("open")) {
+            closeShowModal();
+            return;
+          }
+          scrollMainScrollToTop();
+          return;
+        }
+        if (tabName === "shows") {
+          scrollMainScrollToTop();
+          return;
+        }
+        if (tabName === "admin" && userIsDbAdmin(sessionMeSnapshot) && document.getElementById("tab-admin")) {
+          scrollMainScrollToTop();
+        }
       }
 
       function setTab(name) {
@@ -15117,6 +16198,7 @@
           loadAdminOverview();
           loadAdminBreakingNews();
         }
+        updateContextualTipsVisibility(name);
       }
 
       function normalizeVapidPublicKeyClient(raw) {
@@ -15213,7 +16295,14 @@
       document.querySelector(".tab-nav")?.addEventListener("click", (e) => {
         const btn = e.target && e.target.closest ? e.target.closest(".tab-btn") : null;
         if (!btn || !btn.getAttribute("data-tab")) return;
-        setTab(btn.getAttribute("data-tab"));
+        const tab = btn.getAttribute("data-tab");
+        const activeBtn = document.querySelector(".tab-nav .tab-btn.active");
+        const activeTab = activeBtn && activeBtn.getAttribute ? activeBtn.getAttribute("data-tab") : null;
+        if (tab && activeTab && tab === activeTab) {
+          resetActiveSectionToRoot(tab);
+          return;
+        }
+        setTab(tab);
       });
 
       document.getElementById("communityBackBtn").addEventListener("click", () => openCommunityListView());
@@ -15659,6 +16748,104 @@
           }
         });
       })();
+      (function initDmGroupSettingsModal() {
+        document.getElementById("dmInboxGroupTitleBtn")?.addEventListener("click", () => {
+          openDmGroupSettingsModal();
+        });
+        document.getElementById("dmGroupSettingsBackdrop")?.addEventListener("click", closeDmGroupSettingsModal);
+        document.getElementById("dmGroupSettingsCloseBtn")?.addEventListener("click", closeDmGroupSettingsModal);
+        document.getElementById("dmGroupSettingsSaveNameBtn")?.addEventListener("click", async () => {
+          const gid = dmInboxActiveGroupId;
+          const nameInp = document.getElementById("dmGroupSettingsNameInput");
+          const errEl = document.getElementById("dmGroupSettingsErr");
+          if (!gid || !nameInp || nameInp.disabled) return;
+          const name = nameInp.value.trim();
+          if (errEl) {
+            errEl.style.display = "none";
+            errEl.textContent = "";
+          }
+          try {
+            await api("/api/dm/groups/" + encodeURIComponent(gid), {
+              method: "PATCH",
+              body: JSON.stringify({ name }),
+            });
+            const tg = document.getElementById("dmInboxThreadTitleGroup");
+            if (tg) tg.textContent = name || "Group";
+            void renderDmThreadList();
+          } catch (e) {
+            if (errEl) {
+              errEl.style.display = "block";
+              errEl.textContent = e.message || "Could not save name";
+            }
+          }
+        });
+        const gSearchInp = document.getElementById("dmGroupSettingsSearchInput");
+        const gRes = document.getElementById("dmGroupSettingsSearchResults");
+        if (gSearchInp) {
+          gSearchInp.addEventListener("input", () => {
+            const q = gSearchInp.value.trim();
+            if (dmGroupSettingsSearchTimer) clearTimeout(dmGroupSettingsSearchTimer);
+            if (!q || q.length < 2) {
+              if (gRes) gRes.innerHTML = "";
+              return;
+            }
+            dmGroupSettingsSearchTimer = setTimeout(async () => {
+              const gen = ++dmGroupSettingsSearchGen;
+              const gid = dmInboxActiveGroupId;
+              if (!gid) return;
+              try {
+                const data = await api("/api/community/users/search?q=" + encodeURIComponent(q));
+                if (gen !== dmGroupSettingsSearchGen) return;
+                const users = data.users || [];
+                if (!gRes) return;
+                gRes.innerHTML = "";
+                const selfId = sessionMeSnapshot?.id;
+                for (const u of users) {
+                  if (u.id === selfId) continue;
+                  if (dmGroupSettingsMemberIds.has(u.id)) continue;
+                  const btn = document.createElement("button");
+                  btn.type = "button";
+                  btn.className = "dm-compose-result-btn";
+                  const avatarContent = u.avatarDataUrl
+                    ? '<img src="' + escapeHtml(u.avatarDataUrl) + '" alt="" />'
+                    : (u.displayName || u.username || "?").charAt(0).toUpperCase();
+                  btn.innerHTML =
+                    '<div class="dm-compose-result-avatar">' + avatarContent + '</div>' +
+                    '<div class="dm-compose-result-info">' +
+                    '<span class="dm-compose-result-name">' + escapeHtml(u.displayName || u.username) + '</span>' +
+                    '<span class="dm-compose-result-username">@' + escapeHtml(u.username) + '</span>' +
+                    '</div>';
+                  btn.addEventListener("click", async () => {
+                    const errEl = document.getElementById("dmGroupSettingsErr");
+                    if (errEl) {
+                      errEl.style.display = "none";
+                      errEl.textContent = "";
+                    }
+                    try {
+                      await api("/api/dm/groups/" + encodeURIComponent(gid) + "/members", {
+                        method: "POST",
+                        body: JSON.stringify({ userIds: [u.id] }),
+                      });
+                      gSearchInp.value = "";
+                      if (gRes) gRes.innerHTML = "";
+                      await loadDmGroupSettingsDetail();
+                      void renderDmThreadList();
+                    } catch (e) {
+                      if (errEl) {
+                        errEl.style.display = "block";
+                        errEl.textContent = e.message || "Could not add member";
+                      }
+                    }
+                  });
+                  gRes.appendChild(btn);
+                }
+              } catch {
+                if (gRes) gRes.innerHTML = '<p class="muted" style="font-size:0.82rem;margin:0.25rem 0">Search failed.</p>';
+              }
+            }, 250);
+          });
+        }
+      })();
       // ── Compose / New Message button ──
       (function initDmCompose() {
         const fabBtn = document.getElementById("dmComposeBtn");
@@ -15796,8 +16983,20 @@
         }
       });
       document.getElementById("dmInboxInput")?.addEventListener("input", () => {
-        if (!dmInboxActiveThreadId || dmInboxActiveGroupId) return;
         const now = Date.now();
+        if (dmInboxActiveGroupId) {
+          if (now - dmGroupTypingLastSent > 2000) {
+            sendDmGroupTypingWs(true);
+            dmGroupTypingLastSent = now;
+          }
+          if (dmGroupTypingStopTimer) clearTimeout(dmGroupTypingStopTimer);
+          dmGroupTypingStopTimer = setTimeout(() => {
+            sendDmGroupTypingWs(false);
+            dmGroupTypingStopTimer = null;
+          }, 2800);
+          return;
+        }
+        if (!dmInboxActiveThreadId) return;
         if (now - dmTypingTrueLastSent > 1800) {
           sendDmTypingWs(true);
           dmTypingTrueLastSent = now;
@@ -15810,9 +17009,14 @@
       });
       document.getElementById("dmInboxInput")?.addEventListener("blur", () => {
         sendDmTypingWs(false);
+        sendDmGroupTypingWs(false);
         if (dmTypingStopTimer) {
           clearTimeout(dmTypingStopTimer);
           dmTypingStopTimer = null;
+        }
+        if (dmGroupTypingStopTimer) {
+          clearTimeout(dmGroupTypingStopTimer);
+          dmGroupTypingStopTimer = null;
         }
       });
       document.getElementById("communityMemberProfileDmBtn")?.addEventListener("click", () => {
@@ -16262,6 +17466,10 @@
         loadRecommended(userId);
         loadTrendingShows(userId);
         await loadTasks(userId);
+        const active = document.querySelector(".tab-panel.active");
+        const tabName =
+          active && active.id && active.id.startsWith("tab-") ? active.id.slice(4) : "add";
+        updateContextualTipsVisibility(tabName);
       }
 
       function showAccountPromptStep(step) {
@@ -16336,6 +17544,7 @@
         loadTrendingShows(userId);
         renderRecentChips();
         loadTasks(userId);
+        updateContextualTipsVisibility("add");
 
         try {
           const cq = new URLSearchParams(window.location.search);
@@ -16460,6 +17669,7 @@
             await refreshAllForUserId(meNow.id, meNow);
             closeAccountPromptModal();
             showToast("Signed in");
+            await offerOnboardingAfterAuth(meNow);
           } catch (e) {
             setAccountPromptErr(e.message || "Sign in failed");
           }
@@ -16635,38 +17845,32 @@
           if (el && el.classList.contains("open")) closeQuickStartHelpModal();
           else openQuickStartHelpModal();
         });
-        document.getElementById("quickStartHelpClose").addEventListener("click", () => closeQuickStartHelpModal());
-        document.getElementById("quickStartHelpSkip").addEventListener("click", () => closeQuickStartHelpModal());
-        document.getElementById("quickStartHelpNext").addEventListener("click", () => {
-          if (quickStartStepIndex >= QUICKSTART_STEP_COUNT - 1) {
-            closeQuickStartHelpModal();
-            return;
-          }
-          setQuickStartStep(quickStartStepIndex + 1);
-        });
-        document.getElementById("quickStartHelpPrev").addEventListener("click", () => {
-          setQuickStartStep(quickStartStepIndex - 1);
-        });
+        document.getElementById("quickStartHelpClose").addEventListener("click", () =>
+          closeQuickStartHelpModal({ skipFocusRestore: quickStartFirstRunSession }),
+        );
+        document.getElementById("welcomeSkipBtn").addEventListener("click", () =>
+          closeQuickStartHelpModal({ skipFocusRestore: true }),
+        );
+        document.getElementById("welcomeGetStartedBtn").addEventListener("click", () => welcomeGetStarted());
         document.getElementById("quickStartHelpModal").addEventListener("click", (e) => {
-          if (e.target.id === "quickStartHelpModal") closeQuickStartHelpModal();
+          if (e.target.id === "quickStartHelpModal") closeQuickStartHelpModal({ skipFocusRestore: quickStartFirstRunSession });
         });
 
+        function wireContextualTipDismiss(tipId, elId) {
+          document.getElementById(elId)?.addEventListener("click", () => {
+            const uid = resolveUserId();
+            if (uid) dismissContextualTip(uid, tipId);
+            const active = document.querySelector(".tab-panel.active");
+            const tabName =
+              active && active.id && active.id.startsWith("tab-") ? active.id.slice(4) : "add";
+            updateContextualTipsVisibility(tabName);
+          });
+        }
+        wireContextualTipDismiss("add", "contextualTipAddShowsDismiss");
+        wireContextualTipDismiss("tasks", "contextualTipTasksDismiss");
+        wireContextualTipDismiss("community", "contextualTipCommunityDismiss");
+
         document.addEventListener("keydown", (e) => {
-          const qsNav = document.getElementById("quickStartHelpModal");
-          if (
-            qsNav &&
-            qsNav.classList.contains("open") &&
-            (e.key === "ArrowRight" || e.key === "ArrowLeft")
-          ) {
-            e.preventDefault();
-            if (e.key === "ArrowRight") {
-              if (quickStartStepIndex >= QUICKSTART_STEP_COUNT - 1) closeQuickStartHelpModal();
-              else setQuickStartStep(quickStartStepIndex + 1);
-            } else if (quickStartStepIndex > 0) {
-              setQuickStartStep(quickStartStepIndex - 1);
-            }
-            return;
-          }
           if (e.key !== "Escape") return;
           const plb = document.getElementById("profilePhotoLightbox");
           if (plb && !plb.hidden) {
@@ -16686,7 +17890,7 @@
           }
           const qs = document.getElementById("quickStartHelpModal");
           if (qs && qs.classList.contains("open")) {
-            closeQuickStartHelpModal();
+            closeQuickStartHelpModal({ skipFocusRestore: quickStartFirstRunSession });
             return;
           }
           const ap = document.getElementById("accountPromptModal");
@@ -16878,6 +18082,7 @@
             const me = await api("/api/users/me");
             await refreshAllForUserId(me.id, me);
             showToast("Signed in");
+            await offerOnboardingAfterAuth(me);
           } catch (e) {
             accountErr.textContent = e.message || "Sign in failed";
             accountErr.classList.add("err");
