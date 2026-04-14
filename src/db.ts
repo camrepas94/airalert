@@ -227,6 +227,9 @@ if (!userColNames.has("push_prefs_json")) {
 if (!userColNames.has("viewer_role_override")) {
   db.exec(`ALTER TABLE users ADD COLUMN viewer_role_override TEXT`);
 }
+if (!userColNames.has("onboarding_prefs_json")) {
+  db.exec(`ALTER TABLE users ADD COLUMN onboarding_prefs_json TEXT`);
+}
 
 try {
   db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username_lower ON users(lower(username)) WHERE username IS NOT NULL`);

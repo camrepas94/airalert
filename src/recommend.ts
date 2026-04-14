@@ -8,6 +8,7 @@ import {
   type TvmazeShowListItem,
 } from "./tvmaze.js";
 import { db } from "./db.js";
+import { parseOnboardingPrefsJson, type OnboardingPrefs } from "./onboardingPrefs.js";
 
 type ShowDetail = Awaited<ReturnType<typeof fetchShow>>;
 
@@ -121,6 +122,87 @@ export type UserTasteProfile = {
   /** Genre weights boosted by engagement (completed tasks, ratings). */
   engagedGenreBoost: Map<string, number>;
 };
+
+function loadOnboardingPrefs(userId: string): OnboardingPrefs {
+  const row = db
+    .prepare(`SELECT onboarding_prefs_json FROM users WHERE id = ?`)
+    .get(userId) as { onboarding_prefs_json: string | null } | undefined;
+  return parseOnboardingPrefsJson(row?.onboarding_prefs_json ?? null);
+}
+
+/** TVMaze search works better with human-readable genre labels. */
+function genreQueryDisplayName(k: string): string {
+  if (!k || k.length < 2) return k;
+  return k
+    .split(/[-\s]+/)
+    .map((p) => (p ? p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() : p))
+    .join(k.includes("-") ? "-" : " ");
+}
+
+function buildSyntheticTasteFromOnboarding(prefs: OnboardingPrefs): UserTasteProfile | null {
+  if (prefs.favoriteGenres.length === 0 && prefs.favoriteNetworks.length === 0) return null;
+  const genreWeights = new Map<string, number>();
+  for (const g of prefs.favoriteGenres) {
+    genreWeights.set(g, (genreWeights.get(g) ?? 0) + 3);
+  }
+  const networkCounts = new Map<string, number>();
+  for (const n of prefs.favoriteNetworks) {
+    networkCounts.set(n, (networkCounts.get(n) ?? 0) + 2);
+  }
+  const totalShows = 1;
+  const genreFractions = new Map<string, number>();
+  for (const [g, c] of genreWeights) genreFractions.set(g, c / totalShows);
+  return {
+    genreWeights,
+    networkCounts,
+    typeWeights: new Map(),
+    totalShows,
+    genreFractions,
+    antiGenres: new Set(),
+    engagedShowIds: new Set(),
+    engagedGenreBoost: new Map(),
+  };
+}
+
+function mergeOnboardingIntoProfile(base: UserTasteProfile, prefs: OnboardingPrefs): UserTasteProfile {
+  const genreWeights = new Map(base.genreWeights);
+  for (const g of prefs.favoriteGenres) {
+    genreWeights.set(g, (genreWeights.get(g) ?? 0) + 2);
+  }
+  const networkCounts = new Map(base.networkCounts);
+  for (const n of prefs.favoriteNetworks) {
+    networkCounts.set(n, (networkCounts.get(n) ?? 0) + 1);
+  }
+  const totalShows = base.totalShows;
+  const genreFractions = new Map<string, number>();
+  for (const [g, c] of genreWeights) genreFractions.set(g, c / Math.max(totalShows, 1));
+  return {
+    ...base,
+    genreWeights,
+    networkCounts,
+    genreFractions,
+  };
+}
+
+function buildGenreQueriesFromProfile(profile: UserTasteProfile): {
+  genreQueries: string[];
+  sharedNetworkQueries: string[];
+  queriesUsed: string[];
+} {
+  const genreQueries = [...profile.genreWeights.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([g]) => genreQueryDisplayName(g))
+    .slice(0, 8);
+  const sharedNetworkQueries: string[] = [];
+  for (const [name, c] of profile.networkCounts) {
+    if (c >= 1 && name.length >= 3) sharedNetworkQueries.push(name);
+  }
+  sharedNetworkQueries.sort((a, b) => a.localeCompare(b));
+  const queriesUsed: string[] = [];
+  for (const g of genreQueries) queriesUsed.push(`Genre: ${g}`);
+  for (const n of sharedNetworkQueries.slice(0, 4)) queriesUsed.push(`Network: ${n}`);
+  return { genreQueries, sharedNetworkQueries, queriesUsed };
+}
 
 const ALL_COMMON_GENRES = new Set([
   "drama", "comedy", "action", "romance", "thriller", "horror", "science-fiction",
@@ -577,21 +659,58 @@ export async function computeRecommendedShows(
   queriesUsed: string[];
 }> {
   const subSet = new Set(subscribedShowIds);
+  const prefs = loadOnboardingPrefs(userId);
+
+  let profile: UserTasteProfile;
+  let collaborative: Map<number, number>;
+  let details: ShowDetail[];
+  let genreQueries: string[];
+  let sharedNetworkQueries: string[];
+  let planLines: string[];
+
   if (subscribedShowIds.length === 0) {
-    return { shows: [], queriesUsed: [] };
+    const syn = buildSyntheticTasteFromOnboarding(prefs);
+    if (!syn) {
+      return {
+        shows: [],
+        queriesUsed: [
+          "Add favorite genres or streaming services in Personalize — then we can suggest titles here.",
+        ],
+      };
+    }
+    profile = syn;
+    collaborative = new Map();
+    details = [];
+    const q = buildGenreQueriesFromProfile(profile);
+    genreQueries = q.genreQueries;
+    sharedNetworkQueries = q.sharedNetworkQueries;
+    planLines = q.queriesUsed;
+  } else {
+    details = await fetchShowDetailsForRecommend(subscribedShowIds);
+    if (details.length === 0) {
+      return { shows: [], queriesUsed: [] };
+    }
+    profile = buildUserTasteProfile(details, userId);
+    if (
+      subscribedShowIds.length < 5 &&
+      (prefs.favoriteGenres.length > 0 || prefs.favoriteNetworks.length > 0)
+    ) {
+      profile = mergeOnboardingIntoProfile(profile, prefs);
+    }
+    collaborative = collaborativeShowScores(userId);
+    const q = buildGenreFirstQueries(details);
+    genreQueries = q.genreQueries;
+    sharedNetworkQueries = q.sharedNetworkQueries;
+    planLines = q.queriesUsed;
   }
 
-  const details = await fetchShowDetailsForRecommend(subscribedShowIds);
-  if (details.length === 0) {
-    return { shows: [], queriesUsed: [] };
-  }
-
-  const profile = buildUserTasteProfile(details, userId);
-  const collaborative = collaborativeShowScores(userId);
-  const { genreQueries, sharedNetworkQueries, queriesUsed: planLines } = buildGenreFirstQueries(details);
   const queriesUsed: string[] = [];
 
-  if (collaborative.size > 0) {
+  if (subscribedShowIds.length === 0) {
+    queriesUsed.push(
+      "Recommendations from your onboarding taste picks — add shows anytime to refine further.",
+    );
+  } else if (collaborative.size > 0) {
     const topCo = [...collaborative.values()].reduce((a, b) => Math.max(a, b), 0);
     queriesUsed.push(
       `Viewers like you: up to ${collaborative.size} candidate shows from overlapping subscriptions (max ${topCo} co-subscribers per title)`,
@@ -695,7 +814,14 @@ export async function computeRecommendedShows(
     }
   } else {
     queriesUsed.push("Heuristic queries (no genre tags on subscriptions — title/network search)");
-    const fallback = buildRecommendationQueries(details);
+    let fallback: string[];
+    if (details.length > 0) {
+      fallback = buildRecommendationQueries(details);
+    } else {
+      const genQs = prefs.favoriteGenres.slice(0, 6).map((g) => genreQueryDisplayName(g));
+      const netQs = prefs.favoriteNetworks.slice(0, 4);
+      fallback = genQs.length > 0 ? genQs : netQs.length > 0 ? netQs : ["drama"];
+    }
     queriesUsed.push(...fallback.map((q) => `Search: ${q}`));
     await addSearchHits(fallback.map((q) => ({ q, weight: 1, merged: true })));
   }
@@ -799,6 +925,13 @@ export async function computeTrendingShows(
     const details = await fetchShowDetailsForRecommend(subscribedShowIds);
     userGenreWeights = buildUserGenreWeights(details);
     profile = buildUserTasteProfile(details, userId ?? "");
+  } else if (userId) {
+    const prefs = loadOnboardingPrefs(userId);
+    const syn = buildSyntheticTasteFromOnboarding(prefs);
+    if (syn) {
+      profile = syn;
+      userGenreWeights = syn.genreWeights;
+    }
   }
 
   const catalogMatches = await scanShowsCatalogForTrending(userGenreWeights, subSet, {
@@ -817,14 +950,18 @@ export async function computeTrendingShows(
     const show = entry.show;
     let score = entry.trendScore;
 
-    if (profile && profile.totalShows >= 2) {
+    if (
+      profile &&
+      (subscribedShowIds.length === 0 || profile.totalShows >= 2)
+    ) {
+      const p = profile;
       const genres = (show.genres ?? []).map((g) => g.trim().toLowerCase()).filter((g) => g.length >= 2);
       const netName = (show.network?.name ?? show.webChannel?.name ?? "").trim();
       const typeKey = (show.type ?? "").trim().toLowerCase();
 
       let genreFit = 0;
       for (const g of genres) {
-        const w = profile.genreWeights.get(g);
+        const w = p.genreWeights.get(g);
         if (w != null && w > 0) genreFit += w;
       }
       if (genreFit > 0) {
@@ -833,25 +970,25 @@ export async function computeTrendingShows(
 
       let engagedFit = 0;
       for (const g of genres) {
-        engagedFit += profile.engagedGenreBoost.get(g) ?? 0;
+        engagedFit += p.engagedGenreBoost.get(g) ?? 0;
       }
       if (engagedFit > 0) {
         score += engagedFit * TW.ENGAGED_GENRE_BONUS;
       }
 
-      if (netName && (profile.networkCounts.get(netName) ?? 0) >= 1) {
-        score += (profile.networkCounts.get(netName) ?? 0) * TW.NETWORK_MATCH_BONUS;
+      if (netName && (p.networkCounts.get(netName) ?? 0) >= 1) {
+        score += (p.networkCounts.get(netName) ?? 0) * TW.NETWORK_MATCH_BONUS;
       }
 
-      if (typeKey && (profile.typeWeights.get(typeKey) ?? 0) >= 1) {
-        score += (profile.typeWeights.get(typeKey) ?? 0) * TW.TYPE_MATCH_BONUS;
+      if (typeKey && (p.typeWeights.get(typeKey) ?? 0) >= 1) {
+        score += (p.typeWeights.get(typeKey) ?? 0) * TW.TYPE_MATCH_BONUS;
       }
 
-      if (hasChildrenGenre(show.genres ?? []) && !userWatchesChildrens(profile)) {
+      if (hasChildrenGenre(show.genres ?? []) && !userWatchesChildrens(p)) {
         score *= TW.CHILDREN_PENALTY;
       }
 
-      const badCount = antiGenreCount(show.genres ?? [], profile);
+      const badCount = antiGenreCount(show.genres ?? [], p);
       if (badCount > 0 && genreFit === 0) {
         score *= Math.pow(TW.ANTI_GENRE_PENALTY, badCount);
       }

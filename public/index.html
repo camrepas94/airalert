@@ -2851,6 +2851,121 @@
       body.aa-newb-session .tab-nav .tab-btn[data-tab="community"] {
         opacity: 0.78;
       }
+      body.aa-newb-session .header-inbox-wrap {
+        opacity: 0.72;
+      }
+      .onboarding-mission-strip {
+        margin: 0 0 1rem;
+        padding: 0.85rem 1rem;
+        border-radius: 14px;
+        border: 1px solid rgba(34, 211, 238, 0.35);
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(91, 156, 255, 0.08) 100%);
+        box-shadow: 0 0 24px -8px rgba(34, 211, 238, 0.25);
+      }
+      .onboarding-mission-strip__title {
+        margin: 0 0 0.25rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: #a5f3fc;
+      }
+      .onboarding-mission-strip__sub {
+        margin: 0 0 0.65rem;
+        font-size: 0.88rem;
+        line-height: 1.45;
+        color: rgba(226, 242, 255, 0.92);
+      }
+      .onboarding-mission-progress {
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+        margin-bottom: 0.45rem;
+      }
+      .onboarding-mission-progress__fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #22d3ee, #5b9cff, #c084fc);
+        transition: width 0.35s ease;
+      }
+      .onboarding-mission-strip__count {
+        margin: 0;
+        font-size: 0.86rem;
+        font-weight: 600;
+        color: rgba(186, 214, 255, 0.95);
+      }
+      .starter-packs-section {
+        margin-bottom: 1.1rem;
+      }
+      .starter-pack-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-top: 0.55rem;
+      }
+      .starter-pack-chip {
+        margin: 0;
+        padding: 0.45rem 0.75rem;
+        font-size: 0.88rem;
+        border-radius: 999px;
+        border: 1px solid rgba(130, 200, 255, 0.35);
+        background: rgba(4, 12, 28, 0.55);
+        color: var(--text);
+        cursor: pointer;
+        min-height: 44px;
+        line-height: 1.2;
+      }
+      .starter-pack-chip:hover:not(:disabled) {
+        border-color: rgba(34, 211, 238, 0.55);
+        background: rgba(34, 211, 238, 0.1);
+      }
+      .starter-pack-chip:disabled {
+        opacity: 0.45;
+        cursor: default;
+      }
+      .starter-pack-expand {
+        margin-top: 0.75rem;
+        padding-top: 0.65rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .starter-pack-expand-title {
+        margin: 0 0 0.5rem;
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: #bae6fd;
+      }
+      .onboarding-setup-genres,
+      .onboarding-setup-networks {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin: 0.35rem 0 0.85rem;
+      }
+      .onboarding-setup-chip {
+        margin: 0;
+        padding: 0.45rem 0.7rem;
+        font-size: 0.86rem;
+        border-radius: 999px;
+        border: 1px solid rgba(130, 200, 255, 0.28);
+        background: rgba(4, 12, 28, 0.45);
+        color: var(--text);
+        cursor: pointer;
+        min-height: 44px;
+      }
+      .onboarding-setup-chip.is-selected {
+        border-color: rgba(34, 211, 238, 0.65);
+        background: rgba(34, 211, 238, 0.18);
+        box-shadow: 0 0 12px -4px rgba(34, 211, 238, 0.45);
+      }
+      .tv-watcher-unlock-panel {
+        text-align: center;
+      }
+      .tv-watcher-unlock-panel .unlock-emoji {
+        font-size: 2.5rem;
+        line-height: 1;
+        margin: 0 0 0.5rem;
+      }
       .profile-identity-actions {
         display: flex;
         flex-wrap: wrap;
@@ -7302,6 +7417,235 @@
         padding: 0.85rem 1rem 1.1rem;
         font-size: 0.9rem;
       }
+
+      /* ─── Edit Profile modal (mobile-first) ───────────────────────────────── */
+      .profile-edit-modal.quickstart-help-panel {
+        max-width: min(520px, calc(100vw - 1rem));
+        max-height: min(92vh, 900px);
+      }
+      .profile-edit-modal-shell {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+      }
+      .profile-edit-modal-head.quickstart-help-head {
+        align-items: flex-start;
+      }
+      .profile-edit-modal-title {
+        margin: 0;
+        font-size: 1.12rem;
+        font-weight: 750;
+        line-height: 1.25;
+        letter-spacing: 0.02em;
+        background: linear-gradient(105deg, #7af5ff 0%, #a5d8ff 38%, #7c9cff 72%, #e9d5ff 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.35)) drop-shadow(0 0 28px rgba(167, 139, 250, 0.2));
+      }
+      .profile-edit-scroll.modal-body-scroll {
+        padding: 0.65rem 0.85rem 1rem;
+        padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+        font-size: 0.92rem;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+      }
+      .profile-edit-scroll .profile-edit-section,
+      .profile-edit-scroll .panel-rail-cyan,
+      .profile-edit-scroll .panel-rail-magenta,
+      .profile-edit-scroll .panel-rail-blue {
+        padding-left: 0.85rem;
+        padding-right: 0.85rem;
+      }
+      .profile-edit-section-title.profile-identity-heading {
+        margin-bottom: 0.85rem;
+        font-size: 1rem;
+      }
+      .profile-edit-scroll .profile-about-inline-heading {
+        margin-top: 1.5rem;
+        padding-top: 0.25rem;
+      }
+      .profile-form-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.9rem;
+        margin-top: 0.75rem;
+      }
+      @media (min-width: 480px) {
+        .profile-form-row.profile-form-row--split {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .profile-form-row > div {
+        min-width: 0;
+      }
+      .profile-account-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+      }
+      @media (min-width: 520px) {
+        .profile-account-grid.profile-account-grid--register {
+          grid-template-columns: 1fr 1fr;
+        }
+        .profile-account-grid.profile-account-grid--register > div:first-child {
+          grid-column: 1 / -1;
+        }
+      }
+      .profile-account-login-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+      @media (min-width: 480px) {
+        .profile-account-login-row {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .profile-edit-sticky {
+        flex-shrink: 0;
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.65rem 0.85rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+        border-top: 1px solid rgba(130, 200, 255, 0.28);
+        background: linear-gradient(180deg, rgba(6, 10, 22, 0.88) 0%, rgba(10, 14, 28, 0.97) 100%);
+        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55);
+      }
+      .profile-edit-save-primary,
+      .profile-edit-save-secondary {
+        width: 100%;
+        min-height: 48px;
+        font-size: 1rem;
+        border-radius: 12px;
+        padding: 0.65rem 1rem;
+      }
+      .profile-edit-save-secondary {
+        font-weight: 600;
+      }
+      .profile-remove-photo-btn {
+        width: 100%;
+        min-height: 44px;
+        margin-top: 0.25rem;
+      }
+      .profile-photo-actions {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .profile-edit-scroll input[type="text"],
+      .profile-edit-scroll input[type="number"],
+      .profile-edit-scroll input[type="password"],
+      .profile-edit-scroll select,
+      .profile-edit-scroll textarea {
+        min-height: 48px;
+        padding: 0.65rem 0.85rem;
+        font-size: 16px;
+      }
+      .profile-edit-scroll textarea {
+        min-height: 7rem;
+        line-height: 1.5;
+      }
+      .profile-edit-scroll label {
+        font-size: 0.82rem;
+        margin-bottom: 0.4rem;
+        margin-top: 0.15rem;
+      }
+      @media (min-width: 768px) {
+        .profile-edit-scroll input[type="text"],
+        .profile-edit-scroll input[type="number"],
+        .profile-edit-scroll input[type="password"],
+        .profile-edit-scroll select {
+          font-size: 0.95rem;
+        }
+      }
+      .profile-edit-scroll .profile-readonly-value {
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        max-width: 100%;
+      }
+      @media (max-width: 559px) {
+        .profile-identity-inner {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1.1rem;
+        }
+        .profile-avatar-wrap {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+        .profile-avatar-btn {
+          width: 6.25rem;
+          height: 6.25rem;
+        }
+        .profile-avatar-hint {
+          max-width: none;
+          font-size: 0.78rem;
+          line-height: 1.4;
+          padding: 0 0.25rem;
+        }
+        .profile-identity .profile-readonly-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.15rem;
+          margin-top: 0.65rem;
+        }
+        .profile-identity .profile-readonly-label {
+          min-width: 0;
+        }
+        .profile-identity-fields {
+          width: 100%;
+        }
+      }
+      @media (min-width: 560px) {
+        .profile-identity-inner {
+          flex-wrap: nowrap;
+          gap: 1.25rem;
+        }
+        .profile-identity-fields {
+          flex: 1 1 0;
+        }
+      }
+      .profile-edit-scroll .profile-share-actions {
+        flex-direction: column;
+      }
+      @media (min-width: 480px) {
+        .profile-edit-scroll .profile-share-actions {
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+      }
+      .profile-signout-section {
+        margin-top: 0.5rem;
+        padding-bottom: 0.25rem;
+      }
+      .profile-signout-section .secondary#signOutAccountBtn {
+        width: 100%;
+        min-height: 44px;
+      }
+      @media (min-width: 520px) {
+        #foldAccountBody .account-change-pw .profile-account-grid {
+          grid-template-columns: 1fr 1fr 1fr;
+        }
+      }
+      .profile-edit-scroll #regBtn,
+      .profile-edit-scroll #loginBtn {
+        width: 100%;
+        min-height: 48px;
+      }
+      @media (min-width: 520px) {
+        .profile-edit-scroll #regBtn,
+        .profile-edit-scroll #loginBtn {
+          width: auto;
+        }
+      }
     </style>
   </head>
   <body>
@@ -7523,6 +7867,34 @@
               </div>
             </div>
           </div>
+          <div id="onboardingMissionStrip" class="onboarding-mission-strip" hidden>
+            <p class="onboarding-mission-strip__title">Your first mission</p>
+            <p class="onboarding-mission-strip__sub">
+              Add 3 shows to unlock <strong>Community</strong> posting and <strong>Inbox</strong>. You’re building your watchlist — this is progress, not a gate.
+            </p>
+            <div
+              class="onboarding-mission-progress"
+              role="progressbar"
+              aria-valuemin="0"
+              aria-valuemax="3"
+              aria-valuenow="0"
+              id="onboardingMissionProgress"
+            >
+              <div class="onboarding-mission-progress__fill" id="onboardingMissionProgressFill" style="width: 0%"></div>
+            </div>
+            <p class="onboarding-mission-strip__count" id="onboardingMissionCount">0 of 3 shows added</p>
+          </div>
+          <section id="starterPacksSection" class="starter-packs-section panel-rail-cyan" hidden aria-labelledby="starterPacksHeading">
+            <h2 id="starterPacksHeading" class="section-header-highlight" style="font-size: 1rem">Starter packs</h2>
+            <p class="muted" style="font-size: 0.84rem; margin: 0.35rem 0 0; line-height: 1.45">
+              Pick a vibe — we’ll surface a few strong shows you can add in one tap (no empty search required).
+            </p>
+            <div class="starter-pack-chips" id="starterPackChips"></div>
+            <div id="starterPackExpand" class="starter-pack-expand" hidden>
+              <h3 class="starter-pack-expand-title" id="starterPackExpandTitle"></h3>
+              <div class="search-results" id="starterPackResults"></div>
+            </div>
+          </section>
           <div class="search-fields">
             <div>
               <label for="searchTitle">Show title</label>
@@ -8490,6 +8862,56 @@
 
     <div
       class="modal-backdrop quickstart-help-backdrop"
+      id="onboardingSetupModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="onboardingSetupHeading"
+    >
+      <div class="modal-panel quickstart-help-panel welcome-sheet-panel">
+        <div class="welcome-sheet-head">
+          <div class="welcome-sheet-head-text">
+            <h3 id="onboardingSetupHeading">Personalize AirAlert</h3>
+            <p class="welcome-sheet-lead">Pick a few favorites — recommendations improve right away. Takes under a minute.</p>
+          </div>
+          <button type="button" class="modal-close secondary" id="onboardingSetupClose" aria-label="Close personalize">×</button>
+        </div>
+        <div class="welcome-sheet-body">
+          <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.35rem">Favorite genres</p>
+          <div class="onboarding-setup-genres" id="onboardingSetupGenres"></div>
+          <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.35rem">Streaming / networks you use (optional)</p>
+          <div class="onboarding-setup-networks" id="onboardingSetupNetworks"></div>
+        </div>
+        <div class="welcome-sheet-actions">
+          <button type="button" class="secondary" id="onboardingSetupSkipBtn">Skip for now</button>
+          <button type="button" id="onboardingSetupSaveBtn">Save &amp; continue</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-backdrop quickstart-help-backdrop"
+      id="tvWatcherUnlockModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tvWatcherUnlockHeading"
+    >
+      <div class="modal-panel quickstart-help-panel">
+        <div class="quickstart-help-head">
+          <h3 id="tvWatcherUnlockHeading">You’re a TV Watcher</h3>
+          <button type="button" class="modal-close secondary" id="tvWatcherUnlockClose" aria-label="Close">×</button>
+        </div>
+        <div class="modal-body-scroll tv-watcher-unlock-panel">
+          <p class="unlock-emoji" aria-hidden="true">📺</p>
+          <p style="margin: 0 0 0.65rem; line-height: 1.5">
+            Nice — you added three shows. You’ve unlocked <strong>Community</strong> posting and your <strong>Inbox</strong>. Jump into discussions or messages anytime.
+          </p>
+          <button type="button" id="tvWatcherUnlockOk">Let’s go</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-backdrop quickstart-help-backdrop"
       id="appSettingsModal"
       role="dialog"
       aria-modal="true"
@@ -8601,73 +9023,74 @@
       id="appProfileModal"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="profileIdentityHeading"
+      aria-labelledby="profileEditModalHeading"
     >
-      <div class="modal-panel quickstart-help-panel">
-        <div class="quickstart-help-head">
-          <h3 class="visually-hidden" id="appProfileModalHeadingFallback">Profile</h3>
+      <div class="modal-panel quickstart-help-panel profile-edit-modal">
+        <div class="quickstart-help-head profile-edit-modal-head">
+          <div class="quickstart-help-head-text">
+            <h2 id="profileEditModalHeading" class="profile-edit-modal-title">Edit profile</h2>
+          </div>
           <button type="button" class="modal-close secondary" id="appProfileClose" aria-label="Close profile">×</button>
         </div>
-        <div class="modal-body-scroll" id="appProfileModalBody">
-          <section class="profile-identity panel-rail-cyan" aria-labelledby="profileIdentityHeading">
-            <h2 id="profileIdentityHeading" class="section-header-highlight profile-identity-heading">Your profile</h2>
-            <div class="profile-identity-inner">
-              <div class="profile-avatar-wrap">
-                <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden />
-                <button type="button" class="profile-avatar-btn" id="profileAvatarBtn" aria-label="Change profile photo">
-                  <img id="profileAvatarImg" alt="" width="88" height="88" hidden decoding="async" />
-                  <span id="profileAvatarPlaceholder" class="profile-avatar-placeholder" aria-hidden="true">+</span>
-                </button>
-                <p class="muted profile-avatar-hint">Tap the circle to upload or change. When a photo is shown, tap it to view larger.</p>
-              </div>
-              <div class="profile-identity-fields">
-                <label for="displayName">Display name</label>
-                <input id="displayName" type="text" maxlength="120" placeholder="Your full name" autocomplete="name" />
-                <div class="profile-readonly-row">
-                  <span class="profile-readonly-label">Username</span>
-                  <span id="profileUsernameDisplay" class="profile-readonly-value">—</span>
+        <div class="profile-edit-modal-shell">
+          <div class="modal-body-scroll profile-edit-scroll" id="appProfileModalBody">
+            <section class="profile-identity profile-edit-section panel-rail-cyan" aria-labelledby="profilePhotoNameHeading">
+              <h2 id="profilePhotoNameHeading" class="section-header-highlight profile-identity-heading profile-edit-section-title">Photo &amp; name</h2>
+              <div class="profile-identity-inner">
+                <div class="profile-avatar-wrap">
+                  <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden />
+                  <button type="button" class="profile-avatar-btn" id="profileAvatarBtn" aria-label="Change profile photo">
+                    <img id="profileAvatarImg" alt="" width="88" height="88" hidden decoding="async" />
+                    <span id="profileAvatarPlaceholder" class="profile-avatar-placeholder" aria-hidden="true">+</span>
+                  </button>
+                  <p class="muted profile-avatar-hint">Tap the circle to upload or change. When a photo is shown, tap it to view larger.</p>
                 </div>
-                <div class="profile-readonly-row">
-                  <span class="profile-readonly-label">Member since</span>
-                  <span id="profileMemberSince" class="profile-readonly-value">—</span>
+                <div class="profile-identity-fields">
+                  <label for="displayName">Display name</label>
+                  <input id="displayName" type="text" maxlength="120" placeholder="Your full name" autocomplete="name" />
+                  <div class="profile-readonly-row">
+                    <span class="profile-readonly-label">Username</span>
+                    <span id="profileUsernameDisplay" class="profile-readonly-value">—</span>
+                  </div>
+                  <div class="profile-readonly-row">
+                    <span class="profile-readonly-label">Member since</span>
+                    <span id="profileMemberSince" class="profile-readonly-value">—</span>
+                  </div>
+                  <div class="profile-readonly-row profile-role-badge-row">
+                    <span class="profile-readonly-label">Role</span>
+                    <span id="profileRoleBadge" class="role-badge" hidden></span>
+                  </div>
+                  <div class="profile-photo-actions">
+                    <button type="button" class="secondary profile-remove-photo-btn" id="removeAvatarBtn">Remove photo</button>
+                  </div>
+                  <p class="muted msg" id="profileInfoMsg" style="margin-top: 0.55rem"></p>
                 </div>
-                <div class="profile-readonly-row profile-role-badge-row">
-                  <span class="profile-readonly-label">Role</span>
-                  <span id="profileRoleBadge" class="role-badge" hidden></span>
+              </div>
+              <h3 id="profileAboutHeading" class="section-header-highlight header-magenta profile-about-inline-heading">About you</h3>
+              <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.85rem; line-height: 1.45">
+                Optional — stored on your account. You can clear any field by emptying it and saving.
+              </p>
+              <label for="profileAboutMe">About me</label>
+              <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="A few words about you…"></textarea>
+              <div class="profile-form-row profile-form-row--split">
+                <div>
+                  <label for="profileAge">Age</label>
+                  <input id="profileAge" type="number" min="1" max="120" placeholder="—" inputmode="numeric" />
                 </div>
-                <div class="profile-identity-actions">
-                  <button type="button" id="saveProfileInfoBtn">Save name &amp; photo</button>
-                  <button type="button" class="secondary" id="removeAvatarBtn">Remove photo</button>
+                <div>
+                  <label for="profileSex">Sex</label>
+                  <select id="profileSex" aria-label="Sex">
+                    <option value="">Prefer not to say</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
                 </div>
-                <p class="muted msg" id="profileInfoMsg" style="margin-top: 0.55rem"></p>
               </div>
-            </div>
-            <h3 id="profileAboutHeading" class="section-header-highlight header-magenta profile-about-inline-heading">About you</h3>
-            <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.85rem; line-height: 1.45">
-              Optional — stored on your account. You can clear any field by emptying it and saving.
-            </p>
-            <label for="profileAboutMe">About me</label>
-            <textarea id="profileAboutMe" rows="4" maxlength="2000" placeholder="A few words about you…"></textarea>
-            <div class="row" style="margin-top: 0.65rem">
-              <div>
-                <label for="profileAge">Age</label>
-                <input id="profileAge" type="number" min="1" max="120" placeholder="—" inputmode="numeric" />
-              </div>
-              <div>
-                <label for="profileSex">Sex</label>
-                <select id="profileSex" aria-label="Sex">
-                  <option value="">Prefer not to say</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-            </div>
-            <label for="profileFavoriteShow" style="margin-top: 0.65rem">Favorite show</label>
-            <input id="profileFavoriteShow" type="text" maxlength="200" placeholder="e.g. The Bear, Doctor Who…" autocomplete="off" />
-            <button type="button" id="saveProfileAboutBtn" style="margin-top: 0.75rem">Save about you</button>
-            <p class="muted msg" id="profileAboutMsg" style="margin-top: 0.5rem"></p>
-          </section>
+              <label for="profileFavoriteShow" style="margin-top: 0.75rem">Favorite show</label>
+              <input id="profileFavoriteShow" type="text" maxlength="200" placeholder="e.g. The Bear, Doctor Who…" autocomplete="off" />
+              <p class="muted msg" id="profileAboutMsg" style="margin-top: 0.65rem"></p>
+            </section>
 
           <section
             class="panel-rail-cyan profile-share-card-section"
@@ -8701,8 +9124,8 @@
                 guest without an account (list stays on this device only).
               </p>
               <div id="accountGuest">
-                <div class="row" style="margin-top: 0.5rem">
-                  <div style="flex: 1 1 100%">
+                <div class="profile-account-grid profile-account-grid--register" style="margin-top: 0.5rem">
+                  <div>
                     <label for="regUsername">New username</label>
                     <input id="regUsername" type="text" autocomplete="username" maxlength="32" placeholder="3–32 chars: letters, numbers, . _ -" />
                   </div>
@@ -8717,7 +9140,7 @@
                 </div>
                 <button type="button" id="regBtn" style="margin-top: 0.65rem">Create account</button>
                 <p class="muted" style="margin: 1rem 0 0.35rem; font-size: 0.82rem">Already have an account?</p>
-                <div class="row">
+                <div class="profile-account-login-row">
                   <div>
                     <label for="loginUsername">Username</label>
                     <input id="loginUsername" type="text" autocomplete="username" />
@@ -8738,7 +9161,7 @@
                 </p>
                 <div id="accountChangePassword" class="account-change-pw" hidden>
                   <strong style="font-size: 0.85rem">Change password</strong>
-                  <div class="row" style="margin-top: 0.45rem">
+                  <div class="profile-account-grid" style="margin-top: 0.45rem">
                     <div>
                       <label for="acctCurPw">Current password</label>
                       <input id="acctCurPw" type="password" autocomplete="current-password" />
@@ -8767,7 +9190,12 @@
             <button type="button" class="secondary" id="signOutAccountBtn">Sign out</button>
           </section>
         </div>
+        <div class="profile-edit-sticky" role="region" aria-label="Save profile changes">
+          <button type="button" class="profile-edit-save-primary" id="saveProfileInfoBtn">Save name &amp; photo</button>
+          <button type="button" class="secondary profile-edit-save-secondary" id="saveProfileAboutBtn">Save about you</button>
+        </div>
       </div>
+    </div>
     </div>
 
     <div class="modal-backdrop" id="showModal" role="dialog" aria-modal="true" aria-labelledby="modalShowTitle">
@@ -8800,6 +9228,268 @@
       function setOnboardingDone(userId) {
         if (userId) localStorage.setItem(onboardingDoneKey(userId), "1");
       }
+
+      const ESTABLISHED_SUB_THRESHOLD = 7;
+      const ONBOARDING_GENRE_OPTIONS = [
+        "drama",
+        "comedy",
+        "crime",
+        "science-fiction",
+        "fantasy",
+        "thriller",
+        "reality",
+        "romance",
+        "mystery",
+        "animation",
+      ];
+      const ONBOARDING_NETWORK_OPTIONS = [
+        "Netflix",
+        "HBO",
+        "Hulu",
+        "Disney+",
+        "Apple TV+",
+        "Prime Video",
+        "Paramount+",
+        "Peacock",
+      ];
+
+      let lastKnownSubCountForCelebration = -1;
+
+      function shouldAutoShowOnboardingSetup(me) {
+        if (!me || !accountIsRegistered(me)) return false;
+        const n = Number(me.subscribedShowCount);
+        if (Number.isFinite(n) && n >= ESTABLISHED_SUB_THRESHOLD) return false;
+        const op = me.onboardingPrefs;
+        if (op && op.setupCompletedAt) return false;
+        return true;
+      }
+
+      async function refreshSessionMeFromServer() {
+        try {
+          const me = await api("/api/users/me");
+          applyMeToUI(me);
+        } catch {
+          /* ignore */
+        }
+      }
+
+      function updateOnboardingMissionStrip(me) {
+        const strip = document.getElementById("onboardingMissionStrip");
+        const fill = document.getElementById("onboardingMissionProgressFill");
+        const countEl = document.getElementById("onboardingMissionCount");
+        const bar = document.getElementById("onboardingMissionProgress");
+        if (!strip || !fill || !countEl || !bar) return;
+        const show =
+          me &&
+          accountIsRegistered(me) &&
+          !hasFullSocialUiAccess(me) &&
+          Number(me.subscribedShowCount) < 3;
+        strip.hidden = !show;
+        if (!show) return;
+        const n = Math.min(3, Math.max(0, Number(me.subscribedShowCount) || 0));
+        const pct = (n / 3) * 100;
+        fill.style.width = pct + "%";
+        bar.setAttribute("aria-valuenow", String(n));
+        countEl.textContent = n + " of 3 shows added";
+      }
+
+      function updateStarterPacksVisibility(me) {
+        const sec = document.getElementById("starterPacksSection");
+        if (!sec) return;
+        const show =
+          me &&
+          accountIsRegistered(me) &&
+          (Number(me.subscribedShowCount) || 0) < ESTABLISHED_SUB_THRESHOLD;
+        sec.hidden = !show;
+      }
+
+      function maybeCelebrateTvWatcherUnlock(me) {
+        if (!me || !accountIsRegistered(me)) return;
+        const n = Number(me.subscribedShowCount);
+        if (!Number.isFinite(n)) return;
+        if (lastKnownSubCountForCelebration < 0) {
+          lastKnownSubCountForCelebration = n;
+          return;
+        }
+        if (lastKnownSubCountForCelebration < 3 && n >= 3 && hasFullSocialUiAccess(me)) {
+          const key = "airalert_unlock_celebration_v2_" + me.id;
+          if (!localStorage.getItem(key)) {
+            localStorage.setItem(key, "1");
+            openTvWatcherUnlockModal();
+          }
+        }
+        lastKnownSubCountForCelebration = n;
+      }
+
+      function openTvWatcherUnlockModal() {
+        const el = document.getElementById("tvWatcherUnlockModal");
+        if (el) el.classList.add("open");
+      }
+
+      function closeTvWatcherUnlockModal() {
+        const el = document.getElementById("tvWatcherUnlockModal");
+        if (el) el.classList.remove("open");
+      }
+
+      function prettyGenreChipLabel(g) {
+        return String(g)
+          .split(/[-\s]+/)
+          .filter(Boolean)
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(g.includes("-") ? "-" : " ");
+      }
+
+      function populateOnboardingSetupForm(me) {
+        const gWrap = document.getElementById("onboardingSetupGenres");
+        const nWrap = document.getElementById("onboardingSetupNetworks");
+        if (!gWrap || !nWrap) return;
+        const op = (me && me.onboardingPrefs) || {};
+        const selG = new Set(Array.isArray(op.favoriteGenres) ? op.favoriteGenres.map((x) => String(x).toLowerCase()) : []);
+        const selN = new Set(Array.isArray(op.favoriteNetworks) ? op.favoriteNetworks.map((x) => String(x)) : []);
+        gWrap.innerHTML = "";
+        for (const g of ONBOARDING_GENRE_OPTIONS) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "onboarding-setup-chip" + (selG.has(g) ? " is-selected" : "");
+          btn.textContent = prettyGenreChipLabel(g);
+          btn.dataset.genre = g;
+          btn.addEventListener("click", () => {
+            btn.classList.toggle("is-selected");
+          });
+          gWrap.appendChild(btn);
+        }
+        nWrap.innerHTML = "";
+        for (const net of ONBOARDING_NETWORK_OPTIONS) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "onboarding-setup-chip" + (selN.has(net) ? " is-selected" : "");
+          btn.textContent = net;
+          btn.dataset.network = net;
+          btn.addEventListener("click", () => {
+            btn.classList.toggle("is-selected");
+          });
+          nWrap.appendChild(btn);
+        }
+      }
+
+      function readOnboardingSetupSelections() {
+        const genres = [];
+        document.querySelectorAll("#onboardingSetupGenres .onboarding-setup-chip.is-selected").forEach((el) => {
+          const g = el.getAttribute("data-genre");
+          if (g) genres.push(g);
+        });
+        const networks = [];
+        document.querySelectorAll("#onboardingSetupNetworks .onboarding-setup-chip.is-selected").forEach((el) => {
+          const n = el.getAttribute("data-network");
+          if (n) networks.push(n);
+        });
+        return { favoriteGenres: genres, favoriteNetworks: networks, setupCompletedAt: true };
+      }
+
+      function openOnboardingSetupModal(me) {
+        closeQuickStartHelpModal({ skipFocusRestore: true });
+        closeAppSettingsModal();
+        populateOnboardingSetupForm(me);
+        const el = document.getElementById("onboardingSetupModal");
+        if (el) el.classList.add("open");
+        requestAnimationFrame(() => {
+          document.getElementById("onboardingSetupSaveBtn")?.focus();
+        });
+      }
+
+      function closeOnboardingSetupModal() {
+        const el = document.getElementById("onboardingSetupModal");
+        if (el) el.classList.remove("open");
+      }
+
+      async function saveOnboardingSetupAndContinue(userId) {
+        const body = readOnboardingSetupSelections();
+        await api("/api/users/" + encodeURIComponent(userId), {
+          method: "PATCH",
+          body: JSON.stringify({ onboardingPrefs: body }),
+        });
+        await refreshSessionMeFromServer();
+        const uid = resolveUserId();
+        if (uid) {
+          loadRecommended(uid);
+          loadTrendingShows(uid);
+        }
+        closeOnboardingSetupModal();
+        if (userId && !isOnboardingDone(userId)) {
+          openQuickStartHelpModal({ firstRun: true });
+        }
+      }
+
+      async function skipOnboardingSetup(userId) {
+        await api("/api/users/" + encodeURIComponent(userId), {
+          method: "PATCH",
+          body: JSON.stringify({ onboardingPrefs: { setupCompletedAt: true } }),
+        });
+        await refreshSessionMeFromServer();
+        closeOnboardingSetupModal();
+        if (userId && !isOnboardingDone(userId)) {
+          openQuickStartHelpModal({ firstRun: true });
+        }
+      }
+
+      let starterPackChipsRendered = false;
+      function ensureStarterPackChips() {
+        if (starterPackChipsRendered) return;
+        const box = document.getElementById("starterPackChips");
+        if (!box) return;
+        starterPackChipsRendered = true;
+        const packs = [
+          { slug: "reality-tv", label: "Reality TV" },
+          { slug: "crime", label: "Crime" },
+          { slug: "comedy", label: "Comedy" },
+          { slug: "sci-fi", label: "Sci-Fi" },
+          { slug: "drama", label: "Drama" },
+          { slug: "dating", label: "Dating shows" },
+          { slug: "competition", label: "Competition" },
+        ];
+        for (const p of packs) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "starter-pack-chip";
+          b.textContent = p.label;
+          b.addEventListener("click", () => void loadStarterPackIntoUi(p.slug, p.label));
+          box.appendChild(b);
+        }
+      }
+
+      async function loadStarterPackIntoUi(slug, label) {
+        const expand = document.getElementById("starterPackExpand");
+        const title = document.getElementById("starterPackExpandTitle");
+        const results = document.getElementById("starterPackResults");
+        const err = document.getElementById("searchErr");
+        if (!expand || !title || !results) return;
+        expand.hidden = false;
+        title.textContent = label;
+        results.innerHTML = "";
+        const loading = document.createElement("p");
+        loading.className = "muted";
+        loading.textContent = "Loading picks…";
+        results.appendChild(loading);
+        try {
+          const data = await api("/api/onboarding/starter-pack/" + encodeURIComponent(slug));
+          results.innerHTML = "";
+          const uid = resolveUserId();
+          if (!data.shows || !data.shows.length) {
+            results.appendChild(document.createElement("p")).textContent = "No picks available — try search.";
+            return;
+          }
+          for (const s of data.shows) {
+            appendSearchResultCard(results, s, uid, err, "starter_pack");
+          }
+        } catch (e) {
+          results.innerHTML = "";
+          const p = document.createElement("p");
+          p.className = "msg err";
+          p.textContent = e.message || "Could not load pack";
+          results.appendChild(p);
+        }
+      }
+
       /** One-time section tips; per user + tip id (local device). */
       function contextualTipKey(userId, tipId) {
         return "airalert_ctx_tip_v1_" + tipId + "_" + userId;
@@ -11741,12 +12431,18 @@
         adminMoveUiEpoch++;
         void syncCommunityEditAdminMoveUi(adminMoveUiEpoch);
         void ensureAdminUiLoaded(me, epoch);
+        updateOnboardingMissionStrip(me);
+        updateStarterPacksVisibility(me);
+        ensureStarterPackChips();
+        maybeCelebrateTvWatcherUnlock(me);
       }
 
       function adminPillClass(from) {
         if (from === "search") return "search";
         if (from === "recommended") return "rec";
         if (from === "trending") return "rec";
+        if (from === "starter_pack") return "rec";
+        if (from === "onboarding") return "rec";
         if (from === "admin") return "adm";
         return "unk";
       }
@@ -11755,6 +12451,8 @@
         if (from === "search") return "search";
         if (from === "recommended") return "rec";
         if (from === "trending") return "trend";
+        if (from === "starter_pack") return "pack";
+        if (from === "onboarding") return "setup";
         if (from === "admin") return "admin";
         return "legacy";
       }
@@ -16043,7 +16741,13 @@
           subBtn.disabled = true;
           const postSub = (uid) => {
             const body = { tvmazeShowId: s.id };
-            if (addedFrom === "search" || addedFrom === "recommended" || addedFrom === "trending") {
+            if (
+              addedFrom === "search" ||
+              addedFrom === "recommended" ||
+              addedFrom === "trending" ||
+              addedFrom === "starter_pack" ||
+              addedFrom === "onboarding"
+            ) {
               body.addedFrom = addedFrom;
             }
             return api("/api/users/" + encodeURIComponent(uid) + "/subscriptions", {
@@ -16073,6 +16777,7 @@
           }
           await loadSubs(uid);
           void loadUser(uid);
+          void refreshSessionMeFromServer();
           loadRecommended(uid);
           loadTrendingShows(uid);
           subBtn.textContent = addedFrom === "trending" ? "Added" : "Subscribed";
@@ -16443,9 +17148,15 @@
       }
 
       async function offerOnboardingAfterAuth(me) {
-        if (!me || !me.id || isOnboardingDone(me.id)) return;
+        if (!me || !me.id) return;
         await new Promise((r) => requestAnimationFrame(r));
-        openQuickStartHelpModal({ firstRun: true });
+        if (shouldAutoShowOnboardingSetup(me)) {
+          openOnboardingSetupModal(me);
+          return;
+        }
+        if (!isOnboardingDone(me.id)) {
+          openQuickStartHelpModal({ firstRun: true });
+        }
       }
 
       /** @param {{ skipFocusRestore?: boolean }} [opts] Use skipFocusRestore when closing as a side effect of opening another surface. */
@@ -16516,6 +17227,8 @@
         closeUsernameSearchModal();
         const el = document.getElementById("appProfileModal");
         if (el) el.classList.add("open");
+        const profileBody = document.getElementById("appProfileModalBody");
+        if (profileBody) profileBody.scrollTop = 0;
         const id = resolveUserId();
         if (id) {
           try {
@@ -18110,6 +18823,10 @@
         loadTasks(userId);
         updateContextualTipsVisibility("add");
 
+        if (me && accountIsRegistered(me) && shouldAutoShowOnboardingSetup(me)) {
+          requestAnimationFrame(() => openOnboardingSetupModal(me));
+        }
+
         try {
           const cq = new URLSearchParams(window.location.search);
           const cshow = cq.get("communityShow");
@@ -18420,6 +19137,29 @@
           if (e.target.id === "quickStartHelpModal") closeQuickStartHelpModal({ skipFocusRestore: quickStartFirstRunSession });
         });
 
+        document.getElementById("onboardingSetupClose")?.addEventListener("click", () => {
+          const uid = resolveUserId();
+          if (uid) void skipOnboardingSetup(uid);
+          else closeOnboardingSetupModal();
+        });
+        document.getElementById("onboardingSetupSkipBtn")?.addEventListener("click", () => {
+          const uid = resolveUserId();
+          if (uid) void skipOnboardingSetup(uid);
+        });
+        document.getElementById("onboardingSetupSaveBtn")?.addEventListener("click", () => {
+          const uid = resolveUserId();
+          if (uid) void saveOnboardingSetupAndContinue(uid);
+        });
+        document.getElementById("onboardingSetupModal")?.addEventListener("click", (e) => {
+          if (e.target.id === "onboardingSetupModal") {
+            const uid = resolveUserId();
+            if (uid) void skipOnboardingSetup(uid);
+            else closeOnboardingSetupModal();
+          }
+        });
+        document.getElementById("tvWatcherUnlockClose")?.addEventListener("click", () => closeTvWatcherUnlockModal());
+        document.getElementById("tvWatcherUnlockOk")?.addEventListener("click", () => closeTvWatcherUnlockModal());
+
         function wireContextualTipDismiss(tipId, elId) {
           document.getElementById(elId)?.addEventListener("click", () => {
             const uid = resolveUserId();
@@ -18441,6 +19181,18 @@
             return;
           }
           closeHeaderMenus();
+          const osm = document.getElementById("onboardingSetupModal");
+          if (osm && osm.classList.contains("open")) {
+            const uid = resolveUserId();
+            if (uid) void skipOnboardingSetup(uid);
+            else closeOnboardingSetupModal();
+            return;
+          }
+          const twu = document.getElementById("tvWatcherUnlockModal");
+          if (twu && twu.classList.contains("open")) {
+            closeTvWatcherUnlockModal();
+            return;
+          }
           const asm = document.getElementById("appSettingsModal");
           if (asm && asm.classList.contains("open")) {
             closeAppSettingsModal();

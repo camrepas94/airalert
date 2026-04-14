@@ -11,6 +11,7 @@ import "./db.js";
 import { db, getSqlitePersistenceInfo } from "./db.js";
 import {
   searchShowsWithCatalog,
+  searchShowsMerged,
   fetchShow,
   fetchShowEpisodes,
   fetchEpisodeMeta,
@@ -98,6 +99,11 @@ import {
   UNLOCK_SOCIAL_FEATURES_MESSAGE,
   viewerRolePayloadForUser,
 } from "./userRole.js";
+import {
+  parseOnboardingPrefsJson,
+  serializeOnboardingPrefs,
+  normalizeOnboardingPrefsInput,
+} from "./onboardingPrefs.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 const publicDir = path.join(process.cwd(), "public");
@@ -124,7 +130,87 @@ function userJsonWithPushPrefs(row: Record<string, unknown>): Record<string, unk
   const raw = out.push_prefs_json;
   delete out.push_prefs_json;
   out.pushPrefs = parsePushPrefsJson(typeof raw === "string" ? raw : null);
+  const rawOnb = out.onboarding_prefs_json;
+  delete out.onboarding_prefs_json;
+  out.onboardingPrefs = parseOnboardingPrefsJson(typeof rawOnb === "string" ? rawOnb : null);
   return out;
+}
+
+/** Curated quick-add lists for onboarding (TVMaze search queries). */
+const STARTER_PACKS: Record<string, { label: string; queries: string[] }> = {
+  "reality-tv": {
+    label: "Reality TV",
+    queries: ["the bachelor", "survivor US", "big brother US", "the amazing race"],
+  },
+  crime: {
+    label: "Crime",
+    queries: ["law order special victims unit", "true detective", "better call saul"],
+  },
+  comedy: {
+    label: "Comedy",
+    queries: ["the office US", "parks and recreation", "brooklyn nine-nine"],
+  },
+  "sci-fi": {
+    label: "Sci-Fi",
+    queries: ["doctor who", "the expanse", "foundation 2021"],
+  },
+  drama: {
+    label: "Drama",
+    queries: ["succession", "this is us", "yellowstone"],
+  },
+  dating: {
+    label: "Dating shows",
+    queries: ["the bachelor", "love island", "too hot to handle"],
+  },
+  competition: {
+    label: "Competition",
+    queries: ["the masked singer US", "great british bake off", "the voice US"],
+  },
+};
+
+async function starterPackPayload(slug: string): Promise<
+  | { error: string; statusCode: number }
+  | {
+      slug: string;
+      label: string;
+      shows: Array<{
+        id: number;
+        name: string;
+        network: string | null;
+        premiered: string | null;
+        image: string | null;
+      }>;
+    }
+> {
+  const pack = STARTER_PACKS[slug];
+  if (!pack) return { error: "Unknown pack", statusCode: 404 };
+  const seen = new Set<number>();
+  const shows: Array<{
+    id: number;
+    name: string;
+    network: string | null;
+    premiered: string | null;
+    image: string | null;
+  }> = [];
+  for (const q of pack.queries) {
+    const hits = await searchShowsMerged(q);
+    for (const h of hits) {
+      const id = h.show.id;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const sh = h.show;
+      shows.push({
+        id,
+        name: sh.name,
+        network: sh.network?.name ?? sh.webChannel?.name ?? null,
+        premiered: sh.premiered ?? null,
+        image: sh.image?.medium ?? null,
+      });
+      if (shows.length >= 10) break;
+    }
+    if (shows.length >= 10) break;
+  }
+  return { slug, label: pack.label, shows: shows.slice(0, 8) };
 }
 
 const webPushReady = configureWebPush();
@@ -147,6 +233,20 @@ await app.register(websocket);
 app.get("/health", async (_req, reply) => {
   reply.header("Cache-Control", "no-store");
   return reply.code(200).type("text/plain; charset=utf-8").send("ok");
+});
+
+app.get("/api/onboarding/starter-packs", async () => ({
+  packs: Object.entries(STARTER_PACKS).map(([slug, v]) => ({ slug, label: v.label })),
+}));
+
+app.get("/api/onboarding/starter-pack/:slug", async (request, reply) => {
+  const { slug } = request.params as { slug: string };
+  const out = await starterPackPayload(decodeURIComponent(slug));
+  if ("error" in out) {
+    reply.code(out.statusCode);
+    return { error: out.error };
+  }
+  return out;
 });
 
 if (webPushReady) {
@@ -1801,7 +1901,7 @@ app.get("/api/users/me", async (request, reply) => {
   const row = db
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, created_at AS createdAt,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, onboarding_prefs_json, created_at AS createdAt,
               username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
               about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword,
@@ -1836,7 +1936,7 @@ app.get("/api/users/:id", async (request, reply) => {
   const row = db
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, created_at AS createdAt,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, onboarding_prefs_json, created_at AS createdAt,
               username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
               about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               is_admin AS isAdmin,
@@ -1863,6 +1963,7 @@ app.patch("/api/users/:id", async (request, reply) => {
     reminderHourLocal?: number;
     taskNudgeDaysAfterAir?: number | null;
     pushPrefs?: Partial<PushPrefs>;
+    onboardingPrefs?: Record<string, unknown> | null;
     displayName?: string | null;
     avatarDataUrl?: string | null;
     aboutMe?: string | null;
@@ -1942,6 +2043,20 @@ app.patch("/api/users/:id", async (request, reply) => {
     const merged = mergePushPrefsFromJson(cur?.push_prefs_json, body.pushPrefs);
     db.prepare(`UPDATE users SET push_prefs_json = ? WHERE id = ?`).run(JSON.stringify(merged), id);
   }
+  if ("onboardingPrefs" in body && body.onboardingPrefs !== null && typeof body.onboardingPrefs === "object") {
+    const curRow = db.prepare(`SELECT onboarding_prefs_json FROM users WHERE id = ?`).get(id) as
+      | { onboarding_prefs_json: string | null }
+      | undefined;
+    const cur = parseOnboardingPrefsJson(curRow?.onboarding_prefs_json ?? null);
+    const inc = body.onboardingPrefs;
+    const merged: Record<string, unknown> = {
+      favoriteGenres: "favoriteGenres" in inc ? inc.favoriteGenres : cur.favoriteGenres,
+      favoriteNetworks: "favoriteNetworks" in inc ? inc.favoriteNetworks : cur.favoriteNetworks,
+      setupCompletedAt: "setupCompletedAt" in inc ? inc.setupCompletedAt : cur.setupCompletedAt,
+    };
+    const p = normalizeOnboardingPrefsInput(merged);
+    db.prepare(`UPDATE users SET onboarding_prefs_json = ? WHERE id = ?`).run(serializeOnboardingPrefs(p), id);
+  }
   if ("aboutMe" in body) {
     if (body.aboutMe === null || body.aboutMe === "") {
       db.prepare(`UPDATE users SET about_me = NULL WHERE id = ?`).run(id);
@@ -1986,7 +2101,7 @@ app.patch("/api/users/:id", async (request, reply) => {
   const row = db
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, created_at AS createdAt,
+              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, onboarding_prefs_json, created_at AS createdAt,
               username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
               about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword, is_admin AS isAdmin
@@ -2500,7 +2615,13 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
     return { error: "tvmazeShowId required" };
   }
   let addedFrom: string | null = null;
-  if (body.addedFrom === "search" || body.addedFrom === "recommended" || body.addedFrom === "trending") {
+  if (
+    body.addedFrom === "search" ||
+    body.addedFrom === "recommended" ||
+    body.addedFrom === "trending" ||
+    body.addedFrom === "starter_pack" ||
+    body.addedFrom === "onboarding"
+  ) {
     addedFrom = body.addedFrom;
   }
   const show = await fetchShow(body.tvmazeShowId);
