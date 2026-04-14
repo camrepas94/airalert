@@ -124,6 +124,13 @@
           0 0 52px -6px rgba(34, 211, 238, 0.28),
           0 0 72px -10px rgba(168, 85, 247, 0.2),
           0 0 56px -8px rgba(236, 72, 153, 0.14);
+        /** Responsive shell: mobile-first; widened on large screens */
+        --layout-max: 640px;
+        --layout-pad-x: 1.1rem;
+        --layout-readable: 42rem;
+        --bp-md: 768px;
+        --bp-lg: 900px;
+        --bp-xl: 1200px;
       }
       * {
         box-sizing: border-box;
@@ -1003,9 +1010,9 @@
       main {
         position: relative;
         z-index: 0;
-        max-width: 640px;
+        max-width: var(--layout-max);
         margin: 0 auto;
-        padding: 0 1.1rem;
+        padding: 0 var(--layout-pad-x);
         flex: 1 1 auto;
         min-height: 0;
         min-width: 0;
@@ -1013,6 +1020,21 @@
         display: flex;
         flex-direction: column;
         overflow-x: hidden;
+      }
+      @media (min-width: 768px) {
+        :root {
+          --layout-pad-x: 1.35rem;
+        }
+      }
+      @media (min-width: 900px) {
+        :root {
+          --layout-max: min(1100px, calc(100vw - 2.5rem));
+        }
+      }
+      @media (min-width: 1200px) {
+        :root {
+          --layout-max: min(1240px, calc(100vw - 3rem));
+        }
       }
       .main-scroll {
         flex: 1 1 auto;
@@ -1541,6 +1563,16 @@
           var(--dm-surface-edge, linear-gradient(125deg, rgba(91, 156, 255, 0.62), rgba(34, 211, 238, 0.55), rgba(236, 72, 153, 0.58), rgba(168, 85, 247, 0.52))) border-box;
         background-clip: padding-box, border-box;
         box-shadow: var(--dm-glow-hover, 0 0 18px rgba(91, 156, 255, 0.25));
+      }
+      .dm-inbox-thread-row--active {
+        border-color: rgba(34, 211, 238, 0.55);
+        background: linear-gradient(145deg, rgba(34, 211, 238, 0.16), rgba(91, 156, 255, 0.08)) padding-box,
+          linear-gradient(125deg, rgba(34, 211, 238, 0.75), rgba(91, 156, 255, 0.55), rgba(236, 72, 153, 0.5), rgba(168, 85, 247, 0.48)) border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35) inset, var(--dm-glow-layer, none);
+      }
+      #tab-messages .dm-inbox-thread-row--active {
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.38) inset, var(--dm-glow-layer), 0 0 28px -6px rgba(34, 211, 238, 0.45);
       }
       .dm-inbox-thread-row-main {
         display: flex;
@@ -2853,6 +2885,18 @@
       }
       body.aa-newb-session .header-inbox-wrap {
         opacity: 0.72;
+      }
+      body.aa-newb-session .tab-nav .tab-btn[data-tab="add"] .tab-label,
+      body.aa-newb-session .tab-nav .tab-btn[data-tab="guide"] .tab-label,
+      body.aa-newb-session .tab-nav .tab-btn[data-tab="tasks"] .tab-label {
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+      .onboarding-mission-strip__hint {
+        margin: 0.4rem 0 0;
+        font-size: 0.84rem;
+        line-height: 1.45;
+        color: rgba(186, 230, 253, 0.92);
       }
       .onboarding-mission-strip {
         margin: 0 0 1rem;
@@ -5920,6 +5964,13 @@
         flex: 1;
         min-width: 0;
       }
+      .community-review-show-title {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--muted);
+        margin: 0 0 0.35rem;
+        letter-spacing: 0.02em;
+      }
       .community-post-author {
         font-weight: 700;
         font-size: 0.95rem;
@@ -7646,6 +7697,327 @@
           width: auto;
         }
       }
+
+      /* ═══ Desktop / large-screen layout (mobile-first base unchanged) ═══ */
+      @media (min-width: 900px) {
+        .tab-nav {
+          margin: 0.2rem 0 0.65rem;
+        }
+        .tab-rail {
+          padding: 0.48rem 0.55rem;
+          gap: 0.35rem;
+          border-radius: 20px;
+        }
+        .tab-btn {
+          padding: 0.58rem 0.45rem;
+          font-size: 0.82rem;
+          letter-spacing: 0.035em;
+          border-radius: 13px;
+        }
+        .app-top-brand-row {
+          margin-bottom: 0.45rem;
+        }
+        /** Add Shows: search full width; trending | recommended two columns */
+        #tab-add {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.85rem 1.25rem;
+          align-items: start;
+        }
+        #tab-add > .search-shell {
+          grid-column: 1 / -1;
+        }
+        #tab-add > .trending-section {
+          grid-column: 1;
+          margin: 0;
+        }
+        #tab-add > .recommended-section {
+          grid-column: 2;
+          margin: 0;
+        }
+        /** My List: subscriptions | people side by side */
+        #tab-shows {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.85rem 1.25rem;
+          align-items: start;
+        }
+        #tab-shows > section {
+          margin: 0;
+          min-width: 0;
+        }
+        /** Tasks: open list (left) | watched & not-watching folds (right) */
+        #tab-tasks > section.panel-rail-magenta {
+          display: grid;
+          grid-template-columns: 1.15fr 0.85fr;
+          gap: 0.65rem 1.25rem;
+          align-items: start;
+        }
+        #tab-tasks > section.panel-rail-magenta > h2 {
+          grid-column: 1 / -1;
+          margin-top: 0;
+        }
+        #tab-tasks > section.panel-rail-magenta > .tasks-stats-section {
+          grid-column: 1 / -1;
+        }
+        #tab-tasks > section.panel-rail-magenta > #tasksList {
+          grid-column: 1;
+          grid-row: 3;
+        }
+        #tab-tasks > section.panel-rail-magenta > .tasks-open-empty#tasksOpenEmpty {
+          grid-column: 1;
+          grid-row: 4;
+        }
+        #tab-tasks > section.panel-rail-magenta > #tasksEmpty {
+          grid-column: 1 / -1;
+          grid-row: 5;
+        }
+        #tab-tasks > section.panel-rail-magenta > #tasksCompletedFoldWrap {
+          grid-column: 2;
+          grid-row: 3;
+          align-self: start;
+          width: 100%;
+        }
+        #tab-tasks > section.panel-rail-magenta > #tasksSkippedFoldWrap {
+          grid-column: 2;
+          grid-row: 4;
+          align-self: start;
+          width: 100%;
+        }
+        /** Community hub: thread cards in a stable grid (no horizontal carousel) */
+        .community-thread-list,
+        .community-general-list {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.85rem;
+          overflow-x: visible;
+          padding-bottom: 0.65rem;
+        }
+        .community-thread-list > li,
+        .community-general-list > li {
+          flex: unset;
+          min-width: 0;
+          max-width: none;
+        }
+        .community-headlines-rail > li,
+        .community-headline-skeleton-li {
+          flex: 0 0 clamp(200px, 22vw, 260px);
+          min-width: 200px;
+          max-width: 280px;
+        }
+        /** My week: full seven-day row without horizontal scroll */
+        .week-guide-grid {
+          overflow-x: visible;
+          grid-template-columns: repeat(7, minmax(0, 1fr));
+          scroll-snap-type: none;
+        }
+        .week-guide-day {
+          scroll-snap-align: unset;
+        }
+        .week-guide-head {
+          flex-wrap: nowrap;
+          gap: 1rem;
+          justify-content: space-between;
+        }
+        /** Search toolbar: denser horizontal layout */
+        .search-post-toolbar {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          align-items: end;
+          gap: 0.65rem 1rem;
+        }
+        .search-post-toolbar .search-pagination {
+          grid-column: 1 / -1;
+          justify-self: start;
+        }
+      }
+
+      @media (min-width: 1280px) {
+        .community-thread-list,
+        .community-general-list {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      /**
+       * Desktop UX — Inbox (split pane, readable column) + Community (hub + Breaking News rail).
+       * Inbox: syncDmInboxSplitLayout + syncDmInboxActiveRowHighlight in JS.
+       */
+      @media (min-width: 900px) {
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+          gap: 0.85rem 1.25rem;
+          align-items: start;
+        }
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-list-head,
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-headlines-err {
+          grid-column: 1 / -1;
+        }
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityHeadlinesWrap {
+          grid-column: 2;
+          grid-row: 3 / -1;
+          position: sticky;
+          top: 0.65rem;
+          align-self: start;
+          max-height: min(78dvh, 44rem);
+          overflow-y: auto;
+          overflow-x: hidden;
+          overscroll-behavior: contain;
+          padding: 0.55rem 0.65rem 0.75rem;
+          border-radius: 14px;
+          border: 1px solid rgba(130, 200, 255, 0.16);
+          background: linear-gradient(165deg, rgba(8, 12, 22, 0.72), rgba(4, 8, 16, 0.88));
+          scrollbar-width: thin;
+        }
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-headlines-rail-wrap .community-subsection-heading {
+          margin-top: 0;
+          margin-bottom: 0.45rem;
+          font-size: 0.68rem;
+        }
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-headlines-rail {
+          flex-direction: column;
+          overflow-x: visible;
+          overflow-y: visible;
+          gap: 0.55rem;
+          scroll-snap-type: none;
+          padding-bottom: 0;
+        }
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-headlines-rail > li,
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-headline-skeleton-li {
+          flex: 0 0 auto;
+          width: 100%;
+          min-width: 0;
+          max-width: none;
+          scroll-snap-align: none;
+        }
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-live-episode-banner,
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-subsection-heading,
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-loading,
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityThreadsErr,
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityThreadList,
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityGeneralHeading,
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityGeneralList {
+          grid-column: 1;
+        }
+
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread {
+          display: grid;
+          grid-template-columns: minmax(280px, 38%) minmax(0, 1fr);
+          grid-template-rows: minmax(0, 1fr);
+          align-items: stretch;
+          gap: 0 1rem;
+          min-height: min(82dvh, 46rem);
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxListView {
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+          border-right: 1px solid rgba(130, 200, 255, 0.16);
+          padding-right: 0.65rem;
+          margin-right: 0.1rem;
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxListView .dm-inbox-layout {
+          flex: 1;
+          min-height: 0;
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread .dm-inbox-main {
+          min-height: 0;
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxHubScroll {
+          flex: 1;
+          min-height: 0;
+          max-height: min(70dvh, 40rem);
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          padding-right: 0.15rem;
+          scrollbar-width: thin;
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxThreadView {
+          min-height: 0;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxThreadView[hidden] {
+          display: none !important;
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxThreadView:not([hidden]) {
+          display: flex;
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread .dm-inbox-back {
+          display: none;
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxThreadTitleDm,
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxGroupTitleBtn {
+          max-width: min(44rem, 100%);
+          margin-left: auto;
+          margin-right: auto;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxMessages {
+          flex: 1 1 auto;
+          min-height: 10rem;
+          max-height: none;
+          width: 100%;
+          max-width: min(44rem, 100%);
+          margin-left: auto;
+          margin-right: auto;
+          padding: 0.55rem 0.75rem 0.65rem;
+          box-sizing: border-box;
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxThreadView .dm-inbox-compose {
+          flex-shrink: 0;
+          margin-top: auto;
+          width: 100%;
+          max-width: min(44rem, 100%);
+          margin-left: auto;
+          margin-right: auto;
+          box-sizing: border-box;
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxTypingRow {
+          max-width: min(44rem, 100%);
+          margin-left: auto;
+          margin-right: auto;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread .dm-inbox-msg-wrap {
+          max-width: min(32rem, 92%);
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread .dm-inbox-msg-wrap.is-me {
+          max-width: min(32rem, 92%);
+        }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread .dm-inbox-group-msg {
+          max-width: min(40rem, 100%);
+        }
+        .profile-edit-modal.quickstart-help-panel {
+          max-width: min(720px, calc(100vw - 2rem));
+        }
+      }
+      @media (min-width: 1024px) {
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread {
+          grid-template-columns: minmax(300px, 36%) minmax(0, 1fr);
+          min-height: min(84dvh, 48rem);
+          gap: 0 1.15rem;
+        }
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) {
+          grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+          gap: 0.9rem 1.35rem;
+        }
+      }
+      @media (min-width: 1280px) {
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread {
+          grid-template-columns: minmax(320px, 34%) minmax(0, 1fr);
+          min-height: min(86dvh, 50rem);
+        }
+        /** With Breaking News rail, keep discussions at 2 cols so cards stay readable */
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-thread-list,
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-general-list {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
     </style>
   </head>
   <body>
@@ -7882,6 +8254,7 @@
             >
               <div class="onboarding-mission-progress__fill" id="onboardingMissionProgressFill" style="width: 0%"></div>
             </div>
+            <p class="onboarding-mission-strip__hint muted" id="onboardingMissionHint" hidden></p>
             <p class="onboarding-mission-strip__count" id="onboardingMissionCount">0 of 3 shows added</p>
           </div>
           <section id="starterPacksSection" class="starter-packs-section panel-rail-cyan" hidden aria-labelledby="starterPacksHeading">
@@ -8135,7 +8508,7 @@
             ></textarea>
             <p class="msg err" id="postWatchReviewErr" style="display: none; margin: 0.35rem 0 0"></p>
             <div class="community-modal-actions" style="margin-top: 0.75rem">
-              <button type="button" id="postWatchReviewSubmitBtn">Submit review</button>
+              <button type="button" id="postWatchReviewSubmitBtn">Submit</button>
               <button type="button" class="secondary" id="postWatchReviewSkipBtn">Skip for now</button>
             </div>
           </div>
@@ -8839,18 +9212,18 @@
       <div class="modal-panel quickstart-help-panel welcome-sheet-panel" id="welcomeSheetPanel">
         <div class="welcome-sheet-head">
           <div class="welcome-sheet-head-text">
-            <h3 id="quickStartHelpHeading">Welcome to AirAlert</h3>
+            <h3 id="quickStartHelpHeading" class="welcome-sheet-title">Welcome to AirAlert</h3>
             <p id="welcomeSheetSubtitle" class="welcome-sheet-lead">
-              Track what’s airing, mark episodes watched, and join fan discussions.
+              Track what’s airing, mark episodes watched, and unlock the full experience by adding 3 shows.
             </p>
           </div>
           <button type="button" class="modal-close secondary" id="quickStartHelpClose" aria-label="Close welcome">×</button>
         </div>
         <div class="welcome-sheet-body">
           <ul class="welcome-sheet-bullets">
-            <li>Add shows to build your watchlist</li>
-            <li>Check Tasks for upcoming episodes</li>
-            <li>Join Community to see reviews and breaking news</li>
+            <li>Add shows to personalize your app</li>
+            <li>Check <strong>My Week</strong> for what’s airing</li>
+            <li>Use <strong>Tasks</strong> to stay caught up</li>
           </ul>
         </div>
         <div class="welcome-sheet-actions">
@@ -9229,7 +9602,15 @@
         if (userId) localStorage.setItem(onboardingDoneKey(userId), "1");
       }
 
+      /** Keep in sync with {@link ACTIVATION_MIN_SUBSCRIBED_SHOWS} in src/userRole.ts */
+      const ACTIVATION_MIN_SHOWS = 3;
       const ESTABLISHED_SUB_THRESHOLD = 7;
+
+      function isLowShowUser(me) {
+        if (!me || me.id == null) return false;
+        const n = Number(me.subscribedShowCount);
+        return Number.isFinite(n) && n >= 0 && n < ACTIVATION_MIN_SHOWS;
+      }
       const ONBOARDING_GENRE_OPTIONS = [
         "drama",
         "comedy",
@@ -9277,29 +9658,47 @@
         const strip = document.getElementById("onboardingMissionStrip");
         const fill = document.getElementById("onboardingMissionProgressFill");
         const countEl = document.getElementById("onboardingMissionCount");
+        const hintEl = document.getElementById("onboardingMissionHint");
         const bar = document.getElementById("onboardingMissionProgress");
         if (!strip || !fill || !countEl || !bar) return;
         const show =
           me &&
-          accountIsRegistered(me) &&
-          !hasFullSocialUiAccess(me) &&
-          Number(me.subscribedShowCount) < 3;
+          me.id &&
+          !userIsDbAdmin(me) &&
+          isLowShowUser(me);
         strip.hidden = !show;
         if (!show) return;
-        const n = Math.min(3, Math.max(0, Number(me.subscribedShowCount) || 0));
-        const pct = (n / 3) * 100;
+        const n = Math.min(ACTIVATION_MIN_SHOWS, Math.max(0, Number(me.subscribedShowCount) || 0));
+        const pct = (n / ACTIVATION_MIN_SHOWS) * 100;
         fill.style.width = pct + "%";
+        bar.setAttribute("aria-valuemax", String(ACTIVATION_MIN_SHOWS));
         bar.setAttribute("aria-valuenow", String(n));
-        countEl.textContent = n + " of 3 shows added";
+        countEl.textContent = n + " of " + ACTIVATION_MIN_SHOWS + " shows added";
+        if (hintEl) {
+          const left = ACTIVATION_MIN_SHOWS - n;
+          if (left <= 0) {
+            hintEl.textContent = "";
+            hintEl.hidden = true;
+          } else {
+            hintEl.hidden = false;
+            hintEl.textContent =
+              left === 1
+                ? "Add 1 more show to unlock Community + Inbox."
+                : "Add " + left + " more shows to unlock Community + Inbox.";
+          }
+        }
       }
 
       function updateStarterPacksVisibility(me) {
         const sec = document.getElementById("starterPacksSection");
         if (!sec) return;
+        const n = Number(me && me.subscribedShowCount);
         const show =
           me &&
-          accountIsRegistered(me) &&
-          (Number(me.subscribedShowCount) || 0) < ESTABLISHED_SUB_THRESHOLD;
+          me.id &&
+          !userIsDbAdmin(me) &&
+          Number.isFinite(n) &&
+          n < ESTABLISHED_SUB_THRESHOLD;
         sec.hidden = !show;
       }
 
@@ -9311,7 +9710,7 @@
           lastKnownSubCountForCelebration = n;
           return;
         }
-        if (lastKnownSubCountForCelebration < 3 && n >= 3 && hasFullSocialUiAccess(me)) {
+        if (lastKnownSubCountForCelebration < ACTIVATION_MIN_SHOWS && n >= ACTIVATION_MIN_SHOWS && hasFullSocialUiAccess(me)) {
           const key = "airalert_unlock_celebration_v2_" + me.id;
           if (!localStorage.getItem(key)) {
             localStorage.setItem(key, "1");
@@ -9415,9 +9814,6 @@
           loadTrendingShows(uid);
         }
         closeOnboardingSetupModal();
-        if (userId && !isOnboardingDone(userId)) {
-          openQuickStartHelpModal({ firstRun: true });
-        }
       }
 
       async function skipOnboardingSetup(userId) {
@@ -9427,9 +9823,6 @@
         });
         await refreshSessionMeFromServer();
         closeOnboardingSetupModal();
-        if (userId && !isOnboardingDone(userId)) {
-          openQuickStartHelpModal({ firstRun: true });
-        }
       }
 
       let starterPackChipsRendered = false;
@@ -10570,6 +10963,31 @@
           });
           host.appendChild(b);
         }
+        host.addEventListener("keydown", (e) => {
+          if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+            e.preventDefault();
+            const cur = postWatchReviewSelectedRating || 0;
+            postWatchReviewSelectedRating = Math.min(5, Math.max(1, cur + 1));
+            updatePostWatchStarUi();
+            host.querySelector('.post-watch-star-btn[data-rating="' + postWatchReviewSelectedRating + '"]')?.focus();
+          } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+            e.preventDefault();
+            const cur = postWatchReviewSelectedRating || 1;
+            postWatchReviewSelectedRating = Math.max(1, cur - 1);
+            updatePostWatchStarUi();
+            host.querySelector('.post-watch-star-btn[data-rating="' + postWatchReviewSelectedRating + '"]')?.focus();
+          } else if (e.key === "Home") {
+            e.preventDefault();
+            postWatchReviewSelectedRating = 1;
+            updatePostWatchStarUi();
+            host.querySelector('.post-watch-star-btn[data-rating="1"]')?.focus();
+          } else if (e.key === "End") {
+            e.preventDefault();
+            postWatchReviewSelectedRating = 5;
+            updatePostWatchStarUi();
+            host.querySelector('.post-watch-star-btn[data-rating="5"]')?.focus();
+          }
+        });
       }
 
       function updatePostWatchStarUi() {
@@ -10638,11 +11056,12 @@
         const errEl = document.getElementById("postWatchReviewErr");
         const reviewRaw = document.getElementById("postWatchReviewText");
         const review = (reviewRaw && reviewRaw.value ? reviewRaw.value : "").trim();
-        const rating = postWatchReviewSelectedRating;
-        if (rating < 1 || rating > 5) {
+        const hasRating = postWatchReviewSelectedRating >= 1 && postWatchReviewSelectedRating <= 5;
+        const hasReview = review.length > 0;
+        if (!hasRating && !hasReview) {
           if (errEl) {
             errEl.style.display = "block";
-            errEl.textContent = "Tap the stars to choose a rating from 1 to 5.";
+            errEl.textContent = "Choose a star rating, write a short review, or tap Skip for now.";
           }
           return;
         }
@@ -10658,17 +11077,22 @@
             body: JSON.stringify({
               tvmazeShowId: ctx.tvmazeShowId,
               tvmazeEpisodeId: ctx.tvmazeEpisodeId,
-              rating,
-              reviewText: review.length ? review : null,
+              rating: hasRating ? postWatchReviewSelectedRating : null,
+              reviewText: hasReview ? review : null,
             }),
           });
-          showToast(review.length ? "Thanks! Your review is on Community." : "Rating saved.");
+          if (hasReview) {
+            showToast("Review posted.");
+          } else {
+            showToast("Rating saved.");
+          }
           closePostWatchReviewModal();
           if (
             typeof communityState !== "undefined" &&
             communityState &&
             communityState.view === "thread" &&
-            communityState.showId === ctx.tvmazeShowId
+            communityState.showId === ctx.tvmazeShowId &&
+            Number(communityState.episodeId) === Number(ctx.tvmazeEpisodeId)
           ) {
             void loadCommunityThreadPosts();
           }
@@ -10872,6 +11296,38 @@
         return Boolean(p && p.classList.contains("active"));
       }
 
+      function dmInboxSplitMq() {
+        return typeof window !== "undefined" && window.matchMedia("(min-width: 900px)").matches;
+      }
+
+      function syncDmInboxSplitLayout() {
+        const panel = document.querySelector("#tab-messages .dm-inbox-panel");
+        const tv = document.getElementById("dmInboxThreadView");
+        const list = document.getElementById("dmInboxListView");
+        if (!panel || !tv || !list) return;
+        const split = dmInboxSplitMq();
+        if (split && !tv.hidden) {
+          panel.classList.add("dm-inbox-panel--split-thread");
+          list.hidden = false;
+        } else {
+          panel.classList.remove("dm-inbox-panel--split-thread");
+          if (!tv.hidden && !split) list.hidden = true;
+        }
+      }
+
+      function syncDmInboxActiveRowHighlight() {
+        document
+          .querySelectorAll("#dmInboxGroupList .dm-inbox-thread-row, #dmInboxThreadList .dm-inbox-thread-row")
+          .forEach((btn) => {
+            const tid = btn.getAttribute("data-dm-thread-id");
+            const gid = btn.getAttribute("data-dm-group-id");
+            const on =
+              Boolean(tid && dmInboxActiveThreadId && tid === dmInboxActiveThreadId) ||
+              Boolean(gid && dmInboxActiveGroupId && gid === dmInboxActiveGroupId);
+            btn.classList.toggle("dm-inbox-thread-row--active", on);
+          });
+      }
+
       function leaveMessagesTab() {
         sendDmTypingWs(false);
         sendDmGroupTypingWs(false);
@@ -10894,6 +11350,8 @@
         const tv = document.getElementById("dmInboxThreadView");
         if (list) list.hidden = false;
         if (tv) tv.hidden = true;
+        syncDmInboxSplitLayout();
+        syncDmInboxActiveRowHighlight();
         const err = document.getElementById("dmInboxErr");
         if (err) {
           err.textContent = "";
@@ -11360,6 +11818,8 @@
           const list = document.getElementById("dmInboxListView");
           if (list) list.hidden = false;
           tv.hidden = true;
+          syncDmInboxSplitLayout();
+          syncDmInboxActiveRowHighlight();
           closeDmGroupSettingsModal();
           const err = document.getElementById("dmInboxErr");
           if (err) {
@@ -11469,6 +11929,7 @@
           dmInboxRailFilter = "all";
           await renderDmInboxHub();
         }
+        syncDmInboxSplitLayout();
       }
 
       const DM_INBOX_SWIPE_MIN_PX = 56;
@@ -11774,6 +12235,10 @@
               const btn = document.createElement("button");
               btn.type = "button";
               btn.className = "dm-inbox-thread-row";
+              btn.setAttribute("data-dm-group-id", String(g.groupId));
+              if (dmInboxActiveGroupId && String(g.groupId) === String(dmInboxActiveGroupId)) {
+                btn.classList.add("dm-inbox-thread-row--active");
+              }
               btn.title = "Open group · Swipe right: mark unread · Swipe left: leave group";
               const aria =
                 "Open group " +
@@ -11829,6 +12294,10 @@
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "dm-inbox-thread-row";
+            btn.setAttribute("data-dm-thread-id", String(t.threadId));
+            if (dmInboxActiveThreadId && String(t.threadId) === String(dmInboxActiveThreadId)) {
+              btn.classList.add("dm-inbox-thread-row--active");
+            }
             btn.title = "Open chat · Swipe right: mark unread · Swipe left: delete";
             const aria =
               "Open direct message with " +
@@ -11860,6 +12329,7 @@
             attachDmInboxThreadRowSwipe(btn, t.threadId, label);
             host.appendChild(btn);
           }
+          syncDmInboxActiveRowHighlight();
         } catch (e) {
           if (empty) empty.hidden = true;
           if (groupEmpty) groupEmpty.hidden = true;
@@ -12048,8 +12518,10 @@
         setDmChatHeaderMode(false);
         if (titleDm) titleDm.textContent = titleLabel || "Chat";
         if (host) host.classList.remove("dm-inbox-messages--group");
-        if (list) list.hidden = true;
+        if (list) list.hidden = !dmInboxSplitMq();
         if (tv) tv.hidden = false;
+        syncDmInboxSplitLayout();
+        syncDmInboxActiveRowHighlight();
         if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading…</p>";
         try {
           const data = await api("/api/dm/threads/" + encodeURIComponent(threadId) + "/messages?limit=80");
@@ -12113,8 +12585,10 @@
         if (host) {
           host.classList.add("dm-inbox-messages--group");
         }
-        if (list) list.hidden = true;
+        if (list) list.hidden = !dmInboxSplitMq();
         if (tv) tv.hidden = false;
+        syncDmInboxSplitLayout();
+        syncDmInboxActiveRowHighlight();
         if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading…</p>";
         try {
           const detail = await api("/api/dm/groups/" + encodeURIComponent(groupId));
@@ -12397,7 +12871,7 @@
         sessionMeSnapshot = me;
         document.body.classList.toggle(
           "aa-newb-session",
-          !!(me && accountIsRegistered(me) && !hasFullSocialUiAccess(me)),
+          !!(me && !userIsDbAdmin(me) && !hasFullSocialUiAccess(me)),
         );
         if (!userIsDbAdmin(me)) removeAdminUiFromDom();
         syncInboxChromeFromMe(me);
@@ -15984,6 +16458,12 @@
           }
           wrap.appendChild(tagBadge);
         }
+        if (p.tag === "episode_review" && p.showName && String(p.showName).trim()) {
+          const showTitle = document.createElement("div");
+          showTitle.className = "community-review-show-title";
+          showTitle.textContent = p.showName;
+          wrap.appendChild(showTitle);
+        }
         const authorHit = document.createElement("button");
         authorHit.type = "button";
         authorHit.className = "community-post-head community-post-author-hit";
@@ -17150,12 +17630,12 @@
       async function offerOnboardingAfterAuth(me) {
         if (!me || !me.id) return;
         await new Promise((r) => requestAnimationFrame(r));
-        if (shouldAutoShowOnboardingSetup(me)) {
-          openOnboardingSetupModal(me);
-          return;
-        }
         if (!isOnboardingDone(me.id)) {
           openQuickStartHelpModal({ firstRun: true });
+          return;
+        }
+        if (shouldAutoShowOnboardingSetup(me)) {
+          openOnboardingSetupModal(me);
         }
       }
 
@@ -17171,6 +17651,10 @@
         }
         if (wasFirstRun && sessionMeSnapshot && sessionMeSnapshot.id) {
           setOnboardingDone(sessionMeSnapshot.id);
+          const m = sessionMeSnapshot;
+          if (shouldAutoShowOnboardingSetup(m)) {
+            requestAnimationFrame(() => openOnboardingSetupModal(m));
+          }
         }
         quickStartFirstRunSession = false;
         if (!skipFocus && !wasFirstRun) {
@@ -17373,7 +17857,7 @@
         if (name === "messages") {
           if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && hasFullSocialUiAccess(sessionMeSnapshot)) {
             ensureDmWebSocket();
-            void renderDmInboxHub();
+            void renderDmInboxHub().then(() => syncDmInboxSplitLayout());
           } else if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && !hasFullSocialUiAccess(sessionMeSnapshot)) {
             showUnlockSocialToast();
             setTab("add");
@@ -17719,6 +18203,10 @@
       });
       document.querySelectorAll("[data-close-community-modal]").forEach((el) => {
         el.addEventListener("click", () => closeCommunityNewModal());
+      });
+      window.addEventListener("resize", () => {
+        syncDmInboxSplitLayout();
+        syncDmInboxActiveRowHighlight();
       });
       document.addEventListener("click", (e) => {
         const t = e.target && e.target.closest && e.target.closest("[data-close-community-move-modal]");
@@ -18708,7 +19196,7 @@
         return !!(me && (me.username || truthyBit(me.hasPassword)));
       }
 
-      const UNLOCK_SOCIAL_UX_MESSAGE = "Add 3 shows to unlock Community posting and Inbox.";
+      const UNLOCK_SOCIAL_UX_MESSAGE = "Add 3 shows to unlock this feature.";
 
       /** Matches server {@link hasFullSocialAccess}: registered + 3+ shows (or admin). */
       function hasFullSocialUiAccess(me) {
@@ -18823,8 +19311,14 @@
         loadTasks(userId);
         updateContextualTipsVisibility("add");
 
-        if (me && accountIsRegistered(me) && shouldAutoShowOnboardingSetup(me)) {
-          requestAnimationFrame(() => openOnboardingSetupModal(me));
+        if (me && me.id) {
+          if (!isOnboardingDone(me.id)) {
+            if (!shouldShowAccountPrompt(me)) {
+              requestAnimationFrame(() => openQuickStartHelpModal({ firstRun: true }));
+            }
+          } else if (accountIsRegistered(me) && shouldAutoShowOnboardingSetup(me)) {
+            requestAnimationFrame(() => openOnboardingSetupModal(me));
+          }
         }
 
         try {
@@ -19158,7 +19652,10 @@
           }
         });
         document.getElementById("tvWatcherUnlockClose")?.addEventListener("click", () => closeTvWatcherUnlockModal());
-        document.getElementById("tvWatcherUnlockOk")?.addEventListener("click", () => closeTvWatcherUnlockModal());
+        document.getElementById("tvWatcherUnlockOk")?.addEventListener("click", () => {
+          closeTvWatcherUnlockModal();
+          setTab("guide");
+        });
 
         function wireContextualTipDismiss(tipId, elId) {
           document.getElementById(elId)?.addEventListener("click", () => {

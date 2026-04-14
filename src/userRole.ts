@@ -8,8 +8,21 @@ export const NEWB_MAX_SUBSCRIBED_SHOWS = 2;
 /** Inclusive upper bound for TV Watcher tier (3–9 shows). */
 export const TV_WATCHER_MAX_SUBSCRIBED_SHOWS = 9;
 
-export const UNLOCK_SOCIAL_FEATURES_MESSAGE =
-  "Add 3 shows to unlock Community posting and Inbox.";
+/** Subscribed show count required to exit “Getting Started” / unlock social (Community writes, Inbox, DMs). */
+export const ACTIVATION_MIN_SUBSCRIBED_SHOWS = NEWB_MAX_SUBSCRIBED_SHOWS + 1;
+
+/** True when the user is still in the early activation band (0–2 subscribed shows). */
+export function isLowShowUserBySubscribedCount(subscribedShowCount: number): boolean {
+  const n = Math.max(0, Math.floor(Number(subscribedShowCount) || 0));
+  return n < ACTIVATION_MIN_SUBSCRIBED_SHOWS;
+}
+
+/** True when show count alone would grant TV Watcher+ (ignores admin / viewer_role_override). */
+export function isActivatedBySubscribedCountAlone(subscribedShowCount: number): boolean {
+  return !isLowShowUserBySubscribedCount(subscribedShowCount);
+}
+
+export const UNLOCK_SOCIAL_FEATURES_MESSAGE = "Add 3 shows to unlock this feature.";
 
 export function getSubscribedShowCountForUser(userId: string): number {
   const row = db
