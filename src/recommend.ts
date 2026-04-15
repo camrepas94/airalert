@@ -9,6 +9,15 @@ import {
 } from "./tvmaze.js";
 import { db } from "./db.js";
 import { parseOnboardingPrefsJson, type OnboardingPrefs } from "./onboardingPrefs.js";
+import {
+  buildAIEnrichedProfile,
+  computeAIScore,
+  clearAIProfileCache,
+  AI_WEIGHTS,
+  type AIEnrichedProfile,
+} from "./aiRanking.js";
+
+export { clearAIProfileCache };
 
 type ShowDetail = Awaited<ReturnType<typeof fetchShow>>;
 
@@ -356,6 +365,11 @@ export type DebugScoreInfo = {
   matchedGenres: string[];
   matchedNetwork: string | null;
   matchedType: string | null;
+  aiSummarySimilarity?: number;
+  aiRatingGenreBoost?: number;
+  aiRelevanceScore?: number;
+  aiThemeKeywords?: string[];
+  aiWeakMatch?: boolean;
 };
 
 // ─── Collaborative filtering ─────────────────────────────────────────────────
@@ -668,6 +682,8 @@ export async function computeRecommendedShows(
   let sharedNetworkQueries: string[];
   let planLines: string[];
 
+  let aiProfile: AIEnrichedProfile | null = null;
+
   if (subscribedShowIds.length === 0) {
     const syn = buildSyntheticTasteFromOnboarding(prefs);
     if (!syn) {
@@ -698,6 +714,7 @@ export async function computeRecommendedShows(
       profile = mergeOnboardingIntoProfile(profile, prefs);
     }
     collaborative = collaborativeShowScores(userId);
+    aiProfile = buildAIEnrichedProfile(userId, details);
     const q = buildGenreFirstQueries(details);
     genreQueries = q.genreQueries;
     sharedNetworkQueries = q.sharedNetworkQueries;
@@ -856,10 +873,29 @@ export async function computeRecommendedShows(
             c.collabScore ?? 0,
             profile,
           );
+
+          const candidateGenres = (d.genres ?? [])
+            .map((g) => g.trim().toLowerCase())
+            .filter((g) => g.length >= 2);
+          const aiResult = computeAIScore(d.summary, candidateGenres, aiProfile, "recommended");
+
+          let finalScore = matchScore + aiResult.aiRelevanceScore;
+          if (aiResult.weakMatch && matchScore < 80) {
+            finalScore *= AI_WEIGHTS.REC_WEAK_MULT;
+          }
+
           return {
             ...c,
-            matchScore,
-            _debug: debug,
+            matchScore: finalScore,
+            _debug: {
+              ...debug,
+              finalScore,
+              aiSummarySimilarity: aiResult.summarySimilarity,
+              aiRatingGenreBoost: aiResult.ratingGenreBoost,
+              aiRelevanceScore: aiResult.aiRelevanceScore,
+              aiThemeKeywords: aiResult.themeKeywordsMatched,
+              aiWeakMatch: aiResult.weakMatch,
+            },
             name: d.name ?? c.name,
             network: (d.network?.name ?? d.webChannel?.name ?? "").trim() || c.network,
             premiered: d.premiered ?? c.premiered,
@@ -921,10 +957,14 @@ export async function computeTrendingShows(
 
   let profile: UserTasteProfile | null = null;
   let userGenreWeights = new Map<string, number>();
+  let aiProfile: AIEnrichedProfile | null = null;
   if (subscribedShowIds.length > 0) {
     const details = await fetchShowDetailsForRecommend(subscribedShowIds);
     userGenreWeights = buildUserGenreWeights(details);
     profile = buildUserTasteProfile(details, userId ?? "");
+    if (userId) {
+      aiProfile = buildAIEnrichedProfile(userId, details);
+    }
   } else if (userId) {
     const prefs = loadOnboardingPrefs(userId);
     const syn = buildSyntheticTasteFromOnboarding(prefs);
@@ -991,6 +1031,11 @@ export async function computeTrendingShows(
       const badCount = antiGenreCount(show.genres ?? [], p);
       if (badCount > 0 && genreFit === 0) {
         score *= Math.pow(TW.ANTI_GENRE_PENALTY, badCount);
+      }
+
+      if (aiProfile) {
+        const aiResult = computeAIScore(null, genres, aiProfile, "trending");
+        score += aiResult.aiRelevanceScore;
       }
     }
 

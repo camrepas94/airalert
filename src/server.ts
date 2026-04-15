@@ -93,7 +93,7 @@ import {
   POLL_MAX_QUESTION,
 } from "./episodePolls.js";
 import { episodeHasAiredUtc } from "./episodeRatings.js";
-import { computeRecommendedShows, computeTrendingShows } from "./recommend.js";
+import { computeRecommendedShows, computeTrendingShows, clearAIProfileCache } from "./recommend.js";
 import { hashPassword, verifyPassword } from "./password.js";
 import {
   hasFullSocialAccess,
@@ -2649,6 +2649,7 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
   } catch (err) {
     app.log.warn({ err, showId: show.id }, "refreshShowEpisodes after subscribe failed");
   }
+  clearAIProfileCache(userId);
   reply.code(201);
   return { id, tvmazeShowId: show.id, showName: show.name, addedFrom, episodesCached };
 });
@@ -2716,6 +2717,7 @@ app.delete("/api/subscriptions/:subscriptionId", async (request, reply) => {
   }
   if (!assertSelfOrAdmin(request, reply, sub.user_id)) return;
   db.prepare(`DELETE FROM show_subscriptions WHERE id = ?`).run(subscriptionId);
+  clearAIProfileCache(sub.user_id);
   return { ok: true };
 });
 
