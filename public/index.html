@@ -4623,10 +4623,9 @@
       .community-list-head {
         display: flex;
         align-items: center;
-        justify-content: space-between;
         gap: 0.75rem;
         flex-wrap: wrap;
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.15rem;
       }
       /* ── Breaking news rail: compact hero cards (image-led, scroll-snap, auto-scroll) */
       .community-headlines-rail-wrap {
@@ -4870,6 +4869,155 @@
       }
       .community-live-episode-join:hover {
         background: rgba(0, 230, 118, 0.22);
+      }
+      /* ── Live Rooms Hub Module — progressive prominence ── */
+      .community-live-rooms-hub {
+        margin: 0 0 0.65rem;
+        border-radius: 12px;
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        background: linear-gradient(165deg, rgba(8, 14, 28, 0.6), rgba(4, 8, 18, 0.7));
+        overflow: hidden;
+        transition: border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+      }
+      .community-live-rooms-hub-head {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+      }
+      .community-live-rooms-hub-icon {
+        font-size: 0.55rem;
+        color: rgba(130, 200, 255, 0.35);
+        transition: color 0.4s ease, text-shadow 0.4s ease;
+      }
+      .community-live-rooms-hub-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(226, 232, 240, 0.7);
+        transition: color 0.3s ease;
+      }
+      .community-live-rooms-hub-count {
+        margin-left: auto;
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .community-live-rooms-hub-body {
+        padding: 0 0.75rem 0.5rem;
+      }
+      .community-live-rooms-hub-empty {
+        margin: 0;
+        font-size: 0.78rem;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+      .community-live-rooms-hub-list {
+        list-style: none;
+        margin: 0;
+        padding: 0 0.75rem 0.55rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .community-live-rooms-hub-list[hidden] { display: none !important; }
+      .community-live-rooms-hub-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.55rem;
+        border-radius: 9px;
+        border: 1px solid rgba(130, 200, 255, 0.1);
+        background: rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        font: inherit;
+        color: inherit;
+        width: 100%;
+        text-align: left;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .community-live-rooms-hub-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(130, 200, 255, 0.2);
+      }
+      .community-live-rooms-hub-item-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .community-live-rooms-hub-item-show {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 650;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .community-live-rooms-hub-item-meta {
+        display: block;
+        font-size: 0.68rem;
+        color: var(--muted);
+      }
+      .community-live-rooms-hub-item-vc {
+        flex-shrink: 0;
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 0.15rem 0.4rem;
+        border-radius: 999px;
+        background: rgba(34, 211, 238, 0.1);
+        border: 1px solid rgba(34, 211, 238, 0.2);
+        color: #7dd3fc;
+      }
+      /* Dormant state: compact, subtle */
+      .community-live-rooms-hub[data-state="dormant"] {
+        border-color: rgba(130, 200, 255, 0.08);
+      }
+      .community-live-rooms-hub[data-state="dormant"] .community-live-rooms-hub-head {
+        padding: 0.4rem 0.75rem;
+      }
+      .community-live-rooms-hub[data-state="dormant"] .community-live-rooms-hub-body {
+        padding: 0 0.75rem 0.4rem;
+      }
+      /* Early-activity state: visible secondary */
+      .community-live-rooms-hub[data-state="early"] {
+        border-color: rgba(0, 230, 118, 0.2);
+        background: linear-gradient(165deg, rgba(0, 230, 118, 0.03), rgba(4, 8, 18, 0.7));
+      }
+      .community-live-rooms-hub[data-state="early"] .community-live-rooms-hub-icon {
+        color: #4ade80;
+      }
+      .community-live-rooms-hub[data-state="early"] .community-live-rooms-hub-title {
+        color: rgba(226, 232, 240, 0.85);
+      }
+      /* Active-traffic state: elevated, event-like */
+      .community-live-rooms-hub[data-state="active"] {
+        border-color: rgba(0, 230, 118, 0.35);
+        background: linear-gradient(135deg, rgba(0, 230, 118, 0.08), rgba(8, 14, 28, 0.65));
+        box-shadow: 0 0 24px rgba(0, 230, 118, 0.12), 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+      .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-icon {
+        color: #4ade80;
+        text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+        animation: community-live-hub-pulse 1.4s ease-in-out infinite;
+      }
+      .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-title {
+        color: #a7f3d0;
+      }
+      .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-head {
+        padding: 0.55rem 0.75rem;
+      }
+      .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-item-vc {
+        background: rgba(0, 230, 118, 0.15);
+        border-color: rgba(0, 230, 118, 0.3);
+        color: #69f0ae;
+      }
+      @keyframes community-live-hub-pulse {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+      }
+      .community-subsection-heading--primary {
+        font-size: 0.78rem;
+        margin-top: 0.25rem;
       }
       /* ── Show News ── */
       .community-show-news-panel {
@@ -5970,6 +6118,26 @@
         color: var(--muted);
         margin: 0 0 0.35rem;
         letter-spacing: 0.02em;
+      }
+      .community-post-card.is-episode-review {
+        border-color: rgba(251, 191, 36, 0.18);
+        background: linear-gradient(165deg, rgba(251, 191, 36, 0.03) 0%, rgba(6, 10, 20, 0.94) 100%);
+      }
+      .community-review-header {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.15rem;
+      }
+      .community-review-ep-label {
+        font-size: 0.72rem;
+        font-weight: 650;
+        padding: 0.12rem 0.45rem;
+        border-radius: 6px;
+        background: rgba(251, 191, 36, 0.12);
+        border: 1px solid rgba(251, 191, 36, 0.25);
+        color: #fcd34d;
       }
       .community-post-author {
         font-weight: 700;
@@ -7793,6 +7961,16 @@
           overflow-x: visible;
           padding-bottom: 0.65rem;
         }
+        /* Desktop Community: max readable width, centered */
+        #communityListView {
+          max-width: 72rem;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        /* Desktop: Live Rooms hub sits within the main flow, compact when dormant */
+        .community-live-rooms-hub[data-state="dormant"] {
+          max-width: 26rem;
+        }
         .community-thread-list > li,
         .community-general-list > li {
           flex: unset;
@@ -7891,7 +8069,7 @@
           max-width: none;
           scroll-snap-align: none;
         }
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-live-episode-banner,
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-live-rooms-hub,
         #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-subsection-heading,
         #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-loading,
         #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityThreadsErr,
@@ -7899,6 +8077,10 @@
         #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityGeneralHeading,
         #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityGeneralList {
           grid-column: 1;
+        }
+        /* Desktop: When Live Room is active, let it span both columns for event prominence */
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-live-rooms-hub[data-state="active"] {
+          grid-column: 1 / -1;
         }
 
         #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread {
@@ -8529,24 +8711,25 @@
           <div class="community-list-view" id="communityListView">
             <div class="community-list-head">
               <h2 class="section-header-highlight header-cyan-glow" style="margin-top: 0">Community</h2>
-              <span class="community-live-badge" aria-hidden="true">● LIVE</span>
             </div>
 
-            <!-- Breaking news — horizontal hero cards (TVMaze posters); same pattern as General Discussion -->
             <p class="muted community-headlines-err" id="communityHeadlinesErr" hidden></p>
             <div class="community-headlines-rail-wrap" id="communityHeadlinesWrap" hidden>
               <h3 class="community-subsection-heading">Breaking news</h3>
               <ul class="community-headlines-rail" id="communityHeadlinesRail" role="list" aria-label="Breaking news"></ul>
             </div>
 
-            <!-- Live Episode Banner -->
-            <div class="community-live-episode-banner" id="communityLiveEpisodeBanner" hidden>
-              <div class="community-live-episode-dot"></div>
-              <div class="community-live-episode-info">
-                <strong id="communityLiveEpisodeTitle">—</strong>
-                <span class="muted" id="communityLiveEpisodeViewers"></span>
+            <!-- Live Rooms hub module — progressive prominence based on activity -->
+            <div class="community-live-rooms-hub" id="communityLiveRoomsHub" data-state="dormant" aria-label="Live Rooms">
+              <div class="community-live-rooms-hub-head">
+                <span class="community-live-rooms-hub-icon" aria-hidden="true">●</span>
+                <span class="community-live-rooms-hub-title">Live Rooms</span>
+                <span class="community-live-rooms-hub-count" id="communityLiveRoomsHubCount"></span>
               </div>
-              <button type="button" class="community-live-episode-join" id="communityLiveEpisodeJoinBtn">Join</button>
+              <div class="community-live-rooms-hub-body" id="communityLiveRoomsHubBody">
+                <p class="community-live-rooms-hub-empty" id="communityLiveRoomsHubEmpty">No one is live right now. Be the first to start the conversation.</p>
+              </div>
+              <ul class="community-live-rooms-hub-list" id="communityLiveRoomsHubList" role="list" hidden></ul>
             </div>
 
             <button type="button" class="app-fab community-fab-plus" id="communityNewThreadBtn" title="New discussion">
@@ -8554,45 +8737,15 @@
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
             </button>
-            <h3 class="community-subsection-heading">Trending Discussions</h3>
+            <h3 class="community-subsection-heading community-subsection-heading--primary">Discussions</h3>
             <div id="communityThreadsLoading" class="muted community-loading" hidden>Loading threads…</div>
             <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
             <ul class="community-thread-list" id="communityThreadList"></ul>
             <h3 class="community-subsection-heading" id="communityGeneralHeading" hidden>General Discussion</h3>
             <ul class="community-general-list" id="communityGeneralList"></ul>
           </div>
-          <div class="community-challenge-create-view hidden" id="communityChallengeCreateView">
-            <button type="button" class="secondary community-show-back-btn" id="challengeCreateBackBtn">← Community</button>
-            <h3 class="section-header-highlight header-cyan-glow" style="margin-top: 0.35rem">Start a watch challenge</h3>
-            <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.85rem; line-height: 1.45">
-              Pick the show everyone should finish, then the episode whose <strong>air date</strong> is the deadline (e.g. the finale you're racing toward).
-            </p>
-            <label for="challengeCreateTitle">Title</label>
-            <input type="text" id="challengeCreateTitle" maxlength="200" placeholder="e.g. Finish Breaking Bad before the BCS finale" style="width: 100%; box-sizing: border-box; margin-bottom: 0.5rem" />
-            <label for="challengeCreateSummary">Short description <span class="muted">(optional)</span></label>
-            <textarea id="challengeCreateSummary" rows="2" maxlength="2000" placeholder="Rules or hype — optional" style="width: 100%; box-sizing: border-box; margin-bottom: 0.5rem"></textarea>
-            <label>Show to finish</label>
-            <div class="challenge-create-search-wrap">
-              <input type="search" id="challengeCreateTargetSearch" class="challenge-create-search" placeholder="Search TVMaze…" autocomplete="off" />
-              <div id="challengeCreateTargetDropdown" class="challenge-create-dropdown" hidden></div>
-            </div>
-            <p class="muted challenge-create-picked" id="challengeCreateTargetPicked">None selected</p>
-            <label>Deadline episode — show</label>
-            <div class="challenge-create-search-wrap">
-              <input type="search" id="challengeCreateDeadlineSearch" class="challenge-create-search" placeholder="Search TVMaze…" autocomplete="off" />
-              <div id="challengeCreateDeadlineDropdown" class="challenge-create-dropdown" hidden></div>
-            </div>
-            <p class="muted challenge-create-picked" id="challengeCreateDeadlinePicked">None selected</p>
-            <label for="challengeCreateDeadlineEp">Deadline episode</label>
-            <select id="challengeCreateDeadlineEp" style="width: 100%; margin-bottom: 0.65rem" disabled>
-              <option value="">Select a show first, then pick an episode with an air date</option>
-            </select>
-            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.35rem">
-              <button type="button" id="challengeCreateSubmitBtn">Create</button>
-              <button type="button" class="secondary" id="challengeCreateCancelBtn">Cancel</button>
-            </div>
-            <p class="err" id="challengeCreateErr" style="display: none; margin-top: 0.5rem"></p>
-          </div>
+          <!-- Challenge create view (secondary — accessible via FAB menu if wired) -->
+          <div class="community-challenge-create-view hidden" id="communityChallengeCreateView" style="display:none!important"></div>
           <div class="community-thread-view hidden" id="communityThreadView">
             <div class="community-show-page" id="communityShowPage">
               <header class="community-show-hero" id="communityShowHero" aria-label="Show community">
@@ -8817,8 +8970,9 @@
       </div>
 
       <!-- old challenge create modal removed -->
+      <!-- Dead challenge create modal removed during Community UX refinement -->
       <div id="communityChallengeCreateModal__dead" style="display:none!important" hidden>
-          <h3 class="community-modal-title">Start a watch challenge</h3>
+          <h3 class="community-modal-title">Start a watch challenge (removed)</h3>
           <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.65rem; line-height: 1.45">
             Pick the show everyone should finish, then the episode whose <strong>air date</strong> is the deadline (e.g. the finale you’re racing toward).
           </p>
@@ -11070,9 +11224,10 @@
           errEl.textContent = "";
         }
         const btn = document.getElementById("postWatchReviewSubmitBtn");
-        if (btn) btn.disabled = true;
+        const btnOrigText = btn ? btn.textContent : "Submit";
+        if (btn) { btn.disabled = true; btn.textContent = "Saving\u2026"; }
         try {
-          await api("/api/community/post-watch-review", {
+          const result = await api("/api/community/post-watch-review", {
             method: "POST",
             body: JSON.stringify({
               tvmazeShowId: ctx.tvmazeShowId,
@@ -11081,7 +11236,9 @@
               reviewText: hasReview ? review : null,
             }),
           });
-          if (hasReview) {
+          if (hasReview && result && result.postUpdated) {
+            showToast("Review updated.");
+          } else if (hasReview) {
             showToast("Review posted.");
           } else {
             showToast("Rating saved.");
@@ -11105,7 +11262,7 @@
             showToast(msg);
           }
         } finally {
-          if (btn) btn.disabled = false;
+          if (btn) { btn.disabled = false; btn.textContent = btnOrigText; }
         }
       }
 
@@ -14333,7 +14490,8 @@
         if (communityFab) communityFab.style.display = "";
         loadCommunityThreads();
         void loadCommunityHeadlines();
-        void loadLiveEpisodeBanner();
+        void loadLiveRoomsSummary();
+        startLiveRoomsRefresh();
       }
 
       async function loadCommunityChallenges() {
@@ -15111,6 +15269,89 @@
         }
       }
 
+      async function loadLiveRoomsSummary() {
+        const hub = document.getElementById("communityLiveRoomsHub");
+        const body = document.getElementById("communityLiveRoomsHubBody");
+        const emptyEl = document.getElementById("communityLiveRoomsHubEmpty");
+        const listEl = document.getElementById("communityLiveRoomsHubList");
+        const countEl = document.getElementById("communityLiveRoomsHubCount");
+        if (!hub) return;
+        try {
+          const data = await api("/api/community/live-rooms/summary");
+          const total = data.totalViewers || 0;
+          const rooms = data.rooms || [];
+
+          let state = "dormant";
+          if (total >= 5) state = "active";
+          else if (total >= 1) state = "early";
+
+          hub.dataset.state = state;
+
+          if (countEl) {
+            if (total === 0) {
+              countEl.textContent = "";
+            } else {
+              countEl.textContent = total + " fan" + (total !== 1 ? "s" : "") + " live";
+            }
+          }
+
+          if (state === "dormant") {
+            if (emptyEl) emptyEl.hidden = false;
+            if (body) body.hidden = false;
+            if (listEl) listEl.hidden = true;
+            return;
+          }
+
+          if (emptyEl) emptyEl.hidden = true;
+          if (body) body.hidden = true;
+          if (listEl) {
+            listEl.hidden = false;
+            listEl.innerHTML = "";
+            for (const r of rooms) {
+              const li = document.createElement("li");
+              const btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "community-live-rooms-hub-item";
+              const showLabel = escapeHtml(r.showName || "Show");
+              const epLabel = r.episodeLabel ? " · " + escapeHtml(r.episodeLabel) : "";
+              let metaText = r.viewerCount + " fan" + (r.viewerCount !== 1 ? "s" : "") + " chatting";
+              if (r.liveAirNight) metaText = "Live now · " + metaText;
+              if (state === "active" && r.viewerCount >= 5) {
+                metaText = r.viewerCount + " fans chatting about this episode";
+              }
+              btn.innerHTML =
+                '<div class="community-live-rooms-hub-item-info">' +
+                '<span class="community-live-rooms-hub-item-show">' + showLabel + epLabel + '</span>' +
+                '<span class="community-live-rooms-hub-item-meta">' + escapeHtml(metaText) + '</span>' +
+                '</div>' +
+                '<span class="community-live-rooms-hub-item-vc">' + r.viewerCount + '</span>';
+              btn.onclick = () => {
+                const epDeep = r.tvmazeEpisodeId != null ? { episodeId: r.tvmazeEpisodeId } : null;
+                openCommunityThread(r.showId, r.showName, null, epDeep);
+              };
+              li.appendChild(btn);
+              listEl.appendChild(li);
+            }
+          }
+        } catch {
+          hub.dataset.state = "dormant";
+          if (emptyEl) { emptyEl.hidden = false; emptyEl.textContent = "No one is live right now. Be the first to start the conversation."; }
+          if (body) body.hidden = false;
+          if (listEl) listEl.hidden = true;
+        }
+      }
+
+      let liveRoomsRefreshTimer = null;
+      function startLiveRoomsRefresh() {
+        stopLiveRoomsRefresh();
+        liveRoomsRefreshTimer = setInterval(() => {
+          if (communityState.view === "list") void loadLiveRoomsSummary();
+        }, 30000);
+      }
+      function stopLiveRoomsRefresh() {
+        if (liveRoomsRefreshTimer) { clearInterval(liveRoomsRefreshTimer); liveRoomsRefreshTimer = null; }
+      }
+
       function applyCommunityFilter() {
         const trendingCards = document.querySelectorAll("#communityThreadList > li");
         const generalCards = document.querySelectorAll("#communityGeneralList > li");
@@ -15403,6 +15644,7 @@
 
       async function openCommunityThread(showId, showNameFallback, postCountHint, episodeDeepLink) {
         hideUsernameSearchDropdown();
+        stopLiveRoomsRefresh();
         communityState.view = "thread";
         const communityFab = document.getElementById("communityNewThreadBtn");
         if (communityFab) communityFab.style.display = "none";
@@ -16418,8 +16660,9 @@
         const isOwner = uid && p.userId === uid;
         const isAdmin = sessionMeSnapshot && truthyBit(sessionMeSnapshot.isAdmin);
         const canMod = isOwner || isAdmin;
+        const isReview = p.tag === "episode_review";
         const wrap = document.createElement("article");
-        wrap.className = "community-post-card" + (p.parentPostId ? " is-reply" : "");
+        wrap.className = "community-post-card" + (p.parentPostId ? " is-reply" : "") + (isReview ? " is-episode-review" : "");
         wrap.dataset.postId = p.id;
         if (p.tag) wrap.dataset.postTag = p.tag;
         if (p.isSpoiler) wrap.dataset.isSpoiler = "1";
@@ -16450,7 +16693,7 @@
             tagBadge.style.color = "#ff80ab";
             tagBadge.style.border = "1px solid rgba(255,64,129,0.3)";
             tagBadge.textContent = "Hot Take";
-          } else if (p.tag === "episode_review") {
+          } else if (isReview) {
             tagBadge.style.background = "rgba(251, 191, 36, 0.14)";
             tagBadge.style.color = "#fcd34d";
             tagBadge.style.border = "1px solid rgba(251, 191, 36, 0.38)";
@@ -16458,11 +16701,22 @@
           }
           wrap.appendChild(tagBadge);
         }
-        if (p.tag === "episode_review" && p.showName && String(p.showName).trim()) {
-          const showTitle = document.createElement("div");
-          showTitle.className = "community-review-show-title";
-          showTitle.textContent = p.showName;
-          wrap.appendChild(showTitle);
+        if (isReview) {
+          const header = document.createElement("div");
+          header.className = "community-review-header";
+          if (p.showName && String(p.showName).trim()) {
+            const showTitle = document.createElement("span");
+            showTitle.className = "community-review-show-title";
+            showTitle.textContent = p.showName;
+            header.appendChild(showTitle);
+          }
+          if (p.episodeLabel && String(p.episodeLabel).trim()) {
+            const epBadge = document.createElement("span");
+            epBadge.className = "community-review-ep-label";
+            epBadge.textContent = p.episodeLabel;
+            header.appendChild(epBadge);
+          }
+          if (header.childElementCount > 0) wrap.appendChild(header);
         }
         const authorHit = document.createElement("button");
         authorHit.type = "button";
@@ -17844,7 +18098,8 @@
           if (communityState.view === "list") {
             loadCommunityThreads();
             void loadCommunityHeadlines();
-            void loadLiveEpisodeBanner();
+            void loadLiveRoomsSummary();
+            startLiveRoomsRefresh();
           } else if (communityState.showId != null) {
             loadCommunityThreadPosts();
             updateCommunityThreadUi();
@@ -17853,6 +18108,7 @@
         }
         if (prevName === "community" && name !== "community") {
           disconnectCommunityThreadLiveWs();
+          stopLiveRoomsRefresh();
         }
         if (name === "messages") {
           if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && hasFullSocialUiAccess(sessionMeSnapshot)) {

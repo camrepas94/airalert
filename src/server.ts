@@ -83,6 +83,7 @@ import {
   unregisterCommunityThreadLiveSocket,
   handleCommunityThreadLiveMessage,
   isEpisodeLiveAirNightWindow,
+  getLiveRoomSummary,
 } from "./communityLive.js";
 import {
   episodeAirStartUtcMs,
@@ -4067,8 +4068,8 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
     const tx = db.transaction(() => {
       if (existing) {
         db.prepare(
-          `UPDATE community_posts SET body_html = ?, edited_at = datetime('now'), edited_by_user_id = ?, show_name = ? WHERE id = ?`,
-        ).run(bodyHtml, uid, showName, existing.id);
+          `UPDATE community_posts SET body_html = ?, edited_at = datetime('now'), edited_by_user_id = ?, show_name = ?, episode_label = ? WHERE id = ?`,
+        ).run(bodyHtml, uid, showName, label, existing.id);
         postUpdated = true;
       } else {
         const id = uuidv4();
@@ -4184,7 +4185,7 @@ app.post("/api/community/posts", async (request, reply) => {
   const id = uuidv4();
   const isSpoiler = body.isSpoiler === true ? 1 : 0;
   const parentPostId = typeof body.parentPostId === "string" && body.parentPostId.trim() ? body.parentPostId.trim() : null;
-  const allowedTags = ["theory", "spoiler-free", "hot-take", "episode_review"];
+  const allowedTags = ["theory", "spoiler-free", "hot-take"];
   const tag = typeof body.tag === "string" && allowedTags.includes(body.tag) ? body.tag : null;
 
   db.prepare(
@@ -4514,6 +4515,38 @@ app.get("/api/dm/ws", { websocket: true }, (socket: WebSocket, request: FastifyR
   });
   socket.on("close", () => unregisterDmSocket(uid, socket));
   socket.on("error", () => unregisterDmSocket(uid, socket));
+});
+
+app.get("/api/community/live-rooms/summary", async (_request: FastifyRequest, reply) => {
+  const summary = getLiveRoomSummary();
+  const enriched = summary.rooms.slice(0, 8).map((r) => {
+    let showName = "";
+    let episodeLabel = "";
+    const showRow = db
+      .prepare(`SELECT name FROM shows WHERE tvmaze_id = ?`)
+      .get(r.showId) as { name: string } | undefined;
+    if (showRow) showName = showRow.name;
+    if (r.tvmazeEpisodeId != null) {
+      const epRow = db
+        .prepare(
+          `SELECT season, number, name FROM episodes_cache WHERE tvmaze_show_id = ? AND tvmaze_episode_id = ?`,
+        )
+        .get(r.showId, r.tvmazeEpisodeId) as { season: number; number: number; name: string | null } | undefined;
+      if (epRow) {
+        episodeLabel =
+          "S" + String(epRow.season).padStart(2, "0") + "E" + String(epRow.number).padStart(2, "0");
+      }
+    }
+    return {
+      showId: r.showId,
+      tvmazeEpisodeId: r.tvmazeEpisodeId,
+      showName,
+      episodeLabel,
+      viewerCount: r.viewerCount,
+      liveAirNight: r.liveAirNight,
+    };
+  });
+  return reply.send({ totalViewers: summary.totalViewers, rooms: enriched });
 });
 
 /** Ephemeral live rail + “watching now” presence for a thread (show + episode scope). */

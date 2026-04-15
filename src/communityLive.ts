@@ -145,6 +145,22 @@ function broadcastPresence(roomKey: string): void {
   }
 }
 
+export function getLiveRoomSummary(): { totalViewers: number; rooms: { roomKey: string; showId: number; tvmazeEpisodeId: number | null; viewerCount: number; liveAirNight: boolean }[] } {
+  const result: { roomKey: string; showId: number; tvmazeEpisodeId: number | null; viewerCount: number; liveAirNight: boolean }[] = [];
+  let totalViewers = 0;
+  for (const [roomKey, set] of rooms) {
+    const vc = countDistinctViewers(set);
+    if (vc === 0) continue;
+    const parsed = parseRoomKeyForEpisode(roomKey);
+    if (!parsed) continue;
+    const liveAirNight = parsed.tvmazeEpisodeId != null && isEpisodeLiveAirNightWindow(parsed.showId, parsed.tvmazeEpisodeId);
+    result.push({ roomKey, showId: parsed.showId, tvmazeEpisodeId: parsed.tvmazeEpisodeId, viewerCount: vc, liveAirNight });
+    totalViewers += vc;
+  }
+  result.sort((a, b) => b.viewerCount - a.viewerCount);
+  return { totalViewers, rooms: result };
+}
+
 export function registerCommunityThreadLiveSocket(userId: string, socket: WebSocket, roomKey: string): void {
   let set = rooms.get(roomKey);
   if (!set) {
