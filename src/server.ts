@@ -541,6 +541,7 @@ async function notifyCommunityMentionedUsers(opts: {
   tvmazeShowId: number;
   showName: string;
   tvmazeEpisodeId?: number | null;
+  postId?: string;
 }): Promise<void> {
   const next = extractCommunityMentionUsernames(opts.bodyHtml);
   const prev = opts.previousBodyHtml != null ? extractCommunityMentionUsernames(opts.previousBodyHtml) : new Set<string>();
@@ -557,10 +558,11 @@ async function notifyCommunityMentionedUsers(opts: {
   const title = "You were mentioned";
   const showBit = opts.showName.slice(0, 56);
   const who = opts.taggerLabel.slice(0, 52);
-  const url =
+  let url =
     opts.tvmazeEpisodeId != null
       ? `/?communityShow=${opts.tvmazeShowId}&communityEpisode=${opts.tvmazeEpisodeId}`
       : `/?communityShow=${opts.tvmazeShowId}`;
+  if (opts.postId) url += `&communityPostId=${encodeURIComponent(opts.postId)}`;
   for (const r of rows) {
     if (r.id === opts.taggerUserId) continue;
     if (opts.tvmazeEpisodeId != null) {
@@ -4108,6 +4110,7 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
         tvmazeShowId: showId,
         showName,
         tvmazeEpisodeId: ep,
+        postId,
       });
     }
 
@@ -4213,13 +4216,15 @@ app.post("/api/community/posts", async (request, reply) => {
     tvmazeShowId,
     showName,
     tvmazeEpisodeId,
+    postId: id,
   });
   if (parentPostId) {
     const parentPost = db.prepare(`SELECT user_id FROM community_posts WHERE id = ?`).get(parentPostId) as { user_id: string } | undefined;
     if (parentPost && parentPost.user_id !== uid) {
-      const url = tvmazeEpisodeId != null
+      let url = tvmazeEpisodeId != null
         ? `/?communityShow=${tvmazeShowId}&communityEpisode=${tvmazeEpisodeId}`
         : `/?communityShow=${tvmazeShowId}`;
+      url += `&communityPostId=${encodeURIComponent(id)}`;
       await sendWebPushToUser(parentPost.user_id, {
         title: "New reply to your post",
         body: `${authorLabel} replied to your post in ${showName}`,
@@ -4388,6 +4393,7 @@ app.patch("/api/community/posts/:postId", async (request, reply) => {
         tvmazeShowId: newShowId,
         showName: newShowName,
         tvmazeEpisodeId: finEpId,
+        postId,
       });
     }
   }

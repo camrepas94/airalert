@@ -6123,6 +6123,13 @@
         border-color: rgba(251, 191, 36, 0.18);
         background: linear-gradient(165deg, rgba(251, 191, 36, 0.03) 0%, rgba(6, 10, 20, 0.94) 100%);
       }
+      .community-post-highlight {
+        animation: postHighlightPulse 2.5s ease-out;
+      }
+      @keyframes postHighlightPulse {
+        0%  { box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.7), 0 0 12px 2px rgba(34, 211, 238, 0.2); }
+        100% { box-shadow: none; }
+      }
       .community-review-header {
         display: flex;
         align-items: baseline;
@@ -6921,6 +6928,23 @@
         align-items: center;
         margin: 0.65rem 0;
       }
+      .community-composer-meta--slim {
+        gap: 0.5rem;
+        margin: 0.4rem 0;
+      }
+      .community-composer-ep-chip {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 0.18rem 0.5rem;
+        border-radius: 999px;
+        background: rgba(100, 116, 139, 0.2);
+        color: #cbd5e1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 20rem;
+      }
+      .community-composer-ep-chip[hidden] { display: none !important; }
       .community-ep-label {
         flex: 1 1 10rem;
         font-size: 0.72rem;
@@ -6941,6 +6965,15 @@
         border: 1px solid var(--border);
         background: rgba(0, 0, 0, 0.35);
         color: var(--text);
+      }
+      .community-episode-select--inline {
+        width: auto;
+        max-width: 16rem;
+        min-height: 32px;
+        font-size: 0.78rem;
+        padding: 0.25rem 0.4rem;
+        margin-top: 0;
+        border-radius: 8px;
       }
       .admin-community-log {
         list-style: none;
@@ -8698,15 +8731,6 @@
       </div>
 
       <div id="tab-community" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnCommunity">
-        <div
-          class="contextual-tip"
-          id="contextualTipCommunity"
-          role="status"
-          hidden
-        >
-          <p class="contextual-tip-text">See reviews, discussions, and breaking news.</p>
-          <button type="button" class="contextual-tip-dismiss" id="contextualTipCommunityDismiss" aria-label="Dismiss tip">×</button>
-        </div>
         <section class="panel-rail-cyan community-root" aria-label="Community">
           <div class="community-list-view" id="communityListView">
             <div class="community-list-head">
@@ -8765,13 +8789,10 @@
                   </div>
                 </div>
               </header>
-              <!-- Show Sub-Tabs -->
               <div class="community-show-subtabs" id="communityShowSubtabs">
                 <button type="button" class="community-show-subtab active" data-subtab="discussion">Discussion</button>
-                <button type="button" class="community-show-subtab" data-subtab="theories">Theories</button>
-                <button type="button" class="community-show-subtab" data-subtab="spoiler-free">Spoiler-Free</button>
-                <button type="button" class="community-show-subtab" data-subtab="poll">Poll</button>
                 <button type="button" class="community-show-subtab" data-subtab="news">News</button>
+                <button type="button" class="community-show-subtab" data-subtab="chat">Chat</button>
               </div>
               <details class="community-catchup-panel" id="communityCatchUpPanel" hidden>
                 <summary class="community-catchup-summary">Spoiler-safe mode</summary>
@@ -8868,24 +8889,14 @@
                 role="textbox"
                 aria-multiline="true"
               ></div>
-              <div class="community-composer-meta" id="communityComposerEpisodeRow">
-                <label class="community-ep-label" for="communityEpisodeSelect">
-                  Episode <span class="muted">(optional, from guide)</span>
-                  <select id="communityEpisodeSelect" class="community-episode-select">
-                    <option value="">General — whole show</option>
-                  </select>
-                </label>
+              <div class="community-composer-meta community-composer-meta--slim" id="communityComposerEpisodeRow">
+                <span class="community-composer-ep-chip" id="communityComposerEpChip" hidden></span>
+                <select id="communityEpisodeSelect" class="community-episode-select community-episode-select--inline" hidden>
+                  <option value="">General — whole show</option>
+                </select>
                 <label class="community-spoiler-label">
                   <input type="checkbox" id="communityComposerSpoiler" />
                   Spoiler
-                </label>
-                <label class="community-ep-label" style="margin-left:auto">
-                  <select id="communityPostTagSelect" style="padding:0.3rem 0.5rem;border-radius:8px;border:1px solid rgba(130,200,255,0.18);background:rgba(0,0,0,0.3);color:inherit;font:inherit;font-size:0.78rem">
-                    <option value="">No tag</option>
-                    <option value="theory">Theory</option>
-                    <option value="spoiler-free">Spoiler-Free</option>
-                    <option value="hot-take">Hot Take</option>
-                  </select>
                 </label>
               </div>
               <div id="communityReplyIndicator" class="community-post-reply-indicator" hidden>
@@ -10051,8 +10062,6 @@
         const uid = resolveUserId();
         const tips = [
           { id: "contextualTipTasks", tipId: "tasks", tab: "tasks" },
-          { id: "contextualTipCommunity", tipId: "community", tab: "community", skip: () =>
-            sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && !hasFullSocialUiAccess(sessionMeSnapshot) },
         ];
         for (const t of tips) {
           const el = document.getElementById(t.id);
@@ -15703,8 +15712,25 @@
         document.getElementById("communityPostSubmitBtn").disabled = !canPost;
         document.getElementById("communityComposer").contentEditable = canPost ? "true" : "false";
         if (!canPost) document.getElementById("communityComposer").innerHTML = "";
-        const epRow = document.getElementById("communityComposerEpisodeRow");
-        if (epRow) epRow.hidden = typeof communityState.episodeId === "number";
+
+        const epChip = document.getElementById("communityComposerEpChip");
+        const epSel = document.getElementById("communityEpisodeSelect");
+        const inEpisode = typeof communityState.episodeId === "number";
+        if (inEpisode) {
+          if (epChip) {
+            const sub = document.getElementById("communityThreadSubtitle");
+            const title = document.getElementById("communityThreadTitle");
+            const epText = (sub && !sub.hidden && sub.textContent.trim())
+              ? sub.textContent.trim()
+              : (title ? title.textContent.trim() : "");
+            epChip.textContent = "Talking about " + epText;
+            epChip.hidden = false;
+          }
+          if (epSel) epSel.hidden = true;
+        } else {
+          if (epChip) epChip.hidden = true;
+          if (epSel) epSel.hidden = false;
+        }
       }
 
       function insertTextAtCommunityComposer(text) {
@@ -15906,7 +15932,9 @@
 
       function applyCommunityShowSubtab() {
         const tab = communityShowActiveSubtab;
-        const showDiscussion = tab === "discussion" || tab === "theories" || tab === "spoiler-free";
+        const isDiscussion = tab === "discussion";
+        const isChat = tab === "chat";
+        const isNews = tab === "news";
         const composerWrap = document.getElementById("communityComposerWrap");
         const feedEl = document.getElementById("communityPostFeed");
         const pollsPanel = document.getElementById("communityEpisodePollsPanel");
@@ -15916,36 +15944,31 @@
         const liveRail = document.querySelector(".community-live-rail");
         const sortCtrl = document.querySelector(".community-thread-controls");
 
-        if (composerWrap) composerWrap.style.display = showDiscussion ? "" : "none";
-        if (feedEl) feedEl.style.display = showDiscussion ? "" : "none";
-        if (pollsPanel) pollsPanel.style.display = tab === "poll" ? "" : "none";
-        if (newsPanel) newsPanel.style.display = tab === "news" ? "" : "none";
-        if (catchUp) catchUp.style.display = showDiscussion ? "" : "none";
-        if (ratingsPanel) ratingsPanel.style.display = tab === "discussion" ? "" : "none";
-        if (liveRail) liveRail.style.display = tab === "discussion" ? "" : "none";
-        if (sortCtrl) sortCtrl.style.display = tab === "discussion" ? "" : "none";
+        if (composerWrap) composerWrap.style.display = isDiscussion ? "" : "none";
+        if (feedEl) feedEl.style.display = isDiscussion ? "" : "none";
+        if (pollsPanel) pollsPanel.style.display = "none";
+        if (newsPanel) newsPanel.style.display = isNews ? "" : "none";
+        if (catchUp) catchUp.style.display = isDiscussion ? "" : "none";
+        if (ratingsPanel) ratingsPanel.style.display = isDiscussion ? "" : "none";
+        if (liveRail) liveRail.style.display = isChat ? "" : "none";
+        if (sortCtrl) sortCtrl.style.display = isDiscussion ? "" : "none";
 
-        if (showDiscussion && feedEl) {
-          const cards = feedEl.querySelectorAll(".community-post-card");
-          cards.forEach(card => {
-            const postTag = card.dataset.postTag || "";
-            if (tab === "theories") {
-              card.style.display = postTag === "theory" ? "" : "none";
-            } else if (tab === "spoiler-free") {
-              const isSpoiler = card.dataset.isSpoiler === "1";
-              card.style.display = isSpoiler ? "none" : "";
-            } else {
-              card.style.display = "";
-            }
+        if (isDiscussion && feedEl) {
+          feedEl.querySelectorAll(".community-post-card").forEach(card => {
+            card.style.display = "";
           });
         }
 
-        if (tab === "news") {
+        if (isChat && liveRail) {
+          liveRail.hidden = false;
+          const row = document.getElementById("communityThreadMainRow");
+          if (row) row.classList.add("is-rail-open");
+          ensureCommunityThreadLiveWs();
+        }
+
+        if (isNews) {
           const showId = communityState.showId;
           if (showId != null) loadShowNews(showId);
-        }
-        if (tab === "poll") {
-          if (pollsPanel) pollsPanel.hidden = false;
         }
       }
 
@@ -19064,8 +19087,7 @@
         }
         try {
           const epSel = document.getElementById("communityEpisodeSelect");
-          const epVal = epSel && epSel.value;
-          const tagSel = document.getElementById("communityPostTagSelect");
+          const epVal = epSel && !epSel.hidden && epSel.value;
           const postBody = {
             tvmazeShowId: showId,
             bodyHtml: html,
@@ -19079,16 +19101,12 @@
           if (communityReplyToPostId) {
             postBody.parentPostId = communityReplyToPostId;
           }
-          if (tagSel && tagSel.value) {
-            postBody.tag = tagSel.value;
-          }
           await api("/api/community/posts", {
             method: "POST",
             body: JSON.stringify(postBody),
           });
           composer.innerHTML = "";
           if (epSel) epSel.value = "";
-          if (tagSel) tagSel.value = "";
           document.getElementById("communityComposerSpoiler").checked = false;
           cancelCommunityReply();
           showToast("Posted");
@@ -19567,7 +19585,41 @@
         loadTasks(userId);
         updateContextualTipsVisibility("add");
 
-        if (me && me.id) {
+        let deepLinked = false;
+        try {
+          const cq = new URLSearchParams(window.location.search);
+          const cshow = cq.get("communityShow");
+          const cep = cq.get("communityEpisode");
+          const cpost = cq.get("communityPostId");
+          if (cshow && /^\d+$/.test(cshow)) {
+            deepLinked = true;
+            setTab("community");
+            openCommunityThread(Number(cshow), "", undefined, {
+              episodeId: cep && /^\d+$/.test(cep) ? Number(cep) : null,
+            }).then(() => {
+              if (cpost) {
+                requestAnimationFrame(() => {
+                  const el = document.querySelector('[data-post-id="' + CSS.escape(cpost) + '"]');
+                  if (el) {
+                    el.scrollIntoView({ behavior: "smooth", block: "center" });
+                    el.classList.add("community-post-highlight");
+                    setTimeout(() => el.classList.remove("community-post-highlight"), 3000);
+                  }
+                });
+              }
+            });
+            const u = new URL(window.location.href);
+            u.searchParams.delete("communityShow");
+            u.searchParams.delete("communityEpisode");
+            u.searchParams.delete("communityPostId");
+            const qs = u.searchParams.toString();
+            history.replaceState({}, "", u.pathname + (qs ? "?" + qs : "") + u.hash);
+          }
+        } catch {
+          /* ignore */
+        }
+
+        if (!deepLinked && me && me.id) {
           if (!isOnboardingDone(me.id)) {
             if (!shouldShowAccountPrompt(me)) {
               requestAnimationFrame(() => openQuickStartHelpModal({ firstRun: true }));
@@ -19575,25 +19627,6 @@
           } else if (accountIsRegistered(me) && shouldAutoShowOnboardingSetup(me)) {
             requestAnimationFrame(() => openOnboardingSetupModal(me));
           }
-        }
-
-        try {
-          const cq = new URLSearchParams(window.location.search);
-          const cshow = cq.get("communityShow");
-          const cep = cq.get("communityEpisode");
-          if (cshow && /^\d+$/.test(cshow)) {
-            setTab("community");
-            openCommunityThread(Number(cshow), "", undefined, {
-              episodeId: cep && /^\d+$/.test(cep) ? Number(cep) : null,
-            });
-            const u = new URL(window.location.href);
-            u.searchParams.delete("communityShow");
-            u.searchParams.delete("communityEpisode");
-            const qs = u.searchParams.toString();
-            history.replaceState({}, "", u.pathname + (qs ? "?" + qs : "") + u.hash);
-          }
-        } catch {
-          /* ignore */
         }
 
         try {
@@ -19924,7 +19957,6 @@
           });
         }
         wireContextualTipDismiss("tasks", "contextualTipTasksDismiss");
-        wireContextualTipDismiss("community", "contextualTipCommunityDismiss");
 
         document.addEventListener("keydown", (e) => {
           if (e.key !== "Escape") return;
