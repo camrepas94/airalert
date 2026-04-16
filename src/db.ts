@@ -525,6 +525,30 @@ db.exec(`
   );
 `);
 
+/* ── User presence (last client activity / heartbeat; DM WS connect also refreshes) ── */
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_presence (
+    user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    last_activity_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+`);
+
+/* ── In-app activity inbox (human / social only; separate from notification_log episode rows) ── */
+db.exec(`
+  CREATE TABLE IF NOT EXISTS activity_notifications (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    kind TEXT NOT NULL,
+    title TEXT NOT NULL,
+    summary TEXT,
+    url TEXT,
+    actor_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    source_post_id TEXT REFERENCES community_posts(id) ON DELETE SET NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_activity_notifications_user_created ON activity_notifications(user_id, created_at DESC);
+`);
+
 /* ── User Follows (user-to-user) ── */
 db.exec(`
   CREATE TABLE IF NOT EXISTS user_follows (

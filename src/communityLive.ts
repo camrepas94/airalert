@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import type { WebSocket } from "ws";
+import { touchUserPresence } from "./presence.js";
 import { db } from "./db.js";
 import { normalizeEpisodeAirdate } from "./time.js";
 import { hasFullSocialAccess, UNLOCK_SOCIAL_FEATURES_MESSAGE } from "./userRole.js";
@@ -172,6 +173,7 @@ export function registerCommunityThreadLiveSocket(userId: string, socket: WebSoc
   const rec: ClientRecord = { socket, userId, watching: false };
   set.add(rec);
   socketMeta.set(socket, { roomKey, rec });
+  touchUserPresence(userId);
   broadcastPresence(roomKey);
 }
 
@@ -251,12 +253,14 @@ export function handleCommunityThreadLiveMessage(userId: string, socket: WebSock
   const d = parsed as Record<string, unknown>;
 
   if (d.type === "watching") {
+    touchUserPresence(userId);
     meta.rec.watching = Boolean(d.active);
     broadcastPresence(meta.roomKey);
     return;
   }
 
   if (d.type === "ping") {
+    touchUserPresence(userId);
     broadcastPresence(meta.roomKey);
     return;
   }
@@ -302,6 +306,7 @@ export function handleCommunityThreadLiveMessage(userId: string, socket: WebSock
     const now = Date.now();
     if (now - (lastChatAt.get(key) ?? 0) < CHAT_COOLDOWN_MS) return;
     lastChatAt.set(key, now);
+    touchUserPresence(userId);
 
     const msg = {
       type: "thread_live_chat" as const,

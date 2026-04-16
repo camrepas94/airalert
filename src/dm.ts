@@ -2,6 +2,8 @@ import { v4 as uuidv4 } from "uuid";
 import type { WebSocket } from "ws";
 import { db } from "./db.js";
 import { sendWebPushToUser } from "./push.js";
+import { insertActivityNotification } from "./activityNotifications.js";
+import { touchUserPresence } from "./presence.js";
 
 const MAX_DM_BODY_LEN = 4000;
 const MAX_GROUP_NAME_LEN = 80;
@@ -32,6 +34,7 @@ export function registerDmSocket(userId: string, socket: WebSocket): void {
     socketsByUser.set(userId, set);
   }
   set.add(socket);
+  touchUserPresence(userId);
 }
 
 export function unregisterDmSocket(userId: string, socket: WebSocket): void {
@@ -245,6 +248,8 @@ export function sendDmMessage(senderId: string, threadId: string, body: string):
 
   broadcastToUser(recipientId, payload);
   broadcastToUser(senderId, payload);
+
+  touchUserPresence(senderId);
 
   broadcastDmUnreadTotal(recipientId);
 
@@ -591,8 +596,18 @@ export function createDmGroup(creatorId: string, rawName: string, memberUserIds:
     .run(groupId, name, creatorId);
   const ins = db.prepare(`INSERT INTO dm_group_members (group_id, user_id) VALUES (?, ?)`);
   ins.run(groupId, creatorId);
+  const creatorLabel = authorLabelForUser(creatorId);
   for (const uid of ids) {
     ins.run(groupId, uid);
+    insertActivityNotification({
+      recipientUserId: uid,
+      kind: "group_chat_invite",
+      title: "Group chat",
+      summary: `${creatorLabel} started "${name}" with you`,
+      url: "/?openInbox=1",
+      actorUserId: creatorId,
+      sourcePostId: null,
+    });
   }
   return groupId;
 }
@@ -668,6 +683,7 @@ export function sendDmGroupMessage(senderId: string, groupId: string, body: stri
     )
     .run(msgId, groupId, senderId, text);
   db.prepare(`UPDATE dm_group_threads SET last_message_at = datetime('now') WHERE id = ?`).run(groupId);
+  touchUserPresence(senderId);
 
   const row = db
     .prepare(
@@ -782,6 +798,9 @@ export function addDmGroupMembers(
   if (!assertGroupMember(groupId, requesterId)) return { error: "Not a member" };
   const ids = [...new Set(rawIds.map((x) => String(x).trim()).filter(Boolean))];
   if (ids.length === 0) return { error: "No users to add" };
+  const gNameRow = db.prepare(`SELECT name FROM dm_group_threads WHERE id = ?`).get(groupId) as { name: string } | undefined;
+  const groupName = gNameRow?.name ?? "Group chat";
+  const inviterLabel = authorLabelForUser(requesterId);
   const mcRow = db.prepare(`SELECT COUNT(*) AS c FROM dm_group_members WHERE group_id = ?`).get(groupId) as { c: number };
   let current = Number(mcRow.c) || 0;
   const ins = db.prepare(`INSERT INTO dm_group_members (group_id, user_id) VALUES (?, ?)`);
@@ -798,6 +817,15 @@ export function addDmGroupMembers(
     current++;
     added++;
     broadcastDmUnreadTotal(uid);
+    insertActivityNotification({
+      recipientUserId: uid,
+      kind: "group_chat_invite",
+      title: "Added to group",
+      summary: `${inviterLabel} added you to "${groupName}"`,
+      url: "/?openInbox=1",
+      actorUserId: requesterId,
+      sourcePostId: null,
+    });
   }
   if (added === 0) return { error: "No new members added (already in group or invalid users)" };
   const memberIds = db

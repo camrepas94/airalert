@@ -77,6 +77,8 @@ import {
   addDmGroupMembers,
   removeDmGroupMember,
 } from "./dm.js";
+import { insertActivityNotification } from "./activityNotifications.js";
+import { getPresenceMapForUserIds, touchUserPresence } from "./presence.js";
 import {
   parseThreadLiveRoomQuery,
   registerCommunityThreadLiveSocket,
@@ -573,6 +575,15 @@ async function notifyCommunityMentionedUsers(opts: {
     }
     const body = `${who} tagged you in ${showBit}`;
     await sendWebPushToUser(r.id, { title, body, url }, { kind: "communityMention" });
+    insertActivityNotification({
+      recipientUserId: r.id,
+      kind: "community_mention",
+      title: "You were mentioned",
+      summary: body,
+      url,
+      actorUserId: opts.taggerUserId,
+      sourcePostId: opts.postId ?? null,
+    });
   }
 }
 
@@ -1933,6 +1944,49 @@ app.post("/api/users/session/clear", async (request, reply) => {
   return { ok: true };
 });
 
+/** Client heartbeat / foreground activity — updates `user_presence.last_activity_at` (throttle client-side). */
+app.post("/api/users/me/presence", async (request, reply) => {
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401);
+    return { error: "Sign in required" };
+  }
+  const ex = db.prepare(`SELECT id FROM users WHERE id = ?`).get(sid);
+  if (!ex) {
+    clearSessionCookie(reply, request);
+    reply.code(401);
+    return { error: "Session invalid" };
+  }
+  touchUserPresence(sid);
+  return { ok: true, serverTimeMs: Date.now() };
+});
+
+/**
+ * Batch presence for UUIDs. Source of truth is `user_presence.last_activity_at` (see `presence.ts` thresholds).
+ * Must be registered before `/api/users/:id` so `presence` is not captured as an id.
+ */
+app.get("/api/users/presence", async (request, reply) => {
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401);
+    return { error: "Sign in required" };
+  }
+  if (!db.prepare(`SELECT id FROM users WHERE id = ?`).get(sid)) {
+    reply.code(401);
+    return { error: "Session invalid" };
+  }
+  const q = request.query as { ids?: string };
+  const raw = typeof q.ids === "string" ? q.ids : "";
+  const ids = raw
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .slice(0, 80);
+  const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const clean = ids.filter((id) => uuidRe.test(id));
+  return { presence: getPresenceMapForUserIds(clean, Date.now()), serverTimeMs: Date.now() };
+});
+
 app.get("/api/users/:id", async (request, reply) => {
   const { id } = request.params as { id: string };
   if (!assertSelfOrAdmin(request, reply, id)) return;
@@ -3034,7 +3088,10 @@ app.patch("/api/users/:userId/watch-tasks/:taskId", async (request, reply) => {
   return row;
 });
 
-app.get("/api/users/:userId/notifications", async (request, reply) => {
+/**
+ * Human / social activity only (mentions, replies, group invites). Episode `notification_log` rows are not included here.
+ */
+app.get("/api/users/:userId/activity-notifications", async (request, reply) => {
   const { userId } = request.params as { userId: string };
   const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
   if (!u) {
@@ -3044,11 +3101,17 @@ app.get("/api/users/:userId/notifications", async (request, reply) => {
   if (!assertSelfOrAdmin(request, reply, userId)) return;
   const rows = db
     .prepare(
-      `SELECT id, show_name AS showName, episode_label AS episodeLabel, airdate, channel, created_at AS createdAt
-       FROM notification_log WHERE user_id = ? ORDER BY created_at DESC LIMIT 100`,
+      `SELECT a.id, a.kind, a.title, a.summary, a.url, a.created_at AS createdAt,
+              a.actor_user_id AS actorUserId, a.source_post_id AS sourcePostId,
+              au.display_name AS actorDisplayName, au.username AS actorUsername
+       FROM activity_notifications a
+       LEFT JOIN users au ON au.id = a.actor_user_id
+       WHERE a.user_id = ?
+       ORDER BY datetime(a.created_at) DESC, a.id DESC
+       LIMIT 100`,
     )
     .all(userId);
-  return { notifications: rows };
+  return { activities: rows };
 });
 
 app.get("/api/users/:userId/upcoming", async (request, reply) => {
@@ -4232,6 +4295,15 @@ app.post("/api/community/posts", async (request, reply) => {
         body: `${authorLabel} replied to your post in ${showName}`,
         url,
       }, { kind: "communityThreadNewPost" });
+      insertActivityNotification({
+        recipientUserId: parentPost.user_id,
+        kind: "community_reply",
+        title: "New reply",
+        summary: `${authorLabel} replied in ${showName}`,
+        url,
+        actorUserId: uid,
+        sourcePostId: id,
+      });
     }
   }
 
@@ -4631,7 +4703,24 @@ app.get("/api/dm/threads/:threadId/messages", async (request, reply) => {
   const chronological = raw.slice().reverse();
   const otherLastReadAt = getOtherParticipantLastReadAt(threadId, uid);
   const messages = enrichMessagesWithReadState(chronological, uid, otherLastReadAt);
-  return { messages, otherLastReadAt };
+  const pair = db
+    .prepare(`SELECT user_low AS low, user_high AS high FROM dm_threads WHERE id = ?`)
+    .get(threadId) as { low: string; high: string } | undefined;
+  const otherUserId = pair ? (pair.low === uid ? pair.high : pair.low) : null;
+  let otherAvatarDataUrl: string | null = null;
+  let otherDisplayName: string | null = null;
+  let otherUsername: string | null = null;
+  if (otherUserId) {
+    const ur = db
+      .prepare(
+        `SELECT display_name AS displayName, username, avatar_data_url AS avatarDataUrl FROM users WHERE id = ?`,
+      )
+      .get(otherUserId) as { displayName: string | null; username: string | null; avatarDataUrl: string | null } | undefined;
+    otherAvatarDataUrl = ur?.avatarDataUrl ?? null;
+    otherDisplayName = ur?.displayName ?? null;
+    otherUsername = ur?.username ?? null;
+  }
+  return { messages, otherLastReadAt, otherUserId, otherAvatarDataUrl, otherDisplayName, otherUsername };
 });
 
 app.post("/api/dm/threads/:threadId/messages", async (request, reply) => {

@@ -1585,6 +1585,56 @@
         flex-shrink: 0;
         width: 48px;
         height: 48px;
+        position: relative;
+      }
+      .aa-presence-slot {
+        position: absolute;
+        bottom: 3px;
+        right: 3px;
+        width: 11px;
+        height: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        z-index: 2;
+      }
+      .aa-presence-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        box-sizing: border-box;
+        border: 2px solid rgba(6, 10, 24, 0.92);
+      }
+      .aa-presence-dot--online {
+        background: #22c55e;
+        box-shadow: 0 0 0 2px rgba(6, 10, 24, 0.92), 0 0 10px rgba(34, 197, 94, 0.65);
+      }
+      .aa-presence-dot--idle {
+        background: #eab308;
+        box-shadow: 0 0 0 2px rgba(6, 10, 24, 0.92), 0 0 10px rgba(234, 179, 8, 0.55);
+      }
+      .dm-inbox-dm-header-block {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-top: 0.35rem;
+        min-width: 0;
+      }
+      .dm-inbox-dm-header-block .dm-inbox-thread-avatar-wrap {
+        width: 40px;
+        height: 40px;
+      }
+      .dm-inbox-dm-header-block .dm-inbox-thread-avatar,
+      .dm-inbox-dm-header-block .dm-inbox-thread-avatar--fallback {
+        width: 40px;
+        height: 40px;
+        font-size: 0.95rem;
+      }
+      .dm-inbox-dm-header-block .dm-inbox-thread-title-inline {
+        margin: 0;
+        flex: 1 1 auto;
+        min-width: 0;
       }
       .dm-inbox-thread-avatar {
         width: 48px;
@@ -1939,6 +1989,18 @@
         border-radius: 10px;
         background: rgba(6, 10, 24, 0.45);
         border: 1px solid rgba(91, 156, 255, 0.2);
+      }
+      .dm-group-settings-member-av-wrap {
+        position: relative;
+        flex-shrink: 0;
+        width: 36px;
+        height: 36px;
+      }
+      .dm-group-settings-member-av-wrap .aa-presence-slot {
+        bottom: 1px;
+        right: 1px;
+        width: 10px;
+        height: 10px;
       }
       .dm-group-settings-member-av {
         width: 36px;
@@ -2775,6 +2837,7 @@
       .profile-avatar-wrap {
         flex-shrink: 0;
         text-align: center;
+        position: relative;
       }
       .profile-avatar-btn {
         width: 5.5rem;
@@ -4589,7 +4652,7 @@
         color: #f472b6;
         filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.7)) drop-shadow(0 0 12px rgba(236, 72, 153, 0.35));
       }
-      /* Image-3 direction: rounded speech bubble, neon cyan stroke, pink/purple outer glow; star = unread (see marker). */
+      /* Neon-glass bell (cyan→magenta rim, sapphire fill); unread = hot dot upper-right. */
       #headerNotificationsBtn .header-notifications-icon-wrap {
         position: relative;
         width: 1.32rem;
@@ -4599,45 +4662,45 @@
         align-items: center;
         justify-content: center;
       }
-      #headerNotificationsBtn .header-notifications-bubble {
+      #headerNotificationsBtn .header-notifications-bell {
         width: 100%;
         height: 100%;
         overflow: visible;
-        color: #5ee9f4;
-        stroke-width: 1.45;
-        fill: rgba(6, 20, 38, 0.35);
-        filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 8px rgba(34, 211, 238, 0.55))
-          drop-shadow(0 0 14px rgba(192, 132, 252, 0.42));
+        display: block;
+        filter: drop-shadow(0 0 1px rgba(34, 211, 238, 0.9)) drop-shadow(0 0 5px rgba(34, 211, 238, 0.55))
+          drop-shadow(0 0 10px rgba(232, 121, 249, 0.38)) drop-shadow(0 0 14px rgba(56, 189, 248, 0.22));
       }
-      #headerNotificationsBtn:hover:not(:disabled) .header-notifications-bubble {
-        color: #7ffbf5;
-        filter: drop-shadow(0 0 3px rgba(94, 234, 212, 1)) drop-shadow(0 0 10px rgba(34, 211, 238, 0.65))
-          drop-shadow(0 0 18px rgba(216, 180, 254, 0.5));
+      #headerNotificationsBtn:hover:not(:disabled) .header-notifications-bell {
+        filter: drop-shadow(0 0 2px rgba(103, 232, 249, 1)) drop-shadow(0 0 7px rgba(34, 211, 238, 0.7))
+          drop-shadow(0 0 14px rgba(244, 114, 182, 0.45)) drop-shadow(0 0 20px rgba(192, 132, 252, 0.35));
       }
-      #headerNotificationsBtn:active:not(:disabled) .header-notifications-bubble {
-        color: #22d3ee;
+      #headerNotificationsBtn:active:not(:disabled) .header-notifications-bell {
+        filter: drop-shadow(0 0 1px rgba(34, 211, 238, 0.85)) drop-shadow(0 0 5px rgba(34, 211, 238, 0.5))
+          drop-shadow(0 0 9px rgba(232, 121, 249, 0.32));
       }
       #headerNotificationsBtn .header-notifications-unread-marker {
         position: absolute;
-        top: -0.05rem;
-        right: -0.08rem;
-        width: 0.42rem;
-        height: 0.42rem;
+        top: -0.02rem;
+        right: -0.06rem;
+        width: 0.44rem;
+        height: 0.44rem;
         pointer-events: none;
         display: flex;
         align-items: center;
         justify-content: center;
-        transform: rotate(10deg);
       }
       #headerNotificationsBtn .header-notifications-unread-marker[hidden] {
         display: none !important;
       }
-      #headerNotificationsBtn .header-notifications-unread-star {
+      #headerNotificationsBtn .header-notifications-unread-dot {
         width: 100%;
         height: 100%;
-        overflow: visible;
-        filter: drop-shadow(0 0 3px rgba(254, 249, 195, 1)) drop-shadow(0 0 6px rgba(250, 204, 21, 0.85))
-          drop-shadow(0 0 8px rgba(56, 189, 248, 0.45));
+        border-radius: 50%;
+        box-sizing: border-box;
+        border: 1px solid rgba(255, 237, 213, 0.55);
+        background: radial-gradient(circle at 32% 30%, #fffef8 0%, #ffedd5 28%, #fb923c 62%, #ea580c 100%);
+        box-shadow: 0 0 3px rgba(254, 243, 199, 0.95), 0 0 8px rgba(251, 146, 60, 0.85), 0 0 12px rgba(234, 88, 12, 0.65),
+          0 0 2px rgba(15, 23, 42, 0.9);
       }
       .header-icon-btn:hover:not(:disabled) .header-icon-svg {
         opacity: 1;
@@ -4695,6 +4758,28 @@
         font-size: 0.72rem;
         margin-top: 0.15rem;
         color: rgba(180, 210, 235, 0.85);
+      }
+      button.header-notification-row.header-activity-row {
+        display: block;
+        width: 100%;
+        padding: 0.45rem 0.5rem;
+        font: inherit;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        font-size: 0.8rem;
+        line-height: 1.35;
+        -webkit-tap-highlight-color: transparent;
+      }
+      button.header-notification-row.header-activity-row:hover {
+        background: rgba(255, 255, 255, 0.07);
+      }
+      button.header-notification-row.header-activity-row:focus-visible {
+        outline: 2px solid rgba(34, 211, 238, 0.55);
+        outline-offset: 1px;
       }
       .header-notifications-empty {
         margin: 0.35rem 0.5rem 0.5rem;
@@ -6969,6 +7054,7 @@
         align-items: flex-start;
         gap: 0.85rem;
         margin-bottom: 1rem;
+        position: relative;
       }
       .community-member-profile-avatar-hit {
         display: block;
@@ -8489,6 +8575,7 @@
         #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread .dm-inbox-back {
           display: none;
         }
+        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxDmHeaderBlock,
         #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxThreadTitleDm,
         #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxGroupTitleBtn {
           max-width: min(44rem, 100%);
@@ -8611,6 +8698,9 @@
                   Timezone
                 </button>
                 <button type="button" class="header-menu-item" role="menuitem" id="headerMenuPush">Push notifications</button>
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuWelcomeGuide">
+                  Welcome guide
+                </button>
               </div>
             </div>
             <div class="header-menu-wrap">
@@ -8686,34 +8776,69 @@
               >
                 <span class="header-notifications-icon-wrap" aria-hidden="true">
                   <svg
-                    class="header-notifications-bubble"
+                    class="header-notifications-bell"
                     xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
                     viewBox="0 0 24 24"
-                    stroke="currentColor"
+                    fill="none"
                     aria-hidden="true"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.189.929 4.178 2.351 5.658.334.325.556.77.467 1.226a4.48 4.48 0 00.978 2.025 5.969 5.969 0 01-.474.065 5.972 5.972 0 01-3.11-.675 9.764 9.764 0 01-2.555-.337c-.09-.057-.173-.121-.252-.184C4.708 18.195 4.5 17.32 4.5 16.5c0-1.886.364-3.656 1-5.195"
+                    <defs>
+                      <linearGradient id="aaHdrBellNeon" x1="3" y1="12" x2="21" y2="12" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#22d3ee" />
+                        <stop offset="42%" stop-color="#67e8f9" />
+                        <stop offset="100%" stop-color="#e879f9" />
+                      </linearGradient>
+                      <linearGradient id="aaHdrBellGlass" x1="7" y1="3" x2="17" y2="21" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="rgba(56, 189, 248, 0.42)" />
+                        <stop offset="45%" stop-color="rgba(37, 99, 235, 0.48)" />
+                        <stop offset="100%" stop-color="rgba(15, 23, 42, 0.62)" />
+                      </linearGradient>
+                      <radialGradient
+                        id="aaHdrBellSheen"
+                        gradientUnits="userSpaceOnUse"
+                        cx="9"
+                        cy="6.5"
+                        r="11"
+                      >
+                        <stop offset="0%" stop-color="rgba(255, 255, 255, 0.52)" />
+                        <stop offset="45%" stop-color="rgba(255, 255, 255, 0.09)" />
+                        <stop offset="100%" stop-color="rgba(255, 255, 255, 0)" />
+                      </radialGradient>
+                      <linearGradient id="aaHdrBellClapper" x1="10" y1="17.5" x2="14" y2="20.5" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#fffbeb" />
+                        <stop offset="40%" stop-color="#fdba74" />
+                        <stop offset="100%" stop-color="#ea580c" />
+                      </linearGradient>
+                    </defs>
+                    <!-- Top loop -->
+                    <ellipse
+                      cx="12"
+                      cy="3.35"
+                      rx="2.15"
+                      ry="1.38"
+                      fill="none"
+                      stroke="url(#aaHdrBellNeon)"
+                      stroke-width="1.05"
                     />
+                    <!-- Bell body (classic notifications silhouette) -->
+                    <path
+                      fill="url(#aaHdrBellGlass)"
+                      stroke="url(#aaHdrBellNeon)"
+                      stroke-width="1.02"
+                      stroke-linejoin="round"
+                      d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2h16l-2-2z"
+                    />
+                    <path
+                      fill="url(#aaHdrBellSheen)"
+                      d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2h16l-2-2z"
+                      style="mix-blend-mode: screen; pointer-events: none"
+                      opacity="0.88"
+                    />
+                    <!-- Warm clapper / mouth glow -->
+                    <ellipse cx="12" cy="17.85" rx="2.05" ry="1.05" fill="url(#aaHdrBellClapper)" opacity="0.95" />
                   </svg>
                   <span class="header-notifications-unread-marker" id="headerNotificationsUnreadMarker" hidden>
-                    <svg
-                      class="header-notifications-unread-star"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fill="#fffbeb"
-                        stroke="#fde68a"
-                        stroke-width="0.35"
-                        d="M6 0.65l1.05 2.38 2.38 1.05-2.38 1.05L6 7.5 4.95 5.13 2.57 4.08l2.38-1.05L6 0.65z"
-                      />
-                    </svg>
+                    <span class="header-notifications-unread-dot" aria-hidden="true"></span>
                   </span>
                 </span>
               </button>
@@ -8722,20 +8847,17 @@
                 id="headerNotificationsDropdown"
                 hidden
                 role="menu"
-                aria-label="Notifications"
+                aria-label="Activity"
               >
                 <div class="header-notifications-inner">
-                  <p class="header-notifications-heading">Notifications</p>
+                  <p class="header-notifications-heading">Activity</p>
                   <p class="header-notifications-hint muted">
-                    Episode alerts and account activity. Mentions and live chat alerts will appear here as they ship.
+                    Mentions, replies to your posts, and group invites appear here.
                   </p>
                   <div class="header-notifications-scroll">
                     <div id="headerNotificationsList" class="header-notifications-list" role="list"></div>
-                    <p id="headerNotificationsEmpty" class="header-notifications-empty muted" hidden>No notifications yet.</p>
+                    <p id="headerNotificationsEmpty" class="header-notifications-empty muted" hidden>No new activity yet</p>
                   </div>
-                  <button type="button" class="header-menu-item" role="menuitem" id="headerNotificationsOpenTips">
-                    Welcome guide
-                  </button>
                 </div>
               </div>
             </div>
@@ -9617,13 +9739,15 @@
             </div>
             <div id="dmInboxThreadView" hidden>
               <button type="button" class="secondary dm-inbox-back" id="dmInboxBackBtn">← Inbox</button>
-              <h3
-                id="dmInboxThreadTitleDm"
-                class="section-header-highlight header-cyan-glow dm-inbox-chat-heading"
-                style="margin-top: 0.35rem"
-              >
-                Chat
-              </h3>
+              <div id="dmInboxDmHeaderBlock" class="dm-inbox-dm-header-block" hidden>
+                <div id="dmInboxDmHeaderAvatarHost" aria-hidden="true"></div>
+                <h3
+                  id="dmInboxThreadTitleDm"
+                  class="section-header-highlight header-cyan-glow dm-inbox-chat-heading dm-inbox-thread-title-inline"
+                >
+                  Chat
+                </h3>
+              </div>
               <button
                 type="button"
                 id="dmInboxGroupTitleBtn"
@@ -10166,8 +10290,8 @@
     <script>
       const LS_USER = "airalert_user_id";
       const LS_GUEST_PROMPT = "airalert_guest_prompt_dismissed";
-      /** Per-user last-seen notification time (ms since epoch), for header unread star vs real GET /notifications rows. */
-      const LS_NOTIF_ACK_MS = "airalert_notif_ack_ms_";
+      /** Per-user last-seen activity inbox time (ms), vs GET /activity-notifications only (human/social rows). */
+      const LS_ACTIVITY_ACK_MS = "airalert_activity_ack_ms_";
       /** Per-user: user dismissed the in-page Add-tab onboarding strip (local device). */
       function onboardingStripDismissedKey(userId) {
         return "airalert_onboarding_strip_dismissed_v1_" + userId;
@@ -10684,6 +10808,7 @@
             badge.hidden = true;
           }
         }
+        syncSelfProfilePresenceFromSession();
       }
 
       function syncProfileShareSection() {
@@ -11821,6 +11946,11 @@
       let dmGroupSettingsSearchGen = 0;
       /** Current group member ids while settings modal detail is loaded (for add-member search). */
       let dmGroupSettingsMemberIds = new Set();
+      let dmInboxActivePeerUserId = null;
+      let dmPeerPresenceRefreshTimer = null;
+      let presenceActivityDebounceTimer = null;
+      let presenceLastHeartbeatSent = 0;
+      const PRESENCE_HEARTBEAT_MIN_MS = 38000;
 
       function setDmInboxBadge(total) {
         const b = document.getElementById("headerInboxBadge");
@@ -12205,8 +12335,116 @@
       function setDmChatHeaderMode(isGroup) {
         const dm = document.getElementById("dmInboxThreadTitleDm");
         const gb = document.getElementById("dmInboxGroupTitleBtn");
+        const hb = document.getElementById("dmInboxDmHeaderBlock");
+        if (hb) hb.hidden = !!isGroup;
         if (dm) dm.hidden = !!isGroup;
         if (gb) gb.hidden = !isGroup;
+      }
+
+      function clearDmPeerPresenceRefresh() {
+        if (dmPeerPresenceRefreshTimer) {
+          clearInterval(dmPeerPresenceRefreshTimer);
+          dmPeerPresenceRefreshTimer = null;
+        }
+      }
+
+      function resetDmChatHeaderPresenceUi() {
+        clearDmPeerPresenceRefresh();
+        dmInboxActivePeerUserId = null;
+        const host = document.getElementById("dmInboxDmHeaderAvatarHost");
+        if (host) host.innerHTML = "";
+        const hb = document.getElementById("dmInboxDmHeaderBlock");
+        if (hb) hb.hidden = true;
+      }
+
+      function postSelfPresenceHeartbeat(force) {
+        const uid = resolveUserId();
+        if (!uid || document.visibilityState === "hidden") return;
+        const now = Date.now();
+        if (!force && now - presenceLastHeartbeatSent < PRESENCE_HEARTBEAT_MIN_MS) return;
+        presenceLastHeartbeatSent = now;
+        void api("/api/users/me/presence", { method: "POST", body: "{}" }).catch(() => {});
+      }
+
+      function schedulePresenceActivityTouch() {
+        if (presenceActivityDebounceTimer) clearTimeout(presenceActivityDebounceTimer);
+        presenceActivityDebounceTimer = setTimeout(() => {
+          presenceActivityDebounceTimer = null;
+          postSelfPresenceHeartbeat(true);
+        }, 550);
+      }
+
+      function startAppPresenceClient() {
+        if (window.__aaPresenceClientStarted) return;
+        window.__aaPresenceClientStarted = true;
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") postSelfPresenceHeartbeat(true);
+        });
+        window.addEventListener("focus", () => postSelfPresenceHeartbeat(true));
+        const onAct = () => schedulePresenceActivityTouch();
+        document.addEventListener("pointerdown", onAct, { capture: true, passive: true });
+        document.addEventListener("keydown", onAct, { capture: true, passive: true });
+        window.addEventListener("scroll", () => schedulePresenceActivityTouch(), { capture: true, passive: true });
+        setInterval(() => postSelfPresenceHeartbeat(false), 42000);
+        postSelfPresenceHeartbeat(true);
+      }
+
+      async function fetchPresenceMapForUserIds(userIds) {
+        const ids = [...new Set((userIds || []).filter(Boolean))].slice(0, 60);
+        if (!ids.length) return {};
+        const q = ids.map((id) => encodeURIComponent(id)).join(",");
+        const d = await api("/api/users/presence?ids=" + q);
+        return d.presence || {};
+      }
+
+      function ensurePresenceSlot(wrapEl) {
+        let slot = wrapEl.querySelector(":scope > .aa-presence-slot");
+        if (!slot) {
+          slot = document.createElement("span");
+          slot.className = "aa-presence-slot";
+          wrapEl.appendChild(slot);
+        }
+        return slot;
+      }
+
+      function applyPresenceStatusToSlot(slotEl, status) {
+        if (!slotEl) return;
+        slotEl.innerHTML = "";
+        if (!status || status === "offline") return;
+        const dot = document.createElement("span");
+        dot.className = "aa-presence-dot " + (status === "online" ? "aa-presence-dot--online" : "aa-presence-dot--idle");
+        dot.title = status === "online" ? "Online" : "Away / idle";
+        slotEl.appendChild(dot);
+      }
+
+      async function applyPresenceToWrappers(entries) {
+        const pairs = (entries || []).filter((e) => e && e.wrap && e.userId);
+        if (!pairs.length) return;
+        const map = await fetchPresenceMapForUserIds(pairs.map((p) => p.userId));
+        for (const { wrap, userId } of pairs) {
+          applyPresenceStatusToSlot(ensurePresenceSlot(wrap), map[userId] || "offline");
+        }
+      }
+
+      async function refreshDmChatHeaderPresence() {
+        const peer = dmInboxActivePeerUserId;
+        const host = document.getElementById("dmInboxDmHeaderAvatarHost");
+        if (!peer || !host) return;
+        const avWrap = host.querySelector(".dm-inbox-thread-avatar-wrap");
+        if (!avWrap) return;
+        await applyPresenceToWrappers([{ wrap: avWrap, userId: peer }]);
+      }
+
+      function syncSelfProfilePresenceFromSession() {
+        const uid = resolveUserId();
+        const wrap = document.getElementById("profileAvatarBtn")?.closest(".profile-avatar-wrap");
+        if (!wrap) return;
+        const slot = ensurePresenceSlot(wrap);
+        if (!uid) {
+          slot.innerHTML = "";
+          return;
+        }
+        void applyPresenceToWrappers([{ wrap, userId: uid }]);
       }
 
       function syncDmGroupHeaderAvatar(avatarDataUrl, titleForInitial) {
@@ -12389,6 +12627,7 @@
         if (tv && !tv.hidden) {
           hideDmPeerTyping();
           clearGroupTypingState();
+          resetDmChatHeaderPresenceUi();
           dmInboxActiveThreadId = null;
           dmInboxActiveGroupId = null;
           dmThreadPeerReadAt = null;
@@ -12736,9 +12975,13 @@
         return s[0].toUpperCase();
       }
 
-      function dmInboxCreateAvatarEl(avatarDataUrl, initialChar, isGroup) {
+      function dmInboxCreateAvatarEl(avatarDataUrl, initialChar, isGroup, peerUserId) {
         const wrap = document.createElement("span");
         wrap.className = "dm-inbox-thread-avatar-wrap";
+        if (peerUserId && !isGroup) {
+          wrap.dataset.peerUserId = String(peerUserId);
+          ensurePresenceSlot(wrap);
+        }
         const raw = typeof avatarDataUrl === "string" ? avatarDataUrl.trim() : "";
         if (raw && /^data:image\//i.test(raw)) {
           const img = document.createElement("img");
@@ -12800,6 +13043,7 @@
           if (gen !== dmThreadListGen) return;
           const threads = data.threads || [];
           const groups = data.groups || [];
+          const dmPresenceEntries = [];
           if (empty) {
             const showDmEmpty = threads.length === 0 && (dmInboxRailFilter === "all" || dmInboxRailFilter === "dms");
             empty.hidden = !showDmEmpty;
@@ -12886,7 +13130,13 @@
 
             const main = document.createElement("span");
             main.className = "dm-inbox-thread-row-main";
-            const av = dmInboxCreateAvatarEl(t.otherAvatarDataUrl, dmInboxAvatarInitial(label), false);
+            const av = dmInboxCreateAvatarEl(
+              t.otherAvatarDataUrl,
+              dmInboxAvatarInitial(label),
+              false,
+              t.otherUserId,
+            );
+            if (t.otherUserId) dmPresenceEntries.push({ wrap: av, userId: t.otherUserId });
             const bodyCol = document.createElement("span");
             bodyCol.className = "dm-inbox-thread-body";
             const nameEl = document.createElement("span");
@@ -12908,6 +13158,7 @@
             attachDmInboxThreadRowSwipe(btn, t.threadId, label);
             host.appendChild(btn);
           }
+          await applyPresenceToWrappers(dmPresenceEntries);
           syncDmInboxActiveRowHighlight();
         } catch (e) {
           if (empty) empty.hidden = true;
@@ -12982,6 +13233,7 @@
           if (res) res.innerHTML = "";
           if (listEl) {
             listEl.innerHTML = "";
+            const groupMemberPresence = [];
             for (const m of d.members || []) {
               const li = document.createElement("li");
               li.className = "dm-group-settings-member";
@@ -13015,7 +13267,11 @@
                 span.textContent = "Owner";
                 meta.appendChild(span);
               }
-              li.appendChild(av);
+              const wrapAv = document.createElement("span");
+              wrapAv.className = "dm-group-settings-member-av-wrap";
+              wrapAv.appendChild(av);
+              ensurePresenceSlot(wrapAv);
+              li.appendChild(wrapAv);
               li.appendChild(meta);
               if (isOwner && !m.isOwner) {
                 const rm = document.createElement("button");
@@ -13040,8 +13296,10 @@
                 });
                 li.appendChild(rm);
               }
+              groupMemberPresence.push({ wrap: wrapAv, userId: m.userId });
               listEl.appendChild(li);
             }
+            await applyPresenceToWrappers(groupMemberPresence);
           }
         } catch (e) {
           if (errEl) {
@@ -13078,6 +13336,7 @@
         clearGroupTypingState();
         closeDmGroupSettingsModal();
         closeDmComposeView();
+        resetDmChatHeaderPresenceUi();
         dmInboxActiveGroupId = null;
         dmInboxActiveThreadId = threadId;
         dmThreadPeerReadAt = null;
@@ -13095,6 +13354,10 @@
           err.style.display = "none";
         }
         setDmChatHeaderMode(false);
+        const dmBlock = document.getElementById("dmInboxDmHeaderBlock");
+        const avatarHost = document.getElementById("dmInboxDmHeaderAvatarHost");
+        if (dmBlock) dmBlock.hidden = false;
+        if (avatarHost) avatarHost.innerHTML = "";
         if (titleDm) titleDm.textContent = titleLabel || "Chat";
         if (host) host.classList.remove("dm-inbox-messages--group");
         if (list) list.hidden = !dmInboxSplitMq();
@@ -13106,6 +13369,20 @@
           const data = await api("/api/dm/threads/" + encodeURIComponent(threadId) + "/messages?limit=80");
           const msgs = data.messages || [];
           dmThreadPeerReadAt = data.otherLastReadAt || null;
+          dmInboxActivePeerUserId = data.otherUserId || null;
+          if (avatarHost && dmInboxActivePeerUserId) {
+            avatarHost.innerHTML = "";
+            const avEl = dmInboxCreateAvatarEl(
+              data.otherAvatarDataUrl,
+              dmInboxAvatarInitial(titleLabel),
+              false,
+              dmInboxActivePeerUserId,
+            );
+            avatarHost.appendChild(avEl);
+          }
+          clearDmPeerPresenceRefresh();
+          dmPeerPresenceRefreshTimer = setInterval(() => void refreshDmChatHeaderPresence(), 45000);
+          void refreshDmChatHeaderPresence();
           if (host) {
             host.innerHTML = "";
             const uid = resolveUserId();
@@ -13118,6 +13395,7 @@
           await api("/api/dm/threads/" + encodeURIComponent(threadId) + "/read", { method: "POST", body: "{}" });
           void refreshDmUnread();
         } catch (e) {
+          resetDmChatHeaderPresenceUi();
           if (host) host.innerHTML = "";
           if (err) {
             err.textContent = e.message || "Could not load messages";
@@ -13141,6 +13419,7 @@
         clearGroupTypingState();
         closeDmGroupSettingsModal();
         closeDmComposeView();
+        resetDmChatHeaderPresenceUi();
         dmInboxActiveThreadId = null;
         dmInboxActiveGroupId = groupId;
         dmThreadPeerReadAt = null;
@@ -17630,6 +17909,9 @@
 
           const hero = document.createElement("div");
           hero.className = "community-member-profile-hero";
+          const memberAvatarOuter = document.createElement("div");
+          memberAvatarOuter.className = "community-member-profile-avatar-outer";
+          memberAvatarOuter.style.cssText = "position:relative;display:inline-block;";
           if (d.avatarDataUrl && String(d.avatarDataUrl).trim()) {
             const hit = document.createElement("button");
             hit.type = "button";
@@ -17647,14 +17929,16 @@
                   : "Member profile photo";
               openProfilePhotoLightbox(String(d.avatarDataUrl), alt);
             });
-            hero.appendChild(hit);
+            memberAvatarOuter.appendChild(hit);
           } else {
             const ph = document.createElement("div");
             ph.className = "community-member-profile-avatar-ph-lg";
             ph.setAttribute("aria-hidden", "true");
             ph.textContent = (label || "?").charAt(0).toUpperCase();
-            hero.appendChild(ph);
+            memberAvatarOuter.appendChild(ph);
           }
+          ensurePresenceSlot(memberAvatarOuter);
+          hero.appendChild(memberAvatarOuter);
           const heroText = document.createElement("div");
           heroText.className = "community-member-profile-hero-text";
 
@@ -17925,6 +18209,8 @@
               inner.appendChild(postCard);
             }
           }
+
+          await applyPresenceToWrappers([{ wrap: memberAvatarOuter, userId }]);
 
           body.innerHTML = "";
           body.appendChild(inner);
@@ -18654,6 +18940,7 @@
           }
         }
         syncProfileShareSection();
+        syncSelfProfilePresenceFromSession();
       }
 
       function closeHeaderMenus() {
@@ -18671,11 +18958,11 @@
         if (nb) nb.setAttribute("aria-expanded", "false");
       }
 
-      function headerNotifAckKey(userId) {
-        return LS_NOTIF_ACK_MS + userId;
+      function headerActivityAckKey(userId) {
+        return LS_ACTIVITY_ACK_MS + userId;
       }
 
-      function parseNotifCreatedMs(row) {
+      function parseActivityCreatedMs(row) {
         const s = row && row.createdAt != null ? String(row.createdAt) : "";
         if (!s) return 0;
         const iso = s.includes("T") ? s : s.replace(" ", "T");
@@ -18683,49 +18970,56 @@
         return Number.isFinite(t) ? t : 0;
       }
 
-      function maxNotifCreatedMs(rows) {
+      function maxActivityCreatedMs(rows) {
         let m = 0;
         for (const r of rows || []) {
-          const t = parseNotifCreatedMs(r);
+          const t = parseActivityCreatedMs(r);
           if (t > m) m = t;
         }
         return m;
       }
 
       /** First-time baseline: set ack just before newest row so the latest real row can still read as unread once. */
-      function maybeBootstrapHeaderNotifAck(userId, rows) {
-        const key = headerNotifAckKey(userId);
+      function maybeBootstrapHeaderActivityAck(userId, rows) {
+        const key = headerActivityAckKey(userId);
         if (localStorage.getItem(key) != null) return;
         if (!rows || !rows.length) {
           localStorage.setItem(key, String(Date.now()));
           return;
         }
-        const maxMs = maxNotifCreatedMs(rows);
+        const maxMs = maxActivityCreatedMs(rows);
         localStorage.setItem(key, String(Math.max(0, maxMs - 1)));
       }
 
-      function getHeaderNotifAckMs(userId) {
-        const raw = localStorage.getItem(headerNotifAckKey(userId));
+      function getHeaderActivityAckMs(userId) {
+        const raw = localStorage.getItem(headerActivityAckKey(userId));
         if (raw == null) return null;
         const n = Number(raw);
         return Number.isFinite(n) ? n : null;
       }
 
-      function countHeaderUnreadNotifications(userId, rows) {
-        const ack = getHeaderNotifAckMs(userId);
+      function countHeaderUnreadActivities(userId, rows) {
+        const ack = getHeaderActivityAckMs(userId);
         if (ack == null) return 0;
         let n = 0;
         for (const r of rows || []) {
-          if (parseNotifCreatedMs(r) > ack) n++;
+          if (parseActivityCreatedMs(r) > ack) n++;
         }
         return n;
       }
 
-      function acknowledgeHeaderNotifications(userId, rows) {
+      function acknowledgeHeaderActivities(userId, rows) {
         if (!userId) return;
-        const key = headerNotifAckKey(userId);
-        const maxMs = rows && rows.length ? maxNotifCreatedMs(rows) : 0;
+        const key = headerActivityAckKey(userId);
+        const maxMs = rows && rows.length ? maxActivityCreatedMs(rows) : 0;
         localStorage.setItem(key, String(maxMs > 0 ? maxMs : Date.now()));
+      }
+
+      function formatActivityKindLabel(kind) {
+        if (kind === "community_mention") return "Mention";
+        if (kind === "community_reply") return "Reply";
+        if (kind === "group_chat_invite") return "Group";
+        return "Activity";
       }
 
       function updateHeaderNotificationsUnreadMarker(unreadCount) {
@@ -18743,12 +19037,12 @@
         }
       }
 
-      async function fetchUserNotificationRows(userId) {
-        const data = await api("/api/users/" + encodeURIComponent(userId) + "/notifications");
-        return data.notifications || [];
+      async function fetchUserActivityNotificationRows(userId) {
+        const data = await api("/api/users/" + encodeURIComponent(userId) + "/activity-notifications");
+        return data.activities || [];
       }
 
-      /** Uses real GET /notifications rows; unread = rows with createdAt after per-user ack in localStorage (see maybeBootstrapHeaderNotifAck). */
+      /** Unread star uses GET /activity-notifications only (human/social); ack in localStorage (maybeBootstrapHeaderActivityAck). */
       async function refreshHeaderNotificationsUnreadFromServer() {
         const uid = resolveUserId();
         if (!uid) {
@@ -18756,15 +19050,15 @@
           return;
         }
         try {
-          const rows = await fetchUserNotificationRows(uid);
-          maybeBootstrapHeaderNotifAck(uid, rows);
-          updateHeaderNotificationsUnreadMarker(countHeaderUnreadNotifications(uid, rows));
+          const rows = await fetchUserActivityNotificationRows(uid);
+          maybeBootstrapHeaderActivityAck(uid, rows);
+          updateHeaderNotificationsUnreadMarker(countHeaderUnreadActivities(uid, rows));
         } catch {
           /* keep last marker */
         }
       }
 
-      /** Loads notification rows from GET /api/users/:userId/notifications when the panel opens. */
+      /** Loads activity inbox from GET /api/users/:userId/activity-notifications. */
       async function loadHeaderNotificationsPanel() {
         const list = document.getElementById("headerNotificationsList");
         const empty = document.getElementById("headerNotificationsEmpty");
@@ -18773,44 +19067,52 @@
         list.innerHTML = "";
         if (!uid) {
           empty.hidden = false;
-          empty.textContent = "Sign in to see notifications.";
+          empty.textContent = "Sign in to see activity.";
           updateHeaderNotificationsUnreadMarker(0);
           return;
         }
-        empty.textContent = "No notifications yet.";
+        empty.textContent = "No new activity yet";
         try {
-          const rows = await fetchUserNotificationRows(uid);
-          maybeBootstrapHeaderNotifAck(uid, rows);
+          const rows = await fetchUserActivityNotificationRows(uid);
+          maybeBootstrapHeaderActivityAck(uid, rows);
           if (!rows.length) {
             empty.hidden = false;
-            acknowledgeHeaderNotifications(uid, rows);
+            acknowledgeHeaderActivities(uid, rows);
             updateHeaderNotificationsUnreadMarker(0);
             return;
           }
           empty.hidden = true;
           for (const n of rows) {
-            const row = document.createElement("div");
-            row.className = "header-notification-row";
+            const row = document.createElement("button");
+            row.type = "button";
+            row.className = "header-notification-row header-activity-row";
             row.setAttribute("role", "listitem");
-            const show = n.showName != null ? String(n.showName) : "Show";
-            const ep = n.episodeLabel != null ? String(n.episodeLabel) : "";
-            const air = n.airdate != null ? String(n.airdate) : "";
-            const ch = n.channel != null ? String(n.channel) : "";
+            const title = n.title != null ? String(n.title) : "Activity";
+            const summary = n.summary != null ? String(n.summary) : "";
             const when = n.createdAt != null ? String(n.createdAt) : "";
-            const metaLine = [air, ch, when].filter(Boolean).join(" · ");
+            const kindLab = formatActivityKindLabel(n.kind);
+            const url = n.url != null && String(n.url).trim() ? String(n.url).trim() : "";
+            if (url) row.dataset.url = url;
             row.innerHTML =
-              '<div class="hn-show">' +
-              escapeHtml(show) +
-              (ep ? " — " + escapeHtml(ep) : "") +
+              '<div class="hn-meta" style="font-size:0.66rem;text-transform:uppercase;letter-spacing:0.07em;opacity:0.88;margin-bottom:0.12rem">' +
+              escapeHtml(kindLab) +
               "</div>" +
-              (metaLine ? '<div class="hn-meta">' + escapeHtml(metaLine) + "</div>" : "");
+              '<div class="hn-show">' +
+              escapeHtml(title) +
+              "</div>" +
+              (summary ? '<div class="hn-meta">' + escapeHtml(summary) + "</div>" : "") +
+              (when ? '<div class="hn-meta">' + escapeHtml(when) + "</div>" : "");
+            row.addEventListener("click", () => {
+              closeHeaderMenus();
+              if (url) window.location.assign(url);
+            });
             list.appendChild(row);
           }
-          acknowledgeHeaderNotifications(uid, rows);
+          acknowledgeHeaderActivities(uid, rows);
           updateHeaderNotificationsUnreadMarker(0);
         } catch {
           empty.hidden = false;
-          empty.textContent = "Could not load notifications.";
+          empty.textContent = "Could not load activity.";
         }
       }
 
@@ -19354,6 +19656,7 @@
         }
         hideDmPeerTyping();
         closeDmComposeView();
+        resetDmChatHeaderPresenceUi();
         dmInboxActiveThreadId = null;
         dmInboxActiveGroupId = null;
         dmThreadPeerReadAt = null;
@@ -20408,6 +20711,7 @@
         removeAdminUiFromDom();
         const userId = await ensureUser();
         appUserId = userId;
+        startAppPresenceClient();
         let me = null;
         try {
           me = await api("/api/users/me");
@@ -20735,11 +21039,6 @@
         document.getElementById("showModal").addEventListener("click", (e) => {
           if (e.target.id === "showModal") closeShowModal();
         });
-        document.getElementById("headerNotificationsOpenTips")?.addEventListener("click", (e) => {
-          e.stopPropagation();
-          closeHeaderMenus();
-          openQuickStartHelpModal();
-        });
         document.getElementById("welcomeSkipBtn").addEventListener("click", () =>
           closeQuickStartHelpModal({ skipFocusRestore: true }),
         );
@@ -20957,6 +21256,11 @@
           e.stopPropagation();
           closeHeaderMenus();
           openAppSettingsModal("push");
+        });
+        document.getElementById("headerMenuWelcomeGuide")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeHeaderMenus();
+          openQuickStartHelpModal();
         });
         document.getElementById("headerMenuCreateAccount")?.addEventListener("click", (e) => {
           e.stopPropagation();
