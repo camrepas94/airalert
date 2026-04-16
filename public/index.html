@@ -4589,9 +4589,55 @@
         color: #f472b6;
         filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.7)) drop-shadow(0 0 12px rgba(236, 72, 153, 0.35));
       }
-      #headerNotificationsBtn .header-icon-svg {
-        color: #38bdf8;
-        filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.65)) drop-shadow(0 0 12px rgba(14, 165, 233, 0.32));
+      /* Image-3 direction: rounded speech bubble, neon cyan stroke, pink/purple outer glow; star = unread (see marker). */
+      #headerNotificationsBtn .header-notifications-icon-wrap {
+        position: relative;
+        width: 1.32rem;
+        height: 1.32rem;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #headerNotificationsBtn .header-notifications-bubble {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        color: #5ee9f4;
+        stroke-width: 1.45;
+        fill: rgba(6, 20, 38, 0.35);
+        filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 8px rgba(34, 211, 238, 0.55))
+          drop-shadow(0 0 14px rgba(192, 132, 252, 0.42));
+      }
+      #headerNotificationsBtn:hover:not(:disabled) .header-notifications-bubble {
+        color: #7ffbf5;
+        filter: drop-shadow(0 0 3px rgba(94, 234, 212, 1)) drop-shadow(0 0 10px rgba(34, 211, 238, 0.65))
+          drop-shadow(0 0 18px rgba(216, 180, 254, 0.5));
+      }
+      #headerNotificationsBtn:active:not(:disabled) .header-notifications-bubble {
+        color: #22d3ee;
+      }
+      #headerNotificationsBtn .header-notifications-unread-marker {
+        position: absolute;
+        top: -0.05rem;
+        right: -0.08rem;
+        width: 0.42rem;
+        height: 0.42rem;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(10deg);
+      }
+      #headerNotificationsBtn .header-notifications-unread-marker[hidden] {
+        display: none !important;
+      }
+      #headerNotificationsBtn .header-notifications-unread-star {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        filter: drop-shadow(0 0 3px rgba(254, 249, 195, 1)) drop-shadow(0 0 6px rgba(250, 204, 21, 0.85))
+          drop-shadow(0 0 8px rgba(56, 189, 248, 0.45));
       }
       .header-icon-btn:hover:not(:disabled) .header-icon-svg {
         opacity: 1;
@@ -4604,9 +4650,6 @@
       }
       #headerInboxBtn:hover:not(:disabled) .header-icon-svg {
         filter: drop-shadow(0 0 7px rgba(244, 114, 182, 0.9)) drop-shadow(0 0 18px rgba(236, 72, 153, 0.5));
-      }
-      #headerNotificationsBtn:hover:not(:disabled) .header-icon-svg {
-        filter: drop-shadow(0 0 7px rgba(56, 189, 248, 0.9)) drop-shadow(0 0 18px rgba(14, 165, 233, 0.48));
       }
       .header-notifications-inner {
         padding: 0.35rem;
@@ -7644,6 +7687,10 @@
         width: 1.2rem;
         height: 1.2rem;
       }
+      .app-top.is-scrolled .header-icon-btn .header-notifications-icon-wrap {
+        width: 1.2rem;
+        height: 1.2rem;
+      }
       .app-top.is-scrolled .tab-nav {
         margin-bottom: 0.65rem;
       }
@@ -8637,21 +8684,38 @@
                 aria-haspopup="true"
                 title="Notifications"
               >
-                <svg
-                  class="header-icon-svg"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M14.857 17.082a23.848 23.848 0 005.454-1.15A2.25 2.25 0 0021.75 13.5v-7.5a2.25 2.25 0 00-2.25-2.25h-4.286A2.25 2.25 0 0012 1.5h-.142c-.636 0-1.213.343-1.517.854L5.25 4.5H3.75A2.25 2.25 0 001.5 6.75v7.5A2.25 2.25 0 003.75 16.5h1.501m13.356 0a48.48 48.48 0 00-13.356-1.5M14.857 17.082V19.5a2.25 2.25 0 01-2.25 2.25h-.75a2.25 2.25 0 01-2.25-2.25v-2.418"
-                  />
-                </svg>
+                <span class="header-notifications-icon-wrap" aria-hidden="true">
+                  <svg
+                    class="header-notifications-bubble"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.189.929 4.178 2.351 5.658.334.325.556.77.467 1.226a4.48 4.48 0 00.978 2.025 5.969 5.969 0 01-.474.065 5.972 5.972 0 01-3.11-.675 9.764 9.764 0 01-2.555-.337c-.09-.057-.173-.121-.252-.184C4.708 18.195 4.5 17.32 4.5 16.5c0-1.886.364-3.656 1-5.195"
+                    />
+                  </svg>
+                  <span class="header-notifications-unread-marker" id="headerNotificationsUnreadMarker" hidden>
+                    <svg
+                      class="header-notifications-unread-star"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fill="#fffbeb"
+                        stroke="#fde68a"
+                        stroke-width="0.35"
+                        d="M6 0.65l1.05 2.38 2.38 1.05-2.38 1.05L6 7.5 4.95 5.13 2.57 4.08l2.38-1.05L6 0.65z"
+                      />
+                    </svg>
+                  </span>
+                </span>
               </button>
               <div
                 class="header-dropdown header-notifications-dropdown"
@@ -10102,6 +10166,8 @@
     <script>
       const LS_USER = "airalert_user_id";
       const LS_GUEST_PROMPT = "airalert_guest_prompt_dismissed";
+      /** Per-user last-seen notification time (ms since epoch), for header unread star vs real GET /notifications rows. */
+      const LS_NOTIF_ACK_MS = "airalert_notif_ack_ms_";
       /** Per-user: user dismissed the in-page Add-tab onboarding strip (local device). */
       function onboardingStripDismissedKey(userId) {
         return "airalert_onboarding_strip_dismissed_v1_" + userId;
@@ -13423,6 +13489,7 @@
         ensureStarterPackChips();
         maybeCelebrateTvWatcherUnlock(me);
         syncHeaderProfileDropdown(me);
+        void refreshHeaderNotificationsUnreadFromServer();
       }
 
       function adminPillClass(from) {
@@ -18604,6 +18671,99 @@
         if (nb) nb.setAttribute("aria-expanded", "false");
       }
 
+      function headerNotifAckKey(userId) {
+        return LS_NOTIF_ACK_MS + userId;
+      }
+
+      function parseNotifCreatedMs(row) {
+        const s = row && row.createdAt != null ? String(row.createdAt) : "";
+        if (!s) return 0;
+        const iso = s.includes("T") ? s : s.replace(" ", "T");
+        const t = Date.parse(iso);
+        return Number.isFinite(t) ? t : 0;
+      }
+
+      function maxNotifCreatedMs(rows) {
+        let m = 0;
+        for (const r of rows || []) {
+          const t = parseNotifCreatedMs(r);
+          if (t > m) m = t;
+        }
+        return m;
+      }
+
+      /** First-time baseline: set ack just before newest row so the latest real row can still read as unread once. */
+      function maybeBootstrapHeaderNotifAck(userId, rows) {
+        const key = headerNotifAckKey(userId);
+        if (localStorage.getItem(key) != null) return;
+        if (!rows || !rows.length) {
+          localStorage.setItem(key, String(Date.now()));
+          return;
+        }
+        const maxMs = maxNotifCreatedMs(rows);
+        localStorage.setItem(key, String(Math.max(0, maxMs - 1)));
+      }
+
+      function getHeaderNotifAckMs(userId) {
+        const raw = localStorage.getItem(headerNotifAckKey(userId));
+        if (raw == null) return null;
+        const n = Number(raw);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function countHeaderUnreadNotifications(userId, rows) {
+        const ack = getHeaderNotifAckMs(userId);
+        if (ack == null) return 0;
+        let n = 0;
+        for (const r of rows || []) {
+          if (parseNotifCreatedMs(r) > ack) n++;
+        }
+        return n;
+      }
+
+      function acknowledgeHeaderNotifications(userId, rows) {
+        if (!userId) return;
+        const key = headerNotifAckKey(userId);
+        const maxMs = rows && rows.length ? maxNotifCreatedMs(rows) : 0;
+        localStorage.setItem(key, String(maxMs > 0 ? maxMs : Date.now()));
+      }
+
+      function updateHeaderNotificationsUnreadMarker(unreadCount) {
+        const marker = document.getElementById("headerNotificationsUnreadMarker");
+        const btn = document.getElementById("headerNotificationsBtn");
+        const n = Math.max(0, Number(unreadCount) || 0);
+        if (marker) marker.hidden = n < 1;
+        if (btn) {
+          btn.setAttribute("data-unread-count", String(n));
+          btn.setAttribute(
+            "aria-label",
+            n > 0 ? "Notifications and activity, " + n + " unread" : "Notifications and activity",
+          );
+          btn.setAttribute("title", n > 0 ? "Notifications (" + n + " new)" : "Notifications");
+        }
+      }
+
+      async function fetchUserNotificationRows(userId) {
+        const data = await api("/api/users/" + encodeURIComponent(userId) + "/notifications");
+        return data.notifications || [];
+      }
+
+      /** Uses real GET /notifications rows; unread = rows with createdAt after per-user ack in localStorage (see maybeBootstrapHeaderNotifAck). */
+      async function refreshHeaderNotificationsUnreadFromServer() {
+        const uid = resolveUserId();
+        if (!uid) {
+          updateHeaderNotificationsUnreadMarker(0);
+          return;
+        }
+        try {
+          const rows = await fetchUserNotificationRows(uid);
+          maybeBootstrapHeaderNotifAck(uid, rows);
+          updateHeaderNotificationsUnreadMarker(countHeaderUnreadNotifications(uid, rows));
+        } catch {
+          /* keep last marker */
+        }
+      }
+
       /** Loads notification rows from GET /api/users/:userId/notifications when the panel opens. */
       async function loadHeaderNotificationsPanel() {
         const list = document.getElementById("headerNotificationsList");
@@ -18614,14 +18774,17 @@
         if (!uid) {
           empty.hidden = false;
           empty.textContent = "Sign in to see notifications.";
+          updateHeaderNotificationsUnreadMarker(0);
           return;
         }
         empty.textContent = "No notifications yet.";
         try {
-          const data = await api("/api/users/" + encodeURIComponent(uid) + "/notifications");
-          const rows = data.notifications || [];
+          const rows = await fetchUserNotificationRows(uid);
+          maybeBootstrapHeaderNotifAck(uid, rows);
           if (!rows.length) {
             empty.hidden = false;
+            acknowledgeHeaderNotifications(uid, rows);
+            updateHeaderNotificationsUnreadMarker(0);
             return;
           }
           empty.hidden = true;
@@ -18643,6 +18806,8 @@
               (metaLine ? '<div class="hn-meta">' + escapeHtml(metaLine) + "</div>" : "");
             list.appendChild(row);
           }
+          acknowledgeHeaderNotifications(uid, rows);
+          updateHeaderNotificationsUnreadMarker(0);
         } catch {
           empty.hidden = false;
           empty.textContent = "Could not load notifications.";
