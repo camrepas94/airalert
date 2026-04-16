@@ -4589,9 +4589,9 @@
         color: #f472b6;
         filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.7)) drop-shadow(0 0 12px rgba(236, 72, 153, 0.35));
       }
-      #quickStartHelpBtn .header-icon-svg {
-        color: #fbbf24;
-        filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.7)) drop-shadow(0 0 12px rgba(251, 191, 36, 0.35));
+      #headerNotificationsBtn .header-icon-svg {
+        color: #38bdf8;
+        filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.65)) drop-shadow(0 0 12px rgba(14, 165, 233, 0.32));
       }
       .header-icon-btn:hover:not(:disabled) .header-icon-svg {
         opacity: 1;
@@ -4605,8 +4605,57 @@
       #headerInboxBtn:hover:not(:disabled) .header-icon-svg {
         filter: drop-shadow(0 0 7px rgba(244, 114, 182, 0.9)) drop-shadow(0 0 18px rgba(236, 72, 153, 0.5));
       }
-      #quickStartHelpBtn:hover:not(:disabled) .header-icon-svg {
-        filter: drop-shadow(0 0 7px rgba(251, 191, 36, 0.9)) drop-shadow(0 0 18px rgba(251, 191, 36, 0.5));
+      #headerNotificationsBtn:hover:not(:disabled) .header-icon-svg {
+        filter: drop-shadow(0 0 7px rgba(56, 189, 248, 0.9)) drop-shadow(0 0 18px rgba(14, 165, 233, 0.48));
+      }
+      .header-notifications-inner {
+        padding: 0.35rem;
+        max-width: min(92vw, 22rem);
+        min-width: 15.5rem;
+      }
+      .header-notifications-heading {
+        margin: 0.15rem 0.5rem 0.2rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: rgba(200, 230, 255, 0.92);
+      }
+      .header-notifications-hint {
+        margin: 0 0.5rem 0.45rem;
+        font-size: 0.72rem;
+        line-height: 1.35;
+      }
+      .header-notifications-scroll {
+        max-height: min(50vh, 16rem);
+        overflow-y: auto;
+        margin-bottom: 0.25rem;
+      }
+      .header-notifications-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+      .header-notification-row {
+        padding: 0.45rem 0.5rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        font-size: 0.8rem;
+        line-height: 1.35;
+      }
+      .header-notification-row .hn-show {
+        font-weight: 600;
+        color: rgba(240, 249, 255, 0.95);
+      }
+      .header-notification-row .hn-meta {
+        font-size: 0.72rem;
+        margin-top: 0.15rem;
+        color: rgba(180, 210, 235, 0.85);
+      }
+      .header-notifications-empty {
+        margin: 0.35rem 0.5rem 0.5rem;
+        font-size: 0.78rem;
       }
       .header-dropdown {
         position: absolute;
@@ -8544,12 +8593,18 @@
                 </svg>
               </button>
               <div class="header-dropdown" id="headerProfileDropdown" hidden role="menu" aria-label="Profile">
-                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuCreateAccount" hidden>
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuCreateAccount">
                   Create account
                 </button>
-                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuYourProfile">Your profile</button>
-                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSearchUsername">Search username</button>
-                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSignOut">Sign out</button>
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSearchUsername">
+                  Search username
+                </button>
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuYourProfile" hidden>
+                  Your profile
+                </button>
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSignOut" hidden>
+                  Sign out
+                </button>
               </div>
             </div>
             <div class="header-inbox-wrap" id="headerInboxWrap" hidden>
@@ -8572,31 +8627,54 @@
                 <span class="header-inbox-badge" id="headerInboxBadge" hidden aria-hidden="true"></span>
               </button>
             </div>
-            <button
-              type="button"
-              class="header-icon-btn"
-              id="quickStartHelpBtn"
-              aria-label="Welcome and tips"
-              aria-expanded="false"
-              aria-controls="welcomeSheetPanel"
-              title="Welcome"
-            >
-              <svg
-                class="header-icon-svg"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                aria-hidden="true"
+            <div class="header-menu-wrap">
+              <button
+                type="button"
+                class="header-icon-btn"
+                id="headerNotificationsBtn"
+                aria-label="Notifications and activity"
+                aria-expanded="false"
+                aria-haspopup="true"
+                title="Notifications"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
-                />
-              </svg>
-            </button>
+                <svg
+                  class="header-icon-svg"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M14.857 17.082a23.848 23.848 0 005.454-1.15A2.25 2.25 0 0021.75 13.5v-7.5a2.25 2.25 0 00-2.25-2.25h-4.286A2.25 2.25 0 0012 1.5h-.142c-.636 0-1.213.343-1.517.854L5.25 4.5H3.75A2.25 2.25 0 001.5 6.75v7.5A2.25 2.25 0 003.75 16.5h1.501m13.356 0a48.48 48.48 0 00-13.356-1.5M14.857 17.082V19.5a2.25 2.25 0 01-2.25 2.25h-.75a2.25 2.25 0 01-2.25-2.25v-2.418"
+                  />
+                </svg>
+              </button>
+              <div
+                class="header-dropdown header-notifications-dropdown"
+                id="headerNotificationsDropdown"
+                hidden
+                role="menu"
+                aria-label="Notifications"
+              >
+                <div class="header-notifications-inner">
+                  <p class="header-notifications-heading">Notifications</p>
+                  <p class="header-notifications-hint muted">
+                    Episode alerts and account activity. Mentions and live chat alerts will appear here as they ship.
+                  </p>
+                  <div class="header-notifications-scroll">
+                    <div id="headerNotificationsList" class="header-notifications-list" role="list"></div>
+                    <p id="headerNotificationsEmpty" class="header-notifications-empty muted" hidden>No notifications yet.</p>
+                  </div>
+                  <button type="button" class="header-menu-item" role="menuitem" id="headerNotificationsOpenTips">
+                    Welcome guide
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -18417,19 +18495,14 @@
         if (input) input.focus();
       }
 
-      /** Opens the optional Welcome / tips modal (header control only — not used for forced first-run). */
+      /** Opens the optional Welcome / tips modal (from Notifications panel or elsewhere — not forced first-run). */
       function openQuickStartHelpModal() {
         closeAppSettingsModal();
         closeAppProfileModal();
         closeUsernameSearchModal({ skipFocusRestore: true });
         const el = document.getElementById("quickStartHelpModal");
-        const btn = document.getElementById("quickStartHelpBtn");
         if (!el) return;
         el.classList.add("open");
-        if (btn) {
-          btn.setAttribute("aria-expanded", "true");
-          btn.hidden = true;
-        }
         requestAnimationFrame(() => {
           const primary = document.getElementById("welcomeGetStartedBtn");
           if (primary) primary.focus();
@@ -18447,15 +18520,10 @@
       /** @param {{ skipFocusRestore?: boolean }} [opts] Use skipFocusRestore when closing as a side effect of opening another surface. */
       function closeQuickStartHelpModal(opts) {
         const el = document.getElementById("quickStartHelpModal");
-        const btn = document.getElementById("quickStartHelpBtn");
         const skipFocus = Boolean(opts && opts.skipFocusRestore);
         if (el) el.classList.remove("open");
-        if (btn) {
-          btn.setAttribute("aria-expanded", "false");
-          btn.hidden = false;
-        }
         if (!skipFocus) {
-          document.getElementById("quickStartHelpBtn")?.focus();
+          document.getElementById("headerNotificationsBtn")?.focus();
         }
       }
 
@@ -18524,12 +18592,61 @@
       function closeHeaderMenus() {
         const sd = document.getElementById("headerSettingsDropdown");
         const pd = document.getElementById("headerProfileDropdown");
+        const nd = document.getElementById("headerNotificationsDropdown");
         const sb = document.getElementById("headerSettingsBtn");
         const pb = document.getElementById("headerProfileBtn");
+        const nb = document.getElementById("headerNotificationsBtn");
         if (sd) sd.hidden = true;
         if (pd) pd.hidden = true;
+        if (nd) nd.hidden = true;
         if (sb) sb.setAttribute("aria-expanded", "false");
         if (pb) pb.setAttribute("aria-expanded", "false");
+        if (nb) nb.setAttribute("aria-expanded", "false");
+      }
+
+      /** Loads notification rows from GET /api/users/:userId/notifications when the panel opens. */
+      async function loadHeaderNotificationsPanel() {
+        const list = document.getElementById("headerNotificationsList");
+        const empty = document.getElementById("headerNotificationsEmpty");
+        if (!list || !empty) return;
+        const uid = resolveUserId();
+        list.innerHTML = "";
+        if (!uid) {
+          empty.hidden = false;
+          empty.textContent = "Sign in to see notifications.";
+          return;
+        }
+        empty.textContent = "No notifications yet.";
+        try {
+          const data = await api("/api/users/" + encodeURIComponent(uid) + "/notifications");
+          const rows = data.notifications || [];
+          if (!rows.length) {
+            empty.hidden = false;
+            return;
+          }
+          empty.hidden = true;
+          for (const n of rows) {
+            const row = document.createElement("div");
+            row.className = "header-notification-row";
+            row.setAttribute("role", "listitem");
+            const show = n.showName != null ? String(n.showName) : "Show";
+            const ep = n.episodeLabel != null ? String(n.episodeLabel) : "";
+            const air = n.airdate != null ? String(n.airdate) : "";
+            const ch = n.channel != null ? String(n.channel) : "";
+            const when = n.createdAt != null ? String(n.createdAt) : "";
+            const metaLine = [air, ch, when].filter(Boolean).join(" · ");
+            row.innerHTML =
+              '<div class="hn-show">' +
+              escapeHtml(show) +
+              (ep ? " — " + escapeHtml(ep) : "") +
+              "</div>" +
+              (metaLine ? '<div class="hn-meta">' + escapeHtml(metaLine) + "</div>" : "");
+            list.appendChild(row);
+          }
+        } catch {
+          empty.hidden = false;
+          empty.textContent = "Could not load notifications.";
+        }
       }
 
       function scrollMainScrollToTop() {
@@ -20011,8 +20128,8 @@
       }
 
       /**
-       * Guest = signed-in device user without username/password ({@link accountIsRegistered} false).
-       * Registered users get profile + sign out; guests get create account + search only.
+       * Registered = {@link accountIsRegistered}(me). Until `/api/users/me` confirms registration, treat as guest:
+       * Create account + Search only (no profile / sign out flash).
        */
       function syncHeaderProfileDropdown(me) {
         const createBtn = document.getElementById("headerMenuCreateAccount");
@@ -20020,9 +20137,8 @@
         const searchBtn = document.getElementById("headerMenuSearchUsername");
         const signOutBtn = document.getElementById("headerMenuSignOut");
         if (!createBtn || !profileBtn || !searchBtn || !signOutBtn) return;
-        const guest = !!(me && !accountIsRegistered(me));
         const registered = !!(me && accountIsRegistered(me));
-        createBtn.hidden = !guest;
+        createBtn.hidden = registered;
         profileBtn.hidden = !registered;
         signOutBtn.hidden = !registered;
         searchBtn.hidden = false;
@@ -20123,6 +20239,7 @@
       });
 
       (async function init() {
+        syncHeaderProfileDropdown(null);
         removeAdminUiFromDom();
         const userId = await ensureUser();
         appUserId = userId;
@@ -20453,13 +20570,10 @@
         document.getElementById("showModal").addEventListener("click", (e) => {
           if (e.target.id === "showModal") closeShowModal();
         });
-        document.getElementById("quickStartHelpBtn").addEventListener("click", () => {
+        document.getElementById("headerNotificationsOpenTips")?.addEventListener("click", (e) => {
+          e.stopPropagation();
           closeHeaderMenus();
-          closeAppSettingsModal();
-          closeAppProfileModal();
-          const el = document.getElementById("quickStartHelpModal");
-          if (el && el.classList.contains("open")) closeQuickStartHelpModal();
-          else openQuickStartHelpModal();
+          openQuickStartHelpModal();
         });
         document.getElementById("welcomeSkipBtn").addEventListener("click", () =>
           closeQuickStartHelpModal({ skipFocusRestore: true }),
@@ -20608,9 +20722,12 @@
           closeUsernameSearchModal({ skipFocusRestore: true });
           const d = document.getElementById("headerSettingsDropdown");
           const pd = document.getElementById("headerProfileDropdown");
+          const nd = document.getElementById("headerNotificationsDropdown");
           const wasOpen = d && !d.hidden;
           if (pd) pd.hidden = true;
+          if (nd) nd.hidden = true;
           document.getElementById("headerProfileBtn")?.setAttribute("aria-expanded", "false");
+          document.getElementById("headerNotificationsBtn")?.setAttribute("aria-expanded", "false");
           if (d) {
             d.hidden = wasOpen;
             document.getElementById("headerSettingsBtn")?.setAttribute("aria-expanded", d.hidden ? "false" : "true");
@@ -20623,13 +20740,36 @@
           closeUsernameSearchModal({ skipFocusRestore: true });
           const d = document.getElementById("headerProfileDropdown");
           const sd = document.getElementById("headerSettingsDropdown");
+          const nd = document.getElementById("headerNotificationsDropdown");
           const wasOpen = d && !d.hidden;
           if (sd) sd.hidden = true;
+          if (nd) nd.hidden = true;
           document.getElementById("headerSettingsBtn")?.setAttribute("aria-expanded", "false");
+          document.getElementById("headerNotificationsBtn")?.setAttribute("aria-expanded", "false");
           if (d) {
             d.hidden = wasOpen;
             document.getElementById("headerProfileBtn")?.setAttribute("aria-expanded", d.hidden ? "false" : "true");
           }
+        });
+        document.getElementById("headerNotificationsBtn")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeQuickStartHelpModal({ skipFocusRestore: true });
+          closeAppSettingsModal();
+          closeAppProfileModal();
+          closeUsernameSearchModal({ skipFocusRestore: true });
+          const d = document.getElementById("headerNotificationsDropdown");
+          const sd = document.getElementById("headerSettingsDropdown");
+          const pd = document.getElementById("headerProfileDropdown");
+          const wasOpen = d && !d.hidden;
+          if (sd) sd.hidden = true;
+          if (pd) pd.hidden = true;
+          document.getElementById("headerSettingsBtn")?.setAttribute("aria-expanded", "false");
+          document.getElementById("headerProfileBtn")?.setAttribute("aria-expanded", "false");
+          if (d) {
+            d.hidden = wasOpen;
+            document.getElementById("headerNotificationsBtn")?.setAttribute("aria-expanded", d.hidden ? "false" : "true");
+          }
+          if (!wasOpen) void loadHeaderNotificationsPanel();
         });
         document.addEventListener("click", (e) => {
           const t = e.target;
