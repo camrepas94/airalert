@@ -2652,8 +2652,8 @@
       .welcome-sheet-head {
         display: flex;
         align-items: flex-start;
-        justify-content: space-between;
-        gap: 0.75rem;
+        justify-content: flex-start;
+        gap: 0;
         padding: 1.1rem 1.15rem 0.5rem;
       }
       .welcome-sheet-head-text {
@@ -2906,19 +2906,71 @@
         background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(91, 156, 255, 0.08) 100%);
         box-shadow: 0 0 24px -8px rgba(34, 211, 238, 0.25);
       }
+      .onboarding-mission-strip__top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.65rem;
+      }
+      .onboarding-mission-strip__copy {
+        min-width: 0;
+        flex: 1;
+      }
       .onboarding-mission-strip__title {
-        margin: 0 0 0.25rem;
-        font-size: 0.95rem;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-        color: #a5f3fc;
+        margin: 0 0 0.28rem;
+        font-size: 1.02rem;
+        font-weight: 750;
+        letter-spacing: -0.02em;
+        color: #e0f7fa;
       }
       .onboarding-mission-strip__sub {
-        margin: 0 0 0.65rem;
+        margin: 0;
         font-size: 0.88rem;
         line-height: 1.45;
-        color: rgba(226, 242, 255, 0.92);
+        color: rgba(226, 242, 255, 0.9);
+      }
+      .onboarding-mission-strip__cta {
+        flex-shrink: 0;
+        align-self: center;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.88rem;
+        font-weight: 700;
+        border-radius: 10px;
+        border: 1px solid rgba(34, 211, 238, 0.45);
+        background: rgba(34, 211, 238, 0.18);
+        color: #cffafe;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .onboarding-mission-strip__cta:hover {
+        background: rgba(34, 211, 238, 0.28);
+      }
+      .onboarding-mission-strip__dismiss {
+        margin: 0.5rem 0 0;
+        padding: 0;
+        border: none;
+        background: none;
+        font: inherit;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: rgba(148, 163, 184, 0.95);
+        cursor: pointer;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .onboarding-mission-strip__dismiss:hover {
+        color: rgba(226, 232, 240, 0.95);
+      }
+      @media (max-width: 520px) {
+        .onboarding-mission-strip__top {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .onboarding-mission-strip__cta {
+          align-self: stretch;
+          text-align: center;
+        }
       }
       .onboarding-mission-progress {
         height: 8px;
@@ -5197,12 +5249,46 @@
       /* ── Reply threading ── */
       .community-post-reply-indicator {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
+        justify-content: space-between;
         gap: 0.35rem;
         font-size: 0.72rem;
         color: rgba(79, 195, 247, 0.7);
         margin-bottom: 0.3rem;
         padding-left: 0.15rem;
+      }
+      .community-post-reply-indicator[hidden] {
+        display: none !important;
+      }
+      .community-reply-indicator-main {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.12rem;
+        min-width: 0;
+        flex: 1;
+      }
+      .community-reply-preview {
+        font-size: 0.66rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.42);
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .community-reply-preview[hidden] {
+        display: none !important;
+      }
+      .community-reply-cancel-btn {
+        flex-shrink: 0;
+        background: none;
+        border: none;
+        color: #ff4081;
+        cursor: pointer;
+        font-size: 0.78rem;
+        padding: 0 0.3rem;
+        line-height: 1.2;
       }
       .community-post-card.is-reply {
         margin-left: 1.5rem;
@@ -5257,6 +5343,127 @@
       .community-show-subtab.active {
         background: rgba(79, 195, 247, 0.12);
         color: #4fc3f7;
+      }
+      /* Chat sub-tab: live indicator when others are in the thread room */
+      .community-chat-subtab-inner {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.28rem;
+        min-width: 0;
+        max-width: 100%;
+      }
+      .community-chat-live-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: #22c55e;
+        box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.35);
+      }
+      .community-chat-live-dot.is-live {
+        animation: community-chat-live-pulse 2.2s ease-in-out infinite;
+      }
+      @keyframes community-chat-live-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+      .community-chat-subtab-count {
+        font-variant-numeric: tabular-nums;
+        opacity: 0.88;
+        white-space: nowrap;
+      }
+      @media (max-width: 380px) {
+        .community-show-subtab.community-chat-subtab {
+          padding-left: 0.2rem;
+          padding-right: 0.2rem;
+          font-size: 0.68rem;
+        }
+      }
+      .community-show-subtab.community-chat-subtab.community-chat-subtab--live:not(.active) {
+        box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.22), inset 0 0 16px rgba(34, 197, 94, 0.12);
+      }
+      .community-show-subtab.community-chat-subtab.community-chat-subtab--live.active {
+        box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.35), inset 0 0 18px rgba(34, 197, 94, 0.18);
+      }
+      /* Thread header: live chat presence strip */
+      .community-thread-live-strip {
+        margin-top: 0.55rem;
+        padding: 0.45rem 0.65rem;
+        border-radius: 10px;
+        border: 1px solid rgba(34, 211, 238, 0.22);
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(99, 102, 241, 0.06));
+        box-shadow: 0 0 20px rgba(34, 211, 238, 0.08);
+      }
+      .community-thread-live-strip[hidden] {
+        display: none !important;
+      }
+      .community-thread-live-strip-inner {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        flex-wrap: wrap;
+        min-width: 0;
+      }
+      .community-thread-live-strip-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: #22c55e;
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.65);
+        animation: community-thread-live-dot-pulse 2s ease-in-out infinite;
+      }
+      @keyframes community-thread-live-dot-pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.75;
+          transform: scale(0.92);
+        }
+      }
+      .community-thread-live-strip-text {
+        font-size: 0.78rem;
+        font-weight: 650;
+        color: #e0f7fa;
+        line-height: 1.35;
+        min-width: 0;
+      }
+      .community-thread-live-strip-names {
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: rgba(224, 247, 250, 0.78);
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .community-thread-live-avatars {
+        display: flex;
+        align-items: center;
+        flex-direction: row-reverse;
+        margin-left: auto;
+      }
+      .community-thread-live-avatar-ph {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        margin-left: -6px;
+        border: 1px solid rgba(15, 23, 42, 0.9);
+        background: linear-gradient(145deg, rgba(99, 102, 241, 0.5), rgba(34, 211, 238, 0.35));
+        font-size: 0.62rem;
+        font-weight: 800;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
       }
       /* ── Follow button ── */
       .community-profile-follow-bar {
@@ -6555,6 +6762,29 @@
         background: rgba(0, 0, 0, 0.15);
       }
       .community-live-rail-watchers[hidden] {
+        display: none !important;
+      }
+      .community-live-rail-status {
+        padding: 0.4rem 0.85rem;
+        border-top: 1px solid rgba(130, 200, 255, 0.08);
+        background: rgba(0, 0, 0, 0.2);
+      }
+      .community-live-rail-status[hidden] {
+        display: none !important;
+      }
+      .community-live-rail-status-line {
+        font-size: 0.74rem;
+        font-weight: 600;
+        color: #bae6fd;
+        line-height: 1.4;
+      }
+      .community-live-rail-typing-line {
+        margin: 0.28rem 0 0;
+        font-size: 0.72rem;
+        font-style: italic;
+        color: rgba(186, 230, 253, 0.82);
+      }
+      .community-live-rail-typing-line[hidden] {
         display: none !important;
       }
       .community-live-rail-watcher {
@@ -8314,6 +8544,9 @@
                 </svg>
               </button>
               <div class="header-dropdown" id="headerProfileDropdown" hidden role="menu" aria-label="Profile">
+                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuCreateAccount" hidden>
+                  Create account
+                </button>
                 <button type="button" class="header-menu-item" role="menuitem" id="headerMenuYourProfile">Your profile</button>
                 <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSearchUsername">Search username</button>
                 <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSignOut">Sign out</button>
@@ -8455,10 +8688,17 @@
             </div>
           </div>
           <div id="onboardingMissionStrip" class="onboarding-mission-strip" hidden>
-            <p class="onboarding-mission-strip__title">Your first mission</p>
-            <p class="onboarding-mission-strip__sub">
-              Add 3 shows to unlock <strong>Community</strong> posting and <strong>Inbox</strong>. You’re building your watchlist — this is progress, not a gate.
-            </p>
+            <div class="onboarding-mission-strip__top">
+              <div class="onboarding-mission-strip__copy">
+                <p class="onboarding-mission-strip__title">Get started with AirAlert</p>
+                <p class="onboarding-mission-strip__sub">
+                  Add 3 shows to personalize your app and unlock <strong>Community</strong> + <strong>Inbox</strong>.
+                </p>
+              </div>
+              <button type="button" class="onboarding-mission-strip__cta" id="onboardingMissionAddShowsBtn">
+                Add Shows
+              </button>
+            </div>
             <div
               class="onboarding-mission-progress"
               role="progressbar"
@@ -8471,6 +8711,9 @@
             </div>
             <p class="onboarding-mission-strip__hint muted" id="onboardingMissionHint" hidden></p>
             <p class="onboarding-mission-strip__count" id="onboardingMissionCount">0 of 3 shows added</p>
+            <button type="button" class="onboarding-mission-strip__dismiss" id="onboardingMissionDismissBtn">
+              Dismiss
+            </button>
           </div>
           <section id="starterPacksSection" class="starter-packs-section panel-rail-cyan" hidden aria-labelledby="starterPacksHeading">
             <h2 id="starterPacksHeading" class="section-header-highlight" style="font-size: 1rem">Starter packs</h2>
@@ -8787,12 +9030,31 @@
                       <span>Notify (push)</span>
                     </label>
                   </div>
+                  <div class="community-thread-live-strip" id="communityThreadLiveStrip" hidden>
+                    <div class="community-thread-live-strip-inner">
+                      <span class="community-thread-live-strip-dot" aria-hidden="true"></span>
+                      <span class="community-thread-live-strip-text" id="communityThreadLiveStripMain"></span>
+                      <span class="community-thread-live-strip-names" id="communityThreadLiveStripNames" hidden></span>
+                      <div class="community-thread-live-avatars" id="communityThreadLiveAvatars" hidden></div>
+                    </div>
+                  </div>
                 </div>
               </header>
               <div class="community-show-subtabs" id="communityShowSubtabs">
                 <button type="button" class="community-show-subtab active" data-subtab="discussion">Discussion</button>
                 <button type="button" class="community-show-subtab" data-subtab="news">News</button>
-                <button type="button" class="community-show-subtab" data-subtab="chat">Chat</button>
+                <button
+                  type="button"
+                  class="community-show-subtab community-chat-subtab"
+                  id="communityChatSubtabBtn"
+                  data-subtab="chat"
+                  aria-label="Chat"
+                >
+                  <span class="community-chat-subtab-inner">
+                    <span class="community-chat-live-dot" hidden aria-hidden="true"></span>
+                    <span class="community-chat-subtab-text">Chat</span><span class="community-chat-subtab-count" hidden></span>
+                  </span>
+                </button>
               </div>
               <details class="community-catchup-panel" id="communityCatchUpPanel" hidden>
                 <summary class="community-catchup-summary">Spoiler-safe mode</summary>
@@ -8900,8 +9162,11 @@
                 </label>
               </div>
               <div id="communityReplyIndicator" class="community-post-reply-indicator" hidden>
-                Replying to <strong id="communityReplyToName">—</strong>
-                <button type="button" style="background:none;border:none;color:#ff4081;cursor:pointer;font-size:0.78rem;padding:0 0.3rem" id="communityReplyCancelBtn">✕</button>
+                <div class="community-reply-indicator-main">
+                  <span>Replying to <strong id="communityReplyToName"></strong></span>
+                  <span class="community-reply-preview" id="communityReplyPreview" hidden></span>
+                </div>
+                <button type="button" class="community-reply-cancel-btn" id="communityReplyCancelBtn" aria-label="Clear reply">✕</button>
               </div>
               <button type="button" id="communityPostSubmitBtn">Post</button>
               <p class="muted msg" id="communityComposerMsg" style="margin-top: 0.5rem"></p>
@@ -8927,6 +9192,10 @@
                   </div>
                   <div id="communityLiveRailWatchers" class="community-live-rail-watchers" hidden></div>
                   <div class="community-live-rail-messages" id="communityLiveRailMessages" role="log" aria-live="polite"></div>
+                  <div class="community-live-rail-status" id="communityLiveRailStatus" hidden>
+                    <div class="community-live-rail-status-line" id="communityLiveRailStatusLine"></div>
+                    <p class="community-live-rail-typing-line" id="communityLiveRailTypingLine" hidden aria-live="polite"></p>
+                  </div>
                   <div class="community-live-rail-compose">
                     <input type="text" id="communityLiveRailInput" maxlength="280" placeholder="Quick reaction…" autocomplete="off" />
                     <button type="button" class="secondary" id="communityLiveRailSendBtn">Send</button>
@@ -9382,7 +9651,6 @@
               Track what’s airing, mark episodes watched, and unlock the full experience by adding 3 shows.
             </p>
           </div>
-          <button type="button" class="modal-close secondary" id="quickStartHelpClose" aria-label="Close welcome">×</button>
         </div>
         <div class="welcome-sheet-body">
           <ul class="welcome-sheet-bullets">
@@ -9756,15 +10024,15 @@
     <script>
       const LS_USER = "airalert_user_id";
       const LS_GUEST_PROMPT = "airalert_guest_prompt_dismissed";
-      /** Per-user: first-run welcome sheet completed or skipped (local device). */
-      function onboardingDoneKey(userId) {
-        return "airalert_onboarding_v1_done_" + userId;
+      /** Per-user: user dismissed the in-page Add-tab onboarding strip (local device). */
+      function onboardingStripDismissedKey(userId) {
+        return "airalert_onboarding_strip_dismissed_v1_" + userId;
       }
-      function isOnboardingDone(userId) {
-        return Boolean(userId && localStorage.getItem(onboardingDoneKey(userId)) === "1");
+      function isOnboardingStripDismissed(userId) {
+        return Boolean(userId && localStorage.getItem(onboardingStripDismissedKey(userId)) === "1");
       }
-      function setOnboardingDone(userId) {
-        if (userId) localStorage.setItem(onboardingDoneKey(userId), "1");
+      function setOnboardingStripDismissed(userId) {
+        if (userId) localStorage.setItem(onboardingStripDismissedKey(userId), "1");
       }
 
       /** Keep in sync with {@link ACTIVATION_MIN_SUBSCRIBED_SHOWS} in src/userRole.ts */
@@ -9830,7 +10098,8 @@
           me &&
           me.id &&
           !userIsDbAdmin(me) &&
-          isLowShowUser(me);
+          isLowShowUser(me) &&
+          !isOnboardingStripDismissed(me.id);
         strip.hidden = !show;
         if (!show) return;
         const n = Math.min(ACTIVATION_MIN_SHOWS, Math.max(0, Number(me.subscribedShowCount) || 0));
@@ -13075,6 +13344,7 @@
         updateStarterPacksVisibility(me);
         ensureStarterPackChips();
         maybeCelebrateTvWatcherUnlock(me);
+        syncHeaderProfileDropdown(me);
       }
 
       function adminPillClass(from) {
@@ -13947,6 +14217,9 @@
       let communityThreadLivePingTimer = null;
       /** Detect thread navigation vs in-thread refresh (sort) for live rail UI. */
       let communityThreadLiveLastKey = null;
+      let communityLiveTypingHideTimer = null;
+      let communityLiveChatTypingDebounce = null;
+      let communityLiveChatTypingStopTimer = null;
 
       function applyCommunityLiveAirNightChrome() {
         const banner = document.getElementById("communityLiveAirNightBanner");
@@ -14027,6 +14300,180 @@
         }
       }
 
+      function shortChatPresenceName(handle) {
+        if (!handle) return "";
+        const s = String(handle).replace(/^@/, "").trim();
+        const parts = s.split(/\s+/);
+        return parts[0] || s;
+      }
+
+      function formatChatPresenceSubtitle(watchers, vc) {
+        const handles = (watchers || []).map((w) => w && w.handle).filter(Boolean).map(String);
+        const names = handles.slice(0, 10).map(shortChatPresenceName).filter(Boolean);
+        const uniq = [...new Set(names)];
+        if (!uniq.length) return "";
+        if (vc <= 3 && uniq.length <= 3) return uniq.join(", ") + " here now";
+        const show = uniq.slice(0, 2);
+        const rest = Math.max(0, vc - show.length);
+        if (rest <= 0) return show.join(", ") + " here now";
+        return show.join(", ") + " +" + rest + " here now";
+      }
+
+      function syncCommunityThreadHeaderPresence(vc, watchersRaw) {
+        const strip = document.getElementById("communityThreadLiveStrip");
+        const main = document.getElementById("communityThreadLiveStripMain");
+        const namesEl = document.getElementById("communityThreadLiveStripNames");
+        const avatars = document.getElementById("communityThreadLiveAvatars");
+        if (!strip || !main) return;
+        const n = Math.max(0, Math.floor(Number(vc) || 0));
+        if (n <= 0) {
+          strip.hidden = true;
+          main.textContent = "";
+          if (namesEl) {
+            namesEl.textContent = "";
+            namesEl.hidden = true;
+          }
+          if (avatars) {
+            avatars.innerHTML = "";
+            avatars.hidden = true;
+          }
+          return;
+        }
+        strip.hidden = false;
+        main.textContent = n + " in chat now";
+        const watchers = Array.isArray(watchersRaw) ? watchersRaw : [];
+        const sub = formatChatPresenceSubtitle(watchers, n);
+        if (namesEl) {
+          if (sub) {
+            namesEl.textContent = sub;
+            namesEl.hidden = false;
+          } else {
+            namesEl.textContent = "";
+            namesEl.hidden = true;
+          }
+        }
+        if (avatars) {
+          avatars.innerHTML = "";
+          const slice = watchers.slice(0, 4);
+          if (!slice.length) {
+            avatars.hidden = true;
+          } else {
+            avatars.hidden = false;
+            for (let i = slice.length - 1; i >= 0; i--) {
+              const h = slice[i] && slice[i].handle ? String(slice[i].handle).trim() : "";
+              const ph = document.createElement("span");
+              ph.className = "community-thread-live-avatar-ph";
+              ph.title = h || "Member";
+              ph.textContent = (h.replace(/^@/, "").charAt(0) || "?").toUpperCase();
+              avatars.appendChild(ph);
+            }
+          }
+        }
+      }
+
+      function syncCommunityLiveRailPresenceBar(vc, watchersRaw) {
+        const status = document.getElementById("communityLiveRailStatus");
+        const line = document.getElementById("communityLiveRailStatusLine");
+        if (!status || !line) return;
+        const n = Math.max(0, Math.floor(Number(vc) || 0));
+        if (n <= 0) {
+          status.hidden = true;
+          line.textContent = "";
+          return;
+        }
+        status.hidden = false;
+        const watchers = Array.isArray(watchersRaw) ? watchersRaw : [];
+        const handles = watchers.map((w) => w && w.handle).filter(Boolean).map(String);
+        if (!handles.length) {
+          line.textContent = "Live · " + n + " fan" + (n === 1 ? "" : "s") + " in this room";
+          return;
+        }
+        const names = handles.slice(0, 4).map((h) => shortChatPresenceName(h));
+        const extra = Math.max(0, n - names.length);
+        let text = "Watching now: " + names.join(", ");
+        if (extra > 0) text += " +" + extra;
+        line.textContent = text;
+      }
+
+      function clearCommunityThreadLivePresenceUi() {
+        const strip = document.getElementById("communityThreadLiveStrip");
+        if (strip) strip.hidden = true;
+        const main = document.getElementById("communityThreadLiveStripMain");
+        if (main) main.textContent = "";
+        const namesEl = document.getElementById("communityThreadLiveStripNames");
+        if (namesEl) {
+          namesEl.textContent = "";
+          namesEl.hidden = true;
+        }
+        const avatars = document.getElementById("communityThreadLiveAvatars");
+        if (avatars) {
+          avatars.innerHTML = "";
+          avatars.hidden = true;
+        }
+        const status = document.getElementById("communityLiveRailStatus");
+        const line = document.getElementById("communityLiveRailStatusLine");
+        if (status) status.hidden = true;
+        if (line) line.textContent = "";
+        const tel = document.getElementById("communityLiveRailTypingLine");
+        if (tel) {
+          tel.hidden = true;
+          tel.textContent = "";
+        }
+        if (communityLiveTypingHideTimer) {
+          clearTimeout(communityLiveTypingHideTimer);
+          communityLiveTypingHideTimer = null;
+        }
+      }
+
+      function sendLiveChatTyping(active) {
+        if (!communityThreadLiveWs || communityThreadLiveWs.readyState !== 1) return;
+        try {
+          communityThreadLiveWs.send(JSON.stringify({ type: "typing", active: !!active }));
+        } catch {
+          /* ignore */
+        }
+      }
+
+      function scheduleLiveChatTypingPulse() {
+        if (communityLiveChatTypingStopTimer) {
+          clearTimeout(communityLiveChatTypingStopTimer);
+          communityLiveChatTypingStopTimer = null;
+        }
+        sendLiveChatTyping(true);
+        communityLiveChatTypingStopTimer = setTimeout(() => {
+          communityLiveChatTypingStopTimer = null;
+          sendLiveChatTyping(false);
+        }, 2800);
+      }
+
+      function syncCommunityLiveTypingLine(typersRaw) {
+        const el = document.getElementById("communityLiveRailTypingLine");
+        if (!el) return;
+        const myId = resolveUserId();
+        const list = (typersRaw || []).filter((t) => t && t.userId && t.userId !== myId);
+        const handles = list.map((t) => String(t.handle || "").trim()).filter(Boolean);
+        if (communityLiveTypingHideTimer) {
+          clearTimeout(communityLiveTypingHideTimer);
+          communityLiveTypingHideTimer = null;
+        }
+        if (!handles.length) {
+          el.hidden = true;
+          el.textContent = "";
+          return;
+        }
+        let text;
+        if (handles.length === 1) text = handles[0] + " is typing\u2026";
+        else if (handles.length === 2) text = handles[0] + " and " + handles[1] + " are typing\u2026";
+        else text = "Several people are typing\u2026";
+        el.textContent = text;
+        el.hidden = false;
+        communityLiveTypingHideTimer = setTimeout(() => {
+          el.hidden = true;
+          el.textContent = "";
+          communityLiveTypingHideTimer = null;
+        }, 5200);
+      }
+
       function disconnectCommunityThreadLiveWs() {
         if (communityThreadLivePingTimer) {
           clearInterval(communityThreadLivePingTimer);
@@ -14063,6 +14510,49 @@
         }
         if (btn) btn.disabled = true;
         if (pres) pres.textContent = "—";
+        if (communityLiveChatTypingDebounce) {
+          clearTimeout(communityLiveChatTypingDebounce);
+          communityLiveChatTypingDebounce = null;
+        }
+        if (communityLiveChatTypingStopTimer) {
+          clearTimeout(communityLiveChatTypingStopTimer);
+          communityLiveChatTypingStopTimer = null;
+        }
+        sendLiveChatTyping(false);
+        clearCommunityThreadLivePresenceUi();
+        syncCommunityChatSubtabLabel(0);
+      }
+
+      /** Updates the Chat sub-tab: plain "Chat" when nobody in room; green dot + count when viewerCount ≥ 1. */
+      function syncCommunityChatSubtabLabel(viewerCount) {
+        const btn = document.getElementById("communityChatSubtabBtn");
+        if (!btn) return;
+        const dot = btn.querySelector(".community-chat-live-dot");
+        const countEl = btn.querySelector(".community-chat-subtab-count");
+        const n = Math.max(0, Math.floor(Number(viewerCount) || 0));
+        if (n <= 0) {
+          if (dot) {
+            dot.hidden = true;
+            dot.classList.remove("is-live");
+          }
+          if (countEl) {
+            countEl.textContent = "";
+            countEl.hidden = true;
+          }
+          btn.classList.remove("community-chat-subtab--live");
+          btn.setAttribute("aria-label", "Chat");
+          return;
+        }
+        if (dot) {
+          dot.hidden = false;
+          dot.classList.add("is-live");
+        }
+        if (countEl) {
+          countEl.textContent = " (" + n + ")";
+          countEl.hidden = false;
+        }
+        btn.classList.add("community-chat-subtab--live");
+        btn.setAttribute("aria-label", "Chat — " + n + " active");
       }
 
       function applyCommunityThreadLivePresence(data) {
@@ -14073,6 +14563,9 @@
           applyCommunityLiveAirNightChrome();
         }
         const vc = Number(data.viewerCount) || 0;
+        syncCommunityChatSubtabLabel(vc);
+        syncCommunityThreadHeaderPresence(vc, data.watchers);
+        syncCommunityLiveRailPresenceBar(vc, data.watchers);
         const rail = document.getElementById("communityLiveRail");
         const row = document.getElementById("communityThreadMainRow");
         const pres = document.getElementById("communityLiveRailPresence");
@@ -14120,6 +14613,10 @@
           return;
         }
         if (data.type === "thread_live_presence") applyCommunityThreadLivePresence(data);
+        if (data.type === "thread_live_typing") {
+          syncCommunityLiveTypingLine(data.typers || []);
+          return;
+        }
         if (data.type === "thread_live_chat") appendCommunityLiveRailChatLine(data);
       }
 
@@ -14129,6 +14626,15 @@
         const body = (inp.value || "").trim();
         if (!body) return;
         if (!communityThreadLiveWs || communityThreadLiveWs.readyState !== 1) return;
+        if (communityLiveChatTypingDebounce) {
+          clearTimeout(communityLiveChatTypingDebounce);
+          communityLiveChatTypingDebounce = null;
+        }
+        if (communityLiveChatTypingStopTimer) {
+          clearTimeout(communityLiveChatTypingStopTimer);
+          communityLiveChatTypingStopTimer = null;
+        }
+        sendLiveChatTyping(false);
         try {
           communityThreadLiveWs.send(JSON.stringify({ type: "chat", body }));
           inp.value = "";
@@ -15760,6 +16266,15 @@
       let communityReplyToPostId = null;
       let communityReplyToUsername = null;
 
+      function communityReplyPreviewFromPost(p) {
+        if (!p || !p.bodyHtml) return "";
+        const tmp = document.createElement("div");
+        tmp.innerHTML = p.bodyHtml;
+        const t = (tmp.textContent || "").replace(/\s+/g, " ").trim();
+        if (!t) return "";
+        return t.length > 56 ? t.slice(0, 53) + "\u2026" : t;
+      }
+
       function handleCommunityReplyClick(p) {
         if (!accountIsRegistered(sessionMeSnapshot)) {
           showToast("Create an account (profile \u2192 Your profile) to reply.");
@@ -15769,13 +16284,27 @@
           showUnlockSocialToast();
           return;
         }
+        if (!p || !p.id) return;
+        const displayName = p.authorHandle && String(p.authorHandle).trim();
         const un = p.authorUsername && String(p.authorUsername).trim();
+        const replyTitle = displayName || (un ? "@" + un : "this post");
         communityReplyToPostId = p.id;
-        communityReplyToUsername = un;
+        communityReplyToUsername = un || null;
         const indicator = document.getElementById("communityReplyIndicator");
         const nameEl = document.getElementById("communityReplyToName");
+        const prevEl = document.getElementById("communityReplyPreview");
         if (indicator && nameEl) {
-          nameEl.textContent = un ? "@" + un : (p.authorHandle || "this post");
+          nameEl.textContent = replyTitle;
+          const prev = communityReplyPreviewFromPost(p);
+          if (prevEl) {
+            if (prev) {
+              prevEl.textContent = "\u201C" + prev + "\u201D";
+              prevEl.hidden = false;
+            } else {
+              prevEl.textContent = "";
+              prevEl.hidden = true;
+            }
+          }
           indicator.hidden = false;
         }
         if (un) {
@@ -15792,6 +16321,13 @@
         communityReplyToPostId = null;
         communityReplyToUsername = null;
         const indicator = document.getElementById("communityReplyIndicator");
+        const nameEl = document.getElementById("communityReplyToName");
+        const prevEl = document.getElementById("communityReplyPreview");
+        if (nameEl) nameEl.textContent = "";
+        if (prevEl) {
+          prevEl.textContent = "";
+          prevEl.hidden = true;
+        }
         if (indicator) indicator.hidden = true;
       }
 
@@ -17881,22 +18417,18 @@
         if (input) input.focus();
       }
 
-      let quickStartFirstRunSession = false;
-
-      /**
-       * @param {{ firstRun?: boolean}} [opts] firstRun: mark onboarding complete when closed (after register/guest).
-       */
-      function openQuickStartHelpModal(opts) {
+      /** Opens the optional Welcome / tips modal (header control only — not used for forced first-run). */
+      function openQuickStartHelpModal() {
         closeAppSettingsModal();
         closeAppProfileModal();
         closeUsernameSearchModal({ skipFocusRestore: true });
         const el = document.getElementById("quickStartHelpModal");
         const btn = document.getElementById("quickStartHelpBtn");
         if (!el) return;
-        quickStartFirstRunSession = Boolean(opts && opts.firstRun);
         el.classList.add("open");
         if (btn) {
           btn.setAttribute("aria-expanded", "true");
+          btn.hidden = true;
         }
         requestAnimationFrame(() => {
           const primary = document.getElementById("welcomeGetStartedBtn");
@@ -17907,10 +18439,6 @@
       async function offerOnboardingAfterAuth(me) {
         if (!me || !me.id) return;
         await new Promise((r) => requestAnimationFrame(r));
-        if (!isOnboardingDone(me.id)) {
-          openQuickStartHelpModal({ firstRun: true });
-          return;
-        }
         if (shouldAutoShowOnboardingSetup(me)) {
           openOnboardingSetupModal(me);
         }
@@ -17920,21 +18448,13 @@
       function closeQuickStartHelpModal(opts) {
         const el = document.getElementById("quickStartHelpModal");
         const btn = document.getElementById("quickStartHelpBtn");
-        const wasFirstRun = quickStartFirstRunSession;
         const skipFocus = Boolean(opts && opts.skipFocusRestore);
         if (el) el.classList.remove("open");
         if (btn) {
           btn.setAttribute("aria-expanded", "false");
+          btn.hidden = false;
         }
-        if (wasFirstRun && sessionMeSnapshot && sessionMeSnapshot.id) {
-          setOnboardingDone(sessionMeSnapshot.id);
-          const m = sessionMeSnapshot;
-          if (shouldAutoShowOnboardingSetup(m)) {
-            requestAnimationFrame(() => openOnboardingSetupModal(m));
-          }
-        }
-        quickStartFirstRunSession = false;
-        if (!skipFocus && !wasFirstRun) {
+        if (!skipFocus) {
           document.getElementById("quickStartHelpBtn")?.focus();
         }
       }
@@ -18392,6 +18912,16 @@
         }
       });
       document.getElementById("communityLiveRailSendBtn")?.addEventListener("click", () => sendCommunityThreadLiveChat());
+      document.getElementById("communityLiveRailInput")?.addEventListener("input", () => {
+        const inp = document.getElementById("communityLiveRailInput");
+        if (!inp || inp.disabled) return;
+        if (communityLiveChatTypingDebounce) clearTimeout(communityLiveChatTypingDebounce);
+        communityLiveChatTypingDebounce = setTimeout(() => {
+          communityLiveChatTypingDebounce = null;
+          const v = String(inp.value || "").trim();
+          if (v.length) scheduleLiveChatTypingPulse();
+        }, 220);
+      });
       document.getElementById("communityLiveRailInput")?.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
           e.preventDefault();
@@ -19466,8 +19996,36 @@
         if (uid) loadRecommended(uid);
       });
 
+      document.getElementById("onboardingMissionAddShowsBtn")?.addEventListener("click", () => {
+        setTab("add");
+        requestAnimationFrame(() => document.getElementById("searchTitle")?.focus());
+      });
+      document.getElementById("onboardingMissionDismissBtn")?.addEventListener("click", () => {
+        const uid = resolveUserId();
+        if (uid) setOnboardingStripDismissed(uid);
+        updateOnboardingMissionStrip(sessionMeSnapshot);
+      });
+
       function accountIsRegistered(me) {
         return !!(me && (me.username || truthyBit(me.hasPassword)));
+      }
+
+      /**
+       * Guest = signed-in device user without username/password ({@link accountIsRegistered} false).
+       * Registered users get profile + sign out; guests get create account + search only.
+       */
+      function syncHeaderProfileDropdown(me) {
+        const createBtn = document.getElementById("headerMenuCreateAccount");
+        const profileBtn = document.getElementById("headerMenuYourProfile");
+        const searchBtn = document.getElementById("headerMenuSearchUsername");
+        const signOutBtn = document.getElementById("headerMenuSignOut");
+        if (!createBtn || !profileBtn || !searchBtn || !signOutBtn) return;
+        const guest = !!(me && !accountIsRegistered(me));
+        const registered = !!(me && accountIsRegistered(me));
+        createBtn.hidden = !guest;
+        profileBtn.hidden = !registered;
+        signOutBtn.hidden = !registered;
+        searchBtn.hidden = false;
       }
 
       const UNLOCK_SOCIAL_UX_MESSAGE = "Add 3 shows to unlock this feature.";
@@ -19619,14 +20177,8 @@
           /* ignore */
         }
 
-        if (!deepLinked && me && me.id) {
-          if (!isOnboardingDone(me.id)) {
-            if (!shouldShowAccountPrompt(me)) {
-              requestAnimationFrame(() => openQuickStartHelpModal({ firstRun: true }));
-            }
-          } else if (accountIsRegistered(me) && shouldAutoShowOnboardingSetup(me)) {
-            requestAnimationFrame(() => openOnboardingSetupModal(me));
-          }
+        if (!deepLinked && me && me.id && accountIsRegistered(me) && shouldAutoShowOnboardingSetup(me)) {
+          requestAnimationFrame(() => openOnboardingSetupModal(me));
         }
 
         try {
@@ -19909,15 +20461,12 @@
           if (el && el.classList.contains("open")) closeQuickStartHelpModal();
           else openQuickStartHelpModal();
         });
-        document.getElementById("quickStartHelpClose").addEventListener("click", () =>
-          closeQuickStartHelpModal({ skipFocusRestore: quickStartFirstRunSession }),
-        );
         document.getElementById("welcomeSkipBtn").addEventListener("click", () =>
           closeQuickStartHelpModal({ skipFocusRestore: true }),
         );
         document.getElementById("welcomeGetStartedBtn").addEventListener("click", () => welcomeGetStarted());
         document.getElementById("quickStartHelpModal").addEventListener("click", (e) => {
-          if (e.target.id === "quickStartHelpModal") closeQuickStartHelpModal({ skipFocusRestore: quickStartFirstRunSession });
+          if (e.target.id === "quickStartHelpModal") closeQuickStartHelpModal({ skipFocusRestore: true });
         });
 
         document.getElementById("onboardingSetupClose")?.addEventListener("click", () => {
@@ -19990,7 +20539,7 @@
           }
           const qs = document.getElementById("quickStartHelpModal");
           if (qs && qs.classList.contains("open")) {
-            closeQuickStartHelpModal({ skipFocusRestore: quickStartFirstRunSession });
+            closeQuickStartHelpModal({ skipFocusRestore: true });
             return;
           }
           const ap = document.getElementById("accountPromptModal");
@@ -20103,6 +20652,13 @@
           e.stopPropagation();
           closeHeaderMenus();
           openAppSettingsModal("push");
+        });
+        document.getElementById("headerMenuCreateAccount")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeHeaderMenus();
+          openAccountPromptModal();
+          showAccountPromptStep("register");
+          requestAnimationFrame(() => document.getElementById("apRegUsername")?.focus());
         });
         document.getElementById("headerMenuYourProfile")?.addEventListener("click", (e) => {
           e.stopPropagation();

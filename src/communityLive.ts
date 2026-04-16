@@ -16,6 +16,8 @@ type ClientRecord = {
 const rooms = new Map<string, Set<ClientRecord>>();
 const socketMeta = new Map<WebSocket, { roomKey: string; rec: ClientRecord }>();
 const lastChatAt = new Map<string, number>();
+/** Per-room typing indicators (expires ~4.5s after last pulse). */
+const typingByRoom = new Map<string, Map<string, { handle: string; expiresAt: number }>>();
 
 function wsPayloadToString(data: unknown): string | null {
   if (typeof data === "string") return data;
@@ -173,16 +175,57 @@ export function registerCommunityThreadLiveSocket(userId: string, socket: WebSoc
   broadcastPresence(roomKey);
 }
 
+function pruneExpiredTyping(roomKey: string, now: number): void {
+  const m = typingByRoom.get(roomKey);
+  if (!m) return;
+  for (const [uid, v] of [...m.entries()]) {
+    if (v.expiresAt <= now) m.delete(uid);
+  }
+  if (m.size === 0) typingByRoom.delete(roomKey);
+}
+
+function broadcastThreadLiveTyping(roomKey: string): void {
+  const now = Date.now();
+  pruneExpiredTyping(roomKey, now);
+  const m = typingByRoom.get(roomKey);
+  const typers: { userId: string; handle: string }[] = [];
+  if (m) {
+    for (const [userId, v] of m) {
+      if (v.expiresAt > now) typers.push({ userId, handle: v.handle });
+    }
+  }
+  const payload = JSON.stringify({ type: "thread_live_typing" as const, typers });
+  const set = rooms.get(roomKey);
+  if (!set) return;
+  for (const c of set) {
+    if (c.socket.readyState === 1) {
+      try {
+        c.socket.send(payload);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+}
+
 export function unregisterCommunityThreadLiveSocket(socket: WebSocket): void {
   const meta = socketMeta.get(socket);
   if (!meta) return;
+  const uid = meta.rec.userId;
+  const rk = meta.roomKey;
   socketMeta.delete(socket);
-  const set = rooms.get(meta.roomKey);
+  const set = rooms.get(rk);
   if (set) {
     set.delete(meta.rec);
-    if (set.size === 0) rooms.delete(meta.roomKey);
+    if (set.size === 0) rooms.delete(rk);
   }
-  broadcastPresence(meta.roomKey);
+  const tm = typingByRoom.get(rk);
+  if (tm) {
+    tm.delete(uid);
+    if (tm.size === 0) typingByRoom.delete(rk);
+    broadcastThreadLiveTyping(rk);
+  }
+  broadcastPresence(rk);
 }
 
 function normalizeLiveChatBody(raw: unknown): string {
@@ -215,6 +258,23 @@ export function handleCommunityThreadLiveMessage(userId: string, socket: WebSock
 
   if (d.type === "ping") {
     broadcastPresence(meta.roomKey);
+    return;
+  }
+
+  if (d.type === "typing") {
+    const active = Boolean(d.active);
+    let m = typingByRoom.get(meta.roomKey);
+    if (!m) {
+      m = new Map();
+      typingByRoom.set(meta.roomKey, m);
+    }
+    if (active) {
+      m.set(userId, { handle: authorLabelForUser(userId), expiresAt: Date.now() + 4500 });
+    } else {
+      m.delete(userId);
+      if (m.size === 0) typingByRoom.delete(meta.roomKey);
+    }
+    broadcastThreadLiveTyping(meta.roomKey);
     return;
   }
 
@@ -260,6 +320,12 @@ export function handleCommunityThreadLiveMessage(userId: string, socket: WebSock
           /* ignore */
         }
       }
+    }
+    const tm = typingByRoom.get(meta.roomKey);
+    if (tm) {
+      tm.delete(userId);
+      if (tm.size === 0) typingByRoom.delete(meta.roomKey);
+      broadcastThreadLiveTyping(meta.roomKey);
     }
   }
 }
