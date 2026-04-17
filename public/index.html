@@ -2703,7 +2703,7 @@
       .how-to-steps strong {
         color: var(--text);
       }
-      /* First-run welcome sheet (single screen, no stepper) */
+      /* Shared “sheet” layout for taste onboarding + similar modals */
       .welcome-sheet-panel {
         max-width: 22rem;
         padding: 0;
@@ -4051,6 +4051,7 @@
         color: var(--muted);
       }
       .account-prompt-panel input[type="text"],
+      .account-prompt-panel input[type="email"],
       .account-prompt-panel input[type="password"] {
         width: 100%;
         margin-top: 0.25rem;
@@ -4061,6 +4062,12 @@
         color: var(--text);
         font-family: inherit;
         font-size: 0.92rem;
+      }
+      .account-prompt-panel .account-prompt-field-hint {
+        margin: 0.15rem 0 0;
+        font-size: 0.76rem;
+        line-height: 1.4;
+        color: var(--muted);
       }
       .account-prompt-panel .account-prompt-row {
         display: flex;
@@ -4831,6 +4838,17 @@
       .tab-panel.active {
         display: block;
         min-height: 100%;
+      }
+      /* Off-screen tab panels: skip most rendering work until activated (lazy templates still reduce DOM). */
+      #mainScroll > .tab-panel:not(.active) {
+        content-visibility: auto;
+        contain-intrinsic-size: 560px 900px;
+      }
+      #mainScroll > .tab-panel.active {
+        content-visibility: visible;
+      }
+      .tab-panel[data-shell-lazy-root]:not(.active) {
+        min-height: 40vh;
       }
 
       .community-root {
@@ -6371,6 +6389,31 @@
         color: rgba(255, 255, 255, 0.82);
         font-size: 0.8rem;
       }
+      .community-hero-chat-presence {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.28rem;
+        font-size: 0.74rem;
+        font-weight: 650;
+        color: rgba(167, 243, 208, 0.95);
+        padding: 0.12rem 0.45rem;
+        border-radius: 999px;
+        border: 1px solid rgba(34, 197, 94, 0.28);
+        background: rgba(22, 101, 52, 0.22);
+        letter-spacing: 0.02em;
+      }
+      .community-hero-chat-presence[hidden] {
+        display: none !important;
+      }
+      .community-hero-chat-presence::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: #4ade80;
+        box-shadow: 0 0 8px rgba(74, 222, 128, 0.75);
+      }
       .community-subscribe-wrap {
         display: flex;
         align-items: center;
@@ -6578,10 +6621,10 @@
         display: flex;
         align-items: center;
         gap: 0.45rem;
-        padding: 0.6rem 0.85rem;
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: #e0f2fe;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: rgba(186, 230, 253, 0.82);
         letter-spacing: -0.02em;
         cursor: pointer;
         list-style: none;
@@ -8081,6 +8124,9 @@
         padding: 0.85rem 1rem 1.1rem;
         font-size: 0.9rem;
       }
+      .modal-body-loading-skel {
+        padding: 0.15rem 0 0.35rem;
+      }
 
       /* ─── Edit Profile modal (mobile-first) ───────────────────────────────── */
       .profile-edit-modal.quickstart-help-panel {
@@ -8116,20 +8162,90 @@
         overflow-x: hidden;
         overscroll-behavior: contain;
       }
+      .profile-edit-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .profile-edit-top-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      @media (min-width: 720px) {
+        .profile-edit-top-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
+          gap: 1rem 1.2rem;
+          align-items: start;
+        }
+      }
+      .profile-edit-card {
+        box-sizing: border-box;
+        border-radius: 14px;
+        padding: 0.95rem 1rem 1.05rem;
+        background: rgba(8, 12, 28, 0.58);
+        border: 1px solid rgba(130, 200, 255, 0.22);
+        box-shadow: 0 4px 28px rgba(0, 0, 0, 0.28);
+      }
+      .profile-edit-card-title {
+        margin: 0 0 0.35rem;
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        opacity: 0.95;
+        color: rgba(210, 230, 255, 0.95);
+      }
+      .profile-edit-card-lead {
+        margin: 0 0 0.85rem;
+        font-size: 0.82rem;
+        line-height: 1.45;
+      }
+      .profile-edit-card--basics {
+        border-left: 3px solid rgba(34, 211, 238, 0.55);
+      }
+      .profile-edit-card--about {
+        border-left: 3px solid rgba(244, 114, 182, 0.5);
+      }
+      .profile-edit-card--share {
+        border-left: 3px solid rgba(34, 211, 238, 0.42);
+      }
+      .profile-edit-card--account {
+        border-left: 3px solid rgba(232, 121, 249, 0.48);
+      }
+      .profile-edit-card--session {
+        border-left: 3px solid rgba(248, 113, 113, 0.45);
+        border-color: rgba(248, 113, 113, 0.22);
+        background: rgba(18, 8, 14, 0.42);
+        margin-top: 0.15rem;
+      }
+      .profile-edit-card--session .profile-edit-card-title {
+        color: rgba(255, 200, 210, 0.95);
+      }
+      .profile-card-msg {
+        margin-top: 0.55rem;
+        min-height: 1.1em;
+      }
       .profile-edit-scroll .profile-edit-section,
+      .profile-edit-scroll .profile-edit-card,
       .profile-edit-scroll .panel-rail-cyan,
       .profile-edit-scroll .panel-rail-magenta,
       .profile-edit-scroll .panel-rail-blue {
-        padding-left: 0.85rem;
-        padding-right: 0.85rem;
+        padding-left: 0;
+        padding-right: 0;
       }
       .profile-edit-section-title.profile-identity-heading {
         margin-bottom: 0.85rem;
         font-size: 1rem;
       }
-      .profile-edit-scroll .profile-about-inline-heading {
-        margin-top: 1.5rem;
-        padding-top: 0.25rem;
+      .profile-edit-card .profile-form-row.profile-form-row--split {
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 560px) {
+        .profile-edit-card .profile-form-row.profile-form-row--split {
+          grid-template-columns: 1fr 1fr;
+        }
       }
       .profile-form-row {
         display: grid;
@@ -8155,7 +8271,8 @@
         .profile-account-grid.profile-account-grid--register {
           grid-template-columns: 1fr 1fr;
         }
-        .profile-account-grid.profile-account-grid--register > div:first-child {
+        .profile-account-grid.profile-account-grid--register > div:first-child,
+        .profile-account-grid.profile-account-grid--register > div:nth-child(2) {
           grid-column: 1 / -1;
         }
       }
@@ -8175,22 +8292,26 @@
         z-index: 2;
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
-        padding: 0.65rem 0.85rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+        gap: 0.4rem;
+        padding: 0.7rem 0.85rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
         border-top: 1px solid rgba(130, 200, 255, 0.28);
         background: linear-gradient(180deg, rgba(6, 10, 22, 0.88) 0%, rgba(10, 14, 28, 0.97) 100%);
         box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55);
       }
-      .profile-edit-save-primary,
-      .profile-edit-save-secondary {
+      .profile-edit-sticky-hint {
+        margin: 0;
+        font-size: 0.76rem;
+        text-align: center;
+        line-height: 1.35;
+        opacity: 0.88;
+      }
+      .profile-edit-save-primary {
         width: 100%;
         min-height: 48px;
-        font-size: 1rem;
+        font-size: 1.02rem;
+        font-weight: 750;
         border-radius: 12px;
         padding: 0.65rem 1rem;
-      }
-      .profile-edit-save-secondary {
-        font-weight: 600;
       }
       .profile-remove-photo-btn {
         width: 100%;
@@ -8203,6 +8324,7 @@
         border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
       .profile-edit-scroll input[type="text"],
+      .profile-edit-scroll input[type="email"],
       .profile-edit-scroll input[type="number"],
       .profile-edit-scroll input[type="password"],
       .profile-edit-scroll select,
@@ -8222,6 +8344,7 @@
       }
       @media (min-width: 768px) {
         .profile-edit-scroll input[type="text"],
+        .profile-edit-scroll input[type="email"],
         .profile-edit-scroll input[type="number"],
         .profile-edit-scroll input[type="password"],
         .profile-edit-scroll select {
@@ -8290,12 +8413,29 @@
         margin-top: 0.5rem;
         padding-bottom: 0.25rem;
       }
-      .profile-signout-section .secondary#signOutAccountBtn {
+      .profile-account-register-block {
+        margin-top: 0.35rem;
+      }
+      .profile-account-divider-label {
+        margin: 1rem 0 0.4rem;
+        font-size: 0.82rem;
+      }
+      .profile-account-primary-btn {
         width: 100%;
-        min-height: 44px;
+        min-height: 48px;
+        margin-top: 0.65rem;
+      }
+      .profile-account-signed-lead {
+        margin: 0.1rem 0 0.2rem;
+        font-size: 0.92rem;
+      }
+      .profile-session-signout-btn {
+        width: 100%;
+        min-height: 46px;
+        border-color: rgba(248, 113, 113, 0.42) !important;
       }
       @media (min-width: 520px) {
-        #foldAccountBody .account-change-pw .profile-account-grid {
+        .profile-edit-card--account .account-change-pw .profile-account-grid {
           grid-template-columns: 1fr 1fr 1fr;
         }
       }
@@ -8698,9 +8838,6 @@
                   Timezone
                 </button>
                 <button type="button" class="header-menu-item" role="menuitem" id="headerMenuPush">Push notifications</button>
-                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuWelcomeGuide">
-                  Welcome guide
-                </button>
               </div>
             </div>
             <div class="header-menu-wrap">
@@ -8958,6 +9095,9 @@
                 <p class="onboarding-mission-strip__sub">
                   Add 3 shows to personalize your app and unlock <strong>Community</strong> + <strong>Inbox</strong>.
                 </p>
+                <p class="onboarding-mission-strip__sub muted" id="onboardingMissionGuestNote" hidden style="margin-top: 0.35rem">
+                  Create a free account from the profile menu (top right) to save your list across devices.
+                </p>
               </div>
               <button type="button" class="onboarding-mission-strip__cta" id="onboardingMissionAddShowsBtn">
                 Add Shows
@@ -9031,7 +9171,7 @@
 
         <section class="trending-section panel-rail-cyan" aria-labelledby="trendingHeading">
           <h2 id="trendingHeading" class="section-header-highlight">Trending shows</h2>
-          <p class="search-loading" id="trendingLoading" style="display: none">Loading trending…</p>
+          <p class="search-loading" id="trendingLoading" hidden aria-hidden="true">Trending</p>
           <p class="msg err" id="trendingErr"></p>
           <div class="trending-scroll-wrap">
             <div class="trending-scroll search-results" id="trendingList"></div>
@@ -9048,7 +9188,7 @@
           </div>
           <div class="fold-body" id="foldRecommendedBody" hidden>
             <p class="muted" id="recommendedHint" hidden></p>
-            <p class="search-loading" id="recommendedLoading" style="display: none">Loading suggestions…</p>
+            <p class="search-loading" id="recommendedLoading" hidden aria-hidden="true">Suggestions</p>
             <p class="msg err" id="recommendedErr"></p>
             <div class="search-results" id="recommendedList"></div>
           </div>
@@ -9115,7 +9255,7 @@
           <div class="week-guide-head">
             <div>
               <h2 class="section-header-highlight header-guide">My week</h2>
-              <p class="muted week-guide-sub" id="weekGuideRange">Loading…</p>
+              <p class="muted week-guide-sub" id="weekGuideRange">Open this tab to load your week.</p>
             </div>
             <div class="week-guide-nav">
               <button type="button" class="secondary" id="weekGuidePrev" title="Previous week">← Prev</button>
@@ -9125,7 +9265,7 @@
           </div>
           <p class="muted week-guide-tz" id="weekGuideTzNote"></p>
           <p class="week-guide-empty-banner" id="weekGuideEmpty" hidden></p>
-          <p class="search-loading" id="weekGuideLoading" hidden>Loading…</p>
+          <p class="search-loading" id="weekGuideLoading" hidden>Fetching schedule…</p>
           <p class="msg err" id="weekGuideErr" style="display: none"></p>
           <div id="weekGuideGrid" class="week-guide-grid" aria-label="Episodes by day"></div>
         </section>
@@ -9237,7 +9377,7 @@
         </div>
       </div>
 
-      <div id="tab-community" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnCommunity">
+      <template id="tpl-shell-tab-community">
         <section class="panel-rail-cyan community-root" aria-label="Community">
           <div class="community-list-view" id="communityListView">
             <div class="community-list-head">
@@ -9269,7 +9409,7 @@
               </svg>
             </button>
             <h3 class="community-subsection-heading community-subsection-heading--primary">Discussions</h3>
-            <div id="communityThreadsLoading" class="muted community-loading" hidden>Loading threads…</div>
+            <div id="communityThreadsLoading" class="muted community-loading" hidden>Fetching discussions…</div>
             <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
             <ul class="community-thread-list" id="communityThreadList"></ul>
             <h3 class="community-subsection-heading" id="communityGeneralHeading" hidden>General Discussion</h3>
@@ -9289,6 +9429,7 @@
                   <div class="community-show-hero-meta">
                     <span class="community-show-live-badge" id="communityShowLiveBadge" hidden><span aria-hidden="true">●</span> LIVE</span>
                     <span class="community-show-post-count" id="communityShowPostCount">—</span>
+                    <span class="community-hero-chat-presence" id="communityHeroChatPresence" hidden></span>
                     <label class="community-subscribe-wrap community-subscribe-wrap--hero">
                       <input type="checkbox" id="communitySubscribeCb" />
                       <span>Notify (push)</span>
@@ -9320,8 +9461,88 @@
                   </span>
                 </button>
               </div>
+              <div class="community-thread-main-row" id="communityThreadMainRow">
+                <div class="community-thread-main-col" id="communityThreadMainCol">
+              <div class="community-show-composer-shell" style="position:relative">
+                <div class="community-mention-dropdown" id="communityMentionDropdown" hidden></div>
+                <div class="community-composer-wrap" id="communityComposerWrap">
+              <p class="muted community-post-as" id="communityPostAsLine" hidden>Post as <strong id="communityPostAsName">—</strong></p>
+              <p class="muted community-guest-hint" id="communityGuestHint" hidden>
+                <a href="#" id="communityGoProfileLink">Create an account</a> (profile icon → Your profile) to post and subscribe to threads.
+              </p>
+              <p class="muted community-guest-hint" id="communityUnlockHint" hidden></p>
+              <div class="community-format-bar" id="communityFormatBar" hidden>
+                <button type="button" class="secondary community-fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>
+                <button type="button" class="secondary community-fmt-btn" data-cmd="italic" title="Italic"><i>I</i></button>
+                <button type="button" class="secondary community-fmt-btn" data-cmd="underline" title="Underline"><u>U</u></button>
+                <button type="button" class="secondary community-fmt-btn" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
+              </div>
+              <div
+                class="community-composer"
+                id="communityComposer"
+                contenteditable="true"
+                data-placeholder="What did you think of the latest episode?"
+                role="textbox"
+                aria-multiline="true"
+              ></div>
+              <div class="community-composer-meta community-composer-meta--slim" id="communityComposerEpisodeRow">
+                <span class="community-composer-ep-chip" id="communityComposerEpChip" hidden></span>
+                <select
+                  id="communityEpisodeSelect"
+                  class="community-episode-select community-episode-select--inline"
+                  hidden
+                  aria-label="Episode (optional)"
+                >
+                  <option value="">Whole show</option>
+                </select>
+                <label class="community-spoiler-label">
+                  <input type="checkbox" id="communityComposerSpoiler" />
+                  Spoiler
+                </label>
+              </div>
+              <div id="communityReplyIndicator" class="community-post-reply-indicator" hidden>
+                <div class="community-reply-indicator-main">
+                  <span>Replying to <strong id="communityReplyToName"></strong></span>
+                  <span class="community-reply-preview" id="communityReplyPreview" hidden></span>
+                </div>
+                <button type="button" class="community-reply-cancel-btn" id="communityReplyCancelBtn" aria-label="Clear reply">✕</button>
+              </div>
+              <button type="button" id="communityPostSubmitBtn">Post</button>
+              <p class="muted msg" id="communityComposerMsg" style="margin-top: 0.5rem"></p>
+                </div>
+              </div>
+              <div class="community-thread-controls">
+                <label class="community-sort-label">
+                  Sort
+                  <select id="communitySortSelect" class="community-sort-select">
+                    <option value="newest">Newest</option>
+                    <option value="oldest">Oldest</option>
+                  </select>
+                </label>
+              </div>
+              <p class="muted community-loading" id="communityPostsLoading" hidden>Fetching thread…</p>
+              <p class="err" id="communityPostsErr" style="display: none"></p>
+              <div class="community-post-feed" id="communityPostFeed"></div>
+                </div>
+                <aside class="community-live-rail" id="communityLiveRail" hidden aria-label="Watching now live chat">
+                  <div class="community-live-rail-head">
+                    <span class="community-live-rail-title" id="communityLiveRailTitle">Watching now</span>
+                    <span class="muted community-live-rail-sub" id="communityLiveRailPresence">—</span>
+                  </div>
+                  <div id="communityLiveRailWatchers" class="community-live-rail-watchers" hidden></div>
+                  <div class="community-live-rail-messages" id="communityLiveRailMessages" role="log" aria-live="polite"></div>
+                  <div class="community-live-rail-status" id="communityLiveRailStatus" hidden>
+                    <div class="community-live-rail-status-line" id="communityLiveRailStatusLine"></div>
+                    <p class="community-live-rail-typing-line" id="communityLiveRailTypingLine" hidden aria-live="polite"></p>
+                  </div>
+                  <div class="community-live-rail-compose">
+                    <input type="text" id="communityLiveRailInput" maxlength="280" placeholder="Quick reaction…" autocomplete="off" />
+                    <button type="button" class="secondary" id="communityLiveRailSendBtn">Send</button>
+                  </div>
+                </aside>
+              </div>
               <details class="community-catchup-panel" id="communityCatchUpPanel" hidden>
-                <summary class="community-catchup-summary">Spoiler-safe mode</summary>
+                <summary class="community-catchup-summary">Watch progress and blur settings</summary>
                 <div class="community-catchup-panel-inner">
                   <label class="community-catchup-binge" id="communityBingeLaterLabel">
                     <input type="checkbox" id="communityBingeLaterCb" />
@@ -9391,85 +9612,11 @@
                 <div class="community-rating-stars" id="communityEpisodeRatingStars" role="group" aria-label="Rate 1 to 5"></div>
                 <p class="muted" id="communityEpisodeRatingSummary" style="margin: 0.4rem 0 0; font-size: 0.8rem"></p>
               </section>
-              <div class="community-thread-main-row" id="communityThreadMainRow">
-                <div class="community-thread-main-col" id="communityThreadMainCol">
-              <div class="community-show-composer-shell" style="position:relative">
-                <div class="community-mention-dropdown" id="communityMentionDropdown" hidden></div>
-                <div class="community-composer-wrap" id="communityComposerWrap">
-              <p class="muted community-post-as" id="communityPostAsLine" hidden>Post as <strong id="communityPostAsName">—</strong></p>
-              <p class="muted community-guest-hint" id="communityGuestHint" hidden>
-                <a href="#" id="communityGoProfileLink">Create an account</a> (profile icon → Your profile) to post and subscribe to threads.
-              </p>
-              <p class="muted community-guest-hint" id="communityUnlockHint" hidden></p>
-              <div class="community-format-bar" id="communityFormatBar" hidden>
-                <button type="button" class="secondary community-fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>
-                <button type="button" class="secondary community-fmt-btn" data-cmd="italic" title="Italic"><i>I</i></button>
-                <button type="button" class="secondary community-fmt-btn" data-cmd="underline" title="Underline"><u>U</u></button>
-                <button type="button" class="secondary community-fmt-btn" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
-              </div>
-              <div
-                class="community-composer"
-                id="communityComposer"
-                contenteditable="true"
-                data-placeholder="What did you think of the latest episode?"
-                role="textbox"
-                aria-multiline="true"
-              ></div>
-              <div class="community-composer-meta community-composer-meta--slim" id="communityComposerEpisodeRow">
-                <span class="community-composer-ep-chip" id="communityComposerEpChip" hidden></span>
-                <select id="communityEpisodeSelect" class="community-episode-select community-episode-select--inline" hidden>
-                  <option value="">General — whole show</option>
-                </select>
-                <label class="community-spoiler-label">
-                  <input type="checkbox" id="communityComposerSpoiler" />
-                  Spoiler
-                </label>
-              </div>
-              <div id="communityReplyIndicator" class="community-post-reply-indicator" hidden>
-                <div class="community-reply-indicator-main">
-                  <span>Replying to <strong id="communityReplyToName"></strong></span>
-                  <span class="community-reply-preview" id="communityReplyPreview" hidden></span>
-                </div>
-                <button type="button" class="community-reply-cancel-btn" id="communityReplyCancelBtn" aria-label="Clear reply">✕</button>
-              </div>
-              <button type="button" id="communityPostSubmitBtn">Post</button>
-              <p class="muted msg" id="communityComposerMsg" style="margin-top: 0.5rem"></p>
-                </div>
-              </div>
-              <div class="community-thread-controls">
-                <label class="community-sort-label">
-                  Sort
-                  <select id="communitySortSelect" class="community-sort-select">
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
-                  </select>
-                </label>
-              </div>
-              <p class="muted community-loading" id="communityPostsLoading" hidden>Loading posts…</p>
-              <p class="err" id="communityPostsErr" style="display: none"></p>
-              <div class="community-post-feed" id="communityPostFeed"></div>
-                </div>
-                <aside class="community-live-rail" id="communityLiveRail" hidden aria-label="Watching now live chat">
-                  <div class="community-live-rail-head">
-                    <span class="community-live-rail-title" id="communityLiveRailTitle">Watching now</span>
-                    <span class="muted community-live-rail-sub" id="communityLiveRailPresence">—</span>
-                  </div>
-                  <div id="communityLiveRailWatchers" class="community-live-rail-watchers" hidden></div>
-                  <div class="community-live-rail-messages" id="communityLiveRailMessages" role="log" aria-live="polite"></div>
-                  <div class="community-live-rail-status" id="communityLiveRailStatus" hidden>
-                    <div class="community-live-rail-status-line" id="communityLiveRailStatusLine"></div>
-                    <p class="community-live-rail-typing-line" id="communityLiveRailTypingLine" hidden aria-live="polite"></p>
-                  </div>
-                  <div class="community-live-rail-compose">
-                    <input type="text" id="communityLiveRailInput" maxlength="280" placeholder="Quick reaction…" autocomplete="off" />
-                    <button type="button" class="secondary" id="communityLiveRailSendBtn">Send</button>
-                  </div>
-                </aside>
-              </div>
             </div>
           </div>
         </section>
-      </div>
+      </template>
+      <div id="tab-community" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnCommunity" data-shell-lazy-root="community"></div>
 
       <div id="communityNewModal" class="community-modal" hidden aria-hidden="true">
         <div class="community-modal-backdrop" data-close-community-modal></div>
@@ -9510,41 +9657,6 @@
             <button type="button" class="secondary" data-close-edit-modal>Cancel</button>
           </div>
           <p class="err" id="communityEditErr" style="display: none; margin-top: 0.5rem"></p>
-        </div>
-      </div>
-
-      <!-- old challenge create modal removed -->
-      <!-- Dead challenge create modal removed during Community UX refinement -->
-      <div id="communityChallengeCreateModal__dead" style="display:none!important" hidden>
-          <h3 class="community-modal-title">Start a watch challenge (removed)</h3>
-          <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.65rem; line-height: 1.45">
-            Pick the show everyone should finish, then the episode whose <strong>air date</strong> is the deadline (e.g. the finale you’re racing toward).
-          </p>
-          <label for="challengeCreateTitle">Title</label>
-          <input type="text" id="challengeCreateTitle" maxlength="200" placeholder="e.g. Finish Breaking Bad before the BCS finale" style="width: 100%; box-sizing: border-box; margin-bottom: 0.5rem" />
-          <label for="challengeCreateSummary">Short description <span class="muted">(optional)</span></label>
-          <textarea id="challengeCreateSummary" rows="2" maxlength="2000" placeholder="Rules or hype — optional" style="width: 100%; box-sizing: border-box; margin-bottom: 0.5rem"></textarea>
-          <label>Show to finish</label>
-          <div class="challenge-create-search-wrap">
-            <input type="search" id="challengeCreateTargetSearch" class="challenge-create-search" placeholder="Search TVMaze…" autocomplete="off" />
-            <div id="challengeCreateTargetDropdown" class="challenge-create-dropdown" hidden></div>
-          </div>
-          <p class="muted challenge-create-picked" id="challengeCreateTargetPicked">None selected</p>
-          <label>Deadline episode — show</label>
-          <div class="challenge-create-search-wrap">
-            <input type="search" id="challengeCreateDeadlineSearch" class="challenge-create-search" placeholder="Search TVMaze…" autocomplete="off" />
-            <div id="challengeCreateDeadlineDropdown" class="challenge-create-dropdown" hidden></div>
-          </div>
-          <p class="muted challenge-create-picked" id="challengeCreateDeadlinePicked">None selected</p>
-          <label for="challengeCreateDeadlineEp">Deadline episode</label>
-          <select id="challengeCreateDeadlineEp" style="width: 100%; margin-bottom: 0.65rem" disabled>
-            <option value="">Select a show first, then pick an episode with an air date</option>
-          </select>
-          <div class="community-modal-actions">
-            <button type="button" id="challengeCreateSubmitBtn">Create</button>
-            <button type="button" class="secondary" data-close-challenge-create>Cancel</button>
-          </div>
-          <p class="err" id="challengeCreateErr" style="display: none; margin-top: 0.5rem"></p>
         </div>
       </div>
 
@@ -9651,7 +9763,7 @@
         </div>
       </div>
 
-      <div id="tab-messages" class="tab-panel" role="tabpanel" aria-labelledby="dmInboxTitle">
+      <template id="tpl-shell-tab-messages">
         <section class="panel-rail-cyan dm-inbox-page-root" aria-label="Messages">
           <div class="dm-inbox-panel">
             <div id="dmInboxListView">
@@ -9848,7 +9960,8 @@
             </div>
           </div>
         </div>
-      </div>
+      </template>
+      <div id="tab-messages" class="tab-panel" role="tabpanel" aria-labelledby="dmInboxTitle" data-shell-lazy-root="messages"></div>
 
       </div>
     </main>
@@ -9870,64 +9983,121 @@
           <div class="account-prompt-actions">
             <button type="button" id="accountPromptCreate">Create account</button>
             <button type="button" class="secondary" id="accountPromptSignIn">Sign in</button>
+            <button type="button" class="secondary google-oauth-start-btn" data-google-login hidden>
+              Continue with Google
+            </button>
             <button type="button" class="secondary" id="accountPromptGuest">Continue as guest</button>
           </div>
         </div>
         <div id="accountPromptStepRegister" hidden>
-          <p class="account-prompt-lead">Choose a username and password (8+ characters).</p>
+          <p class="account-prompt-lead">
+            Sign up with your email (used to sign in) and a public username for Community and your profile.
+          </p>
+          <label for="apRegEmail">Email</label>
+          <input id="apRegEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" />
           <label for="apRegUsername">Username</label>
           <input id="apRegUsername" type="text" autocomplete="username" maxlength="32" placeholder="3–32 letters, numbers, . _ -" />
+          <p class="account-prompt-field-hint">Username is public — others see it as @yourname in Community.</p>
           <label for="apRegPassword">Password</label>
-          <input id="apRegPassword" type="password" autocomplete="new-password" minlength="8" />
+          <input id="apRegPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
+          <p class="account-prompt-field-hint">8–128 characters, including at least one letter.</p>
           <label for="apRegPassword2">Confirm password</label>
-          <input id="apRegPassword2" type="password" autocomplete="new-password" minlength="8" />
+          <input id="apRegPassword2" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
           <div class="account-prompt-row">
             <button type="button" id="apRegSubmit">Create account</button>
             <button type="button" class="secondary" id="apRegBack">Back</button>
           </div>
+          <button type="button" class="secondary google-oauth-start-btn" data-google-login hidden style="width: 100%; margin-top: 0.5rem">
+            Continue with Google
+          </button>
         </div>
         <div id="accountPromptStepLogin" hidden>
-          <p class="account-prompt-lead">Sign in with your existing username.</p>
-          <label for="apLoginUsername">Username</label>
-          <input id="apLoginUsername" type="text" autocomplete="username" />
+          <p class="account-prompt-lead">Sign in with your email and password. Older accounts can use their username instead of email.</p>
+          <label for="apLoginEmail">Email or username</label>
+          <input
+            id="apLoginEmail"
+            type="text"
+            autocomplete="username"
+            inputmode="email"
+            placeholder="you@example.com or username"
+          />
           <label for="apLoginPassword">Password</label>
           <input id="apLoginPassword" type="password" autocomplete="current-password" />
+          <p class="muted" style="margin: 0.35rem 0 0; font-size: 0.82rem">
+            <button type="button" class="secondary" id="apForgotPwBtn" style="font-size: inherit; padding: 0.2rem 0.45rem">
+              Forgot password?
+            </button>
+          </p>
           <div class="account-prompt-row">
             <button type="button" id="apLoginSubmit">Sign in</button>
             <button type="button" class="secondary" id="apLoginBack">Back</button>
           </div>
+          <button type="button" class="secondary google-oauth-start-btn" data-google-login hidden style="width: 100%; margin-top: 0.5rem">
+            Continue with Google
+          </button>
         </div>
         <p class="msg err" id="accountPromptErr" style="display: none; margin-top: 0.65rem"></p>
       </div>
     </div>
 
     <div
-      class="modal-backdrop quickstart-help-backdrop"
-      id="quickStartHelpModal"
+      class="modal-backdrop account-prompt-backdrop"
+      id="passwordResetModal"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="quickStartHelpHeading"
-      aria-describedby="welcomeSheetSubtitle"
+      aria-labelledby="passwordResetHeading"
+      hidden
     >
-      <div class="modal-panel quickstart-help-panel welcome-sheet-panel" id="welcomeSheetPanel">
-        <div class="welcome-sheet-head">
-          <div class="welcome-sheet-head-text">
-            <h3 id="quickStartHelpHeading" class="welcome-sheet-title">Welcome to AirAlert</h3>
-            <p id="welcomeSheetSubtitle" class="welcome-sheet-lead">
-              Track what’s airing, mark episodes watched, and unlock the full experience by adding 3 shows.
-            </p>
+      <div class="modal-panel account-prompt-panel" role="document">
+        <h3 id="passwordResetHeading">Reset password</h3>
+        <div id="passwordResetStepRequest">
+          <p class="account-prompt-lead">
+            Enter the email on your account. If it matches a password-based login, we’ll email a reset link (expires in about an hour).
+          </p>
+          <label for="pwResetEmail">Email</label>
+          <input id="pwResetEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" />
+          <p class="muted" id="pwResetRequestDone" hidden style="margin-top: 0.65rem; font-size: 0.84rem">
+            If that email is registered with a password, check your inbox. Otherwise, try Google sign-in or create an account.
+          </p>
+          <p class="msg err" id="pwResetRequestErr" style="display: none; margin-top: 0.5rem"></p>
+          <div class="account-prompt-row" style="margin-top: 0.75rem">
+            <button type="button" id="pwResetRequestSubmit">Send link</button>
+            <button type="button" class="secondary" id="passwordResetModalClose">Close</button>
           </div>
         </div>
-        <div class="welcome-sheet-body">
-          <ul class="welcome-sheet-bullets">
-            <li>Add shows to personalize your app</li>
-            <li>Check <strong>My Week</strong> for what’s airing</li>
-            <li>Use <strong>Tasks</strong> to stay caught up</li>
-          </ul>
+        <div id="passwordResetStepComplete" hidden>
+          <p class="account-prompt-lead">Choose a new password (at least 8 characters, one letter).</p>
+          <label for="pwResetNew1">New password</label>
+          <input id="pwResetNew1" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
+          <label for="pwResetNew2">Confirm password</label>
+          <input id="pwResetNew2" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
+          <p class="msg err" id="pwResetCompleteErr" style="display: none; margin-top: 0.5rem"></p>
+          <div class="account-prompt-row" style="margin-top: 0.75rem">
+            <button type="button" id="pwResetCompleteSubmit">Save new password</button>
+            <button type="button" class="secondary" id="passwordResetModalClose2">Cancel</button>
+          </div>
         </div>
-        <div class="welcome-sheet-actions">
-          <button type="button" class="secondary" id="welcomeSkipBtn">Skip</button>
-          <button type="button" id="welcomeGetStartedBtn">Get Started</button>
+      </div>
+    </div>
+
+    <div
+      class="modal-backdrop account-prompt-backdrop"
+      id="googleUsernameModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="googleUsernameHeading"
+      hidden
+    >
+      <div class="modal-panel account-prompt-panel">
+        <h3 id="googleUsernameHeading">Choose your public username</h3>
+        <p class="account-prompt-lead">
+          You’re signed in with Google. Pick a unique handle — others will see you as @name in Community and messages.
+        </p>
+        <label for="googleUsernameInput">Username</label>
+        <input id="googleUsernameInput" type="text" autocomplete="username" maxlength="32" placeholder="3–32 letters, numbers, . _ -" />
+        <p class="msg err" id="googleUsernameErr" style="display: none; margin-top: 0.5rem"></p>
+        <div class="account-prompt-row" style="margin-top: 0.75rem">
+          <button type="button" id="googleUsernameSave">Save and continue</button>
         </div>
       </div>
     </div>
@@ -10106,165 +10276,225 @@
         </div>
         <div class="profile-edit-modal-shell">
           <div class="modal-body-scroll profile-edit-scroll" id="appProfileModalBody">
-            <section class="profile-identity profile-edit-section panel-rail-cyan" aria-labelledby="profilePhotoNameHeading">
-              <h2 id="profilePhotoNameHeading" class="section-header-highlight profile-identity-heading profile-edit-section-title">Photo &amp; name</h2>
-              <div class="profile-identity-inner">
-                <div class="profile-avatar-wrap">
-                  <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden />
-                  <button type="button" class="profile-avatar-btn" id="profileAvatarBtn" aria-label="Change profile photo">
-                    <img id="profileAvatarImg" alt="" width="88" height="88" hidden decoding="async" />
-                    <span id="profileAvatarPlaceholder" class="profile-avatar-placeholder" aria-hidden="true">+</span>
+            <div class="profile-edit-stack">
+              <div class="profile-edit-top-grid">
+                <section class="profile-edit-card profile-edit-card--basics" aria-labelledby="profileBasicsHeading">
+                  <h2 id="profileBasicsHeading" class="profile-edit-card-title">Profile basics</h2>
+                  <p class="profile-edit-card-lead muted">Photo and name shown across the app.</p>
+                  <div class="profile-identity">
+                  <div class="profile-identity-inner">
+                    <div class="profile-avatar-wrap">
+                      <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden />
+                      <button type="button" class="profile-avatar-btn" id="profileAvatarBtn" aria-label="Change profile photo">
+                        <img id="profileAvatarImg" alt="" width="88" height="88" hidden decoding="async" />
+                        <span id="profileAvatarPlaceholder" class="profile-avatar-placeholder" aria-hidden="true">+</span>
+                      </button>
+                      <p class="muted profile-avatar-hint">Tap the circle to upload or change. When a photo is shown, tap it to view larger.</p>
+                    </div>
+                    <div class="profile-identity-fields">
+                      <label for="displayName">Display name</label>
+                      <input id="displayName" type="text" maxlength="120" placeholder="Your full name" autocomplete="name" />
+                      <div class="profile-readonly-row">
+                        <span class="profile-readonly-label">Username</span>
+                        <span id="profileUsernameDisplay" class="profile-readonly-value">—</span>
+                      </div>
+                      <div class="profile-readonly-row">
+                        <span class="profile-readonly-label">Member since</span>
+                        <span id="profileMemberSince" class="profile-readonly-value">—</span>
+                      </div>
+                      <div class="profile-readonly-row profile-role-badge-row">
+                        <span class="profile-readonly-label">Role</span>
+                        <span id="profileRoleBadge" class="role-badge" hidden></span>
+                      </div>
+                      <div class="profile-photo-actions">
+                        <button type="button" class="secondary profile-remove-photo-btn" id="removeAvatarBtn">Remove photo</button>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
+                  <p class="muted msg profile-card-msg" id="profileInfoMsg"></p>
+                </section>
+
+                <section class="profile-edit-card profile-edit-card--about" aria-labelledby="profileAboutCardHeading">
+                  <h2 id="profileAboutCardHeading" class="profile-edit-card-title">About you</h2>
+                  <p class="profile-edit-card-lead muted">Optional — stored on your account. Clear a field and save to remove it.</p>
+                  <label for="profileAboutMe">Bio</label>
+                  <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="A few words about you…"></textarea>
+                  <div class="profile-form-row profile-form-row--split">
+                    <div>
+                      <label for="profileAge">Age</label>
+                      <input id="profileAge" type="number" min="1" max="120" placeholder="—" inputmode="numeric" />
+                    </div>
+                    <div>
+                      <label for="profileSex">Sex</label>
+                      <select id="profileSex" aria-label="Sex">
+                        <option value="">Prefer not to say</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+                  <label for="profileFavoriteShow">Favorite show</label>
+                  <input id="profileFavoriteShow" type="text" maxlength="200" placeholder="e.g. The Bear, Doctor Who…" autocomplete="off" />
+                  <p class="muted msg profile-card-msg" id="profileAboutMsg"></p>
+                </section>
+              </div>
+
+              <section
+                class="profile-edit-card profile-edit-card--share profile-share-card-section"
+                id="profileShareCardSection"
+                hidden
+                aria-labelledby="profileShareCardHeading"
+              >
+                <h2 id="profileShareCardHeading" class="profile-edit-card-title header-cyan-glow">Share your stats</h2>
+                <p class="profile-edit-card-lead muted">
+                  Square PNG for Instagram, X, or anywhere — your episode and show totals, Airalert-branded.
+                </p>
+                <p class="profile-share-preview-wrap" id="profileSharePreviewWrap" hidden>
+                  <canvas id="profileShareCanvas" width="1080" height="1080" class="profile-share-canvas"></canvas>
+                </p>
+                <div class="profile-share-actions">
+                  <button type="button" id="profileShareCardGenerateBtn">Preview card</button>
+                  <button type="button" class="secondary" id="profileShareCardDownloadBtn" disabled>Download PNG</button>
+                  <button type="button" class="secondary" id="profileShareCardShareBtn" disabled>Share…</button>
+                </div>
+                <p class="muted msg profile-card-msg" id="profileShareCardMsg"></p>
+              </section>
+
+              <section class="profile-edit-card profile-edit-card--account" aria-labelledby="profileAccountHeading">
+                <h2 id="profileAccountHeading" class="profile-edit-card-title">Account</h2>
+                <p class="profile-edit-card-lead muted">
+                  Create an account with your email (to sign in), a public username, and a password. Or stay a guest — your list
+                  stays on this device only.
+                </p>
+                <div id="accountGuest">
+                  <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn" data-google-login hidden style="margin-bottom: 0.65rem">
+                    Continue with Google
                   </button>
-                  <p class="muted profile-avatar-hint">Tap the circle to upload or change. When a photo is shown, tap it to view larger.</p>
-                </div>
-                <div class="profile-identity-fields">
-                  <label for="displayName">Display name</label>
-                  <input id="displayName" type="text" maxlength="120" placeholder="Your full name" autocomplete="name" />
-                  <div class="profile-readonly-row">
-                    <span class="profile-readonly-label">Username</span>
-                    <span id="profileUsernameDisplay" class="profile-readonly-value">—</span>
+                  <div class="profile-account-grid profile-account-grid--register profile-account-register-block">
+                    <div>
+                      <label for="regEmail">Email</label>
+                      <input id="regEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" />
+                    </div>
+                    <div>
+                      <label for="regUsername">Username (public)</label>
+                      <input id="regUsername" type="text" autocomplete="username" maxlength="32" placeholder="3–32 chars: letters, numbers, . _ -" />
+                      <p class="muted" style="font-size: 0.76rem; margin: 0.25rem 0 0; line-height: 1.35">
+                        Shown as @handle in Community — not the same as your email.
+                      </p>
+                    </div>
+                    <div>
+                      <label for="regPassword">Password</label>
+                      <input id="regPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
+                      <p class="muted" style="font-size: 0.76rem; margin: 0.25rem 0 0">8–128 characters, at least one letter.</p>
+                    </div>
+                    <div>
+                      <label for="regPassword2">Confirm password</label>
+                      <input id="regPassword2" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
+                    </div>
                   </div>
-                  <div class="profile-readonly-row">
-                    <span class="profile-readonly-label">Member since</span>
-                    <span id="profileMemberSince" class="profile-readonly-value">—</span>
+                  <button type="button" class="profile-account-primary-btn" id="regBtn">Create account</button>
+                  <p class="muted profile-account-divider-label">Already have an account?</p>
+                  <div class="profile-account-login-row">
+                    <div>
+                      <label for="loginEmail">Email or username</label>
+                      <input
+                        id="loginEmail"
+                        type="text"
+                        autocomplete="username"
+                        inputmode="email"
+                        placeholder="you@example.com or username"
+                      />
+                    </div>
+                    <div>
+                      <label for="loginPassword">Password</label>
+                      <input id="loginPassword" type="password" autocomplete="current-password" />
+                    </div>
                   </div>
-                  <div class="profile-readonly-row profile-role-badge-row">
-                    <span class="profile-readonly-label">Role</span>
-                    <span id="profileRoleBadge" class="role-badge" hidden></span>
+                  <p class="muted" style="margin: 0.35rem 0 0; font-size: 0.82rem">
+                    <button type="button" class="secondary" id="profileForgotPwBtn" style="font-size: inherit; padding: 0.2rem 0.45rem">
+                      Forgot password?
+                    </button>
+                  </p>
+                  <button type="button" class="secondary profile-account-primary-btn" id="loginBtn">Sign in</button>
+                  <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn" data-google-login hidden style="margin-top: 0.5rem">
+                    Continue with Google
+                  </button>
+                </div>
+                <div id="accountSignedIn" hidden>
+                  <p class="profile-account-signed-lead">
+                    Signed in as <strong id="accountUsernameLabel"></strong>
+                  </p>
+                  <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">
+                    Use <strong>Sign out</strong> in the profile menu or in Session below to end this session on this device.
+                  </p>
+                  <div id="accountEmailVerifyBanner" class="account-email-verify" hidden>
+                    <p class="profile-edit-card-title" style="margin-top: 0.35rem">Verify your email</p>
+                    <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">
+                      We sent a link when you registered or changed email — check your inbox and spam. You can keep using AirAlert while it’s pending.
+                    </p>
+                    <button type="button" class="secondary profile-account-primary-btn" id="acctResendVerifyBtn">
+                      Resend verification email
+                    </button>
                   </div>
-                  <div class="profile-photo-actions">
-                    <button type="button" class="secondary profile-remove-photo-btn" id="removeAvatarBtn">Remove photo</button>
+                  <div id="accountEmailUpgrade" class="account-email-upgrade" hidden>
+                    <p class="profile-edit-card-title" style="margin-top: 0.35rem">Add an email (optional)</p>
+                    <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">
+                      Link an address to this account for recovery and email sign-in. Your username and password keep working until you add one.
+                    </p>
+                    <div class="profile-account-grid profile-account-pw-grid">
+                      <div>
+                        <label for="acctUpgradeEmail">Email</label>
+                        <input id="acctUpgradeEmail" type="email" autocomplete="email" />
+                      </div>
+                      <div>
+                        <label for="acctUpgradeCurPw">Current password</label>
+                        <input id="acctUpgradeCurPw" type="password" autocomplete="current-password" />
+                      </div>
+                    </div>
+                    <button type="button" class="secondary profile-account-primary-btn" id="acctSaveEmailBtn">Save email</button>
+                    <p class="msg err profile-card-msg" id="acctUpgradeEmailErr" hidden></p>
                   </div>
-                  <p class="muted msg" id="profileInfoMsg" style="margin-top: 0.55rem"></p>
+                  <div id="accountChangePassword" class="account-change-pw" hidden>
+                    <p class="profile-edit-card-title" style="margin-top: 0.35rem">Change password</p>
+                    <div class="profile-account-grid profile-account-pw-grid">
+                      <div>
+                        <label for="acctCurPw">Current password</label>
+                        <input id="acctCurPw" type="password" autocomplete="current-password" />
+                      </div>
+                      <div>
+                        <label for="acctNewPw">New password</label>
+                        <input id="acctNewPw" type="password" autocomplete="new-password" minlength="8" />
+                      </div>
+                      <div>
+                        <label for="acctNewPw2">Confirm new</label>
+                        <input id="acctNewPw2" type="password" autocomplete="new-password" minlength="8" />
+                      </div>
+                    </div>
+                    <button type="button" class="secondary profile-account-primary-btn" id="acctUpdatePwBtn">Update password</button>
+                  </div>
                 </div>
-              </div>
-              <h3 id="profileAboutHeading" class="section-header-highlight header-magenta profile-about-inline-heading">About you</h3>
-              <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.85rem; line-height: 1.45">
-                Optional — stored on your account. You can clear any field by emptying it and saving.
-              </p>
-              <label for="profileAboutMe">About me</label>
-              <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="A few words about you…"></textarea>
-              <div class="profile-form-row profile-form-row--split">
-                <div>
-                  <label for="profileAge">Age</label>
-                  <input id="profileAge" type="number" min="1" max="120" placeholder="—" inputmode="numeric" />
-                </div>
-                <div>
-                  <label for="profileSex">Sex</label>
-                  <select id="profileSex" aria-label="Sex">
-                    <option value="">Prefer not to say</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-              </div>
-              <label for="profileFavoriteShow" style="margin-top: 0.75rem">Favorite show</label>
-              <input id="profileFavoriteShow" type="text" maxlength="200" placeholder="e.g. The Bear, Doctor Who…" autocomplete="off" />
-              <p class="muted msg" id="profileAboutMsg" style="margin-top: 0.65rem"></p>
-            </section>
+                <p class="msg err profile-card-msg" id="accountErr"></p>
+              </section>
 
-          <section
-            class="panel-rail-cyan profile-share-card-section"
-            id="profileShareCardSection"
-            hidden
-            aria-labelledby="profileShareCardHeading"
-          >
-            <h2 id="profileShareCardHeading" class="section-header-highlight header-cyan-glow">Share your stats</h2>
-            <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.65rem; line-height: 1.45">
-              Square PNG for Instagram, X, or anywhere — your episode and show totals, Airalert-branded.
-            </p>
-            <p class="profile-share-preview-wrap" id="profileSharePreviewWrap" hidden>
-              <canvas id="profileShareCanvas" width="1080" height="1080" class="profile-share-canvas"></canvas>
-            </p>
-            <div class="profile-share-actions">
-              <button type="button" id="profileShareCardGenerateBtn">Preview card</button>
-              <button type="button" class="secondary" id="profileShareCardDownloadBtn" disabled>Download PNG</button>
-              <button type="button" class="secondary" id="profileShareCardShareBtn" disabled>Share…</button>
-            </div>
-            <p class="muted msg" id="profileShareCardMsg" style="margin-top: 0.5rem"></p>
-          </section>
-
-          <section class="panel-rail-magenta" aria-label="Account">
-            <button type="button" class="fold-toggle fold-toggle-magenta" id="foldAccountBtn" aria-expanded="false" aria-controls="foldAccountBody">
-              <span class="fold-title">Account</span>
-              <span class="fold-chev" aria-hidden="true">▼</span>
-            </button>
-            <div class="fold-body" id="foldAccountBody" hidden>
-              <p class="muted" style="margin-top: 0; font-size: 0.85rem">
-                A username and password tie this browser session to your saved shows and tasks. You can still use the app as a
-                guest without an account (list stays on this device only).
-              </p>
-              <div id="accountGuest">
-                <div class="profile-account-grid profile-account-grid--register" style="margin-top: 0.5rem">
-                  <div>
-                    <label for="regUsername">New username</label>
-                    <input id="regUsername" type="text" autocomplete="username" maxlength="32" placeholder="3–32 chars: letters, numbers, . _ -" />
-                  </div>
-                  <div>
-                    <label for="regPassword">Password</label>
-                    <input id="regPassword" type="password" autocomplete="new-password" minlength="8" />
-                  </div>
-                  <div>
-                    <label for="regPassword2">Confirm password</label>
-                    <input id="regPassword2" type="password" autocomplete="new-password" minlength="8" />
-                  </div>
-                </div>
-                <button type="button" id="regBtn" style="margin-top: 0.65rem">Create account</button>
-                <p class="muted" style="margin: 1rem 0 0.35rem; font-size: 0.82rem">Already have an account?</p>
-                <div class="profile-account-login-row">
-                  <div>
-                    <label for="loginUsername">Username</label>
-                    <input id="loginUsername" type="text" autocomplete="username" />
-                  </div>
-                  <div>
-                    <label for="loginPassword">Password</label>
-                    <input id="loginPassword" type="password" autocomplete="current-password" />
-                  </div>
-                </div>
-                <button type="button" id="loginBtn" style="margin-top: 0.65rem">Sign in</button>
-              </div>
-              <div id="accountSignedIn" hidden>
-                <p style="margin-top: 0.35rem">
-                  Signed in as <strong id="accountUsernameLabel"></strong>
+              <section
+                id="profileSignOutSection"
+                class="profile-edit-card profile-edit-card--session profile-signout-section"
+                hidden
+                aria-labelledby="profileSessionHeading"
+              >
+                <h2 id="profileSessionHeading" class="profile-edit-card-title">Session</h2>
+                <p class="profile-edit-card-lead muted">
+                  Sign out ends your logged-in session on this browser. You’ll get a fresh guest list unless you sign in again.
                 </p>
-                <p class="muted" style="font-size: 0.8rem; margin-top: 0.35rem">
-                  Use <strong>Sign out</strong> in the profile menu or below to end this session on this device. You can sign in again anytime.
-                </p>
-                <div id="accountChangePassword" class="account-change-pw" hidden>
-                  <strong style="font-size: 0.85rem">Change password</strong>
-                  <div class="profile-account-grid" style="margin-top: 0.45rem">
-                    <div>
-                      <label for="acctCurPw">Current password</label>
-                      <input id="acctCurPw" type="password" autocomplete="current-password" />
-                    </div>
-                    <div>
-                      <label for="acctNewPw">New password</label>
-                      <input id="acctNewPw" type="password" autocomplete="new-password" minlength="8" />
-                    </div>
-                    <div>
-                      <label for="acctNewPw2">Confirm new</label>
-                      <input id="acctNewPw2" type="password" autocomplete="new-password" minlength="8" />
-                    </div>
-                  </div>
-                  <button type="button" class="secondary" id="acctUpdatePwBtn" style="margin-top: 0.5rem">Update password</button>
-                </div>
-              </div>
-              <p class="msg err" id="accountErr" style="margin-top: 0.5rem"></p>
+                <button type="button" class="secondary profile-session-signout-btn" id="signOutAccountBtn">Sign out</button>
+              </section>
             </div>
-          </section>
-
-          <section id="profileSignOutSection" class="panel-rail-blue profile-signout-section" hidden aria-label="Sign out">
-            <h2 class="section-header-highlight header-blue">Session</h2>
-            <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.75rem; line-height: 1.45">
-              Sign out ends your logged-in session on this browser. You’ll get a fresh guest list unless you sign in again.
-            </p>
-            <button type="button" class="secondary" id="signOutAccountBtn">Sign out</button>
-          </section>
-        </div>
+          </div>
         <div class="profile-edit-sticky" role="region" aria-label="Save profile changes">
-          <button type="button" class="profile-edit-save-primary" id="saveProfileInfoBtn">Save name &amp; photo</button>
-          <button type="button" class="secondary profile-edit-save-secondary" id="saveProfileAboutBtn">Save about you</button>
+          <button type="button" class="profile-edit-save-primary" id="saveProfileAllBtn">Save profile</button>
+          <p class="muted profile-edit-sticky-hint" id="profileStickyHint">Saves display name, photo, bio, and profile fields.</p>
         </div>
       </div>
     </div>
@@ -10281,15 +10511,15 @@
           <button type="button" class="modal-close secondary" id="modalClose" aria-label="Close">×</button>
         </div>
         <div class="modal-next-pinned" id="modalNextPinned" hidden></div>
-        <div class="modal-body-scroll" id="modalBody">
-          <p class="muted">Loading…</p>
-        </div>
+        <div class="modal-body-scroll" id="modalBody"></div>
       </div>
     </div>
 
     <script>
       const LS_USER = "airalert_user_id";
       const LS_GUEST_PROMPT = "airalert_guest_prompt_dismissed";
+      /** Set when user opens reset flow from email `#airalert_pwreset=…` until password saved or modal closed. */
+      let pendingPasswordResetToken = null;
       /** Per-user last-seen activity inbox time (ms), vs GET /activity-notifications only (human/social rows). */
       const LS_ACTIVITY_ACK_MS = "airalert_activity_ack_ms_";
       /** Per-user: user dismissed the in-page Add-tab onboarding strip (local device). */
@@ -10355,12 +10585,31 @@
         }
       }
 
+      const LS_EMAIL_UPGRADE_HINT_MS = "airalert_email_upgrade_hint_last_ms";
+      const EMAIL_UPGRADE_HINT_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
+
+      /** After username/password sign-in: gentle nudge toward Profile → Account (throttled). */
+      function maybePromptLegacyEmailUpgrade(me) {
+        if (!me || me.needsEmailUpgrade !== true) return;
+        try {
+          const last = Number(localStorage.getItem(LS_EMAIL_UPGRADE_HINT_MS) || "0");
+          if (Date.now() - last < EMAIL_UPGRADE_HINT_COOLDOWN_MS) return;
+          localStorage.setItem(LS_EMAIL_UPGRADE_HINT_MS, String(Date.now()));
+        } catch {
+          /* ignore */
+        }
+        showToast(
+          "Optional: add an email under Profile → Account so you can recover this login. You can keep using your username for now.",
+        );
+      }
+
       function updateOnboardingMissionStrip(me) {
         const strip = document.getElementById("onboardingMissionStrip");
         const fill = document.getElementById("onboardingMissionProgressFill");
         const countEl = document.getElementById("onboardingMissionCount");
         const hintEl = document.getElementById("onboardingMissionHint");
         const bar = document.getElementById("onboardingMissionProgress");
+        const guestNote = document.getElementById("onboardingMissionGuestNote");
         if (!strip || !fill || !countEl || !bar) return;
         const show =
           me &&
@@ -10369,6 +10618,7 @@
           isLowShowUser(me) &&
           !isOnboardingStripDismissed(me.id);
         strip.hidden = !show;
+        if (guestNote) guestNote.hidden = !show || accountIsRegistered(me);
         if (!show) return;
         const n = Math.min(ACTIVATION_MIN_SHOWS, Math.max(0, Number(me.subscribedShowCount) || 0));
         const pct = (n / ACTIVATION_MIN_SHOWS) * 100;
@@ -10488,7 +10738,6 @@
       }
 
       function openOnboardingSetupModal(me) {
-        closeQuickStartHelpModal({ skipFocusRestore: true });
         closeAppSettingsModal();
         populateOnboardingSetupForm(me);
         const el = document.getElementById("onboardingSetupModal");
@@ -10563,7 +10812,7 @@
         results.innerHTML = "";
         const loading = document.createElement("p");
         loading.className = "muted";
-        loading.textContent = "Loading picks…";
+        loading.textContent = "Fetching picks…";
         results.appendChild(loading);
         try {
           const data = await api("/api/onboarding/starter-pack/" + encodeURIComponent(slug));
@@ -10929,41 +11178,20 @@
         } catch {}
       }
 
-      async function saveProfileInfo(userId) {
-        const msg = document.getElementById("profileInfoMsg");
-        if (msg) {
-          msg.textContent = "";
-          msg.classList.remove("err");
+      async function saveProfileAll(userId) {
+        const infoMsg = document.getElementById("profileInfoMsg");
+        const aboutMsg = document.getElementById("profileAboutMsg");
+        if (infoMsg) {
+          infoMsg.textContent = "";
+          infoMsg.classList.remove("err");
         }
-        try {
-          const body = { displayName: document.getElementById("displayName").value.trim() };
-          if (profileAvatarDirty) {
-            body.avatarDataUrl = profileAvatarPending === null ? null : profileAvatarPending;
-          }
-          await api("/api/users/" + userId, {
-            method: "PATCH",
-            body: JSON.stringify(body),
-          });
-          await loadUser(userId);
-          if (msg) msg.textContent = "Saved.";
-          showToast("Profile updated");
-        } catch (e) {
-          if (msg) {
-            msg.textContent = e.message || "Could not save";
-            msg.classList.add("err");
-          }
-          showToast(e.message || "Could not save");
-        }
-      }
-
-      async function saveProfileAbout(userId) {
-        const msg = document.getElementById("profileAboutMsg");
-        if (msg) {
-          msg.textContent = "";
-          msg.classList.remove("err");
+        if (aboutMsg) {
+          aboutMsg.textContent = "";
+          aboutMsg.classList.remove("err");
         }
         const ageRaw = document.getElementById("profileAge").value.trim();
         const body = {
+          displayName: document.getElementById("displayName").value.trim(),
           aboutMe: document.getElementById("profileAboutMe").value,
           sex: document.getElementById("profileSex").value || null,
           favoriteShow: document.getElementById("profileFavoriteShow").value.trim() || null,
@@ -10973,6 +11201,7 @@
         } else {
           const n = Number(ageRaw);
           if (!Number.isInteger(n) || n < 1 || n > 120) {
+            const msg = aboutMsg || infoMsg;
             if (msg) {
               msg.textContent = "Age must be a whole number from 1–120, or leave blank.";
               msg.classList.add("err");
@@ -10981,20 +11210,26 @@
           }
           body.age = n;
         }
+        if (profileAvatarDirty) {
+          body.avatarDataUrl = profileAvatarPending === null ? null : profileAvatarPending;
+        }
         try {
           await api("/api/users/" + encodeURIComponent(userId), {
             method: "PATCH",
             body: JSON.stringify(body),
           });
           await loadUser(userId);
-          if (msg) msg.textContent = "Saved.";
-          showToast("About you saved");
+          profileAvatarDirty = false;
+          if (infoMsg) infoMsg.textContent = "Saved.";
+          if (aboutMsg) aboutMsg.textContent = "";
+          showToast("Profile saved");
         } catch (e) {
-          if (msg) {
-            msg.textContent = e.message || "Could not save";
-            msg.classList.add("err");
+          const m = e.message || "Could not save";
+          if (infoMsg) {
+            infoMsg.textContent = m;
+            infoMsg.classList.add("err");
           }
-          showToast(e.message || "Could not save");
+          showToast(m);
         }
       }
 
@@ -11348,8 +11583,11 @@
           errEl.style.display = "none";
           errEl.textContent = "";
         }
-        if (loading) loading.hidden = false;
-        if (rangeEl) rangeEl.textContent = "Loading…";
+        if (loading) {
+          loading.hidden = false;
+          loading.textContent = "Fetching schedule…";
+        }
+        if (rangeEl) rangeEl.textContent = "Fetching this week…";
         try {
           const qs = weekGuideWeekStart ? "?weekStart=" + encodeURIComponent(weekGuideWeekStart) : "";
           const data = await api("/api/users/" + encodeURIComponent(userId) + "/week-guide" + qs);
@@ -11891,9 +12129,10 @@
         appUserId = id;
         await loadUser(id);
         await loadSubs(id);
-        loadRecommended(id);
         loadTrendingShows(id);
-        await loadTasks(id);
+        const rList = document.getElementById("recommendedList");
+        if (rList) rList.innerHTML = "";
+        if (getActiveTabName() === "tasks") await loadTasks(id);
         try {
           const me = await api("/api/users/me");
           applyMeToUI(me);
@@ -13364,7 +13603,7 @@
         if (tv) tv.hidden = false;
         syncDmInboxSplitLayout();
         syncDmInboxActiveRowHighlight();
-        if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading…</p>";
+        if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Fetching…</p>";
         try {
           const data = await api("/api/dm/threads/" + encodeURIComponent(threadId) + "/messages?limit=80");
           const msgs = data.messages || [];
@@ -13447,7 +13686,7 @@
         if (tv) tv.hidden = false;
         syncDmInboxSplitLayout();
         syncDmInboxActiveRowHighlight();
-        if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading…</p>";
+        if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Fetching…</p>";
         try {
           const detail = await api("/api/dm/groups/" + encodeURIComponent(groupId));
           if (titleG) titleG.textContent = detail.name || titleLabel || "Group";
@@ -13743,18 +13982,32 @@
         else syncProfileIdentityFromUser(null);
         const signOutSec = document.getElementById("profileSignOutSection");
         if (signOutSec) {
-          signOutSec.hidden = !(me && (me.username || truthyBit(me.hasPassword)));
+          signOutSec.hidden = !(me && me.authProvider && me.authProvider !== "guest");
         }
         const guest = document.getElementById("accountGuest");
         const signed = document.getElementById("accountSignedIn");
         if (guest && signed) {
-          if (me && (me.username || truthyBit(me.hasPassword))) {
+          if (me && me.authProvider && me.authProvider !== "guest") {
             guest.hidden = true;
             signed.hidden = false;
             const lab = document.getElementById("accountUsernameLabel");
-            if (lab) lab.textContent = me.username || "account";
+            if (lab) {
+              const un = me.username && String(me.username).trim();
+              lab.textContent = un ? "@" + String(me.username).trim() : me.email && String(me.email).trim() ? String(me.email).trim() : "account";
+            }
             const chPw = document.getElementById("accountChangePassword");
             if (chPw) chPw.hidden = !truthyBit(me.hasPassword);
+            const verifyBn = document.getElementById("accountEmailVerifyBanner");
+            if (verifyBn) {
+              const showV =
+                me &&
+                me.authProvider === "local" &&
+                String(me.email || "").trim() &&
+                !me.emailVerified;
+              verifyBn.hidden = !showV;
+            }
+            const emailUp = document.getElementById("accountEmailUpgrade");
+            if (emailUp) emailUp.hidden = me.needsEmailUpgrade !== true;
           } else {
             guest.hidden = false;
             signed.hidden = true;
@@ -13813,8 +14066,8 @@
           .join("");
       }
 
-      function formatAdminLastLogin(iso) {
-        if (iso == null || iso === "") return "Never";
+      function formatAdminDisplayTime(iso) {
+        if (iso == null || iso === "") return null;
         try {
           const d = new Date(iso);
           if (Number.isNaN(d.getTime())) return String(iso);
@@ -13822,6 +14075,14 @@
         } catch {
           return String(iso);
         }
+      }
+      function formatAdminLastLogin(iso) {
+        const t = formatAdminDisplayTime(iso);
+        return t == null ? "Never" : t;
+      }
+      function formatAdminLastActivity(iso) {
+        const t = formatAdminDisplayTime(iso);
+        return t == null ? "\u2014" : t;
       }
 
       async function loadAdminOverview() {
@@ -13885,7 +14146,7 @@
           accountsHost.innerHTML = "";
 
           async function fillAdminAccountPanel(panel, u, guest) {
-            panel.innerHTML = "Loading…";
+            panel.innerHTML = "Fetching…";
             try {
               const d = await api("/api/admin/users/" + encodeURIComponent(u.id));
               const subs = d.subscriptions || [];
@@ -13896,6 +14157,24 @@
                 "<div><strong>User ID</strong><br><span class=\"mono\" style=\"font-size:0.7rem;word-break:break-all\">" +
                 escapeHtml(u.id) +
                 "</span></div>" +
+                "<div><strong>Last login</strong><br>" +
+                escapeHtml(formatAdminLastLogin(ua.lastLoginAt)) +
+                "</div>" +
+                "<div><strong>Last active</strong><br>" +
+                escapeHtml(formatAdminLastActivity(ua.lastActivityAt)) +
+                "</div>" +
+                "<div><strong>Email</strong><br>" +
+                escapeHtml(ua.email != null && String(ua.email).trim() ? String(ua.email) : "\u2014") +
+                "</div>" +
+                "<div><strong>Email verified</strong><br>" +
+                escapeHtml(ua.emailVerified ? "Yes" : "No") +
+                "</div>" +
+                "<div><strong>Auth provider</strong><br>" +
+                escapeHtml(String(ua.authProvider || "local")) +
+                "</div>" +
+                "<div><strong>Account</strong><br>" +
+                escapeHtml(String(ua.authProvider || "").toLowerCase() === "guest" ? "Guest" : "Registered") +
+                "</div>" +
                 "<div><strong>Subscriptions</strong><br>" +
                 u.subscriptionCount +
                 "</div>" +
@@ -14138,21 +14417,37 @@
           }
 
           for (const u of data.users) {
-            const guest = !u.username || String(u.username).trim() === "";
+            const guest =
+              u.isGuestAccount === true || !u.username || String(u.username).trim() === "";
             const det = document.createElement("details");
             det.className = "admin-account-item";
             const sum = document.createElement("summary");
             const displayName = guest ? "Guest" : u.username || "—";
             const lastLoginLabel = formatAdminLastLogin(u.lastLoginAt);
+            const lastActiveLabel = formatAdminLastActivity(u.lastActivityAt);
+            const emailLine =
+              u.email != null && String(u.email).trim()
+                ? escapeHtml(String(u.email))
+                : "\u2014";
+            const prov = escapeHtml(String(u.authProvider || "local"));
             sum.innerHTML =
               "<div class=\"admin-account-summary-row\">" +
               "<span class=\"admin-account-name\">" +
               escapeHtml(displayName) +
               "</span>" +
               (u.isAdmin ? "<span class=\"admin-pill adm\">admin</span>" : "") +
+              (guest ? "<span class=\"admin-pill\">guest</span>" : "") +
+              "</div>" +
+              "<div class=\"admin-account-summary-meta\">Email: " +
+              emailLine +
+              " · Auth: " +
+              prov +
               "</div>" +
               "<div class=\"admin-account-summary-meta\">Last login: " +
               escapeHtml(lastLoginLabel) +
+              "</div>" +
+              "<div class=\"admin-account-summary-meta\">Last active: " +
+              escapeHtml(lastActiveLabel) +
               "</div>";
             const panel = document.createElement("div");
             panel.className = "admin-account-panel";
@@ -14500,10 +14795,16 @@
         const pin = document.getElementById("modalNextPinned");
         pin.hidden = true;
         pin.innerHTML = "";
-        document.getElementById("modalShowTitle").textContent = "Loading…";
+        document.getElementById("modalShowTitle").textContent = "Fetching…";
         document.getElementById("modalShowStats").textContent = "";
         setModalPoster(null);
-        body.innerHTML = "<p class=\"muted\">Loading…</p>";
+        body.innerHTML =
+          '<div class="modal-body-loading-skel" aria-busy="true">' +
+          '<div class="skeleton-line skeleton-line-title skeleton-shimmer" style="max-width:14rem;margin-bottom:0.65rem"></div>' +
+          '<div class="skeleton-line skeleton-line-meta skeleton-shimmer" style="max-width:22rem;margin-bottom:0.45rem"></div>' +
+          '<div class="skeleton-line skeleton-line-meta skeleton-shimmer" style="max-width:18rem"></div>' +
+          '<p class="muted modal-body-loading-caption" style="margin:0.85rem 0 0;font-size:0.84rem">Fetching show details…</p>' +
+          "</div>";
         modal.classList.add("open");
 
         try {
@@ -14743,6 +15044,19 @@
         return show.join(", ") + " +" + rest + " here now";
       }
 
+      function syncCommunityHeroChatPresence(vc) {
+        const el = document.getElementById("communityHeroChatPresence");
+        if (!el) return;
+        const n = Math.max(0, Math.floor(Number(vc) || 0));
+        if (n <= 0) {
+          el.textContent = "";
+          el.hidden = true;
+          return;
+        }
+        el.textContent = n === 1 ? "1 in chat" : n + " in chat";
+        el.hidden = false;
+      }
+
       function syncCommunityThreadHeaderPresence(vc, watchersRaw) {
         const strip = document.getElementById("communityThreadLiveStrip");
         const main = document.getElementById("communityThreadLiveStripMain");
@@ -14764,7 +15078,7 @@
           return;
         }
         strip.hidden = false;
-        main.textContent = n + " in chat now";
+        main.textContent = "Live chat · " + n + (n === 1 ? " person" : " people");
         const watchers = Array.isArray(watchersRaw) ? watchersRaw : [];
         const sub = formatChatPresenceSubtitle(watchers, n);
         if (namesEl) {
@@ -14829,6 +15143,7 @@
           namesEl.textContent = "";
           namesEl.hidden = true;
         }
+        syncCommunityHeroChatPresence(0);
         const avatars = document.getElementById("communityThreadLiveAvatars");
         if (avatars) {
           avatars.innerHTML = "";
@@ -14947,12 +15262,13 @@
         syncCommunityChatSubtabLabel(0);
       }
 
-      /** Updates the Chat sub-tab: plain "Chat" when nobody in room; green dot + count when viewerCount ≥ 1. */
+      /** Updates the Chat sub-tab: plain "Chat" when nobody in room; green dot + "Chat (n)" when viewerCount ≥ 1. */
       function syncCommunityChatSubtabLabel(viewerCount) {
         const btn = document.getElementById("communityChatSubtabBtn");
         if (!btn) return;
         const dot = btn.querySelector(".community-chat-live-dot");
         const countEl = btn.querySelector(".community-chat-subtab-count");
+        const labelEl = btn.querySelector(".community-chat-subtab-text");
         const n = Math.max(0, Math.floor(Number(viewerCount) || 0));
         if (n <= 0) {
           if (dot) {
@@ -14963,6 +15279,7 @@
             countEl.textContent = "";
             countEl.hidden = true;
           }
+          if (labelEl) labelEl.textContent = "Chat";
           btn.classList.remove("community-chat-subtab--live");
           btn.setAttribute("aria-label", "Chat");
           return;
@@ -14972,11 +15289,12 @@
           dot.classList.add("is-live");
         }
         if (countEl) {
-          countEl.textContent = " (" + n + ")";
-          countEl.hidden = false;
+          countEl.textContent = "";
+          countEl.hidden = true;
         }
+        if (labelEl) labelEl.textContent = "Chat (" + n + ")";
         btn.classList.add("community-chat-subtab--live");
-        btn.setAttribute("aria-label", "Chat — " + n + " active");
+        btn.setAttribute("aria-label", "Chat, " + n + " active in live room");
       }
 
       function applyCommunityThreadLivePresence(data) {
@@ -14988,6 +15306,7 @@
         }
         const vc = Number(data.viewerCount) || 0;
         syncCommunityChatSubtabLabel(vc);
+        syncCommunityHeroChatPresence(vc);
         syncCommunityThreadHeaderPresence(vc, data.watchers);
         syncCommunityLiveRailPresenceBar(vc, data.watchers);
         const rail = document.getElementById("communityLiveRail");
@@ -15181,7 +15500,6 @@
 
       function openUsernameSearchModal() {
         closeHeaderMenus();
-        closeQuickStartHelpModal({ skipFocusRestore: true });
         const modal = document.getElementById("usernameSearchModal");
         if (!modal) return;
         hideUsernameSearchDropdown();
@@ -15313,7 +15631,7 @@
         selectEl.innerHTML = "";
         const base = document.createElement("option");
         base.value = "";
-        base.textContent = "General — whole show";
+        base.textContent = "Whole show";
         selectEl.appendChild(base);
         const tzEl = document.getElementById("tz");
         const tz = (tzEl && tzEl.value.trim()) || Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -15555,7 +15873,7 @@
         }
         modal.hidden = false;
         modal.setAttribute("aria-hidden", "false");
-        body.innerHTML = "<p class=\"muted\">Loading…</p>";
+        body.innerHTML = "<p class=\"muted\">Fetching…</p>";
         if (titleEl) titleEl.textContent = "Challenge";
         const reg = accountIsRegistered(sessionMeSnapshot);
         const canSocial = reg && hasFullSocialUiAccess(sessionMeSnapshot);
@@ -15737,7 +16055,7 @@
       async function loadDeadlineEpisodesForChallenge(showId) {
         const sel = document.getElementById("challengeCreateDeadlineEp");
         if (!sel) return;
-        sel.innerHTML = "<option value=\"\">Loading…</option>";
+        sel.innerHTML = "<option value=\"\">Fetching…</option>";
         sel.disabled = true;
         try {
           const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Los_Angeles";
@@ -16626,6 +16944,7 @@
       }
 
       function updateCommunityThreadUi() {
+        if (!document.getElementById("communityComposer")) return;
         const reg = accountIsRegistered(sessionMeSnapshot);
         const canPost = reg && hasFullSocialUiAccess(sessionMeSnapshot);
         const postAs = document.getElementById("communityPostAsName");
@@ -16653,7 +16972,7 @@
             const epText = (sub && !sub.hidden && sub.textContent.trim())
               ? sub.textContent.trim()
               : (title ? title.textContent.trim() : "");
-            epChip.textContent = "Talking about " + epText;
+            epChip.textContent = epText;
             epChip.hidden = false;
           }
           if (epSel) epSel.hidden = true;
@@ -16661,6 +16980,7 @@
           if (epChip) epChip.hidden = true;
           if (epSel) epSel.hidden = false;
         }
+        syncCommunityReplyIndicatorUi();
       }
 
       function insertTextAtCommunityComposer(text) {
@@ -16690,6 +17010,24 @@
       let communityReplyToPostId = null;
       let communityReplyToUsername = null;
 
+      function syncCommunityReplyIndicatorUi() {
+        const indicator = document.getElementById("communityReplyIndicator");
+        if (!indicator) return;
+        const active = communityReplyToPostId != null && String(communityReplyToPostId).length > 0;
+        if (!active) {
+          communityReplyToPostId = null;
+          communityReplyToUsername = null;
+          const nameEl = document.getElementById("communityReplyToName");
+          const prevEl = document.getElementById("communityReplyPreview");
+          if (nameEl) nameEl.textContent = "";
+          if (prevEl) {
+            prevEl.textContent = "";
+            prevEl.hidden = true;
+          }
+        }
+        indicator.hidden = !active;
+      }
+
       function communityReplyPreviewFromPost(p) {
         if (!p || !p.bodyHtml) return "";
         const tmp = document.createElement("div");
@@ -16714,10 +17052,9 @@
         const replyTitle = displayName || (un ? "@" + un : "this post");
         communityReplyToPostId = p.id;
         communityReplyToUsername = un || null;
-        const indicator = document.getElementById("communityReplyIndicator");
         const nameEl = document.getElementById("communityReplyToName");
         const prevEl = document.getElementById("communityReplyPreview");
-        if (indicator && nameEl) {
+        if (nameEl) {
           nameEl.textContent = replyTitle;
           const prev = communityReplyPreviewFromPost(p);
           if (prevEl) {
@@ -16729,8 +17066,8 @@
               prevEl.hidden = true;
             }
           }
-          indicator.hidden = false;
         }
+        syncCommunityReplyIndicatorUi();
         if (un) {
           insertTextAtCommunityComposer("@" + un + " ");
         }
@@ -16744,15 +17081,7 @@
       function cancelCommunityReply() {
         communityReplyToPostId = null;
         communityReplyToUsername = null;
-        const indicator = document.getElementById("communityReplyIndicator");
-        const nameEl = document.getElementById("communityReplyToName");
-        const prevEl = document.getElementById("communityReplyPreview");
-        if (nameEl) nameEl.textContent = "";
-        if (prevEl) {
-          prevEl.textContent = "";
-          prevEl.hidden = true;
-        }
-        if (indicator) indicator.hidden = true;
+        syncCommunityReplyIndicatorUi();
       }
 
       /* ── @mention autocomplete ── */
@@ -16829,7 +17158,7 @@
         if (dd) { dd.hidden = true; dd.innerHTML = ""; }
       }
 
-      (function initMentionAutocomplete() {
+      function initMentionAutocompleteDeferred() {
         const composer = document.getElementById("communityComposer");
         if (!composer) return;
         composer.addEventListener("input", () => {
@@ -16873,11 +17202,11 @@
         composer.addEventListener("blur", () => {
           setTimeout(hideMentionDropdown, 200);
         });
-      })();
+      }
 
       /* ── Show Sub-Tabs ── */
       let communityShowActiveSubtab = "discussion";
-      (function initShowSubtabs() {
+      function initShowSubtabsDeferred() {
         const host = document.getElementById("communityShowSubtabs");
         if (!host) return;
         host.addEventListener("click", (e) => {
@@ -16888,28 +17217,33 @@
           btn.classList.add("active");
           applyCommunityShowSubtab();
         });
-      })();
+      }
 
       function applyCommunityShowSubtab() {
         const tab = communityShowActiveSubtab;
         const isDiscussion = tab === "discussion";
         const isChat = tab === "chat";
         const isNews = tab === "news";
+        if (!isDiscussion) cancelCommunityReply();
         const composerWrap = document.getElementById("communityComposerWrap");
         const feedEl = document.getElementById("communityPostFeed");
         const pollsPanel = document.getElementById("communityEpisodePollsPanel");
         const newsPanel = document.getElementById("communityShowNewsPanel");
         const catchUp = document.getElementById("communityCatchUpPanel");
         const ratingsPanel = document.getElementById("communityShowRatingsChartPanel");
+        const ratingEpPanel = document.getElementById("communityEpisodeRatingPanel");
         const liveRail = document.querySelector(".community-live-rail");
         const sortCtrl = document.querySelector(".community-thread-controls");
+        const mainRow = document.getElementById("communityThreadMainRow");
+        if (mainRow) mainRow.style.display = isDiscussion || isChat ? "" : "none";
 
         if (composerWrap) composerWrap.style.display = isDiscussion ? "" : "none";
         if (feedEl) feedEl.style.display = isDiscussion ? "" : "none";
-        if (pollsPanel) pollsPanel.style.display = "none";
+        if (pollsPanel) pollsPanel.style.display = isDiscussion ? "" : "none";
         if (newsPanel) newsPanel.style.display = isNews ? "" : "none";
         if (catchUp) catchUp.style.display = isDiscussion ? "" : "none";
         if (ratingsPanel) ratingsPanel.style.display = isDiscussion ? "" : "none";
+        if (ratingEpPanel) ratingEpPanel.style.display = isDiscussion ? "" : "none";
         if (liveRail) liveRail.style.display = isChat ? "" : "none";
         if (sortCtrl) sortCtrl.style.display = isDiscussion ? "" : "none";
 
@@ -17121,6 +17455,7 @@
           }
         } finally {
           if (loadEl) loadEl.hidden = true;
+          syncCommunityReplyIndicatorUi();
         }
       }
 
@@ -17437,7 +17772,7 @@
           return;
         }
         panel.hidden = false;
-        if (host) host.innerHTML = "<p class=\"muted\">Loading…</p>";
+        if (host) host.innerHTML = "<p class=\"muted\">Fetching…</p>";
         try {
           const sdata = await api(
             "/api/community/shows/" + encodeURIComponent(showId) + "/episode-ratings-seasons",
@@ -17658,30 +17993,13 @@
           ctx.textContent = "\u21B3 Reply";
           wrap.appendChild(ctx);
         }
-        if (p.tag) {
+        if (isReview) {
           const tagBadge = document.createElement("span");
           tagBadge.style.cssText = "font-size:0.62rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:6px;margin-bottom:0.25rem;display:inline-block;";
-          if (p.tag === "theory") {
-            tagBadge.style.background = "rgba(124,77,255,0.18)";
-            tagBadge.style.color = "#b388ff";
-            tagBadge.style.border = "1px solid rgba(124,77,255,0.3)";
-            tagBadge.textContent = "Theory";
-          } else if (p.tag === "spoiler-free") {
-            tagBadge.style.background = "rgba(0,230,118,0.12)";
-            tagBadge.style.color = "#69f0ae";
-            tagBadge.style.border = "1px solid rgba(0,230,118,0.25)";
-            tagBadge.textContent = "Spoiler-Free";
-          } else if (p.tag === "hot-take") {
-            tagBadge.style.background = "rgba(255,64,129,0.15)";
-            tagBadge.style.color = "#ff80ab";
-            tagBadge.style.border = "1px solid rgba(255,64,129,0.3)";
-            tagBadge.textContent = "Hot Take";
-          } else if (isReview) {
-            tagBadge.style.background = "rgba(251, 191, 36, 0.14)";
-            tagBadge.style.color = "#fcd34d";
-            tagBadge.style.border = "1px solid rgba(251, 191, 36, 0.38)";
-            tagBadge.textContent = "Episode review";
-          }
+          tagBadge.style.background = "rgba(251, 191, 36, 0.14)";
+          tagBadge.style.color = "#fcd34d";
+          tagBadge.style.border = "1px solid rgba(251, 191, 36, 0.38)";
+          tagBadge.textContent = "Episode review";
           wrap.appendChild(tagBadge);
         }
         if (isReview) {
@@ -17887,7 +18205,7 @@
           errEl.textContent = "";
           errEl.style.display = "none";
         }
-        body.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading…</p>";
+        body.innerHTML = "<p class=\"muted\" style=\"margin:0\">Fetching…</p>";
         if (heading) heading.textContent = "Member profile";
         const dmBtnLoad = document.getElementById("communityMemberProfileDmBtn");
         const dmHintLoad = document.getElementById("communityMemberProfileDmHint");
@@ -18525,6 +18843,7 @@
         const hint = document.getElementById("recommendedHint");
         const loading = document.getElementById("recommendedLoading");
         const errEl = document.getElementById("recommendedErr");
+        const recommendedSec = document.querySelector(".recommended-section");
         if (!box || !loading || !errEl) return;
         const reqId = ++recommendedLoadRequestId;
         errEl.textContent = "";
@@ -18533,15 +18852,16 @@
           hint.textContent = "";
           hint.hidden = true;
         }
-        loading.style.display = "block";
-        box.innerHTML = "";
+        if (loading) loading.hidden = true;
+        if (recommendedSec) recommendedSec.setAttribute("aria-busy", "true");
+        renderSearchSkeleton(box, 4);
         try {
           const data = await api("/api/users/" + encodeURIComponent(userId) + "/recommended-shows");
           if (reqId !== recommendedLoadRequestId) return;
           const shows = data.shows || [];
           const queriesUsed = data.queriesUsed || [];
-          loading.style.display = "none";
           if (!shows.length) {
+            box.innerHTML = "";
             if (hint) {
               hint.hidden = false;
               hint.textContent =
@@ -18561,13 +18881,15 @@
           }
         } catch (e) {
           if (reqId !== recommendedLoadRequestId) return;
-          loading.style.display = "none";
+          box.innerHTML = "";
           errEl.textContent = e.message || "Could not load recommendations.";
           errEl.classList.add("err");
           if (hint) {
             hint.hidden = true;
             hint.textContent = "";
           }
+        } finally {
+          if (recommendedSec && reqId === recommendedLoadRequestId) recommendedSec.removeAttribute("aria-busy");
         }
       }
 
@@ -18575,30 +18897,34 @@
         const box = document.getElementById("trendingList");
         const errEl = document.getElementById("trendingErr");
         const loading = document.getElementById("trendingLoading");
+        const trendingSec = document.querySelector(".trending-section");
         if (!box || !errEl) return;
         const reqId = ++trendingLoadRequestId;
         errEl.textContent = "";
         errEl.classList.remove("err");
-        box.innerHTML = "";
-        if (loading) loading.style.display = "block";
+        if (loading) loading.hidden = true;
+        if (trendingSec) trendingSec.setAttribute("aria-busy", "true");
+        renderSearchSkeleton(box, 5);
         try {
           const data = await api("/api/users/" + encodeURIComponent(userId) + "/trending-shows");
           if (reqId !== trendingLoadRequestId) return;
           const shows = data.shows || [];
-          if (loading) loading.style.display = "none";
           if (!shows.length) {
             box.innerHTML =
               "<p class=\"muted\" style=\"margin:0;font-size:0.88rem\">Subscribe to a few shows first — we’ll match popular titles to your genres.</p>";
             return;
           }
+          box.innerHTML = "";
           for (const s of shows) {
             appendSearchResultCard(box, s, userId, errEl, "trending");
           }
         } catch (e) {
           if (reqId !== trendingLoadRequestId) return;
-          if (loading) loading.style.display = "none";
+          box.innerHTML = "";
           errEl.textContent = e.message || "Could not load trending.";
           errEl.classList.add("err");
+        } finally {
+          if (trendingSec && reqId === trendingLoadRequestId) trendingSec.removeAttribute("aria-busy");
         }
       }
 
@@ -18848,44 +19174,12 @@
         if (input) input.focus();
       }
 
-      /** Opens the optional Welcome / tips modal (from Notifications panel or elsewhere — not forced first-run). */
-      function openQuickStartHelpModal() {
-        closeAppSettingsModal();
-        closeAppProfileModal();
-        closeUsernameSearchModal({ skipFocusRestore: true });
-        const el = document.getElementById("quickStartHelpModal");
-        if (!el) return;
-        el.classList.add("open");
-        requestAnimationFrame(() => {
-          const primary = document.getElementById("welcomeGetStartedBtn");
-          if (primary) primary.focus();
-        });
-      }
-
       async function offerOnboardingAfterAuth(me) {
         if (!me || !me.id) return;
         await new Promise((r) => requestAnimationFrame(r));
         if (shouldAutoShowOnboardingSetup(me)) {
           openOnboardingSetupModal(me);
         }
-      }
-
-      /** @param {{ skipFocusRestore?: boolean }} [opts] Use skipFocusRestore when closing as a side effect of opening another surface. */
-      function closeQuickStartHelpModal(opts) {
-        const el = document.getElementById("quickStartHelpModal");
-        const skipFocus = Boolean(opts && opts.skipFocusRestore);
-        if (el) el.classList.remove("open");
-        if (!skipFocus) {
-          document.getElementById("headerNotificationsBtn")?.focus();
-        }
-      }
-
-      function welcomeGetStarted() {
-        closeQuickStartHelpModal({ skipFocusRestore: true });
-        setTab("add");
-        requestAnimationFrame(() => {
-          document.getElementById("searchTitle")?.focus();
-        });
       }
 
       function closeAppSettingsModal() {
@@ -18902,7 +19196,6 @@
       /** @param {"refresh" | "reminders" | "push" | undefined} which */
       function openAppSettingsModal(which) {
         closeHeaderMenus();
-        closeQuickStartHelpModal({ skipFocusRestore: true });
         closeAppProfileModal();
         const el = document.getElementById("appSettingsModal");
         if (el) el.classList.add("open");
@@ -18924,7 +19217,6 @@
 
       async function openAppProfileModal() {
         closeHeaderMenus();
-        closeQuickStartHelpModal({ skipFocusRestore: true });
         closeAppSettingsModal();
         closeUsernameSearchModal();
         const el = document.getElementById("appProfileModal");
@@ -19178,6 +19470,224 @@
         }
       }
 
+      const shellLazyMounted = { community: false, messages: false };
+
+      function mountShellLazyCommunity() {
+        if (shellLazyMounted.community) return;
+        const tpl = document.getElementById("tpl-shell-tab-community");
+        const panel = document.getElementById("tab-community");
+        if (!tpl || !panel) return;
+        panel.appendChild(tpl.content.cloneNode(true));
+        shellLazyMounted.community = true;
+        initCommunityShellAfterMount();
+      }
+
+      function mountShellLazyMessages() {
+        if (shellLazyMounted.messages) return;
+        const tpl = document.getElementById("tpl-shell-tab-messages");
+        const panel = document.getElementById("tab-messages");
+        if (!tpl || !panel) return;
+        panel.appendChild(tpl.content.cloneNode(true));
+        shellLazyMounted.messages = true;
+        initMessagesShellAfterMount();
+      }
+
+      function ensureShellLazyTabMounted(name) {
+        if (name === "community") mountShellLazyCommunity();
+        else if (name === "messages") mountShellLazyMessages();
+      }
+
+      function wireDeferredCommunityTabPanel() {
+        document.getElementById("communityBackBtn")?.addEventListener("click", () => openCommunityListView());
+        document.getElementById("communityNewThreadBtn")?.addEventListener("click", () => openCommunityNewModal());
+        document.getElementById("communitySortSelect")?.addEventListener("change", (e) => {
+          communityState.sort = e.target.value === "oldest" ? "oldest" : "newest";
+          loadCommunityThreadPosts();
+        });
+        document.getElementById("communityFormatBar")?.addEventListener("click", (e) => {
+          const t = e.target.closest(".community-fmt-btn");
+          if (!t) return;
+          const cmd = t.getAttribute("data-cmd");
+          if (cmd) execCommunityFormat(cmd, document.getElementById("communityComposer"));
+        });
+        document.getElementById("communityPostSubmitBtn")?.addEventListener("click", async () => {
+          const showId = communityState.showId;
+          if (showId == null) return;
+          const composer = document.getElementById("communityComposer");
+          const msg = document.getElementById("communityComposerMsg");
+          const html = (composer.innerHTML || "").trim();
+          if (msg) {
+            msg.textContent = "";
+            msg.classList.remove("err");
+          }
+          if (!html || html === "<br>") {
+            if (msg) {
+              msg.textContent = "Write something first.";
+              msg.classList.add("err");
+            }
+            return;
+          }
+          try {
+            const epSel = document.getElementById("communityEpisodeSelect");
+            const epVal = epSel && !epSel.hidden && epSel.value;
+            const postBody = {
+              tvmazeShowId: showId,
+              bodyHtml: html,
+              isSpoiler: document.getElementById("communityComposerSpoiler").checked,
+            };
+            if (typeof communityState.episodeId === "number") {
+              postBody.tvmazeEpisodeId = communityState.episodeId;
+            } else if (epVal) {
+              postBody.tvmazeEpisodeId = Number(epVal);
+            }
+            if (communityReplyToPostId) {
+              postBody.parentPostId = communityReplyToPostId;
+            }
+            await api("/api/community/posts", {
+              method: "POST",
+              body: JSON.stringify(postBody),
+            });
+            composer.innerHTML = "";
+            if (epSel) epSel.value = "";
+            document.getElementById("communityComposerSpoiler").checked = false;
+            cancelCommunityReply();
+            showToast("Posted");
+            await loadCommunityThreadPosts();
+            await loadCommunityThreads();
+          } catch (e) {
+            if (msg) {
+              msg.textContent = e.message || "Could not post";
+              msg.classList.add("err");
+            }
+            showToast(e.message || "Could not post");
+          }
+        });
+        document.getElementById("communityReplyCancelBtn")?.addEventListener("click", () => cancelCommunityReply());
+        document.getElementById("communityPollAddOptionBtn")?.addEventListener("click", () => {
+          const wrap = document.getElementById("communityPollOptionInputs");
+          if (wrap) appendCommunityPollOptionRow(wrap);
+        });
+        document.getElementById("communityRatingsSeasonSelect")?.addEventListener("change", () => {
+          const sid = communityState.showId;
+          if (sid != null && communityState.episodeId === null) void refreshCommunityShowRatingsChart(sid);
+        });
+        document.getElementById("communityPollCreateBtn")?.addEventListener("click", async () => {
+          const showId = communityState.showId;
+          const ep = communityState.episodeId;
+          const msg = document.getElementById("communityPollCreateMsg");
+          if (msg) {
+            msg.textContent = "";
+            msg.classList.remove("err");
+          }
+          if (showId == null || typeof ep !== "number") return;
+          const qEl = document.getElementById("communityPollQuestion");
+          const qStr = (qEl && qEl.value ? String(qEl.value) : "").trim();
+          const inputs = Array.from(
+            document.querySelectorAll("#communityPollOptionInputs .community-poll-option-input"),
+          );
+          const options = inputs.map((i) => (i.value || "").trim()).filter(Boolean);
+          if (!qStr) {
+            if (msg) {
+              msg.textContent = "Add a question.";
+              msg.classList.add("err");
+            }
+            return;
+          }
+          if (options.length < 2) {
+            if (msg) {
+              msg.textContent = "Add at least two distinct options.";
+              msg.classList.add("err");
+            }
+            return;
+          }
+          try {
+            await api("/api/community/episode-polls", {
+              method: "POST",
+              body: JSON.stringify({
+                tvmazeShowId: showId,
+                tvmazeEpisodeId: ep,
+                question: qStr,
+                options,
+              }),
+            });
+            if (qEl) qEl.value = "";
+            const wrap = document.getElementById("communityPollOptionInputs");
+            if (wrap) {
+              wrap.innerHTML = "";
+              delete wrap.dataset.inited;
+              initCommunityPollOptionInputs();
+            }
+            showToast("Poll posted");
+            await loadCommunityEpisodePolls(showId);
+          } catch (e) {
+            if (msg) {
+              msg.textContent = e.message || "Could not create poll";
+              msg.classList.add("err");
+            }
+          }
+        });
+        document.getElementById("communitySubscribeCb")?.addEventListener("change", async (e) => {
+          const showId = communityState.showId;
+          if (showId == null) return;
+          const on = e.target.checked;
+          try {
+            if (on) {
+              await api("/api/community/thread-subscriptions", {
+                method: "POST",
+                body: JSON.stringify({ tvmazeShowId: showId }),
+              });
+              showToast("You’ll get push when someone posts here");
+            } else {
+              await api("/api/community/thread-subscriptions/" + encodeURIComponent(showId), { method: "DELETE" });
+              showToast("Unsubscribed from thread alerts");
+            }
+          } catch (err) {
+            e.target.checked = !on;
+            showToast(err.message || "Could not update subscription");
+          }
+        });
+        document.getElementById("communityGoProfileLink")?.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          openAppProfileModal();
+        });
+      }
+
+      function initCommunityShellAfterMount() {
+        initMentionAutocompleteDeferred();
+        initShowSubtabsDeferred();
+        setupCommunityCatchUpPanelDeferred();
+        wireDeferredCommunityTabPanel();
+      }
+
+      function initMessagesShellAfterMount() {
+        document.querySelectorAll("#tab-messages [data-dm-rail]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const f = btn.getAttribute("data-dm-rail");
+            if (f !== "all" && f !== "groups" && f !== "dms") return;
+            dmInboxRailFilter = f;
+            applyDmInboxRailFilter();
+            const empty = document.getElementById("dmInboxEmpty");
+            const host = document.getElementById("dmInboxThreadList");
+            const gEmpty = document.getElementById("dmInboxGroupEmpty");
+            const gHost = document.getElementById("dmInboxGroupList");
+            if (empty && host && host.childElementCount === 0) {
+              empty.hidden = !(dmInboxRailFilter === "all" || dmInboxRailFilter === "dms");
+            }
+            if (gEmpty && gHost && gHost.childElementCount === 0) {
+              gEmpty.hidden = !(dmInboxRailFilter === "all" || dmInboxRailFilter === "groups");
+            }
+          });
+        });
+        initDmCreateGroupModal();
+        initDmGroupSettingsModal();
+        initDmCompose();
+      }
+
+      function getActiveTabName() {
+        const active = document.querySelector(".tab-panel.active");
+        return active && active.id && active.id.startsWith("tab-") ? active.id.slice(4) : "add";
+      }
+
       function setTab(name) {
         if (name === "admin" && !userIsDbAdmin(sessionMeSnapshot)) {
           name = "add";
@@ -19185,6 +19695,7 @@
         if (name === "admin" && !document.getElementById("tab-admin")) {
           name = "add";
         }
+        ensureShellLazyTabMounted(name);
         const prevPanel = document.querySelector(".tab-panel.active");
         const prevName =
           prevPanel && prevPanel.id && prevPanel.id.startsWith("tab-") ? prevPanel.id.slice(4) : "";
@@ -19195,8 +19706,6 @@
         closeAppSettingsModal();
         closeAppProfileModal();
         closeUsernameSearchModal({ skipFocusRestore: true });
-        const qsm = document.getElementById("quickStartHelpModal");
-        if (qsm && qsm.classList.contains("open")) closeQuickStartHelpModal({ skipFocusRestore: true });
         document.querySelectorAll(".tab-panel").forEach((el) => {
           el.classList.toggle("active", el.id === "tab-" + name);
         });
@@ -19208,10 +19717,7 @@
         if (name === "add") {
           renderRecentChips();
           const id = resolveUserId();
-          if (id) {
-            loadRecommended(id);
-            loadTrendingShows(id);
-          }
+          if (id) loadTrendingShows(id);
         }
         if (name === "tasks") {
           const id = resolveUserId();
@@ -19358,142 +19864,8 @@
         setTab(tab);
       });
 
-      document.getElementById("communityBackBtn").addEventListener("click", () => openCommunityListView());
-      document.getElementById("communityNewThreadBtn").addEventListener("click", () => openCommunityNewModal());
-      document.getElementById("challengeCreateBackBtn")?.addEventListener("click", () => closeCommunityChallengeCreateModal());
-      document.getElementById("challengeCreateCancelBtn")?.addEventListener("click", () => closeCommunityChallengeCreateModal());
       document.querySelectorAll("[data-close-challenge-detail]").forEach((el) => {
         el.addEventListener("click", () => closeCommunityChallengeDetailModal());
-      });
-      let chCreateTTimer = null;
-      let chCreateDTimer = null;
-      (function setupCommunityChallengeCreateSearch() {
-        const tInp = document.getElementById("challengeCreateTargetSearch");
-        const tDrop = document.getElementById("challengeCreateTargetDropdown");
-        const dInp = document.getElementById("challengeCreateDeadlineSearch");
-        const dDrop = document.getElementById("challengeCreateDeadlineDropdown");
-        const hide = (el) => {
-          if (el) {
-            el.hidden = true;
-            el.innerHTML = "";
-          }
-        };
-        const fillTarget = async (q) => {
-          if (q.length < 2) {
-            hide(tDrop);
-            return;
-          }
-          try {
-            const shows = await searchShowsForChallenge(q);
-            if (!tDrop) return;
-            tDrop.innerHTML = "";
-            for (const s of shows) {
-              const b = document.createElement("button");
-              b.type = "button";
-              b.textContent = s.name + (s.network ? " · " + s.network : "");
-              b.addEventListener("click", () => {
-                chCreateTarget = { id: s.id, name: s.name };
-                const tp = document.getElementById("challengeCreateTargetPicked");
-                if (tp) tp.textContent = "Selected: " + s.name;
-                if (tInp) tInp.value = "";
-                hide(tDrop);
-              });
-              tDrop.appendChild(b);
-            }
-            tDrop.hidden = shows.length === 0;
-          } catch {
-            hide(tDrop);
-          }
-        };
-        const fillDeadline = async (q) => {
-          if (q.length < 2) {
-            hide(dDrop);
-            return;
-          }
-          try {
-            const shows = await searchShowsForChallenge(q);
-            if (!dDrop) return;
-            dDrop.innerHTML = "";
-            for (const s of shows) {
-              const b = document.createElement("button");
-              b.type = "button";
-              b.textContent = s.name + (s.network ? " · " + s.network : "");
-              b.addEventListener("click", () => {
-                chCreateDeadlineShow = { id: s.id, name: s.name };
-                const dp = document.getElementById("challengeCreateDeadlinePicked");
-                if (dp) dp.textContent = "Selected: " + s.name;
-                if (dInp) dInp.value = "";
-                hide(dDrop);
-                void loadDeadlineEpisodesForChallenge(s.id);
-              });
-              dDrop.appendChild(b);
-            }
-            dDrop.hidden = shows.length === 0;
-          } catch {
-            hide(dDrop);
-          }
-        };
-        if (tInp) {
-          tInp.addEventListener("input", () => {
-            const q = String(tInp.value || "").trim();
-            if (chCreateTTimer) clearTimeout(chCreateTTimer);
-            chCreateTTimer = setTimeout(() => void fillTarget(q), 280);
-          });
-          tInp.addEventListener("blur", () => setTimeout(() => hide(tDrop), 200));
-        }
-        if (dInp) {
-          dInp.addEventListener("input", () => {
-            const q = String(dInp.value || "").trim();
-            if (chCreateDTimer) clearTimeout(chCreateDTimer);
-            chCreateDTimer = setTimeout(() => void fillDeadline(q), 280);
-          });
-          dInp.addEventListener("blur", () => setTimeout(() => hide(dDrop), 200));
-        }
-      })();
-      document.getElementById("challengeCreateSubmitBtn")?.addEventListener("click", async () => {
-        const err = document.getElementById("challengeCreateErr");
-        const tit = document.getElementById("challengeCreateTitle");
-        const sum = document.getElementById("challengeCreateSummary");
-        const ep = document.getElementById("challengeCreateDeadlineEp");
-        if (err) {
-          err.style.display = "none";
-          err.textContent = "";
-        }
-        if (!chCreateTarget || !chCreateDeadlineShow || !ep || !ep.value) {
-          if (err) {
-            err.textContent = "Select both shows and a deadline episode with an air date.";
-            err.style.display = "block";
-          }
-          return;
-        }
-        const epId = Number(ep.value);
-        if (!Number.isInteger(epId) || epId < 1) {
-          if (err) {
-            err.textContent = "Pick a valid deadline episode.";
-            err.style.display = "block";
-          }
-          return;
-        }
-        try {
-          await api("/api/community/challenges", {
-            method: "POST",
-            body: JSON.stringify({
-              title: tit ? tit.value.trim() : "",
-              summary: sum && sum.value.trim() ? sum.value.trim() : undefined,
-              tvmazeTargetShowId: chCreateTarget.id,
-              tvmazeDeadlineShowId: chCreateDeadlineShow.id,
-              tvmazeDeadlineEpisodeId: epId,
-            }),
-          });
-          closeCommunityChallengeCreateModal();
-          showToast("Challenge created");
-          await loadCommunityChallenges();
-        } catch (e) {
-          if (err) {
-            err.textContent = e.message || "Could not create";
-            err.style.display = "block";
-          }
-        }
       });
       document.getElementById("communityLiveRailSendBtn")?.addEventListener("click", () => sendCommunityThreadLiveChat());
       document.getElementById("communityLiveRailInput")?.addEventListener("input", () => {
@@ -19512,7 +19884,7 @@
           sendCommunityThreadLiveChat();
         }
       });
-      (function setupCommunityCatchUpPanel() {
+      function setupCommunityCatchUpPanelDeferred() {
         const inp = document.getElementById("communityEpisodesBehindInput");
         const num = document.getElementById("communityCatchUpHelpNum");
         const btn = document.getElementById("communityCatchUpSaveBtn");
@@ -19568,7 +19940,7 @@
             }
           });
         }
-      })();
+      }
       (function setupUsernameSearch() {
         const inp = document.getElementById("usernameSearchInput");
         const wrap = document.getElementById("usernameSearchWrap");
@@ -19669,24 +20041,6 @@
         await renderDmInboxHub();
         void refreshDmUnread();
       });
-      document.querySelectorAll("[data-dm-rail]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const f = btn.getAttribute("data-dm-rail");
-          if (f !== "all" && f !== "groups" && f !== "dms") return;
-          dmInboxRailFilter = f;
-          applyDmInboxRailFilter();
-          const empty = document.getElementById("dmInboxEmpty");
-          const host = document.getElementById("dmInboxThreadList");
-          const gEmpty = document.getElementById("dmInboxGroupEmpty");
-          const gHost = document.getElementById("dmInboxGroupList");
-          if (empty && host && host.childElementCount === 0) {
-            empty.hidden = !(dmInboxRailFilter === "all" || dmInboxRailFilter === "dms");
-          }
-          if (gEmpty && gHost && gHost.childElementCount === 0) {
-            gEmpty.hidden = !(dmInboxRailFilter === "all" || dmInboxRailFilter === "groups");
-          }
-        });
-      });
       let dmCreateGroupMembers = new Map();
       let dmCreateGroupSearchTimer = null;
       let dmCreateGroupSearchGen = 0;
@@ -19730,7 +20084,7 @@
         const modal = document.getElementById("dmCreateGroupModal");
         if (modal) modal.hidden = true;
       }
-      (function initDmCreateGroupModal() {
+      function initDmCreateGroupModal() {
         document.getElementById("dmCreateGroupBackdrop")?.addEventListener("click", closeDmCreateGroupModal);
         document.getElementById("dmCreateGroupCancelBtn")?.addEventListener("click", closeDmCreateGroupModal);
         const searchInp = document.getElementById("dmCreateGroupSearchInput");
@@ -19815,8 +20169,8 @@
             }
           }
         });
-      })();
-      (function initDmGroupSettingsModal() {
+      }
+      function initDmGroupSettingsModal() {
         document.getElementById("dmInboxGroupTitleBtn")?.addEventListener("click", () => {
           openDmGroupSettingsModal();
         });
@@ -19986,9 +20340,9 @@
             }, 250);
           });
         }
-      })();
+      }
       // ── Compose / New Message button ──
-      (function initDmCompose() {
+      function initDmCompose() {
         const fabBtn = document.getElementById("dmComposeBtn");
         const fabMenu = document.getElementById("dmFabMenu");
         const newMsgBtn = document.getElementById("dmFabNewMessage");
@@ -20114,7 +20468,7 @@
             }, 250);
           });
         }
-      })();
+      }
 
       document.getElementById("dmInboxSendBtn")?.addEventListener("click", () => void sendDmFromInbox());
       document.getElementById("dmInboxInput")?.addEventListener("keydown", (e) => {
@@ -20167,157 +20521,11 @@
         if (!id) return;
         void startDirectMessageToUser(id, lab);
       });
-      document.getElementById("communitySortSelect").addEventListener("change", (e) => {
-        communityState.sort = e.target.value === "oldest" ? "oldest" : "newest";
-        loadCommunityThreadPosts();
-      });
-      document.getElementById("communityFormatBar").addEventListener("click", (e) => {
-        const t = e.target.closest(".community-fmt-btn");
-        if (!t) return;
-        const cmd = t.getAttribute("data-cmd");
-        if (cmd) execCommunityFormat(cmd, document.getElementById("communityComposer"));
-      });
       document.getElementById("communityEditFormatBar").addEventListener("click", (e) => {
         const t = e.target.closest(".community-fmt-btn");
         if (!t) return;
         const cmd = t.getAttribute("data-edit-cmd");
         if (cmd) execCommunityFormat(cmd, document.getElementById("communityEditBody"));
-      });
-      document.getElementById("communityPostSubmitBtn").addEventListener("click", async () => {
-        const showId = communityState.showId;
-        if (showId == null) return;
-        const composer = document.getElementById("communityComposer");
-        const msg = document.getElementById("communityComposerMsg");
-        const html = (composer.innerHTML || "").trim();
-        if (msg) {
-          msg.textContent = "";
-          msg.classList.remove("err");
-        }
-        if (!html || html === "<br>") {
-          if (msg) {
-            msg.textContent = "Write something first.";
-            msg.classList.add("err");
-          }
-          return;
-        }
-        try {
-          const epSel = document.getElementById("communityEpisodeSelect");
-          const epVal = epSel && !epSel.hidden && epSel.value;
-          const postBody = {
-            tvmazeShowId: showId,
-            bodyHtml: html,
-            isSpoiler: document.getElementById("communityComposerSpoiler").checked,
-          };
-          if (typeof communityState.episodeId === "number") {
-            postBody.tvmazeEpisodeId = communityState.episodeId;
-          } else if (epVal) {
-            postBody.tvmazeEpisodeId = Number(epVal);
-          }
-          if (communityReplyToPostId) {
-            postBody.parentPostId = communityReplyToPostId;
-          }
-          await api("/api/community/posts", {
-            method: "POST",
-            body: JSON.stringify(postBody),
-          });
-          composer.innerHTML = "";
-          if (epSel) epSel.value = "";
-          document.getElementById("communityComposerSpoiler").checked = false;
-          cancelCommunityReply();
-          showToast("Posted");
-          await loadCommunityThreadPosts();
-          await loadCommunityThreads();
-        } catch (e) {
-          if (msg) {
-            msg.textContent = e.message || "Could not post";
-            msg.classList.add("err");
-          }
-          showToast(e.message || "Could not post");
-        }
-      });
-      document.getElementById("communityReplyCancelBtn")?.addEventListener("click", () => cancelCommunityReply());
-      document.getElementById("communityPollAddOptionBtn")?.addEventListener("click", () => {
-        const wrap = document.getElementById("communityPollOptionInputs");
-        if (wrap) appendCommunityPollOptionRow(wrap);
-      });
-      document.getElementById("communityRatingsSeasonSelect")?.addEventListener("change", () => {
-        const sid = communityState.showId;
-        if (sid != null && communityState.episodeId === null) void refreshCommunityShowRatingsChart(sid);
-      });
-      document.getElementById("communityPollCreateBtn")?.addEventListener("click", async () => {
-        const showId = communityState.showId;
-        const ep = communityState.episodeId;
-        const msg = document.getElementById("communityPollCreateMsg");
-        if (msg) {
-          msg.textContent = "";
-          msg.classList.remove("err");
-        }
-        if (showId == null || typeof ep !== "number") return;
-        const qEl = document.getElementById("communityPollQuestion");
-        const qStr = (qEl && qEl.value ? String(qEl.value) : "").trim();
-        const inputs = Array.from(
-          document.querySelectorAll("#communityPollOptionInputs .community-poll-option-input"),
-        );
-        const options = inputs.map((i) => (i.value || "").trim()).filter(Boolean);
-        if (!qStr) {
-          if (msg) {
-            msg.textContent = "Add a question.";
-            msg.classList.add("err");
-          }
-          return;
-        }
-        if (options.length < 2) {
-          if (msg) {
-            msg.textContent = "Add at least two distinct options.";
-            msg.classList.add("err");
-          }
-          return;
-        }
-        try {
-          await api("/api/community/episode-polls", {
-            method: "POST",
-            body: JSON.stringify({
-              tvmazeShowId: showId,
-              tvmazeEpisodeId: ep,
-              question: qStr,
-              options,
-            }),
-          });
-          if (qEl) qEl.value = "";
-          const wrap = document.getElementById("communityPollOptionInputs");
-          if (wrap) {
-            wrap.innerHTML = "";
-            delete wrap.dataset.inited;
-            initCommunityPollOptionInputs();
-          }
-          showToast("Poll posted");
-          await loadCommunityEpisodePolls(showId);
-        } catch (e) {
-          if (msg) {
-            msg.textContent = e.message || "Could not create poll";
-            msg.classList.add("err");
-          }
-        }
-      });
-      document.getElementById("communitySubscribeCb").addEventListener("change", async (e) => {
-        const showId = communityState.showId;
-        if (showId == null) return;
-        const on = e.target.checked;
-        try {
-          if (on) {
-            await api("/api/community/thread-subscriptions", {
-              method: "POST",
-              body: JSON.stringify({ tvmazeShowId: showId }),
-            });
-            showToast("You’ll get push when someone posts here");
-          } else {
-            await api("/api/community/thread-subscriptions/" + encodeURIComponent(showId), { method: "DELETE" });
-            showToast("Unsubscribed from thread alerts");
-          }
-        } catch (err) {
-          e.target.checked = !on;
-          showToast(err.message || "Could not update subscription");
-        }
       });
       document.getElementById("communityModalSearch").addEventListener("input", () => {
         const inp = document.getElementById("communityModalSearch");
@@ -20343,7 +20551,7 @@
               b.textContent = s.name + (s.network ? " · " + s.network : "");
               b.addEventListener("click", async () => {
                 const box = document.getElementById("communityModalResults");
-                if (box) box.innerHTML = "<p class=\"muted\" style=\"margin:0\">Loading episodes…</p>";
+                if (box) box.innerHTML = "<p class=\"muted\" style=\"margin:0\">Fetching episodes…</p>";
                 const tz =
                   (document.getElementById("tz") && document.getElementById("tz").value.trim()) ||
                   Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -20476,10 +20684,6 @@
           }
         }
       });
-      document.getElementById("communityGoProfileLink").addEventListener("click", (ev) => {
-        ev.preventDefault();
-        openAppProfileModal();
-      });
 
       document.getElementById("searchTitle").addEventListener("input", () => {
         syncSearchClearBtn();
@@ -20576,6 +20780,18 @@
         });
       });
 
+      document.getElementById("foldRecommendedBtn")?.addEventListener("click", () => {
+        requestAnimationFrame(() => {
+          const btn = document.getElementById("foldRecommendedBtn");
+          const uid = resolveUserId();
+          const box = document.getElementById("recommendedList");
+          if (!btn || !uid || !box) return;
+          if (btn.getAttribute("aria-expanded") !== "true") return;
+          if (box.querySelector(".search-card:not(.skeleton-card)")) return;
+          loadRecommended(uid);
+        });
+      });
+
       document.getElementById("recommendedRefreshBtn").addEventListener("click", () => {
         const uid = resolveUserId();
         if (uid) loadRecommended(uid);
@@ -20592,12 +20808,12 @@
       });
 
       function accountIsRegistered(me) {
-        return !!(me && (me.username || truthyBit(me.hasPassword)));
+        return !!(me && me.authProvider && me.authProvider !== "guest");
       }
 
       /**
-       * Registered = {@link accountIsRegistered}(me). Until `/api/users/me` confirms registration, treat as guest:
-       * Create account + Search only (no profile / sign out flash).
+       * Registered = {@link accountIsRegistered}(me). Guests: Create account + Search username only
+       * (no Your profile / Sign out). Signed-in users with username/password: full profile menu.
        */
       function syncHeaderProfileDropdown(me) {
         const createBtn = document.getElementById("headerMenuCreateAccount");
@@ -20605,7 +20821,7 @@
         const searchBtn = document.getElementById("headerMenuSearchUsername");
         const signOutBtn = document.getElementById("headerMenuSignOut");
         if (!createBtn || !profileBtn || !searchBtn || !signOutBtn) return;
-        const registered = !!(me && accountIsRegistered(me));
+        const registered = !!(me && me.id && accountIsRegistered(me));
         createBtn.hidden = registered;
         profileBtn.hidden = !registered;
         signOutBtn.hidden = !registered;
@@ -20617,6 +20833,7 @@
       /** Matches server {@link hasFullSocialAccess}: registered + 3+ shows (or admin). */
       function hasFullSocialUiAccess(me) {
         if (!me || !accountIsRegistered(me)) return false;
+        if (!String(me.username || "").trim()) return false;
         if (me.isAdmin === true || me.isAdmin === 1) return true;
         const r = me.viewerRole;
         if (r === "tv_watcher" || r === "tv_binger") return true;
@@ -20630,12 +20847,6 @@
         showToast(UNLOCK_SOCIAL_UX_MESSAGE);
       }
 
-      function shouldShowAccountPrompt(me) {
-        if (localStorage.getItem(LS_GUEST_PROMPT) === "1") return false;
-        if (!me || !me.id) return false;
-        return !accountIsRegistered(me);
-      }
-
       async function refreshAllForUserId(userId, me) {
         if (me) applyMeToUI(me);
         appUserId = userId;
@@ -20644,13 +20855,11 @@
         await loadSubs(userId);
         await loadPersonFollows(userId);
         setupPersonFollowSearch(userId);
-        loadRecommended(userId);
         loadTrendingShows(userId);
-        await loadTasks(userId);
-        const active = document.querySelector(".tab-panel.active");
-        const tabName =
-          active && active.id && active.id.startsWith("tab-") ? active.id.slice(4) : "add";
-        updateContextualTipsVisibility(tabName);
+        const fr = document.getElementById("foldRecommendedBtn");
+        if (fr && fr.getAttribute("aria-expanded") === "true") loadRecommended(userId);
+        if (getActiveTabName() === "tasks") await loadTasks(userId);
+        updateContextualTipsVisibility(getActiveTabName());
       }
 
       function showAccountPromptStep(step) {
@@ -20709,6 +20918,7 @@
       (async function init() {
         syncHeaderProfileDropdown(null);
         removeAdminUiFromDom();
+        await initGoogleAuthUi();
         const userId = await ensureUser();
         appUserId = userId;
         startAppPresenceClient();
@@ -20719,14 +20929,16 @@
         } catch {
           applyMeToUI(null);
         }
+        consumeEmailVerifyQueryFromUrl();
+        await consumeGoogleAuthFromUrl();
+        consumePasswordResetFromHash();
         await loadUser(userId);
         await loadSubs(userId);
         await loadPersonFollows(userId);
         setupPersonFollowSearch(userId);
-        loadRecommended(userId);
         loadTrendingShows(userId);
         renderRecentChips();
-        loadTasks(userId);
+        if (getActiveTabName() === "tasks") void loadTasks(userId);
         updateContextualTipsVisibility("add");
 
         let deepLinked = false;
@@ -20792,8 +21004,187 @@
           if (document.visibilityState === "visible") void refreshDmUnread();
         });
 
-        if (shouldShowAccountPrompt(me)) {
-          openAccountPromptModal();
+        function clientValidateSignupEmail(email) {
+          const t = String(email || "")
+            .trim()
+            .toLowerCase();
+          if (!t) return "Enter your email.";
+          if (t.length > 254) return "Email is too long.";
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) return "Enter a valid email address.";
+          return null;
+        }
+        function clientValidateSignupPassword(pw) {
+          if (pw.length < 8) return "Password must be at least 8 characters.";
+          if (pw.length > 128) return "Password must be at most 128 characters.";
+          if (!/[a-zA-Z]/.test(pw)) return "Password must include at least one letter.";
+          return null;
+        }
+        function loginPayloadFromIdentifierField(idValue, password) {
+          const v = String(idValue || "").trim();
+          const body = { password: password };
+          if (!v) return body;
+          if (v.includes("@")) body.email = v;
+          else body.username = v;
+          return body;
+        }
+
+        async function initGoogleAuthUi() {
+          try {
+            const st = await api("/api/auth/google/status");
+            const on = !!(st && st.configured);
+            document.querySelectorAll("[data-google-login]").forEach((el) => {
+              el.hidden = !on;
+            });
+          } catch {
+            document.querySelectorAll("[data-google-login]").forEach((el) => {
+              el.hidden = true;
+            });
+          }
+          document.querySelectorAll(".google-oauth-start-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              window.location.href = "/api/auth/google/start";
+            });
+          });
+        }
+
+        function openGoogleUsernameModal() {
+          const m = document.getElementById("googleUsernameModal");
+          if (!m) return;
+          m.hidden = false;
+          m.classList.add("open");
+          const inp = document.getElementById("googleUsernameInput");
+          if (inp) {
+            inp.value = "";
+            inp.focus();
+          }
+          const err = document.getElementById("googleUsernameErr");
+          if (err) {
+            err.style.display = "none";
+            err.textContent = "";
+          }
+        }
+
+        function closeGoogleUsernameModal() {
+          const m = document.getElementById("googleUsernameModal");
+          if (m) {
+            m.classList.remove("open");
+            m.hidden = true;
+          }
+        }
+
+        async function consumeGoogleAuthFromUrl() {
+          const u = new URL(window.location.href);
+          const g = u.searchParams.get("google_auth");
+          if (!g) return;
+          u.searchParams.delete("google_auth");
+          history.replaceState({}, "", u.pathname + (u.searchParams.toString() ? "?" + u.searchParams.toString() : "") + u.hash);
+          if (g !== "ok") {
+            if (g === "error" || g === "invalid" || g === "noemail" || g === "off") {
+              showToast("Google sign-in did not complete. Try again or use email/password.");
+            }
+            return;
+          }
+          try {
+            const me = await api("/api/users/me");
+            await refreshAllForUserId(me.id, me);
+            if (me.needsUsername) openGoogleUsernameModal();
+            else showToast("Signed in with Google");
+          } catch {
+            showToast("Could not refresh session after Google sign-in.");
+          }
+        }
+
+        function consumeEmailVerifyQueryFromUrl() {
+          try {
+            const u = new URL(window.location.href);
+            const v = u.searchParams.get("email_verify");
+            if (v !== "0" && v !== "1") return;
+            u.searchParams.delete("email_verify");
+            history.replaceState({}, "", u.pathname + (u.searchParams.toString() ? "?" + u.searchParams.toString() : "") + u.hash);
+            if (v === "1") showToast("Your email is verified.");
+            else showToast("Verification link is invalid or expired.");
+            void refreshSessionMeFromServer();
+          } catch {
+            /* ignore */
+          }
+        }
+
+        function openPasswordResetModal(step) {
+          const m = document.getElementById("passwordResetModal");
+          if (!m) return;
+          if (step === "request") pendingPasswordResetToken = null;
+          const req = document.getElementById("passwordResetStepRequest");
+          const comp = document.getElementById("passwordResetStepComplete");
+          const done = document.getElementById("pwResetRequestDone");
+          const re = document.getElementById("pwResetRequestErr");
+          const ce = document.getElementById("pwResetCompleteErr");
+          if (re) {
+            re.style.display = "none";
+            re.textContent = "";
+          }
+          if (ce) {
+            ce.style.display = "none";
+            ce.textContent = "";
+          }
+          if (done) done.hidden = true;
+          m.hidden = false;
+          m.classList.add("open");
+          const showComplete = step === "complete" && pendingPasswordResetToken;
+          if (req) req.hidden = !!showComplete;
+          if (comp) comp.hidden = !showComplete;
+          if (showComplete) {
+            const n1 = document.getElementById("pwResetNew1");
+            const n2 = document.getElementById("pwResetNew2");
+            if (n1) n1.value = "";
+            if (n2) n2.value = "";
+            if (n1) n1.focus();
+          } else {
+            const em = document.getElementById("pwResetEmail");
+            if (em) em.focus();
+          }
+        }
+
+        function closePasswordResetModal() {
+          const m = document.getElementById("passwordResetModal");
+          if (!m) return;
+          m.classList.remove("open");
+          m.hidden = true;
+          pendingPasswordResetToken = null;
+          const req = document.getElementById("passwordResetStepRequest");
+          const comp = document.getElementById("passwordResetStepComplete");
+          if (req) req.hidden = false;
+          if (comp) comp.hidden = true;
+          const done = document.getElementById("pwResetRequestDone");
+          if (done) done.hidden = true;
+        }
+
+        function consumePasswordResetFromHash() {
+          try {
+            const h = window.location.hash;
+            const prefix = "#airalert_pwreset=";
+            if (!h.startsWith(prefix)) return;
+            const raw = h.slice(prefix.length);
+            const token = decodeURIComponent(raw);
+            const u = new URL(window.location.href);
+            u.hash = "";
+            history.replaceState({}, "", u.pathname + u.search + u.hash);
+            if (!token) return;
+            void (async () => {
+              try {
+                const st = await api("/api/auth/password-reset-check?token=" + encodeURIComponent(token));
+                if (!st || !st.valid) {
+                  showToast("Reset link is invalid or expired.");
+                  return;
+                }
+                pendingPasswordResetToken = token;
+                openPasswordResetModal("complete");
+              } catch {
+                showToast("Could not validate reset link.");
+              }
+            })();
+          } catch {
+            /* ignore */
+          }
         }
 
         const apModal = document.getElementById("accountPromptModal");
@@ -20801,16 +21192,108 @@
         if (apPanel) {
           apPanel.addEventListener("click", (ev) => ev.stopPropagation());
         }
+        const pwResetModalEl = document.getElementById("passwordResetModal");
+        const pwResetPanel = pwResetModalEl && pwResetModalEl.querySelector(".account-prompt-panel");
+        if (pwResetPanel) {
+          pwResetPanel.addEventListener("click", (ev) => ev.stopPropagation());
+        }
+        if (pwResetModalEl) {
+          pwResetModalEl.addEventListener("click", () => closePasswordResetModal());
+        }
+        document.getElementById("passwordResetModalClose")?.addEventListener("click", () => closePasswordResetModal());
+        document.getElementById("passwordResetModalClose2")?.addEventListener("click", () => closePasswordResetModal());
+        document.getElementById("profileForgotPwBtn")?.addEventListener("click", () => openPasswordResetModal("request"));
+        document.getElementById("apForgotPwBtn")?.addEventListener("click", () => {
+          closeAccountPromptModal();
+          openPasswordResetModal("request");
+        });
+        document.getElementById("pwResetRequestSubmit")?.addEventListener("click", async () => {
+          const errEl = document.getElementById("pwResetRequestErr");
+          const done = document.getElementById("pwResetRequestDone");
+          const em = document.getElementById("pwResetEmail");
+          if (errEl) {
+            errEl.style.display = "none";
+            errEl.textContent = "";
+          }
+          if (done) done.hidden = true;
+          const email = em && String(em.value || "").trim();
+          const ve = clientValidateSignupEmail(email);
+          if (ve) {
+            if (errEl) {
+              errEl.textContent = ve;
+              errEl.style.display = "block";
+            }
+            return;
+          }
+          try {
+            await api("/api/auth/password-reset-request", {
+              method: "POST",
+              body: JSON.stringify({ email }),
+            });
+            if (done) done.hidden = false;
+          } catch (e) {
+            if (errEl) {
+              errEl.textContent = e.message || "Request failed";
+              errEl.style.display = "block";
+            }
+          }
+        });
+        document.getElementById("pwResetCompleteSubmit")?.addEventListener("click", async () => {
+          const errEl = document.getElementById("pwResetCompleteErr");
+          const n1 = document.getElementById("pwResetNew1");
+          const n2 = document.getElementById("pwResetNew2");
+          if (errEl) {
+            errEl.style.display = "none";
+            errEl.textContent = "";
+          }
+          if (!pendingPasswordResetToken) {
+            if (errEl) {
+              errEl.textContent = "Reset session expired. Open the link from your email again.";
+              errEl.style.display = "block";
+            }
+            return;
+          }
+          const p1 = n1 ? n1.value : "";
+          const p2 = n2 ? n2.value : "";
+          if (p1 !== p2) {
+            if (errEl) {
+              errEl.textContent = "Passwords do not match.";
+              errEl.style.display = "block";
+            }
+            return;
+          }
+          const pe = clientValidateSignupPassword(p1);
+          if (pe) {
+            if (errEl) {
+              errEl.textContent = pe;
+              errEl.style.display = "block";
+            }
+            return;
+          }
+          try {
+            await api("/api/auth/password-reset-complete", {
+              method: "POST",
+              body: JSON.stringify({ token: pendingPasswordResetToken, newPassword: p1 }),
+            });
+            closePasswordResetModal();
+            showToast("Password updated. You can sign in with your new password.");
+          } catch (e) {
+            if (errEl) {
+              errEl.textContent = e.message || "Could not reset password";
+              errEl.style.display = "block";
+            }
+          }
+        });
 
         document.getElementById("accountPromptCreate").addEventListener("click", () => {
           setAccountPromptErr("");
           showAccountPromptStep("register");
-          document.getElementById("apRegUsername").focus();
+          document.getElementById("apRegEmail").focus();
         });
         document.getElementById("accountPromptSignIn").addEventListener("click", () => {
           setAccountPromptErr("");
           showAccountPromptStep("login");
-          document.getElementById("apLoginUsername").focus();
+          document.getElementById("apLoginEmail").focus();
         });
         document.getElementById("accountPromptGuest").addEventListener("click", async () => {
           localStorage.setItem(LS_GUEST_PROMPT, "1");
@@ -20825,12 +21308,56 @@
         document.getElementById("apRegBack").addEventListener("click", () => showAccountPromptStep("intro"));
         document.getElementById("apLoginBack").addEventListener("click", () => showAccountPromptStep("intro"));
 
+        document.getElementById("googleUsernameModal")?.addEventListener("click", (e) => {
+          if (e.target && e.target.id === "googleUsernameModal") closeGoogleUsernameModal();
+        });
+        document.getElementById("googleUsernameSave")?.addEventListener("click", async () => {
+          const errEl = document.getElementById("googleUsernameErr");
+          const inp = document.getElementById("googleUsernameInput");
+          if (!inp) return;
+          const u = inp.value.trim();
+          if (errEl) {
+            errEl.style.display = "none";
+            errEl.textContent = "";
+          }
+          if (!/^[a-zA-Z0-9._-]{3,32}$/.test(u)) {
+            if (errEl) {
+              errEl.textContent = "Username must be 3–32 characters (letters, numbers, . _ -).";
+              errEl.style.display = "block";
+            }
+            return;
+          }
+          try {
+            await api("/api/auth/google/choose-username", { method: "POST", body: JSON.stringify({ username: u }) });
+            const me = await api("/api/users/me");
+            await refreshAllForUserId(me.id, me);
+            closeGoogleUsernameModal();
+            showToast("Username saved");
+          } catch (e) {
+            if (errEl) {
+              errEl.textContent = e.message || "Could not save username";
+              errEl.style.display = "block";
+            }
+          }
+        });
+
         document.getElementById("apRegSubmit").addEventListener("click", async () => {
           setAccountPromptErr("");
+          const emailRaw = document.getElementById("apRegEmail").value;
+          const emErr = clientValidateSignupEmail(emailRaw);
+          if (emErr) {
+            setAccountPromptErr(emErr);
+            return;
+          }
           const p1 = document.getElementById("apRegPassword").value;
           const p2 = document.getElementById("apRegPassword2").value;
           if (p1 !== p2) {
             setAccountPromptErr("Passwords do not match.");
+            return;
+          }
+          const pwErr = clientValidateSignupPassword(p1);
+          if (pwErr) {
+            setAccountPromptErr(pwErr);
             return;
           }
           try {
@@ -20838,11 +21365,13 @@
             await api("/api/auth/register", {
               method: "POST",
               body: JSON.stringify({
+                email: emailRaw.trim(),
                 username: document.getElementById("apRegUsername").value.trim(),
                 password: p1,
                 timezone: tz,
               }),
             });
+            document.getElementById("apRegEmail").value = "";
             document.getElementById("apRegUsername").value = "";
             document.getElementById("apRegPassword").value = "";
             document.getElementById("apRegPassword2").value = "";
@@ -20858,19 +21387,27 @@
 
         document.getElementById("apLoginSubmit").addEventListener("click", async () => {
           setAccountPromptErr("");
+          const idVal = document.getElementById("apLoginEmail").value.trim();
+          const pw = document.getElementById("apLoginPassword").value;
+          if (!idVal) {
+            setAccountPromptErr("Enter your email or username.");
+            return;
+          }
+          if (!pw) {
+            setAccountPromptErr("Enter your password.");
+            return;
+          }
           try {
             await api("/api/auth/login", {
               method: "POST",
-              body: JSON.stringify({
-                username: document.getElementById("apLoginUsername").value.trim(),
-                password: document.getElementById("apLoginPassword").value,
-              }),
+              body: JSON.stringify(loginPayloadFromIdentifierField(idVal, pw)),
             });
             document.getElementById("apLoginPassword").value = "";
             const meNow = await api("/api/users/me");
             await refreshAllForUserId(meNow.id, meNow);
             closeAccountPromptModal();
             showToast("Signed in");
+            maybePromptLegacyEmailUpgrade(meNow);
             await offerOnboardingAfterAuth(meNow);
           } catch (e) {
             setAccountPromptErr(e.message || "Sign in failed");
@@ -20885,13 +21422,9 @@
           const uid = resolveUserId();
           if (uid) savePushPrefs(uid);
         });
-        document.getElementById("saveProfileInfoBtn").addEventListener("click", () => {
+        document.getElementById("saveProfileAllBtn").addEventListener("click", () => {
           const uid = resolveUserId();
-          if (uid) saveProfileInfo(uid);
-        });
-        document.getElementById("saveProfileAboutBtn").addEventListener("click", () => {
-          const uid = resolveUserId();
-          if (uid) saveProfileAbout(uid);
+          if (uid) void saveProfileAll(uid);
         });
         document.getElementById("profileAvatarBtn").addEventListener("click", () => {
           document.getElementById("profileAvatarInput").click();
@@ -21039,13 +21572,6 @@
         document.getElementById("showModal").addEventListener("click", (e) => {
           if (e.target.id === "showModal") closeShowModal();
         });
-        document.getElementById("welcomeSkipBtn").addEventListener("click", () =>
-          closeQuickStartHelpModal({ skipFocusRestore: true }),
-        );
-        document.getElementById("welcomeGetStartedBtn").addEventListener("click", () => welcomeGetStarted());
-        document.getElementById("quickStartHelpModal").addEventListener("click", (e) => {
-          if (e.target.id === "quickStartHelpModal") closeQuickStartHelpModal({ skipFocusRestore: true });
-        });
 
         document.getElementById("onboardingSetupClose")?.addEventListener("click", () => {
           const uid = resolveUserId();
@@ -21115,11 +21641,6 @@
             closeAppProfileModal();
             return;
           }
-          const qs = document.getElementById("quickStartHelpModal");
-          if (qs && qs.classList.contains("open")) {
-            closeQuickStartHelpModal({ skipFocusRestore: true });
-            return;
-          }
           const ap = document.getElementById("accountPromptModal");
           if (ap && ap.classList.contains("open")) {
             const reg = document.getElementById("accountPromptStepRegister");
@@ -21181,7 +21702,6 @@
 
         document.getElementById("headerSettingsBtn")?.addEventListener("click", (e) => {
           e.stopPropagation();
-          closeQuickStartHelpModal({ skipFocusRestore: true });
           closeAppProfileModal();
           closeUsernameSearchModal({ skipFocusRestore: true });
           const d = document.getElementById("headerSettingsDropdown");
@@ -21199,7 +21719,6 @@
         });
         document.getElementById("headerProfileBtn")?.addEventListener("click", (e) => {
           e.stopPropagation();
-          closeQuickStartHelpModal({ skipFocusRestore: true });
           closeAppSettingsModal();
           closeUsernameSearchModal({ skipFocusRestore: true });
           const d = document.getElementById("headerProfileDropdown");
@@ -21217,7 +21736,6 @@
         });
         document.getElementById("headerNotificationsBtn")?.addEventListener("click", (e) => {
           e.stopPropagation();
-          closeQuickStartHelpModal({ skipFocusRestore: true });
           closeAppSettingsModal();
           closeAppProfileModal();
           closeUsernameSearchModal({ skipFocusRestore: true });
@@ -21257,17 +21775,12 @@
           closeHeaderMenus();
           openAppSettingsModal("push");
         });
-        document.getElementById("headerMenuWelcomeGuide")?.addEventListener("click", (e) => {
-          e.stopPropagation();
-          closeHeaderMenus();
-          openQuickStartHelpModal();
-        });
         document.getElementById("headerMenuCreateAccount")?.addEventListener("click", (e) => {
           e.stopPropagation();
           closeHeaderMenus();
           openAccountPromptModal();
           showAccountPromptStep("register");
-          requestAnimationFrame(() => document.getElementById("apRegUsername")?.focus());
+          requestAnimationFrame(() => document.getElementById("apRegEmail")?.focus());
         });
         document.getElementById("headerMenuYourProfile")?.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -21303,10 +21816,23 @@
 
         document.getElementById("regBtn").addEventListener("click", async () => {
           clearAccountErr();
+          const emailRaw = document.getElementById("regEmail").value;
+          const emErr = clientValidateSignupEmail(emailRaw);
+          if (emErr) {
+            accountErr.textContent = emErr;
+            accountErr.classList.add("err");
+            return;
+          }
           const p1 = document.getElementById("regPassword").value;
           const p2 = document.getElementById("regPassword2").value;
           if (p1 !== p2) {
             accountErr.textContent = "Passwords do not match.";
+            accountErr.classList.add("err");
+            return;
+          }
+          const pwErr = clientValidateSignupPassword(p1);
+          if (pwErr) {
+            accountErr.textContent = pwErr;
             accountErr.classList.add("err");
             return;
           }
@@ -21315,11 +21841,13 @@
             await api("/api/auth/register", {
               method: "POST",
               body: JSON.stringify({
+                email: emailRaw.trim(),
                 username: document.getElementById("regUsername").value.trim(),
                 password: p1,
                 timezone: tz,
               }),
             });
+            document.getElementById("regEmail").value = "";
             document.getElementById("regUsername").value = "";
             document.getElementById("regPassword").value = "";
             document.getElementById("regPassword2").value = "";
@@ -21335,18 +21863,28 @@
 
         document.getElementById("loginBtn").addEventListener("click", async () => {
           clearAccountErr();
+          const idVal = document.getElementById("loginEmail").value.trim();
+          const pw = document.getElementById("loginPassword").value;
+          if (!idVal) {
+            accountErr.textContent = "Enter your email or username.";
+            accountErr.classList.add("err");
+            return;
+          }
+          if (!pw) {
+            accountErr.textContent = "Enter your password.";
+            accountErr.classList.add("err");
+            return;
+          }
           try {
             await api("/api/auth/login", {
               method: "POST",
-              body: JSON.stringify({
-                username: document.getElementById("loginUsername").value.trim(),
-                password: document.getElementById("loginPassword").value,
-              }),
+              body: JSON.stringify(loginPayloadFromIdentifierField(idVal, pw)),
             });
             document.getElementById("loginPassword").value = "";
             const me = await api("/api/users/me");
             await refreshAllForUserId(me.id, me);
             showToast("Signed in");
+            maybePromptLegacyEmailUpgrade(me);
             await offerOnboardingAfterAuth(me);
           } catch (e) {
             accountErr.textContent = e.message || "Sign in failed";
@@ -21374,11 +21912,66 @@
           }
           await loadUser(id);
           await loadSubs(id);
-          loadRecommended(id);
           loadTrendingShows(id);
-          await loadTasks(id);
+          const rListOut = document.getElementById("recommendedList");
+          if (rListOut) rListOut.innerHTML = "";
+          if (getActiveTabName() === "tasks") await loadTasks(id);
           showToast("Signed out");
         });
+
+        document.getElementById("acctResendVerifyBtn")?.addEventListener("click", async () => {
+          try {
+            await api("/api/auth/email/verify-request", { method: "POST", body: "{}" });
+            showToast("Verification email sent. Check your inbox.");
+          } catch (e) {
+            showToast(e.message || "Could not resend verification email");
+          }
+        });
+
+        const acctSaveEmailBtn = document.getElementById("acctSaveEmailBtn");
+        if (acctSaveEmailBtn) {
+          acctSaveEmailBtn.addEventListener("click", async () => {
+            clearAccountErr();
+            const accountErr = document.getElementById("accountErr");
+            const errEl = document.getElementById("acctUpgradeEmailErr");
+            const emIn = document.getElementById("acctUpgradeEmail");
+            const pwIn = document.getElementById("acctUpgradeCurPw");
+            if (errEl) {
+              errEl.hidden = true;
+              errEl.textContent = "";
+            }
+            const email = emIn && String(emIn.value || "").trim();
+            const currentPassword = pwIn ? String(pwIn.value || "") : "";
+            if (!email) {
+              if (errEl) {
+                errEl.textContent = "Enter an email address.";
+                errEl.hidden = false;
+              }
+              return;
+            }
+            const me = sessionMeSnapshot;
+            if (!me || !me.id) return;
+            try {
+              await api("/api/users/" + encodeURIComponent(me.id), {
+                method: "PATCH",
+                body: JSON.stringify({ email, currentPassword }),
+              });
+              if (pwIn) pwIn.value = "";
+              if (emIn) emIn.value = "";
+              showToast("Email saved. You can sign in with it after verification when enabled.");
+              await refreshSessionMeFromServer();
+            } catch (e) {
+              const msg = e.message || "Could not save email";
+              if (errEl) {
+                errEl.textContent = msg;
+                errEl.hidden = false;
+              } else if (accountErr) {
+                accountErr.textContent = msg;
+                accountErr.classList.add("err");
+              }
+            }
+          });
+        }
 
         const acctPwBtn = document.getElementById("acctUpdatePwBtn");
         if (acctPwBtn) {

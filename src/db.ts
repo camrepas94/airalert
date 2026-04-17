@@ -230,11 +230,96 @@ if (!userColNames.has("viewer_role_override")) {
 if (!userColNames.has("onboarding_prefs_json")) {
   db.exec(`ALTER TABLE users ADD COLUMN onboarding_prefs_json TEXT`);
 }
+if (!userColNames.has("email")) {
+  db.exec(`ALTER TABLE users ADD COLUMN email TEXT`);
+  userColNames.add("email");
+}
+if (!userColNames.has("email_verified")) {
+  db.exec(`ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0`);
+  userColNames.add("email_verified");
+}
+if (!userColNames.has("auth_provider")) {
+  db.exec(`ALTER TABLE users ADD COLUMN auth_provider TEXT`);
+  userColNames.add("auth_provider");
+}
+if (!userColNames.has("google_sub")) {
+  db.exec(`ALTER TABLE users ADD COLUMN google_sub TEXT`);
+  userColNames.add("google_sub");
+}
+
+/** Backfill account kind: guests vs password (or future OAuth) accounts — safe for existing DBs. */
+db.exec(`
+  UPDATE users SET auth_provider = 'guest'
+  WHERE (auth_provider IS NULL OR trim(auth_provider) = '')
+    AND (username IS NULL OR trim(username) = '')
+    AND (password_hash IS NULL OR trim(password_hash) = '')
+`);
+db.exec(`
+  UPDATE users SET auth_provider = 'local'
+  WHERE auth_provider IS NULL OR trim(auth_provider) = ''
+`);
+
+try {
+  db.exec(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users(lower(trim(email))) WHERE email IS NOT NULL AND trim(email) != ''",
+  );
+} catch {
+  /* ignore if duplicate or unsupported */
+}
 
 try {
   db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username_lower ON users(lower(username)) WHERE username IS NOT NULL`);
 } catch {
   /* ignore if duplicate or unsupported */
+}
+
+try {
+  db.exec(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub) WHERE google_sub IS NOT NULL AND trim(google_sub) != ''",
+  );
+} catch {
+  /* ignore if duplicate or unsupported */
+}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS email_verification_tokens (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_email_verification_user ON email_verification_tokens(user_id);
+
+  CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_password_reset_user ON password_reset_tokens(user_id);
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS beta_waitlist (
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL,
+    display_name TEXT,
+    note TEXT,
+    source TEXT,
+    referrer TEXT,
+    user_agent TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+`);
+
+try {
+  db.exec(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_beta_waitlist_email_lower ON beta_waitlist(lower(trim(email))) WHERE email IS NOT NULL AND trim(email) != ''",
+  );
+} catch {
+  /* ignore */
 }
 
 const subColNames = new Set(

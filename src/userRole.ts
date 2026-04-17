@@ -24,6 +24,12 @@ export function isActivatedBySubscribedCountAlone(subscribedShowCount: number): 
 
 export const UNLOCK_SOCIAL_FEATURES_MESSAGE = "Add 3 shows to unlock this feature.";
 
+/** Community, DMs, and related features require a non-empty public username (handle). */
+export function userHasPublicUsername(userId: string): boolean {
+  const row = db.prepare(`SELECT username FROM users WHERE id = ?`).get(userId) as { username: string | null } | undefined;
+  return Boolean(row?.username && String(row.username).trim());
+}
+
 export function getSubscribedShowCountForUser(userId: string): number {
   const row = db
     .prepare(`SELECT COUNT(*) AS c FROM show_subscriptions WHERE user_id = ?`)
@@ -64,6 +70,7 @@ export function effectiveViewerRoleForUser(userId: string): ViewerRole {
 
 /** Inbox, DMs, community writes, and similar social features (server source of truth). */
 export function hasFullSocialAccess(userId: string): boolean {
+  if (!userHasPublicUsername(userId)) return false;
   if (isUserDbAdmin(userId)) return true;
   return effectiveViewerRoleForUser(userId) !== "newb";
 }

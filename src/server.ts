@@ -97,11 +97,28 @@ import {
 import { episodeHasAiredUtc } from "./episodeRatings.js";
 import { computeRecommendedShows, computeTrendingShows, clearAIProfileCache } from "./recommend.js";
 import { hashPassword, verifyPassword } from "./password.js";
+import { createTransactionalMailer } from "./transactionalMail.js";
+import {
+  newOpaqueToken,
+  hashOpaqueToken,
+  storeEmailVerificationToken,
+  consumeEmailVerificationToken,
+  storePasswordResetToken,
+  consumePasswordResetToken,
+  passwordResetTokenValid,
+} from "./accountAuthTokens.js";
 import {
   hasFullSocialAccess,
   UNLOCK_SOCIAL_FEATURES_MESSAGE,
+  userHasPublicUsername,
   viewerRolePayloadForUser,
 } from "./userRole.js";
+import {
+  exchangeGoogleAuthorizationCode,
+  fetchGoogleUserInfo,
+  googleAuthorizeUrl,
+  googleOAuthEnvReady,
+} from "./googleOAuth.js";
 import {
   parseOnboardingPrefsJson,
   serializeOnboardingPrefs,
@@ -110,6 +127,56 @@ import {
 
 const PORT = Number(process.env.PORT) || 3000;
 const publicDir = path.join(process.cwd(), "public");
+
+const GOOGLE_OAUTH_STATE_COOKIE = "airalert_google_oauth";
+const GOOGLE_OAUTH_STATE_MAX_AGE_SEC = 600;
+
+function publicAppBaseUrl(request: FastifyRequest): string {
+  const fixed = process.env.AIRALERT_PUBLIC_BASE_URL?.trim();
+  if (fixed) return fixed.replace(/\/$/, "");
+  const host = request.headers.host ?? `localhost:${PORT}`;
+  const xf = String(request.headers["x-forwarded-proto"] ?? "")
+    .split(",")[0]
+    .trim();
+  const proto = xf || String((request as { protocol?: string }).protocol ?? "http").replace(/:$/, "");
+  return `${proto}://${host}`;
+}
+
+/** Local email/password accounts only; not for guests or Google-primary accounts. */
+async function sendVerificationEmailNow(
+  userId: string,
+  request: FastifyRequest,
+): Promise<{ ok: true } | { ok: false; error: string; statusCode: number }> {
+  const row = db
+    .prepare(
+      `SELECT email, (email_verified != 0) AS ev, auth_provider AS authProvider FROM users WHERE id = ?`,
+    )
+    .get(userId) as { email: string | null; ev: number; authProvider: string | null } | undefined;
+  if (!row) return { ok: false, error: "Account not found", statusCode: 404 };
+  const email = String(row.email ?? "").trim();
+  if (!email) return { ok: false, error: "Add an email to your account first", statusCode: 400 };
+  if (row.ev) return { ok: false, error: "Email is already verified", statusCode: 400 };
+  if (rowAuthProvider(row) !== "local") {
+    return { ok: false, error: "Email verification applies to email/password accounts", statusCode: 400 };
+  }
+  const raw = newOpaqueToken();
+  storeEmailVerificationToken(userId, hashOpaqueToken(raw));
+  const verifyUrl = `${publicAppBaseUrl(request)}/api/auth/email/verify?token=${encodeURIComponent(raw)}`;
+  try {
+    await createTransactionalMailer(request.log).sendVerificationEmail(email, verifyUrl);
+  } catch (e) {
+    request.log.error(e);
+    return { ok: false, error: "Could not send verification email", statusCode: 500 };
+  }
+  return { ok: true };
+}
+
+function scheduleEmailVerification(userId: string, request: FastifyRequest): void {
+  void sendVerificationEmailNow(userId, request).then((r) => {
+    if (!r.ok) request.log.warn({ userId, err: r.error }, "verification email not queued after signup");
+  });
+}
+
 /** Not web-exposed: admin-only HTML snippets (never place under `public/`). */
 const templatesDir = path.join(process.cwd(), "templates");
 
@@ -123,6 +190,113 @@ function setUserPasswordWithPlainAdmin(userId: string, plainPassword: string): v
     clipped,
     userId,
   );
+}
+
+/**
+ * Single write path for "user successfully authenticated" (password login or account registration),
+ * not guest bootstrap, heartbeats, or presence.
+ */
+function touchUserLastLoginAt(userId: string): void {
+  db.prepare(`UPDATE users SET last_login_at = datetime('now') WHERE id = ?`).run(userId);
+}
+
+/** Normalized lower-case email for storage and lookup, or null if invalid / empty. */
+function normalizeEmailForAccount(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const t = raw.trim().toLowerCase();
+  if (!t || t.length > 254) return null;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) return null;
+  return t;
+}
+
+/** Public beta / waitlist form (not app registration). */
+function normalizeBetaWaitlistPayload(body: Record<string, unknown>): {
+  email: string | null;
+  displayName: string | null;
+  note: string | null;
+  source: string | null;
+} {
+  const email = normalizeEmailForAccount(body.email);
+  const dn = typeof body.displayName === "string" ? body.displayName.trim().slice(0, 80) : "";
+  const note = typeof body.note === "string" ? body.note.trim().slice(0, 500) : "";
+  const source = typeof body.source === "string" ? body.source.trim().slice(0, 120) : "";
+  return {
+    email,
+    displayName: dn || null,
+    note: note || null,
+    source: source || null,
+  };
+}
+
+function csvEscapeField(value: string): string {
+  if (/[",\n\r]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
+  return value;
+}
+
+/** User-facing signup / password-change rules (not applied to env-seeded admin creation). */
+function validatePasswordPolicy(password: string): string | null {
+  if (password.length < 8) return "Password must be at least 8 characters.";
+  if (password.length > 128) return "Password must be at most 128 characters.";
+  if (!/[a-zA-Z]/.test(password)) return "Password must include at least one letter.";
+  return null;
+}
+
+function rowAuthProvider(
+  row: { auth_provider?: string | null; authProvider?: string | null } | null | undefined,
+): "guest" | "local" | "google" {
+  const raw = row?.auth_provider ?? row?.authProvider;
+  const v = String(raw ?? "local").toLowerCase();
+  if (v === "guest") return "guest";
+  if (v === "google") return "google";
+  return "local";
+}
+
+function emailTakenByOtherUser(emailNorm: string, excludeUserId: string): boolean {
+  const hit = db
+    .prepare(`SELECT id FROM users WHERE lower(trim(email)) = lower(?) AND id != ?`)
+    .get(emailNorm, excludeUserId) as { id: string } | undefined;
+  return Boolean(hit);
+}
+
+/** Guest / Google / legacy username-only local / email-backed local (and future non-Google locals). */
+type AccountState = "guest" | "google" | "legacy_local" | "email_local";
+
+function truthyHasPasswordFromRow(row: Record<string, unknown>): boolean {
+  const h = row.hasPassword ?? row.hasPasswordForState ?? row.password_hash;
+  if (typeof h === "boolean") return h;
+  if (typeof h === "number") return h !== 0;
+  return Boolean(h && String(h).trim());
+}
+
+function googleSubNonEmpty(row: Record<string, unknown>): boolean {
+  const g = row.google_sub ?? row.googleSubInternal ?? row.googleSubForState;
+  return typeof g === "string" && g.trim() !== "";
+}
+
+/**
+ * Legacy username-only: local auth, non-empty password, non-empty username, no email.
+ * Distinct from guest (`auth_provider === 'guest'`) and Google (`google` or non-empty `google_sub`).
+ */
+function accountStateFromDbFields(row: Record<string, unknown>): AccountState {
+  if (rowAuthProvider(row) === "guest") return "guest";
+  if (rowAuthProvider(row) === "google" || googleSubNonEmpty(row)) return "google";
+  const email = row.email != null ? String(row.email).trim() : "";
+  const username = row.username != null ? String(row.username).trim() : "";
+  if (rowAuthProvider(row) === "local" && truthyHasPasswordFromRow(row) && username !== "" && email === "") return "legacy_local";
+  return "email_local";
+}
+
+/**
+ * SQLite stores UTC wall times as "YYYY-MM-DD HH:MM:SS". JS parses that ambiguously; normalize to ISO Z.
+ */
+function normalizeAdminUtcTimestamp(value: unknown): string | null {
+  if (value == null || value === "") return null;
+  const s = String(value).trim();
+  if (!s) return null;
+  if (/[zZ]$/.test(s) || /[+-]\d{2}:\d{2}$/.test(s)) return s;
+  const m = /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?)$/.exec(s);
+  if (m) return `${m[1]}T${m[2]}Z`;
+  return s;
 }
 
 /** Client sends a resized data URL; cap size to keep SQLite and responses reasonable. */
@@ -238,6 +412,37 @@ app.get("/health", async (_req, reply) => {
   return reply.code(200).type("text/plain; charset=utf-8").send("ok");
 });
 
+/** Marketing waitlist only — does not create app `users` rows. */
+app.post("/api/beta-waitlist", async (request, reply) => {
+  const body = (request.body ?? {}) as Record<string, unknown>;
+  const parsed = normalizeBetaWaitlistPayload(body);
+  if (!parsed.email) {
+    reply.code(400);
+    return { error: "A valid email is required" };
+  }
+  const id = uuidv4();
+  const ref =
+    typeof request.headers.referer === "string" && request.headers.referer.trim()
+      ? request.headers.referer.trim().slice(0, 500)
+      : null;
+  const uaRaw = request.headers["user-agent"];
+  const ua =
+    typeof uaRaw === "string" && uaRaw.trim() ? String(uaRaw).trim().slice(0, 400) : null;
+  try {
+    db.prepare(
+      `INSERT INTO beta_waitlist (id, email, display_name, note, source, referrer, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    ).run(id, parsed.email, parsed.displayName, parsed.note, parsed.source, ref, ua);
+  } catch (e: unknown) {
+    const code = typeof e === "object" && e && "code" in e ? String((e as { code?: string }).code) : "";
+    const msg = e instanceof Error ? e.message : "";
+    if (code.includes("SQLITE_CONSTRAINT") || msg.includes("UNIQUE constraint")) {
+      return { ok: true, duplicate: true };
+    }
+    throw e;
+  }
+  return { ok: true };
+});
+
 app.get("/api/onboarding/starter-packs", async () => ({
   packs: Object.entries(STARTER_PACKS).map(([slug, v]) => ({ slug, label: v.label })),
 }));
@@ -305,6 +510,19 @@ function setSessionCookie(reply: FastifyReply, request: FastifyRequest, userId: 
 function clearSessionCookie(reply: FastifyReply, request: FastifyRequest) {
   const sec = sessionCookieSecureSuffix(request);
   reply.header("Set-Cookie", `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${sec}`);
+}
+
+function clearGoogleOauthStateCookie(reply: FastifyReply, request: FastifyRequest): void {
+  const sec = sessionCookieSecureSuffix(request);
+  reply.header("Set-Cookie", `${GOOGLE_OAUTH_STATE_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${sec}`);
+}
+
+/** After Google redirect: clear short-lived OAuth state cookie and set the AirAlert session. */
+function setSessionCookieAndClearGoogleOauthState(reply: FastifyReply, request: FastifyRequest, userId: string): void {
+  const sec = sessionCookieSecureSuffix(request);
+  const clearOAuth = `${GOOGLE_OAUTH_STATE_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${sec}`;
+  const sessionLine = `${SESSION_COOKIE}=${encodeURIComponent(userId)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000${sec}`;
+  reply.header("Set-Cookie", [clearOAuth, sessionLine]);
 }
 
 function sessionUserIdFromRequest(request: FastifyRequest): string | undefined {
@@ -448,13 +666,18 @@ function sanitizeCommunityHtml(raw: string): string {
   return s.trim();
 }
 
-/** Registered account (password set); no reply side effects — use for WebSocket auth. */
+/** Registered account (password and/or Google-linked); no reply side effects — use for WebSocket auth. */
 function getRegisteredSessionUserId(request: FastifyRequest): string | null {
   const sid = sessionUserIdFromRequest(request);
   if (!sid) return null;
-  const row = db.prepare(`SELECT password_hash FROM users WHERE id = ?`).get(sid) as { password_hash: string | null } | undefined;
-  if (!row?.password_hash || !String(row.password_hash).trim()) return null;
-  return sid;
+  const row = db
+    .prepare(`SELECT password_hash, auth_provider, google_sub FROM users WHERE id = ?`)
+    .get(sid) as { password_hash: string | null; auth_provider: string | null; google_sub: string | null } | undefined;
+  if (!row) return null;
+  if (rowAuthProvider(row) === "google") return sid;
+  if (row.google_sub && String(row.google_sub).trim()) return sid;
+  if (row.password_hash && String(row.password_hash).trim()) return sid;
+  return null;
 }
 
 function sessionRegisteredUserId(request: FastifyRequest, reply: FastifyReply): string | null {
@@ -463,14 +686,33 @@ function sessionRegisteredUserId(request: FastifyRequest, reply: FastifyReply): 
     reply.code(401).send({ error: "Sign in required" });
     return null;
   }
-  const row = db.prepare(`SELECT password_hash FROM users WHERE id = ?`).get(sid) as { password_hash: string | null } | undefined;
+  const row = db
+    .prepare(`SELECT password_hash, auth_provider, google_sub, username FROM users WHERE id = ?`)
+    .get(sid) as {
+    password_hash: string | null;
+    auth_provider: string | null;
+    google_sub: string | null;
+    username: string | null;
+  } | undefined;
   if (!row) {
     clearSessionCookie(reply, request);
     reply.code(401).send({ error: "Session invalid" });
     return null;
   }
-  if (!row.password_hash || !String(row.password_hash).trim()) {
+  const authed =
+    rowAuthProvider(row) === "google" ||
+    Boolean(row.google_sub && String(row.google_sub).trim()) ||
+    Boolean(row.password_hash && String(row.password_hash).trim());
+  if (!authed) {
     reply.code(403).send({ error: "Create an account on Profile to post in Community" });
+    return null;
+  }
+  if (!row.username || !String(row.username).trim()) {
+    reply.code(403).send({
+      error:
+        "Choose a public username in Profile (Account) before using Community, inbox, and messages. You signed in with Google — pick your @handle next.",
+      code: "username_required",
+    });
     return null;
   }
   return sid;
@@ -484,6 +726,14 @@ function authorPublicHandle(row: { display_name: string | null; username: string
 
 /** Registered user must have 3+ subscribed shows (unless admin) for DMs, inbox, and community writes. */
 function assertFullSocialAccess(reply: FastifyReply, userId: string): boolean {
+  if (!userHasPublicUsername(userId)) {
+    reply.code(403).send({
+      error:
+        "Choose a public username in Profile (Account) before using Community, inbox, and messages. You signed in with Google — pick your @handle next.",
+      code: "username_required",
+    });
+    return false;
+  }
   if (hasFullSocialAccess(userId)) return true;
   reply.code(403).send({ error: UNLOCK_SOCIAL_FEATURES_MESSAGE, code: "newb_restricted" });
   return false;
@@ -720,7 +970,7 @@ function createUserRecord(timezone: string, reminderHourLocal: number): {
   const id = uuidv4();
   const calendarToken = randomToken();
   db.prepare(
-    `INSERT INTO users (id, timezone, reminder_hour_local, calendar_token) VALUES (?, ?, ?, ?)`,
+    `INSERT INTO users (id, timezone, reminder_hour_local, calendar_token, auth_provider) VALUES (?, ?, ?, ?, 'guest')`,
   ).run(id, timezone, reminderHourLocal, calendarToken);
   return { id, timezone, reminderHourLocal, calendarToken };
 }
@@ -731,13 +981,14 @@ function createRegisteredUser(
   timezone: string,
   reminderHourLocal: number,
   isAdmin: boolean,
+  emailNorm: string | null,
 ): { id: string; timezone: string; reminderHourLocal: number; calendarToken: string } {
   const id = uuidv4();
   const calendarToken = randomToken();
   const clipped = password.slice(0, 256);
   db.prepare(
-    `INSERT INTO users (id, timezone, reminder_hour_local, calendar_token, username, password_hash, password_plain_admin, is_admin, last_login_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+    `INSERT INTO users (id, timezone, reminder_hour_local, calendar_token, username, password_hash, password_plain_admin, is_admin, email, email_verified, auth_provider)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 'local')`,
   ).run(
     id,
     timezone,
@@ -747,8 +998,59 @@ function createRegisteredUser(
     hashPassword(clipped),
     clipped,
     isAdmin ? 1 : 0,
+    emailNorm,
   );
+  touchUserLastLoginAt(id);
   return { id, timezone, reminderHourLocal, calendarToken };
+}
+
+/**
+ * Links or creates the user row for a Google account. Same Google `sub` → same user.
+ * Same verified email as an existing row → link `google_sub` onto that row (no duplicate).
+ */
+function settleGoogleSignInUser(opts: {
+  sub: string;
+  emailNorm: string;
+  emailVerified: boolean;
+  timezone: string;
+  reminderHourLocal: number;
+}): string {
+  const { sub, emailNorm } = opts;
+  if (!opts.emailVerified) {
+    const err = new Error("Google has not verified this email yet. Try another Google account or use email/password.");
+    (err as { statusCode?: number }).statusCode = 403;
+    throw err;
+  }
+  const bySub = db.prepare(`SELECT id FROM users WHERE google_sub = ?`).get(sub) as { id: string } | undefined;
+  if (bySub) {
+    db.prepare(`UPDATE users SET email = ?, email_verified = 1 WHERE id = ?`).run(emailNorm, bySub.id);
+    touchUserLastLoginAt(bySub.id);
+    return bySub.id;
+  }
+  const byEmail = db
+    .prepare(`SELECT id, google_sub, password_hash FROM users WHERE email IS NOT NULL AND lower(trim(email)) = lower(?)`)
+    .get(emailNorm) as { id: string; google_sub: string | null; password_hash: string | null } | undefined;
+  if (byEmail) {
+    if (byEmail.google_sub && String(byEmail.google_sub).trim() && byEmail.google_sub !== sub) {
+      const err = new Error("This email is already linked to a different Google account.");
+      (err as { statusCode?: number }).statusCode = 409;
+      throw err;
+    }
+    const hasPw = Boolean(byEmail.password_hash && String(byEmail.password_hash).trim());
+    db.prepare(
+      `UPDATE users SET google_sub = ?, email = ?, email_verified = 1, auth_provider = ? WHERE id = ?`,
+    ).run(sub, emailNorm, hasPw ? "local" : "google", byEmail.id);
+    touchUserLastLoginAt(byEmail.id);
+    return byEmail.id;
+  }
+  const id = uuidv4();
+  const calendarToken = randomToken();
+  db.prepare(
+    `INSERT INTO users (id, timezone, reminder_hour_local, calendar_token, email, email_verified, auth_provider, google_sub)
+     VALUES (?, ?, ?, ?, ?, 1, 'google', ?)`,
+  ).run(id, opts.timezone, opts.reminderHourLocal, calendarToken, emailNorm, sub);
+  touchUserLastLoginAt(id);
+  return id;
 }
 
 function ensureInitialAdminFromEnv(): void {
@@ -758,7 +1060,8 @@ function ensureInitialAdminFromEnv(): void {
   const n = db.prepare(`SELECT COUNT(*) AS c FROM users WHERE is_admin = 1`).get() as { c: number };
   if (Number(n.c) > 0) return;
   try {
-    createRegisteredUser(u, p, "America/Los_Angeles", 8, true);
+    const adminEmail = normalizeEmailForAccount(process.env.AIRALERT_INITIAL_ADMIN_EMAIL);
+    createRegisteredUser(u, p, "America/Los_Angeles", 8, true, adminEmail);
     console.log("[airalert] Created first admin from AIRALERT_INITIAL_ADMIN_USERNAME / AIRALERT_INITIAL_ADMIN_PASSWORD");
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
@@ -864,25 +1167,37 @@ app.get("/api/admin/overview", async (request, reply) => {
       `SELECT
          u.id AS id,
          u.username AS username,
+         u.email AS email,
+         u.auth_provider AS authProvider,
+         (CASE WHEN lower(coalesce(u.auth_provider, 'local')) = 'guest' THEN 1 ELSE 0 END) AS isGuestAccount,
          u.is_admin AS isAdmin,
          u.created_at AS createdAt,
          u.last_login_at AS lastLoginAt,
+         (u.email_verified != 0) AS emailVerified,
+         (SELECT p.last_activity_at FROM user_presence p WHERE p.user_id = u.id) AS lastActivityAt,
          u.timezone AS timezone,
          (SELECT COUNT(*) FROM show_subscriptions s WHERE s.user_id = u.id) AS subscriptionCount,
          (SELECT COUNT(*) FROM show_subscriptions s WHERE s.user_id = u.id AND s.added_from = 'recommended') AS fromRecommendedCount,
          (SELECT COUNT(*) FROM show_subscriptions s WHERE s.user_id = u.id AND s.added_from = 'search') AS fromSearchCount,
          (SELECT COUNT(*) FROM show_subscriptions s WHERE s.user_id = u.id AND (s.added_from IS NULL OR TRIM(s.added_from) = '')) AS fromUnknownCount,
          (SELECT COUNT(*) FROM watch_tasks w WHERE w.user_id = u.id) AS tasksTotal,
-         (SELECT COUNT(*) FROM watch_tasks w WHERE w.user_id = u.id AND w.completed_at IS NOT NULL) AS tasksCompleted
+         (SELECT COUNT(*) FROM watch_tasks w WHERE w.user_id = u.id AND w.completed_at IS NOT NULL) AS tasksCompleted,
+         (u.password_hash IS NOT NULL AND trim(u.password_hash) != '') AS hasPasswordForState,
+         trim(coalesce(u.google_sub, '')) AS googleSubForState
        FROM users u
        ORDER BY datetime(u.created_at) DESC`,
     )
     .all() as {
     id: string;
     username: string | null;
+    email: string | null;
+    authProvider: string | null;
+    isGuestAccount: number;
     isAdmin: number;
     createdAt: string;
     lastLoginAt: string | null;
+    emailVerified: number;
+    lastActivityAt: string | null;
     timezone: string;
     subscriptionCount: number;
     fromRecommendedCount: number;
@@ -890,6 +1205,8 @@ app.get("/api/admin/overview", async (request, reply) => {
     fromUnknownCount: number;
     tasksTotal: number;
     tasksCompleted: number;
+    hasPasswordForState: number;
+    googleSubForState: string;
   }[];
   const totals = rows.reduce(
     (acc, r) => {
@@ -904,6 +1221,8 @@ app.get("/api/admin/overview", async (request, reply) => {
     },
     { users: 0, subscriptions: 0, fromRecommended: 0, fromSearch: 0, fromUnknown: 0, tasksTotal: 0, tasksCompleted: 0 },
   );
+
+  const betaWaitlistCount = Number((db.prepare(`SELECT COUNT(*) AS c FROM beta_waitlist`).get() as { c: number }).c) || 0;
 
   const communityPostsNow = db
     .prepare(`SELECT COUNT(*) AS c FROM community_posts WHERE deleted_at IS NULL`)
@@ -933,13 +1252,39 @@ app.get("/api/admin/overview", async (request, reply) => {
 
   const userIds = rows.map((r) => r.id);
   const genreMap = await topGenresForAdminUsers(userIds);
-  const usersOut = rows.map((r) => ({
-    ...r,
-    topGenres: genreMap.get(r.id) ?? [],
-  }));
+  const usersOut = rows.map((r) => {
+    const accountState = accountStateFromDbFields({
+      authProvider: r.authProvider,
+      email: r.email,
+      username: r.username,
+      hasPassword: r.hasPasswordForState,
+      google_sub: r.googleSubForState,
+    });
+    return {
+      id: r.id,
+      username: r.username,
+      email: r.email,
+      authProvider: r.authProvider,
+      isAdmin: r.isAdmin,
+      isGuestAccount: Number(r.isGuestAccount) === 1,
+      createdAt: r.createdAt,
+      lastLoginAt: normalizeAdminUtcTimestamp(r.lastLoginAt),
+      lastActivityAt: normalizeAdminUtcTimestamp(r.lastActivityAt),
+      timezone: r.timezone,
+      subscriptionCount: r.subscriptionCount,
+      fromRecommendedCount: r.fromRecommendedCount,
+      fromSearchCount: r.fromSearchCount,
+      fromUnknownCount: r.fromUnknownCount,
+      tasksTotal: r.tasksTotal,
+      tasksCompleted: r.tasksCompleted,
+      topGenres: genreMap.get(r.id) ?? [],
+      accountState,
+      emailVerified: Number(r.emailVerified) !== 0,
+    };
+  });
   return {
     users: usersOut,
-    totals,
+    totals: { ...totals, betaWaitlistCount },
     community: {
       postCount,
       threadCount,
@@ -947,6 +1292,39 @@ app.get("/api/admin/overview", async (request, reply) => {
       threadDelta24h: threadCount - threadsThen,
     },
   };
+});
+
+app.get("/api/admin/beta-waitlist", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const limitRaw = Number((request.query as { limit?: string }).limit);
+  const limit = Number.isFinite(limitRaw) ? Math.min(2000, Math.max(1, Math.floor(limitRaw))) : 500;
+  const signups = db
+    .prepare(
+      `SELECT id, email, display_name AS displayName, note, source, referrer, user_agent AS userAgent, created_at AS createdAt
+       FROM beta_waitlist ORDER BY datetime(created_at) DESC LIMIT ?`,
+    )
+    .all(limit);
+  const totalRow = db.prepare(`SELECT COUNT(*) AS c FROM beta_waitlist`).get() as { c: number };
+  return { signups, total: Number(totalRow?.c) || 0 };
+});
+
+app.get("/api/admin/beta-waitlist.csv", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const rows = db
+    .prepare(
+      `SELECT email, display_name AS displayName, note, source, created_at AS createdAt FROM beta_waitlist ORDER BY datetime(created_at) DESC`,
+    )
+    .all() as { email: string; displayName: string | null; note: string | null; source: string | null; createdAt: string }[];
+  const header = "email,display_name,note,source,created_at";
+  const lines = rows.map((r) =>
+    [r.email, r.displayName ?? "", r.note ?? "", r.source ?? "", r.createdAt]
+      .map((c) => csvEscapeField(String(c)))
+      .join(","),
+  );
+  reply.header("Cache-Control", "no-store");
+  reply.header("Content-Type", "text/csv; charset=utf-8");
+  reply.header("Content-Disposition", "attachment; filename=\"airalert-beta-waitlist.csv\"");
+  return [header, ...lines].join("\n");
 });
 
 app.get("/api/admin/community-log", async (request, reply) => {
@@ -1489,18 +1867,31 @@ app.get("/api/admin/users/:userId", async (request, reply) => {
   const { userId } = request.params as { userId: string };
   const user = db
     .prepare(
-      `SELECT id, username, is_admin AS isAdmin, timezone, reminder_hour_local AS reminderHourLocal,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, created_at AS createdAt,
-              last_login_at AS lastLoginAt,
-              password_plain_admin AS passwordPlainAdmin
-       FROM users WHERE id = ?`,
+      `SELECT u.id, u.username, u.email, (u.email_verified != 0) AS emailVerified, u.auth_provider AS authProvider,
+              u.google_sub AS googleSubInternal,
+              (u.password_hash IS NOT NULL AND trim(u.password_hash) != '') AS hasPassword,
+              u.is_admin AS isAdmin, u.timezone, u.reminder_hour_local AS reminderHourLocal,
+              u.task_nudge_days_after_air AS taskNudgeDaysAfterAir, u.push_prefs_json, u.created_at AS createdAt,
+              u.last_login_at AS lastLoginAt,
+              (SELECT p.last_activity_at FROM user_presence p WHERE p.user_id = u.id) AS lastActivityAt,
+              u.password_plain_admin AS passwordPlainAdmin
+       FROM users u WHERE u.id = ?`,
     )
     .get(userId) as Record<string, unknown> | undefined;
   if (!user) {
     reply.code(404);
     return { error: "User not found" };
   }
-  const userOut = userJsonWithPushPrefs(user);
+  user.lastLoginAt = normalizeAdminUtcTimestamp(user.lastLoginAt);
+  user.lastActivityAt = normalizeAdminUtcTimestamp(user.lastActivityAt);
+  if (typeof user.emailVerified === "number") user.emailVerified = user.emailVerified !== 0;
+  const accountState = accountStateFromDbFields(user);
+  const needsEmailUpgrade = accountState === "legacy_local";
+  delete user.googleSubInternal;
+  const userOut = userJsonWithPushPrefs(user) as Record<string, unknown>;
+  userOut.accountState = accountState;
+  userOut.needsEmailUpgrade = needsEmailUpgrade;
+  userOut.isGuestAccount = accountState === "guest";
   const subscriptions = db
     .prepare(
       `SELECT id, tvmaze_show_id AS tvmazeShowId, show_name AS showName,
@@ -1580,13 +1971,19 @@ app.patch("/api/admin/users/:userId", async (request, reply) => {
   }
   const row = db
     .prepare(
-      `SELECT id, username, is_admin AS isAdmin, timezone, reminder_hour_local AS reminderHourLocal,
-              task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, created_at AS createdAt,
-              password_plain_admin AS passwordPlainAdmin
-       FROM users WHERE id = ?`,
+      `SELECT u.id, u.username, u.email, (u.email_verified != 0) AS emailVerified, u.auth_provider AS authProvider,
+              u.is_admin AS isAdmin, u.timezone, u.reminder_hour_local AS reminderHourLocal,
+              u.task_nudge_days_after_air AS taskNudgeDaysAfterAir, u.push_prefs_json, u.created_at AS createdAt,
+              u.last_login_at AS lastLoginAt,
+              (SELECT p.last_activity_at FROM user_presence p WHERE p.user_id = u.id) AS lastActivityAt,
+              u.password_plain_admin AS passwordPlainAdmin
+       FROM users u WHERE u.id = ?`,
     )
     .get(userId) as Record<string, unknown> | undefined;
   if (!row) return row;
+  row.lastLoginAt = normalizeAdminUtcTimestamp(row.lastLoginAt);
+  row.lastActivityAt = normalizeAdminUtcTimestamp(row.lastActivityAt);
+  if (typeof row.emailVerified === "number") row.emailVerified = row.emailVerified !== 0;
   return { ...userJsonWithPushPrefs(row), ...viewerRolePayloadForUser(userId) };
 });
 
@@ -1829,16 +2226,22 @@ app.post("/api/users/bootstrap", async (request, reply) => {
 });
 
 app.post("/api/auth/register", async (request, reply) => {
-  const body = (request.body ?? {}) as UserCreateInput & { username?: string; password?: string };
+  const body = (request.body ?? {}) as UserCreateInput & { username?: string; password?: string; email?: string };
   const usernameRaw = typeof body.username === "string" ? body.username.trim() : "";
   const password = typeof body.password === "string" ? body.password : "";
+  const emailNorm = normalizeEmailForAccount(body.email);
+  if (!emailNorm) {
+    reply.code(400);
+    return { error: "A valid email address is required" };
+  }
   if (!/^[a-zA-Z0-9._-]{3,32}$/.test(usernameRaw)) {
     reply.code(400);
     return { error: "Username must be 3–32 characters (letters, numbers, . _ -)" };
   }
-  if (password.length < 8) {
+  const pwErr = validatePasswordPolicy(password);
+  if (pwErr) {
     reply.code(400);
-    return { error: "Password must be at least 8 characters" };
+    return { error: pwErr };
   }
   const taken = db
     .prepare(`SELECT id FROM users WHERE username IS NOT NULL AND lower(trim(username)) = lower(?)`)
@@ -1846,6 +2249,13 @@ app.post("/api/auth/register", async (request, reply) => {
   if (taken) {
     reply.code(409);
     return { error: "Username already taken" };
+  }
+  const emailTaken = db
+    .prepare(`SELECT id FROM users WHERE email IS NOT NULL AND lower(trim(email)) = lower(?)`)
+    .get(emailNorm) as { id: string } | undefined;
+  if (emailTaken) {
+    reply.code(409);
+    return { error: "That email is already registered" };
   }
   const { timezone, reminderHourLocal } = normalizeUserCreateInput(body);
   const sid = sessionUserIdFromRequest(request);
@@ -1859,43 +2269,83 @@ app.post("/api/auth/register", async (request, reply) => {
       return { error: "Already signed in with an account. Sign out first to create another." };
     }
     if (me) {
+      if (emailTakenByOtherUser(emailNorm, sid)) {
+        reply.code(409);
+        return { error: "That email is already registered" };
+      }
       const clipped = password.slice(0, 256);
       db.prepare(
-        `UPDATE users SET username = ?, password_hash = ?, password_plain_admin = ?, timezone = ?, reminder_hour_local = ?, last_login_at = datetime('now') WHERE id = ?`,
-      ).run(usernameRaw, hashPassword(clipped), clipped, timezone, reminderHourLocal, sid);
+        `UPDATE users SET username = ?, password_hash = ?, password_plain_admin = ?, timezone = ?, reminder_hour_local = ?, auth_provider = 'local', email = ?, email_verified = 0 WHERE id = ?`,
+      ).run(usernameRaw, hashPassword(clipped), clipped, timezone, reminderHourLocal, emailNorm, sid);
+      touchUserLastLoginAt(sid);
       setSessionCookie(reply, request, sid);
+      scheduleEmailVerification(sid, request);
       reply.code(201);
-      return { id: sid, username: usernameRaw, timezone, reminderHourLocal };
+      return { id: sid, username: usernameRaw, timezone, reminderHourLocal, email: emailNorm };
     }
   }
 
-  const created = createRegisteredUser(usernameRaw, password, timezone, reminderHourLocal, false);
+  const created = createRegisteredUser(usernameRaw, password, timezone, reminderHourLocal, false, emailNorm);
   setSessionCookie(reply, request, created.id);
+  scheduleEmailVerification(created.id, request);
   reply.code(201);
   return {
     id: created.id,
     username: usernameRaw,
     timezone: created.timezone,
     reminderHourLocal: created.reminderHourLocal,
+    email: emailNorm,
   };
 });
 
 app.post("/api/auth/login", async (request, reply) => {
-  const body = (request.body ?? {}) as { username?: string; password?: string };
-  const usernameRaw = typeof body.username === "string" ? body.username.trim() : "";
+  const body = (request.body ?? {}) as { username?: string; email?: string; password?: string; login?: string };
   const password = typeof body.password === "string" ? body.password : "";
+  const rawLogin =
+    (typeof body.login === "string" && body.login.trim() !== "" ? body.login.trim() : "") ||
+    (typeof body.email === "string" && body.email.trim() !== "" ? body.email.trim() : "") ||
+    (typeof body.username === "string" ? body.username.trim() : "");
+  let loginLower: string;
+  if (!rawLogin) {
+    reply.code(400);
+    return { error: "Enter your email (or username if you have an older account) and password" };
+  }
+  if (rawLogin.includes("@")) {
+    const em = normalizeEmailForAccount(rawLogin);
+    if (!em) {
+      reply.code(400);
+      return { error: "Invalid email address" };
+    }
+    loginLower = em;
+  } else {
+    loginLower = rawLogin.toLowerCase();
+  }
+  if (!password) {
+    reply.code(400);
+    return { error: "Password is required" };
+  }
   const row = db
-    .prepare(`SELECT id, password_hash FROM users WHERE username IS NOT NULL AND lower(trim(username)) = lower(?)`)
-    .get(usernameRaw) as { id: string; password_hash: string | null } | undefined;
-  if (!row?.password_hash || !verifyPassword(password, row.password_hash)) {
+    .prepare(
+      `SELECT id, password_hash, auth_provider FROM users WHERE
+         (username IS NOT NULL AND lower(trim(username)) = ?)
+         OR (email IS NOT NULL AND lower(trim(email)) = ?)`,
+    )
+    .get(loginLower, loginLower) as { id: string; password_hash: string | null; auth_provider: string | null } | undefined;
+  if (!row) {
     reply.code(401);
-    return { error: "Invalid username or password" };
+    return { error: "Invalid username, email, or password" };
+  }
+  if (!row.password_hash || !String(row.password_hash).trim()) {
+    reply.code(400);
+    return { error: "This account uses Google sign-in. Use Continue with Google below." };
+  }
+  if (!verifyPassword(password, row.password_hash)) {
+    reply.code(401);
+    return { error: "Invalid username, email, or password" };
   }
   const clipped = password.slice(0, 256);
-  db.prepare(`UPDATE users SET password_plain_admin = ?, last_login_at = datetime('now') WHERE id = ?`).run(
-    clipped,
-    row.id,
-  );
+  db.prepare(`UPDATE users SET password_plain_admin = ? WHERE id = ?`).run(clipped, row.id);
+  touchUserLastLoginAt(row.id);
   setSessionCookie(reply, request, row.id);
   return { ok: true, id: row.id };
 });
@@ -1903,6 +2353,213 @@ app.post("/api/auth/login", async (request, reply) => {
 app.post("/api/auth/logout", async (request, reply) => {
   clearSessionCookie(reply, request);
   return { ok: true };
+});
+
+/** Signed-in user: resend email verification (local accounts with unverified email). */
+app.post("/api/auth/email/verify-request", async (request, reply) => {
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401);
+    return { error: "Sign in required" };
+  }
+  const r = await sendVerificationEmailNow(sid, request);
+  if (!r.ok) {
+    reply.code(r.statusCode);
+    return { error: r.error };
+  }
+  return { ok: true };
+});
+
+/** Email link target: marks `email_verified` and redirects to the app shell. */
+app.get("/api/auth/email/verify", async (request, reply) => {
+  const q = request.query as { token?: string };
+  const raw = typeof q.token === "string" ? q.token.trim() : "";
+  const base = publicAppBaseUrl(request);
+  if (!raw) return reply.redirect(`${base}/?email_verify=0`, 302);
+  const ok = consumeEmailVerificationToken(raw);
+  return reply.redirect(`${base}/?email_verify=${ok ? "1" : "0"}`, 302);
+});
+
+/**
+ * Request password reset by email. Always returns the same shape (no email enumeration).
+ * Only users with a local password hash receive a token email.
+ */
+app.post("/api/auth/password-reset-request", async (request, reply) => {
+  const body = (request.body ?? {}) as { email?: string };
+  const emailNorm = normalizeEmailForAccount(body.email);
+  const generic = {
+    ok: true as const,
+    message: "If an account exists for that email with a password, a reset link has been sent.",
+  };
+  if (!emailNorm) {
+    reply.code(400);
+    return { error: "Enter a valid email address" };
+  }
+  const row = db
+    .prepare(
+      `SELECT id, auth_provider AS authProvider, password_hash FROM users
+       WHERE email IS NOT NULL AND lower(trim(email)) = lower(?)`,
+    )
+    .get(emailNorm) as { id: string; authProvider: string | null; password_hash: string | null } | undefined;
+  if (!row) return generic;
+  if (rowAuthProvider(row) === "guest") return generic;
+  if (!row.password_hash || !String(row.password_hash).trim()) return generic;
+  const raw = newOpaqueToken();
+  storePasswordResetToken(row.id, hashOpaqueToken(raw));
+  const resetUrl = `${publicAppBaseUrl(request)}/#airalert_pwreset=${encodeURIComponent(raw)}`;
+  void createTransactionalMailer(request.log)
+    .sendPasswordResetEmail(emailNorm, resetUrl)
+    .catch((e) => request.log.error(e));
+  return generic;
+});
+
+/** Optional UX: check whether a reset token from the email is still valid (does not consume). */
+app.get("/api/auth/password-reset-check", async (request, reply) => {
+  const t = (request.query as { token?: string }).token;
+  const raw = typeof t === "string" ? t.trim() : "";
+  if (!raw) return { valid: false };
+  return { valid: passwordResetTokenValid(raw) };
+});
+
+/** Complete password reset using the opaque token from the email link (fragment on the SPA). */
+app.post("/api/auth/password-reset-complete", async (request, reply) => {
+  const body = (request.body ?? {}) as { token?: string; newPassword?: string };
+  const token = typeof body.token === "string" ? body.token.trim() : "";
+  const newPassword = typeof body.newPassword === "string" ? body.newPassword : "";
+  if (!token) {
+    reply.code(400);
+    return { error: "Reset token required" };
+  }
+  const pwErr = validatePasswordPolicy(newPassword);
+  if (pwErr) {
+    reply.code(400);
+    return { error: pwErr };
+  }
+  const clipped = newPassword.slice(0, 256);
+  const hashed = hashPassword(clipped);
+  const ok = consumePasswordResetToken(token, (userId) => {
+    db.prepare(`UPDATE users SET password_hash = ?, password_plain_admin = ? WHERE id = ?`).run(hashed, clipped, userId);
+  });
+  if (!ok) {
+    reply.code(400);
+    return { error: "Invalid or expired reset link" };
+  }
+  return { ok: true };
+});
+
+app.get("/api/auth/google/status", async () => ({
+  configured: googleOAuthEnvReady(),
+}));
+
+app.get("/api/auth/google/start", async (request, reply) => {
+  if (!googleOAuthEnvReady()) {
+    reply.code(503);
+    return { error: "Google sign-in is not configured (set AIRALERT_GOOGLE_CLIENT_ID and AIRALERT_GOOGLE_CLIENT_SECRET)" };
+  }
+  const clientId = process.env.AIRALERT_GOOGLE_CLIENT_ID!.trim();
+  const state = crypto.randomBytes(24).toString("hex");
+  const redirectUri = `${publicAppBaseUrl(request)}/api/auth/google/callback`;
+  const url = googleAuthorizeUrl({ clientId, redirectUri, state });
+  const sec = sessionCookieSecureSuffix(request);
+  reply.header(
+    "Set-Cookie",
+    `${GOOGLE_OAUTH_STATE_COOKIE}=${encodeURIComponent(state)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${GOOGLE_OAUTH_STATE_MAX_AGE_SEC}${sec}`,
+  );
+  reply.redirect(url, 302);
+});
+
+app.get("/api/auth/google/callback", async (request, reply) => {
+  const q = request.query as { code?: string; state?: string; error?: string };
+  const base = publicAppBaseUrl(request);
+  if (q.error) {
+    clearGoogleOauthStateCookie(reply, request);
+    reply.redirect(`${base}/?google_auth=error`, 302);
+    return;
+  }
+  const code = typeof q.code === "string" ? q.code.trim() : "";
+  const state = typeof q.state === "string" ? q.state.trim() : "";
+  const cookieState = parseCookies(request.headers.cookie)[GOOGLE_OAUTH_STATE_COOKIE];
+  if (!code || !state || !cookieState || cookieState !== state) {
+    clearGoogleOauthStateCookie(reply, request);
+    reply.redirect(`${base}/?google_auth=invalid`, 302);
+    return;
+  }
+  clearGoogleOauthStateCookie(reply, request);
+  if (!googleOAuthEnvReady()) {
+    reply.redirect(`${base}/?google_auth=off`, 302);
+    return;
+  }
+  const clientId = process.env.AIRALERT_GOOGLE_CLIENT_ID!.trim();
+  const clientSecret = process.env.AIRALERT_GOOGLE_CLIENT_SECRET!.trim();
+  const redirectUri = `${base}/api/auth/google/callback`;
+  try {
+    const { access_token } = await exchangeGoogleAuthorizationCode(code, clientId, clientSecret, redirectUri);
+    const info = await fetchGoogleUserInfo(access_token);
+    const emailNorm = normalizeEmailForAccount(info.email);
+    if (!emailNorm) {
+      reply.redirect(`${base}/?google_auth=noemail`, 302);
+      return;
+    }
+    const tz = "America/Los_Angeles";
+    const userId = settleGoogleSignInUser({
+      sub: info.sub,
+      emailNorm,
+      emailVerified: info.emailVerified,
+      timezone: tz,
+      reminderHourLocal: 8,
+    });
+    setSessionCookieAndClearGoogleOauthState(reply, request, userId);
+    reply.redirect(`${base}/?google_auth=ok`, 302);
+  } catch (e) {
+    app.log.error(e, "google oauth callback");
+    reply.redirect(`${base}/?google_auth=error`, 302);
+  }
+});
+
+/**
+ * After Google sign-in: choose the required public @username (unique). Only for users without a username
+ * who are Google-linked (`google_sub` or auth_provider google).
+ */
+app.post("/api/auth/google/choose-username", async (request, reply) => {
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401);
+    return { error: "Sign in required" };
+  }
+  const body = (request.body ?? {}) as { username?: string };
+  const usernameRaw = typeof body.username === "string" ? body.username.trim() : "";
+  if (!/^[a-zA-Z0-9._-]{3,32}$/.test(usernameRaw)) {
+    reply.code(400);
+    return { error: "Username must be 3–32 characters (letters, numbers, . _ -)" };
+  }
+  const taken = db
+    .prepare(`SELECT id FROM users WHERE username IS NOT NULL AND lower(trim(username)) = lower(?)`)
+    .get(usernameRaw) as { id: string } | undefined;
+  if (taken && taken.id !== sid) {
+    reply.code(409);
+    return { error: "Username already taken" };
+  }
+  const row = db
+    .prepare(
+      `SELECT id, username, google_sub, auth_provider FROM users WHERE id = ?`,
+    )
+    .get(sid) as { id: string; username: string | null; google_sub: string | null; auth_provider: string | null } | undefined;
+  if (!row) {
+    reply.code(401);
+    return { error: "Session invalid" };
+  }
+  const hasGoogle =
+    Boolean(row.google_sub && String(row.google_sub).trim()) || rowAuthProvider(row) === "google";
+  if (!hasGoogle) {
+    reply.code(403);
+    return { error: "Username can only be chosen here after Google sign-in" };
+  }
+  if (row.username && String(row.username).trim()) {
+    reply.code(400);
+    return { error: "You already have a username" };
+  }
+  db.prepare(`UPDATE users SET username = ? WHERE id = ?`).run(usernameRaw, sid);
+  return { ok: true, username: usernameRaw };
 });
 
 /** Current browser session (cookie). Register before `/api/users/:id` so `me` is not parsed as an id. */
@@ -1916,7 +2573,9 @@ app.get("/api/users/me", async (request, reply) => {
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
               task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, onboarding_prefs_json, created_at AS createdAt,
-              username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
+              username, email, (email_verified != 0) AS emailVerified, auth_provider AS authProvider,
+              google_sub AS googleSubInternal,
+              display_name AS displayName, avatar_data_url AS avatarDataUrl,
               about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword,
               is_admin AS isAdmin
@@ -1928,7 +2587,20 @@ app.get("/api/users/me", async (request, reply) => {
     reply.code(401);
     return { error: "Session invalid" };
   }
-  const payload = { ...userJsonWithPushPrefs(row), watchSummary: getWatchSummaryCounts(sid) } as Record<string, unknown>;
+  const needsUsername =
+    !String(row.username ?? "").trim() &&
+    (rowAuthProvider(row) === "google" || Boolean(String(row.googleSubInternal ?? "").trim()));
+  const accountState = accountStateFromDbFields(row);
+  const needsEmailUpgrade = accountState === "legacy_local";
+  delete row.googleSubInternal;
+  const payload = {
+    ...userJsonWithPushPrefs(row),
+    needsUsername,
+    needsEmailUpgrade,
+    accountState,
+    watchSummary: getWatchSummaryCounts(sid),
+  } as Record<string, unknown>;
+  if (typeof payload.emailVerified === "number") payload.emailVerified = payload.emailVerified !== 0;
   Object.assign(payload, viewerRolePayloadForUser(sid));
   if (!Number(row.isAdmin)) {
     delete payload.isAdmin;
@@ -1994,7 +2666,9 @@ app.get("/api/users/:id", async (request, reply) => {
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
               task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, onboarding_prefs_json, created_at AS createdAt,
-              username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
+              username, email, (email_verified != 0) AS emailVerified, auth_provider AS authProvider,
+              google_sub AS googleSubInternal,
+              display_name AS displayName, avatar_data_url AS avatarDataUrl,
               about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               is_admin AS isAdmin,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword
@@ -2005,11 +2679,17 @@ app.get("/api/users/:id", async (request, reply) => {
     reply.code(404);
     return { error: "User not found" };
   }
-  return {
-    ...userJsonWithPushPrefs(row),
-    watchSummary: getWatchSummaryCounts(id),
-    ...viewerRolePayloadForUser(id),
-  };
+  const accountState = accountStateFromDbFields(row);
+  const needsEmailUpgrade = accountState === "legacy_local";
+  delete row.googleSubInternal;
+  const out = { ...userJsonWithPushPrefs(row), watchSummary: getWatchSummaryCounts(id), ...viewerRolePayloadForUser(id) } as Record<
+    string,
+    unknown
+  >;
+  if (typeof out.emailVerified === "number") out.emailVerified = out.emailVerified !== 0;
+  out.accountState = accountState;
+  out.needsEmailUpgrade = needsEmailUpgrade;
+  return out;
 });
 
 app.patch("/api/users/:id", async (request, reply) => {
@@ -2029,11 +2709,58 @@ app.patch("/api/users/:id", async (request, reply) => {
     favoriteShow?: string | null;
     currentPassword?: string;
     newPassword?: string;
+    email?: string | null;
   };
   const existing = db.prepare(`SELECT id FROM users WHERE id = ?`).get(id);
   if (!existing) {
     reply.code(404);
     return { error: "User not found" };
+  }
+  if ("email" in body) {
+    const sid = sessionUserIdFromRequest(request);
+    if (sid !== id) {
+      reply.code(403);
+      return { error: "Only the signed-in user can set email on their account from the app" };
+    }
+    const authRow = db
+      .prepare(`SELECT password_hash, auth_provider, email FROM users WHERE id = ?`)
+      .get(id) as { password_hash: string | null; auth_provider: string | null; email: string | null } | undefined;
+    if (rowAuthProvider(authRow) === "google") {
+      reply.code(400);
+      return { error: "Email on Google-linked accounts is not changed here" };
+    }
+    const rawEmail = body.email;
+    if (rawEmail === null || rawEmail === "") {
+      reply.code(400);
+      return { error: "Clearing email is not supported via this API" };
+    }
+    if (typeof rawEmail !== "string") {
+      reply.code(400);
+      return { error: "Invalid email" };
+    }
+    const newEm = normalizeEmailForAccount(rawEmail);
+    if (!newEm) {
+      reply.code(400);
+      return { error: "Invalid email address" };
+    }
+    const curEm = String(authRow?.email ?? "")
+      .trim()
+      .toLowerCase();
+    if (newEm !== curEm) {
+      if (emailTakenByOtherUser(newEm, id)) {
+        reply.code(409);
+        return { error: "Email already in use" };
+      }
+      const curPw = typeof body.currentPassword === "string" ? body.currentPassword : "";
+      if (authRow?.password_hash && String(authRow.password_hash).trim()) {
+        if (!verifyPassword(curPw, authRow.password_hash)) {
+          reply.code(401);
+          return { error: "currentPassword is required and must be correct to change email" };
+        }
+      }
+      db.prepare(`UPDATE users SET email = ?, email_verified = 0 WHERE id = ?`).run(newEm, id);
+      scheduleEmailVerification(id, request);
+    }
   }
   if ("newPassword" in body) {
     const sid = sessionUserIdFromRequest(request);
@@ -2043,9 +2770,10 @@ app.patch("/api/users/:id", async (request, reply) => {
     }
     const newPw = typeof body.newPassword === "string" ? body.newPassword : "";
     const curPw = typeof body.currentPassword === "string" ? body.currentPassword : "";
-    if (newPw.length < 8) {
+    const npErr = validatePasswordPolicy(newPw);
+    if (npErr) {
       reply.code(400);
-      return { error: "New password must be at least 8 characters" };
+      return { error: npErr };
     }
     const ph = db.prepare(`SELECT password_hash FROM users WHERE id = ?`).get(id) as { password_hash: string | null } | undefined;
     if (!ph?.password_hash || !verifyPassword(curPw, ph.password_hash)) {
@@ -2159,13 +2887,23 @@ app.patch("/api/users/:id", async (request, reply) => {
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
               task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, onboarding_prefs_json, created_at AS createdAt,
-              username, display_name AS displayName, avatar_data_url AS avatarDataUrl,
+              username, email, (email_verified != 0) AS emailVerified, auth_provider AS authProvider,
+              display_name AS displayName, avatar_data_url AS avatarDataUrl,
               about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
+              google_sub AS googleSubInternal,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword, is_admin AS isAdmin
        FROM users WHERE id = ?`,
     )
     .get(id) as Record<string, unknown> | undefined;
-  return row ? userJsonWithPushPrefs(row) : row;
+  if (!row) return row;
+  const accountState = accountStateFromDbFields(row);
+  const needsEmailUpgrade = accountState === "legacy_local";
+  delete row.googleSubInternal;
+  const out = userJsonWithPushPrefs(row) as Record<string, unknown>;
+  if (typeof out.emailVerified === "number") out.emailVerified = out.emailVerified !== 0;
+  out.accountState = accountState;
+  out.needsEmailUpgrade = needsEmailUpgrade;
+  return out;
 });
 
 app.get("/api/shows/search", async (request, reply) => {
@@ -5392,6 +6130,11 @@ app.get("/embed-ratings.html", async (_req, reply) => {
   reply.header("Cache-Control", "no-store, max-age=0");
   reply.type("text/html; charset=utf-8").send(readPublicHtml("embed-ratings.html"));
 });
+app.get("/beta.html", async (_req, reply) => {
+  reply.header("Cache-Control", "no-store, max-age=0");
+  reply.type("text/html; charset=utf-8").send(readPublicHtml("beta.html"));
+});
+app.get("/beta", async (_req, reply) => reply.redirect("/beta.html", 302));
 app.get("/admin.html", async (request, reply) => {
   if (replyForbiddenUnlessAdminPage(request, reply)) return;
   reply.header("Cache-Control", "no-store, max-age=0");

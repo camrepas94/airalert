@@ -921,11 +921,37 @@
         <p class="msg" id="adminMovePostMsg" style="margin: 0.5rem 0 0; font-size: 0.84rem"></p>
       </details>
 
+      <details class="admin-mod-log-details" id="betaWaitlistDetails">
+        <summary>Beta waitlist</summary>
+        <p class="sub" id="betaWaitlistMeta" style="margin: 0 0 0.65rem; line-height: 1.45"></p>
+        <p class="sub" style="margin: 0 0 0.65rem; font-size: 0.82rem; line-height: 1.45">
+          Interest signups from <a href="/beta.html" class="admin-toolbar-link" style="display: inline-flex">/beta.html</a>
+          — separate from app <code>users</code> until someone creates a real account.
+        </p>
+        <button type="button" class="secondary" id="betaWaitlistCsvBtn">Download CSV</button>
+        <div class="admin-dm-table-wrap" style="margin-top: 0.75rem">
+          <table>
+            <thead>
+              <tr>
+                <th>Signed up</th>
+                <th>Email</th>
+                <th>Display name</th>
+                <th>Note</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody id="betaWaitlistBody"></tbody>
+          </table>
+        </div>
+      </details>
+
       <details class="admin-mod-log-details">
         <summary>User accounts</summary>
         <p class="admin-users-caption" id="usersCaption">
-          All users on this server. <strong>S / R / ?</strong> counts subscriptions from search, recommendations, or
-          legacy/unknown.
+          Each row is an app <strong>user id</strong>: <strong>Public handle</strong> is the @username in Community;
+          <strong>Sign-in email</strong> is identity for local accounts when present. <strong>Auth provider</strong> is how they
+          sign in; <strong>Account</strong> is the derived model (guest vs registered vs Google vs legacy). <strong>S / R / ?</strong> counts
+          subscriptions from search, recommendations, or unknown.
         </p>
         <div id="userCardList" class="admin-user-list" role="list"></div>
       </details>
@@ -957,6 +983,22 @@
         return data;
       }
 
+      async function downloadBetaWaitlistCsv() {
+        const res = await fetch("/api/admin/beta-waitlist.csv", { credentials: "include" });
+        if (!res.ok) {
+          showToast("CSV export failed");
+          return;
+        }
+        const blob = await res.blob();
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "airalert-beta-waitlist.csv";
+        a.rel = "noopener";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast("Download started");
+      }
+
       const el = (id) => document.getElementById(id);
 
       function escapeHtml(s) {
@@ -967,8 +1009,8 @@
           .replace(/"/g, "&quot;");
       }
 
-      function formatAdminLastLogin(iso) {
-        if (iso == null || iso === "") return "Never";
+      function formatAdminDisplayTime(iso) {
+        if (iso == null || iso === "") return null;
         try {
           const d = new Date(iso);
           if (Number.isNaN(d.getTime())) return String(iso);
@@ -976,6 +1018,14 @@
         } catch {
           return String(iso);
         }
+      }
+      function formatAdminLastLogin(iso) {
+        const t = formatAdminDisplayTime(iso);
+        return t == null ? "Never" : t;
+      }
+      function formatAdminLastActivity(iso) {
+        const t = formatAdminDisplayTime(iso);
+        return t == null ? "\u2014" : t;
       }
 
       function setVisible(id, on) {
@@ -1074,6 +1124,49 @@
           label +
           "</span></div>"
         );
+      }
+
+      /** Stored `auth_provider`: how sign-in works (not the same as account “kind”). */
+      function adminAuthProviderLabel(raw) {
+        const v = String(raw || "local").toLowerCase();
+        if (v === "guest") return "Guest (device session)";
+        if (v === "google") return "Google";
+        if (v === "local") return "Local (email or username + password)";
+        return String(raw || "local");
+      }
+
+      /** Server `accountState` — one-line for list cards. */
+      function adminAccountKindShort(st) {
+        if (st === "guest") return "Guest — not a full account";
+        if (st === "google") return "Google account";
+        if (st === "legacy_local") return "Legacy — username only (add email)";
+        if (st === "email_local") return "Registered — email-backed local";
+        return st ? String(st) : "—";
+      }
+
+      /** Long explainer for expanded user detail. */
+      function adminAccountKindDetail(st) {
+        if (st === "guest") {
+          return "Guest — watchlist lives on this device/browser only. Distinct from a registered account until they sign up.";
+        }
+        if (st === "google") {
+          return "Google — user signs in with Google; email identity comes from Google.";
+        }
+        if (st === "legacy_local") {
+          return "Legacy local — has username + password but no email yet. Encourage adding email for recovery.";
+        }
+        if (st === "email_local") {
+          return "Registered local — email is sign-in identity; @username is the public handle in Community.";
+        }
+        return st ? String(st) : "—";
+      }
+
+      /** Email verification column; never shows secrets. */
+      function adminVerificationSummary(accountState, emailVerified, hasEmail) {
+        if (accountState === "guest") return "— (no account email)";
+        if (accountState === "google") return "Via Google sign-in";
+        if (!hasEmail) return "N/A (no email on file)";
+        return emailVerified ? "Verified" : "Not verified";
       }
 
       function closeAllUserCards() {
@@ -1236,6 +1329,45 @@
         }
       }
 
+      async function loadBetaWaitlist() {
+        const meta = el("betaWaitlistMeta");
+        const tbody = el("betaWaitlistBody");
+        if (!meta || !tbody) return;
+        try {
+          const data = await api("/api/admin/beta-waitlist?limit=500");
+          const list = data.signups || [];
+          const total = data.total != null ? data.total : list.length;
+          meta.textContent = total + " signup(s) — showing " + list.length + " most recent.";
+          tbody.innerHTML = "";
+          if (!list.length) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = "<td colspan=\"5\" class=\"sub\">No beta signups yet.</td>";
+            tbody.appendChild(tr);
+            return;
+          }
+          for (const r of list) {
+            const tr = document.createElement("tr");
+            tr.innerHTML =
+              "<td>" +
+              escapeHtml(formatAdminDisplayTime(r.createdAt) || "\u2014") +
+              "</td><td class=\"mono\">" +
+              escapeHtml(String(r.email || "")) +
+              "</td><td class=\"admin-dm-body-cell\">" +
+              escapeHtml(String(r.displayName || "\u2014")) +
+              "</td><td class=\"admin-dm-body-cell\">" +
+              escapeHtml(String(r.note || "\u2014")) +
+              "</td><td>" +
+              escapeHtml(String(r.source || "\u2014")) +
+              "</td>";
+            tbody.appendChild(tr);
+          }
+        } catch {
+          meta.textContent = "Could not load beta waitlist.";
+          tbody.innerHTML =
+            "<tr><td colspan=\"5\" class=\"sub\">Unable to load. Refresh to retry.</td></tr>";
+        }
+      }
+
       async function loadDash() {
         const data = await api("/api/admin/overview");
         const t = data.totals;
@@ -1248,6 +1380,7 @@
         el("totals").innerHTML =
           statCard(t.users, "Users") +
           statCard(t.subscriptions, "Show subscriptions") +
+          statCard(t.betaWaitlistCount ?? 0, "Beta waitlist") +
           statCard(t.fromSearch, "Added via search") +
           statCard(t.fromRecommended, "Added via recommended") +
           statCard(t.fromUnknown, "Unspecified source") +
@@ -1271,17 +1404,51 @@
           summaryBtn.setAttribute("aria-expanded", "false");
           summaryBtn.setAttribute("aria-controls", detailId(u.id));
           const lastLoginLabel = formatAdminLastLogin(u.lastLoginAt);
+          const lastActiveLabel = formatAdminLastActivity(u.lastActivityAt);
+          const st = u.accountState || "";
+          const guestPill = st === "guest" || u.isGuestAccount === true;
+          const legacyPill = st === "legacy_local";
+          const googlePill = st === "google";
+          const hasEmail = u.email != null && String(u.email).trim() !== "";
+          const emailLine = hasEmail ? escapeHtml(String(u.email).trim()) : "\u2014";
+          const handleLine =
+            u.username && String(u.username).trim()
+              ? "@" + escapeHtml(String(u.username).trim())
+              : escapeHtml("(no public handle)");
+          const provLine = escapeHtml(adminAuthProviderLabel(u.authProvider));
+          const kindShort = escapeHtml(adminAccountKindShort(st));
+          const verLine = escapeHtml(
+            adminVerificationSummary(st, u.emailVerified === true, hasEmail),
+          );
           summaryBtn.innerHTML =
             "<div class=\"admin-user-card-head\">" +
             "<div class=\"admin-user-card-name\">" +
-            escapeHtml(u.username || "—") +
+            handleLine +
             "</div>" +
             "<div class=\"admin-user-card-badges\">" +
             (u.isAdmin ? "<span class=\"pill adm\">admin</span>" : "") +
+            (guestPill ? "<span class=\"pill\">guest</span>" : "") +
+            (legacyPill ? "<span class=\"pill\" style=\"border-color:rgba(251,191,36,0.45);color:#fcd34d\">legacy</span>" : "") +
+            (googlePill ? "<span class=\"pill\" style=\"border-color:rgba(96,165,250,0.45);color:#93c5fd\">google</span>" : "") +
             "<span class=\"admin-user-card-chevron\" aria-hidden=\"true\">▼</span>" +
             "</div></div>" +
-            "<div class=\"admin-user-card-login muted\">Last login: " +
+            "<div class=\"admin-user-card-login muted\"><strong>Sign-in email</strong> " +
+            emailLine +
+            "</div>" +
+            "<div class=\"admin-user-card-login muted\"><strong>Auth provider</strong> " +
+            provLine +
+            "</div>" +
+            "<div class=\"admin-user-card-login muted\"><strong>Account</strong> " +
+            kindShort +
+            "</div>" +
+            "<div class=\"admin-user-card-login muted\"><strong>Email verification</strong> " +
+            verLine +
+            "</div>" +
+            "<div class=\"admin-user-card-login muted\"><strong>Last login</strong> " +
             escapeHtml(lastLoginLabel) +
+            "</div>" +
+            "<div class=\"admin-user-card-login muted\"><strong>Last active</strong> " +
+            escapeHtml(lastActiveLabel) +
             "</div>";
 
           const detail = document.createElement("div");
@@ -1330,26 +1497,61 @@
                     "</div></div>"
                   : "";
               const hasAccount = ua.username && String(ua.username).trim();
+              const acctSt = ua.accountState || "";
+              const uaHasEmail = ua.email != null && String(ua.email).trim() !== "";
               const pwPlain = ua.passwordPlainAdmin != null ? String(ua.passwordPlainAdmin) : "";
-              const pwSupportBox = hasAccount
-                ? "<div style='margin:0 0 0.85rem 0;padding:0.55rem 0.65rem;border-radius:10px;border:1px solid rgba(245,158,11,0.4);background:rgba(245,158,11,0.1)'>" +
-                  "<strong style='font-size:0.85rem;color:#fde68a'>Password (support / troubleshooting)</strong>" +
-                  "<p class='mono' style='margin:0.4rem 0 0;font-size:0.88rem;word-break:break-all;line-height:1.4'>" +
-                  (pwPlain
-                    ? escapeHtml(pwPlain)
-                    : "— not recorded yet (user can sign in once, or use reset below)") +
-                  "</p>" +
-                  "<button type='button' class='secondary' id=\"admResetPw_" +
-                  u.id +
-                  "\" style='margin-top:0.5rem'>Reset password to <strong>airalert</strong></button></div>"
-                : "<p class='muted' style='margin:0 0 0.65rem;font-size:0.82rem'>Guest account — no password.</p>";
+              const pwSupportBox =
+                acctSt === "guest"
+                  ? "<p class='muted' style='margin:0 0 0.65rem;font-size:0.82rem'>Guest — no password; not a registered account.</p>"
+                  : hasAccount
+                    ? "<div style='margin:0 0 0.85rem 0;padding:0.55rem 0.65rem;border-radius:10px;border:1px solid rgba(245,158,11,0.4);background:rgba(245,158,11,0.1)'>" +
+                      "<strong style='font-size:0.85rem;color:#fde68a'>Support password (not shown to users)</strong>" +
+                      "<p class='mono' style='margin:0.4rem 0 0;font-size:0.88rem;word-break:break-all;line-height:1.4'>" +
+                      (pwPlain
+                        ? escapeHtml(pwPlain)
+                        : "— not recorded yet (user can sign in once, or use reset below)") +
+                      "</p>" +
+                      "<button type='button' class='secondary' id=\"admResetPw_" +
+                      u.id +
+                      "\" style='margin-top:0.5rem'>Reset password to <strong>airalert</strong></button></div>"
+                    : "<p class='muted' style='margin:0 0 0.65rem;font-size:0.82rem'>No public handle yet — Google user may still need to pick @username.</p>";
+              const handleDetail =
+                ua.username && String(ua.username).trim()
+                  ? "@" + escapeHtml(String(ua.username).trim())
+                  : "\u2014";
               const metaBlock =
                 "<div class=\"admin-user-detail-meta\">" +
                 "<div><strong>User ID</strong><br><span class=\"mono\">" +
                 escapeHtml(String(u.id)) +
                 "</span></div>" +
+                "<div><strong>Public handle</strong><br>" +
+                handleDetail +
+                "</div>" +
+                "<div><strong>Sign-in email</strong><br>" +
+                escapeHtml(uaHasEmail ? String(ua.email).trim() : "\u2014") +
+                "</div>" +
+                "<div><strong>Email verification</strong><br>" +
+                escapeHtml(adminVerificationSummary(acctSt, ua.emailVerified === true, uaHasEmail)) +
+                "</div>" +
+                "<div><strong>Auth provider</strong><br>" +
+                escapeHtml(adminAuthProviderLabel(ua.authProvider)) +
+                " <span class=\"sub\">(" +
+                escapeHtml(String(ua.authProvider || "local")) +
+                ")</span></div>" +
+                "<div><strong>Account model</strong><br>" +
+                escapeHtml(adminAccountKindShort(acctSt)) +
+                "</div>" +
+                "<div class=\"sub\" style='grid-column:1/-1;font-size:0.8rem;line-height:1.45;margin:0.15rem 0 0'>" +
+                escapeHtml(adminAccountKindDetail(acctSt)) +
+                "</div>" +
                 "<div><strong>Created</strong><br>" +
                 escapeHtml(u.createdAt || "—") +
+                "</div>" +
+                "<div><strong>Last login</strong><br>" +
+                escapeHtml(formatAdminLastLogin(ua.lastLoginAt)) +
+                "</div>" +
+                "<div><strong>Last active</strong><br>" +
+                escapeHtml(formatAdminLastActivity(ua.lastActivityAt)) +
                 "</div>" +
                 "<div><strong>Timezone</strong><br>" +
                 escapeHtml(u.timezone || "—") +
@@ -1615,6 +1817,7 @@
         }
         await loadAdminDmLog();
         await loadAdminCommunityLog();
+        await loadBetaWaitlist();
       }
 
       async function init() {
@@ -1706,6 +1909,8 @@
           alert(e.message || "Refresh failed");
         }
       });
+
+      el("betaWaitlistCsvBtn")?.addEventListener("click", () => void downloadBetaWaitlistCsv());
 
       const adminMoveBtn = el("adminMovePostSubmit");
       if (adminMoveBtn) {

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Join the AirAlert beta waitlist — TV reminders and watchlists." />
+    <title>AirAlert — Beta waitlist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #070a12;
+        --card: rgba(18, 22, 36, 0.92);
+        --text: #eef2ff;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+        --accent2: #a78bfa;
+        --ok: #4ade80;
+        --err: #fb7185;
+        --border: rgba(148, 163, 184, 0.2);
+        --font: "DM Sans", system-ui, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: var(--font);
+        color: var(--text);
+        background:
+          radial-gradient(ellipse 100% 70% at 50% -30%, rgba(56, 189, 248, 0.12), transparent 55%),
+          radial-gradient(ellipse 80% 50% at 100% 20%, rgba(167, 139, 250, 0.1), transparent 50%), var(--bg);
+        padding: max(1.25rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+          max(2rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+        line-height: 1.55;
+      }
+      .wrap {
+        max-width: 26rem;
+        margin: 0 auto;
+      }
+      .logo {
+        font-weight: 700;
+        font-size: 1.35rem;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.25rem;
+        background: linear-gradient(120deg, var(--accent), var(--accent2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .tag {
+        font-size: 0.88rem;
+        color: var(--muted);
+        margin-bottom: 1.75rem;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.35rem 1.25rem 1.5rem;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      }
+      h1 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+        letter-spacing: -0.02em;
+      }
+      .lead {
+        color: var(--muted);
+        font-size: 0.92rem;
+        margin: 0 0 1.25rem;
+      }
+      label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin: 0.85rem 0 0.35rem;
+      }
+      label:first-of-type {
+        margin-top: 0;
+      }
+      input,
+      textarea {
+        width: 100%;
+        font: inherit;
+        font-size: 1rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(7, 10, 18, 0.65);
+        color: var(--text);
+      }
+      input:focus,
+      textarea:focus {
+        outline: 2px solid rgba(56, 189, 248, 0.45);
+        outline-offset: 1px;
+      }
+      textarea {
+        min-height: 4.5rem;
+        resize: vertical;
+      }
+      .hint {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin: 0.35rem 0 0;
+      }
+      button[type="submit"] {
+        width: 100%;
+        margin-top: 1.25rem;
+        font: inherit;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        color: #042;
+        background: linear-gradient(135deg, #6ee7b7, var(--accent));
+      }
+      button[type="submit"]:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      .err {
+        color: var(--err);
+        font-size: 0.88rem;
+        margin: 0.65rem 0 0;
+      }
+      .done {
+        text-align: center;
+        padding: 0.5rem 0 0.25rem;
+      }
+      .done h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.2rem;
+        color: var(--ok);
+      }
+      .done p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .foot {
+        margin-top: 1.75rem;
+        text-align: center;
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .foot a {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="logo">AirAlert</div>
+      <p class="tag">Beta waitlist</p>
+
+      <div class="card" id="betaCard">
+        <form id="betaForm" autocomplete="on">
+          <h1>Get early access</h1>
+          <p class="lead">Leave your email and we’ll let you know when the beta opens. No spam — one list, launch updates.</p>
+
+          <label for="betaEmail">Email <span style="text-transform: none; font-weight: 500; opacity: 0.85">(required)</span></label>
+          <input id="betaEmail" name="email" type="email" required autocomplete="email" inputmode="email" placeholder="you@example.com" />
+
+          <label for="betaDisplay">What should we call you? <span style="opacity: 0.75">(optional)</span></label>
+          <input id="betaDisplay" name="displayName" type="text" maxlength="80" autocomplete="name" placeholder="First name or @handle you’d like" />
+          <p class="hint">Helps us personalize invites — not your app username yet.</p>
+
+          <label for="betaNote">What are you most excited about? <span style="opacity: 0.75">(optional)</span></label>
+          <textarea id="betaNote" name="note" maxlength="500" placeholder="e.g. reminders for streaming shows, watchlist…"></textarea>
+
+          <input type="hidden" id="betaSource" name="source" value="" />
+
+          <p class="err" id="betaErr" hidden></p>
+          <button type="submit" id="betaSubmit">Join the list</button>
+        </form>
+
+        <div class="done" id="betaDone" hidden>
+          <h2>You’re on the list</h2>
+          <p>We’ll email you when beta opens. Thanks for your interest.</p>
+        </div>
+      </div>
+
+      <p class="foot">Already testing? <a href="/">Open the app</a></p>
+    </div>
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var src = params.get("source") || params.get("utm_campaign") || "";
+        var srcEl = document.getElementById("betaSource");
+        if (srcEl && src) srcEl.value = String(src).trim().slice(0, 120);
+
+        var form = document.getElementById("betaForm");
+        var done = document.getElementById("betaDone");
+        var err = document.getElementById("betaErr");
+        var submit = document.getElementById("betaSubmit");
+
+        form.addEventListener("submit", async function (ev) {
+          ev.preventDefault();
+          err.hidden = true;
+          err.textContent = "";
+          submit.disabled = true;
+          var email = document.getElementById("betaEmail").value.trim();
+          var displayName = document.getElementById("betaDisplay").value.trim();
+          var note = document.getElementById("betaNote").value.trim();
+          var source = (document.getElementById("betaSource").value || "").trim();
+          try {
+            var res = await fetch("/api/beta-waitlist", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Accept: "application/json" },
+              body: JSON.stringify({
+                email: email,
+                displayName: displayName || undefined,
+                note: note || undefined,
+                source: source || undefined,
+              }),
+            });
+            var data = null;
+            try {
+              data = await res.json();
+            } catch {
+              data = null;
+            }
+            if (!res.ok) {
+              throw new Error((data && data.error) || "Something went wrong");
+            }
+            form.hidden = true;
+            done.hidden = false;
+          } catch (e) {
+            err.textContent = (e && e.message) || "Could not save. Try again.";
+            err.hidden = false;
+          } finally {
+            submit.disabled = false;
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
