@@ -5990,6 +5990,9 @@
       #tab-messages.active .dm-fab-plus {
         display: flex;
       }
+      #tab-community.active .community-fab-plus {
+        display: flex;
+      }
       .app-fab-menu {
         position: fixed;
         z-index: 34;
@@ -9802,6 +9805,11 @@
               </details>
             </div>
           </div>
+          <button type="button" class="app-fab community-fab-plus" id="communityNewThreadFab" title="Start a discussion" aria-label="Start a discussion">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
         </section>
       </template>
       <div
@@ -20265,6 +20273,67 @@
         initShowSubtabsDeferred();
         setupCommunityCatchUpPanelDeferred();
         wireDeferredCommunityTabPanel();
+        wireCommunityNewThreadFab();
+      }
+
+      function wireCommunityNewThreadFab() {
+        const fab = document.getElementById("communityNewThreadFab");
+        if (!fab || fab.getAttribute("data-aa-wired") === "1") return;
+        fab.setAttribute("data-aa-wired", "1");
+        fab.addEventListener("click", () => void openCommunityNewModal());
+      }
+
+      function wireDmInboxSendAndInput() {
+        const root = document.getElementById("tab-messages");
+        if (!root || root.getAttribute("data-aa-dm-inbox-wired") === "1") return;
+        const send = document.getElementById("dmInboxSendBtn");
+        const input = document.getElementById("dmInboxInput");
+        if (!send || !input) return;
+        root.setAttribute("data-aa-dm-inbox-wired", "1");
+        send.addEventListener("click", () => void sendDmFromInbox());
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            void sendDmFromInbox();
+          }
+        });
+        input.addEventListener("input", () => {
+          const now = Date.now();
+          if (dmInboxActiveGroupId) {
+            if (now - dmGroupTypingLastSent > 2000) {
+              sendDmGroupTypingWs(true);
+              dmGroupTypingLastSent = now;
+            }
+            if (dmGroupTypingStopTimer) clearTimeout(dmGroupTypingStopTimer);
+            dmGroupTypingStopTimer = setTimeout(() => {
+              sendDmGroupTypingWs(false);
+              dmGroupTypingStopTimer = null;
+            }, 2800);
+            return;
+          }
+          if (!dmInboxActiveThreadId) return;
+          if (now - dmTypingTrueLastSent > 1800) {
+            sendDmTypingWs(true);
+            dmTypingTrueLastSent = now;
+          }
+          if (dmTypingStopTimer) clearTimeout(dmTypingStopTimer);
+          dmTypingStopTimer = setTimeout(() => {
+            sendDmTypingWs(false);
+            dmTypingStopTimer = null;
+          }, 2500);
+        });
+        input.addEventListener("blur", () => {
+          sendDmTypingWs(false);
+          sendDmGroupTypingWs(false);
+          if (dmTypingStopTimer) {
+            clearTimeout(dmTypingStopTimer);
+            dmTypingStopTimer = null;
+          }
+          if (dmGroupTypingStopTimer) {
+            clearTimeout(dmGroupTypingStopTimer);
+            dmGroupTypingStopTimer = null;
+          }
+        });
       }
 
       function initMessagesShellAfterMount() {
@@ -20289,6 +20358,7 @@
         initDmCreateGroupModal();
         initDmGroupSettingsModal();
         initDmCompose();
+        wireDmInboxSendAndInput();
       }
 
       function getActiveTabName() {
@@ -21088,50 +21158,6 @@
         }
       }
 
-      document.getElementById("dmInboxSendBtn")?.addEventListener("click", () => void sendDmFromInbox());
-      document.getElementById("dmInboxInput")?.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          void sendDmFromInbox();
-        }
-      });
-      document.getElementById("dmInboxInput")?.addEventListener("input", () => {
-        const now = Date.now();
-        if (dmInboxActiveGroupId) {
-          if (now - dmGroupTypingLastSent > 2000) {
-            sendDmGroupTypingWs(true);
-            dmGroupTypingLastSent = now;
-          }
-          if (dmGroupTypingStopTimer) clearTimeout(dmGroupTypingStopTimer);
-          dmGroupTypingStopTimer = setTimeout(() => {
-            sendDmGroupTypingWs(false);
-            dmGroupTypingStopTimer = null;
-          }, 2800);
-          return;
-        }
-        if (!dmInboxActiveThreadId) return;
-        if (now - dmTypingTrueLastSent > 1800) {
-          sendDmTypingWs(true);
-          dmTypingTrueLastSent = now;
-        }
-        if (dmTypingStopTimer) clearTimeout(dmTypingStopTimer);
-        dmTypingStopTimer = setTimeout(() => {
-          sendDmTypingWs(false);
-          dmTypingStopTimer = null;
-        }, 2500);
-      });
-      document.getElementById("dmInboxInput")?.addEventListener("blur", () => {
-        sendDmTypingWs(false);
-        sendDmGroupTypingWs(false);
-        if (dmTypingStopTimer) {
-          clearTimeout(dmTypingStopTimer);
-          dmTypingStopTimer = null;
-        }
-        if (dmGroupTypingStopTimer) {
-          clearTimeout(dmGroupTypingStopTimer);
-          dmGroupTypingStopTimer = null;
-        }
-      });
       document.getElementById("communityMemberProfileDmBtn")?.addEventListener("click", () => {
         const modal = document.getElementById("communityMemberProfileModal");
         const id = modal && modal.dataset.profileUserId;
