@@ -112,6 +112,19 @@ export function getSqlitePersistenceInfo(): {
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
 
+/**
+ * Core model (see also `src/accountModel.ts`, `src/userRole.ts`, `src/legacyNotificationPrefs.ts`):
+ * - `users` — all account identity, push prefs JSON, admin/moderation/beta flags, calendar token, viewer_role_override
+ * - `show_subscriptions` + `watch_tasks` — “My list” and watch flow (activation counts for userRole)
+ * - `community_*` — posts, polls, ratings, thread push subs, watch challenges, moderation
+ * - `activity_notifications` — in-app Activity dropdown (human/social only; kinds in `notificationTypes.ts`)
+ * - `notification_log` — idempotent daily episode notification sends (per user/episode/channel)
+ * - `web_push_subscriptions` — active Web Push endpoints (VAPID); this is the real push transport
+ * - `devices` — legacy token store for older clients; not used for Web Push
+ * - `user_presence` — last client heartbeat (DM/community “active” heuristics)
+ * - `beta_waitlist` — marketing waitlist (emails not app accounts); separate from `users.beta_status`
+ */
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
@@ -157,6 +170,7 @@ db.exec(`
     UNIQUE (user_id, tvmaze_episode_id, channel)
   );
 
+  /* Legacy: native push-style tokens. Web Push uses the web_push_subscriptions table. */
   CREATE TABLE IF NOT EXISTS devices (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -246,6 +260,22 @@ if (!userColNames.has("google_sub")) {
   db.exec(`ALTER TABLE users ADD COLUMN google_sub TEXT`);
   userColNames.add("google_sub");
 }
+if (!userColNames.has("moderation_status")) {
+  db.exec(`ALTER TABLE users ADD COLUMN moderation_status TEXT`);
+  userColNames.add("moderation_status");
+}
+if (!userColNames.has("beta_status")) {
+  db.exec(`ALTER TABLE users ADD COLUMN beta_status TEXT`);
+  userColNames.add("beta_status");
+}
+if (!userColNames.has("is_test_account")) {
+  db.exec(`ALTER TABLE users ADD COLUMN is_test_account INTEGER NOT NULL DEFAULT 0`);
+  userColNames.add("is_test_account");
+}
+if (!userColNames.has("qa_notes")) {
+  db.exec(`ALTER TABLE users ADD COLUMN qa_notes TEXT`);
+  userColNames.add("qa_notes");
+}
 
 /** Backfill account kind: guests vs password (or future OAuth) accounts — safe for existing DBs. */
 db.exec(`
@@ -312,6 +342,44 @@ db.exec(`
     user_agent TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS beta_feedback (
+    id TEXT PRIMARY KEY,
+    user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    category TEXT NOT NULL DEFAULT 'issue' CHECK (category IN ('issue', 'confusing_screen', 'failed_flow', 'general')),
+    severity TEXT NOT NULL DEFAULT 'medium' CHECK (severity IN ('low', 'medium', 'high')),
+    flow TEXT,
+    screen TEXT,
+    message TEXT NOT NULL,
+    metadata_json TEXT,
+    status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'reviewed', 'resolved')),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    reviewed_at TEXT,
+    reviewed_by_user_id TEXT REFERENCES users(id) ON DELETE SET NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_beta_feedback_status_created ON beta_feedback(status, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_beta_feedback_user_created ON beta_feedback(user_id, created_at DESC);
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS analytics_events (
+    id TEXT PRIMARY KEY,
+    user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    anonymous_id TEXT,
+    event_name TEXT NOT NULL,
+    account_type TEXT,
+    source_screen TEXT,
+    target_type TEXT,
+    target_id TEXT,
+    show_count_bucket TEXT,
+    metadata_json TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_analytics_events_name_created ON analytics_events(event_name, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_analytics_events_user_created ON analytics_events(user_id, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_analytics_events_anon_created ON analytics_events(anonymous_id, created_at DESC);
 `);
 
 try {
@@ -388,6 +456,32 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
   CREATE INDEX IF NOT EXISTS idx_community_mod_log_created ON community_moderation_log(created_at DESC);
+
+  CREATE TABLE IF NOT EXISTS moderation_reports (
+    id TEXT PRIMARY KEY,
+    reporter_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    target_type TEXT NOT NULL CHECK (target_type IN ('post', 'review', 'dm_message', 'dm_group_message', 'live_chat_message', 'user')),
+    target_id TEXT NOT NULL,
+    target_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    reason TEXT NOT NULL,
+    detail TEXT,
+    status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'reviewed', 'dismissed', 'actioned')),
+    reviewed_by_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+    reviewed_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE (reporter_user_id, target_type, target_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_moderation_reports_status_created ON moderation_reports(status, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_moderation_reports_target ON moderation_reports(target_type, target_id);
+
+  CREATE TABLE IF NOT EXISTS user_blocks (
+    blocker_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    blocked_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (blocker_user_id, blocked_user_id),
+    CHECK (blocker_user_id != blocked_user_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_user_blocks_blocked ON user_blocks(blocked_user_id);
 
   CREATE TABLE IF NOT EXISTS dm_threads (
     id TEXT PRIMARY KEY,
@@ -595,20 +689,28 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_cast_cache_fetched ON cast_cache(fetched_at);
 `);
 
-/* ── Notification Preferences (granular per-user toggles) ── */
+/* ── notification_preferences: DEPRECATED (see `src/legacyNotificationPrefs.ts`) ──
+ * Toggles and still-watching cadence are stored on `users` (`push_prefs_json`, `task_nudge_days_after_air`).
+ * The table is retained for old SQLite files; new code must not treat it as source of truth.
+ */
 db.exec(`
   CREATE TABLE IF NOT EXISTS notification_preferences (
     user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     episode_airs INTEGER NOT NULL DEFAULT 1,
     dm_message INTEGER NOT NULL DEFAULT 1,
     mention_in_thread INTEGER NOT NULL DEFAULT 1,
+    reply_to_post INTEGER NOT NULL DEFAULT 1,
     thread_reply INTEGER NOT NULL DEFAULT 1,
-    show_breaking_news INTEGER NOT NULL DEFAULT 1,
-    live_room_opens INTEGER NOT NULL DEFAULT 1,
-    task_added INTEGER NOT NULL DEFAULT 1,
     still_watching_days INTEGER NOT NULL DEFAULT 3
   );
 `);
+
+const notificationPrefColNames = new Set(
+  (db.prepare(`PRAGMA table_info(notification_preferences)`).all() as { name: string }[]).map((r) => r.name),
+);
+if (!notificationPrefColNames.has("reply_to_post")) {
+  db.exec(`ALTER TABLE notification_preferences ADD COLUMN reply_to_post INTEGER NOT NULL DEFAULT 1`);
+}
 
 /* ── User presence (last client activity / heartbeat; DM WS connect also refreshes) ── */
 db.exec(`

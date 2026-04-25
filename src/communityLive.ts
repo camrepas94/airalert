@@ -7,6 +7,8 @@ import { hasFullSocialAccess, UNLOCK_SOCIAL_FEATURES_MESSAGE } from "./userRole.
 
 const MAX_LIVE_CHAT_LEN = 280;
 const CHAT_COOLDOWN_MS = 1200;
+const CHAT_BURST_LIMIT = 12;
+const CHAT_BURST_WINDOW_MS = 60_000;
 
 type ClientRecord = {
   socket: WebSocket;
@@ -17,6 +19,7 @@ type ClientRecord = {
 const rooms = new Map<string, Set<ClientRecord>>();
 const socketMeta = new Map<WebSocket, { roomKey: string; rec: ClientRecord }>();
 const lastChatAt = new Map<string, number>();
+const recentChatAt = new Map<string, number[]>();
 /** Per-room typing indicators (expires ~4.5s after last pulse). */
 const typingByRoom = new Map<string, Map<string, { handle: string; expiresAt: number }>>();
 
@@ -306,6 +309,24 @@ export function handleCommunityThreadLiveMessage(userId: string, socket: WebSock
     const now = Date.now();
     if (now - (lastChatAt.get(key) ?? 0) < CHAT_COOLDOWN_MS) return;
     lastChatAt.set(key, now);
+    const recent = (recentChatAt.get(key) ?? []).filter((t) => t > now - CHAT_BURST_WINDOW_MS);
+    if (recent.length >= CHAT_BURST_LIMIT) {
+      try {
+        socket.send(
+          JSON.stringify({
+            type: "thread_live_error",
+            code: "rate_limited",
+            message: "Slow down and try again in a moment.",
+          }),
+        );
+      } catch {
+        /* ignore */
+      }
+      recentChatAt.set(key, recent);
+      return;
+    }
+    recent.push(now);
+    recentChatAt.set(key, recent);
     touchUserPresence(userId);
 
     const msg = {

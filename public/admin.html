@@ -13,7 +13,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <title>Airalert — Admin</title>
+    <title>AirAlert — Admin</title>
     <style>
       :root {
         color-scheme: dark;
@@ -822,7 +822,7 @@
       Signed-in admins and env-password access both land here. Use it to review usage, manage who can admin, and adjust
       anyone’s show list.
     </p>
-    <p class="sub" id="adminNavBack"><a href="/">← Back to Airalert</a></p>
+    <p class="sub" id="adminNavBack"><a href="/">← Back to AirAlert</a></p>
 
     <section id="gateDisabled" class="hidden">
       <p class="err" id="gateDisabledMsg">
@@ -849,7 +849,7 @@
 
     <section id="dash" class="hidden">
       <div class="admin-dash-toolbar">
-        <a href="/" class="admin-toolbar-link">← Airalert</a>
+        <a href="/" class="admin-toolbar-link">← AirAlert</a>
         <span class="admin-toolbar-spacer" aria-hidden="true"></span>
         <button type="button" class="secondary" id="refreshBtn">Refresh</button>
         <button type="button" class="secondary" id="logoutBtn">Sign out</button>
@@ -938,6 +938,7 @@
                 <th>Display name</th>
                 <th>Note</th>
                 <th>Source</th>
+                <th>Referrer</th>
               </tr>
             </thead>
             <tbody id="betaWaitlistBody"></tbody>
@@ -1341,7 +1342,7 @@
           tbody.innerHTML = "";
           if (!list.length) {
             const tr = document.createElement("tr");
-            tr.innerHTML = "<td colspan=\"5\" class=\"sub\">No beta signups yet.</td>";
+            tr.innerHTML = "<td colspan=\"6\" class=\"sub\">No beta signups yet.</td>";
             tbody.appendChild(tr);
             return;
           }
@@ -1358,13 +1359,15 @@
               escapeHtml(String(r.note || "\u2014")) +
               "</td><td>" +
               escapeHtml(String(r.source || "\u2014")) +
+              "</td><td class=\"admin-dm-body-cell\">" +
+              escapeHtml(String(r.referrer || "\u2014")) +
               "</td>";
             tbody.appendChild(tr);
           }
         } catch {
           meta.textContent = "Could not load beta waitlist.";
           tbody.innerHTML =
-            "<tr><td colspan=\"5\" class=\"sub\">Unable to load. Refresh to retry.</td></tr>";
+            "<tr><td colspan=\"6\" class=\"sub\">Unable to load. Refresh to retry.</td></tr>";
         }
       }
 
@@ -1379,6 +1382,10 @@
         };
         el("totals").innerHTML =
           statCard(t.users, "Users") +
+          statCard(t.guests ?? 0, "Guest accounts") +
+          statCard(t.betaUsers ?? 0, "Beta users") +
+          statCard(t.testAccounts ?? 0, "Test accounts") +
+          statCard(t.admins ?? 0, "Admins") +
           statCard(t.subscriptions, "Show subscriptions") +
           statCard(t.betaWaitlistCount ?? 0, "Beta waitlist") +
           statCard(t.fromSearch, "Added via search") +
@@ -1428,6 +1435,8 @@
             "<div class=\"admin-user-card-badges\">" +
             (u.isAdmin ? "<span class=\"pill adm\">admin</span>" : "") +
             (guestPill ? "<span class=\"pill\">guest</span>" : "") +
+            (u.betaStatus ? "<span class=\"pill\" style=\"border-color:rgba(34,211,238,0.45);color:#7dd3fc\">beta:" + escapeHtml(String(u.betaStatus)) + "</span>" : "") +
+            (u.isTestAccount ? "<span class=\"pill\" style=\"border-color:rgba(251,191,36,0.45);color:#fde68a\">test</span>" : "") +
             (legacyPill ? "<span class=\"pill\" style=\"border-color:rgba(251,191,36,0.45);color:#fcd34d\">legacy</span>" : "") +
             (googlePill ? "<span class=\"pill\" style=\"border-color:rgba(96,165,250,0.45);color:#93c5fd\">google</span>" : "") +
             "<span class=\"admin-user-card-chevron\" aria-hidden=\"true\">▼</span>" +
@@ -1582,6 +1591,27 @@
                 (isAdm ? "checked" : "") +
                 " /> Grant this user access to the Admin tab &amp; this page</label>" +
                 "</div>";
+              const betaStatusAdm = ua.betaStatus || "";
+              html +=
+                "<div class=\"detail-admin-box\" style='margin-top:0.65rem'>" +
+                "<strong>Private beta / QA</strong>" +
+                "<p class=\"muted\" style='margin:0.35rem 0 0.45rem;font-size:0.8rem;line-height:1.45'>Mark beta testers and known test accounts for cleaner QA oversight.</p>" +
+                "<label for=\"admBetaSel_" + u.id + "\">Beta status</label> " +
+                "<select id=\"admBetaSel_" + u.id + "\" style='margin-left:0.35rem;max-width:12rem;font:inherit'>" +
+                "<option value=\"\"" + (!betaStatusAdm ? " selected" : "") + ">Not beta</option>" +
+                "<option value=\"invited\"" + (betaStatusAdm === "invited" ? " selected" : "") + ">Invited</option>" +
+                "<option value=\"active\"" + (betaStatusAdm === "active" ? " selected" : "") + ">Active beta</option>" +
+                "<option value=\"paused\"" + (betaStatusAdm === "paused" ? " selected" : "") + ">Paused</option>" +
+                "<option value=\"graduated\"" + (betaStatusAdm === "graduated" ? " selected" : "") + ">Graduated</option>" +
+                "</select> " +
+                "<label style='margin-left:0.45rem'><input type='checkbox' id=\"admTestAcct_" + u.id + "\"" +
+                (ua.isTestAccount ? " checked" : "") +
+                " /> Test account</label>" +
+                "<textarea id=\"admQaNotes_" + u.id + "\" rows='2' maxlength='1000' placeholder='QA notes for this user…' style='width:100%;margin-top:0.45rem;font:inherit'>" +
+                escapeHtml(ua.qaNotes || "") +
+                "</textarea>" +
+                "<button type='button' class='secondary' id=\"admBetaSave_" + u.id + "\" style='margin-top:0.45rem'>Save beta state</button>" +
+                "</div>";
               const vroAdm =
                 d.viewerRoleOverride != null && String(d.viewerRoleOverride).trim() !== ""
                   ? String(d.viewerRoleOverride).trim()
@@ -1645,7 +1675,7 @@
                 "\">Title</label>" +
                 "<input type=\"text\" id=\"pushTitle_" +
                 u.id +
-                "\" maxlength=\"200\" placeholder=\"Airalert test\" />" +
+                "\" maxlength=\"200\" placeholder=\"AirAlert test\" />" +
                 "<label for=\"pushBody_" +
                 u.id +
                 "\">Message</label>" +
@@ -1697,6 +1727,30 @@
                   } catch (e) {
                     showToast(e.message || "Update failed");
                     cb.checked = !cb.checked;
+                  }
+                });
+              }
+
+              const betaSel = document.getElementById("admBetaSel_" + u.id);
+              const testCb = document.getElementById("admTestAcct_" + u.id);
+              const qaNotes = document.getElementById("admQaNotes_" + u.id);
+              const betaSave = document.getElementById("admBetaSave_" + u.id);
+              if (betaSave && betaSel && testCb && qaNotes) {
+                betaSave.addEventListener("click", async (ev) => {
+                  ev.stopPropagation();
+                  try {
+                    await api("/api/admin/users/" + encodeURIComponent(u.id) + "/beta-state", {
+                      method: "POST",
+                      body: JSON.stringify({
+                        betaStatus: betaSel.value || null,
+                        isTestAccount: testCb.checked,
+                        qaNotes: qaNotes.value || null,
+                      }),
+                    });
+                    showToast("Beta state saved");
+                    await loadDash();
+                  } catch (e) {
+                    showToast(e.message || "Failed to save beta state");
                   }
                 });
               }

@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 import { db } from "./db.js";
+import type { ActivityNotificationKind } from "./notificationTypes.js";
 
 /** Human-driven events surfaced in the header activity inbox (not episode/system feed). */
-export type ActivityNotificationKind = "community_mention" | "community_reply" | "group_chat_invite";
 
 export function insertActivityNotification(opts: {
   recipientUserId: string;

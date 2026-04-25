@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="Join the AirAlert beta waitlist — TV reminders and watchlists." />
-    <title>AirAlert — Beta waitlist</title>
+    <meta name="description" content="Join the AirAlert public beta waitlist — TV reminders, watch tasks, community threads, and spoiler-aware episode discussions." />
+    <title>AirAlert — Public beta</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -40,8 +40,15 @@
         line-height: 1.55;
       }
       .wrap {
-        max-width: 26rem;
+        width: min(100%, 72rem);
         margin: 0 auto;
+      }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2.25rem;
       }
       .logo {
         font-weight: 700;
@@ -53,10 +60,26 @@
         background-clip: text;
         color: transparent;
       }
-      .tag {
+      .nav-link {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .nav-link:hover {
+        color: var(--accent);
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(20rem, 0.8fr);
+        gap: 1.25rem;
+        align-items: start;
+      }
+      .eyebrow {
         font-size: 0.88rem;
         color: var(--muted);
-        margin-bottom: 1.75rem;
+        margin: 0 0 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
       }
       .card {
         background: var(--card);
@@ -65,16 +88,109 @@
         padding: 1.35rem 1.25rem 1.5rem;
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
       }
+      .hero-copy {
+        padding: 0.5rem 0 0;
+      }
       h1 {
-        font-size: 1.25rem;
+        font-size: clamp(2.2rem, 6vw, 4.8rem);
         font-weight: 700;
-        margin: 0 0 0.5rem;
+        line-height: 0.94;
+        margin: 0 0 1rem;
+        letter-spacing: -0.06em;
+      }
+      h2 {
+        margin: 0 0 0.65rem;
+        font-size: 1rem;
         letter-spacing: -0.02em;
       }
       .lead {
         color: var(--muted);
-        font-size: 0.92rem;
-        margin: 0 0 1.25rem;
+        font-size: clamp(1rem, 2.5vw, 1.2rem);
+        max-width: 42rem;
+        margin: 0 0 1.35rem;
+      }
+      .hero-actions {
+        display: flex;
+        gap: 0.65rem;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 1.25rem;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 0.42rem 0.7rem;
+        color: #dbeafe;
+        background: rgba(15, 23, 42, 0.58);
+        font-size: 0.86rem;
+      }
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.75rem;
+        margin-top: 1.2rem;
+      }
+      .feature-card {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.55);
+        padding: 0.85rem;
+      }
+      .feature-card strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: #e0f2fe;
+      }
+      .feature-card span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+      .visual-card {
+        margin-top: 1rem;
+        display: grid;
+        gap: 0.7rem;
+        border: 1px solid rgba(56, 189, 248, 0.18);
+        border-radius: 18px;
+        padding: 0.9rem;
+        background:
+          linear-gradient(145deg, rgba(14, 165, 233, 0.12), rgba(167, 139, 250, 0.09)),
+          rgba(2, 6, 23, 0.72);
+      }
+      .mock-row {
+        display: grid;
+        grid-template-columns: 3rem minmax(0, 1fr) auto;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.65rem;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.72);
+      }
+      .mock-poster {
+        width: 3rem;
+        height: 4rem;
+        border-radius: 10px;
+        background: linear-gradient(145deg, rgba(56, 189, 248, 0.55), rgba(167, 139, 250, 0.45));
+      }
+      .mock-title {
+        display: block;
+        font-weight: 700;
+      }
+      .mock-meta {
+        display: block;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+      .mock-badge {
+        color: #bbf7d0;
+        font-weight: 700;
+        font-size: 0.76rem;
+        border: 1px solid rgba(74, 222, 128, 0.32);
+        border-radius: 999px;
+        padding: 0.22rem 0.5rem;
       }
       label {
         display: block;
@@ -149,6 +265,36 @@
         color: var(--muted);
         font-size: 0.95rem;
       }
+      .section {
+        margin-top: 1rem;
+      }
+      .contact-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.75rem;
+        margin-top: 1rem;
+      }
+      .contact-card {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.5);
+        padding: 0.85rem;
+      }
+      .contact-card strong {
+        display: block;
+        color: #e0f2fe;
+      }
+      .contact-card code {
+        display: inline-block;
+        margin-top: 0.3rem;
+        color: var(--accent);
+        font-size: 0.85rem;
+      }
+      .contact-card p {
+        color: var(--muted);
+        font-size: 0.82rem;
+        margin: 0.35rem 0 0;
+      }
       .foot {
         margin-top: 1.75rem;
         text-align: center;
@@ -158,46 +304,141 @@
       .foot a {
         color: var(--accent);
       }
+      @media (max-width: 860px) {
+        .hero,
+        .feature-grid,
+        .contact-grid {
+          grid-template-columns: 1fr;
+        }
+        .topbar {
+          margin-bottom: 1.2rem;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <div class="logo">AirAlert</div>
-      <p class="tag">Beta waitlist</p>
+      <header class="topbar">
+        <div class="logo">AirAlert</div>
+        <a class="nav-link" href="/">Already testing? Open the app</a>
+      </header>
 
-      <div class="card" id="betaCard">
-        <form id="betaForm" autocomplete="on">
-          <h1>Get early access</h1>
-          <p class="lead">Leave your email and we’ll let you know when the beta opens. No spam — one list, launch updates.</p>
+      <main class="hero">
+        <section class="hero-copy" aria-labelledby="heroHeading">
+          <p class="eyebrow">Public beta waitlist</p>
+          <h1 id="heroHeading">Never lose the thread on your shows.</h1>
+          <p class="lead">
+            AirAlert turns your watchlist into a lightweight command center: episode reminders, catch-up tasks,
+            spoiler-aware discussions, direct messages, and community rooms for the TV you actually follow.
+          </p>
+          <div class="hero-actions" aria-label="Product highlights">
+            <span class="pill">Episode-day reminders</span>
+            <span class="pill">Watch tasks</span>
+            <span class="pill">Community threads</span>
+          </div>
 
-          <label for="betaEmail">Email <span style="text-transform: none; font-weight: 500; opacity: 0.85">(required)</span></label>
-          <input id="betaEmail" name="email" type="email" required autocomplete="email" inputmode="email" placeholder="you@example.com" />
+          <div class="feature-grid">
+            <div class="feature-card">
+              <strong>Track what airs</strong>
+              <span>Subscribe to shows and get a clean view of what needs attention this week.</span>
+            </div>
+            <div class="feature-card">
+              <strong>Discuss without chaos</strong>
+              <span>Show and episode threads keep conversations organized and easier to moderate.</span>
+            </div>
+            <div class="feature-card">
+              <strong>Control alerts</strong>
+              <span>Separate social activity, direct messages, and episode alerts before launch.</span>
+            </div>
+          </div>
 
-          <label for="betaDisplay">What should we call you? <span style="opacity: 0.75">(optional)</span></label>
-          <input id="betaDisplay" name="displayName" type="text" maxlength="80" autocomplete="name" placeholder="First name or @handle you’d like" />
-          <p class="hint">Helps us personalize invites — not your app username yet.</p>
+          <div class="visual-card" aria-label="AirAlert product preview">
+            <div class="mock-row">
+              <div class="mock-poster"></div>
+              <div>
+                <span class="mock-title">My Week</span>
+                <span class="mock-meta">3 new episodes, 2 open watch tasks</span>
+              </div>
+              <span class="mock-badge">Today</span>
+            </div>
+            <div class="mock-row">
+              <div class="mock-poster"></div>
+              <div>
+                <span class="mock-title">Community</span>
+                <span class="mock-meta">Breaking news, live rooms, and discussions</span>
+              </div>
+              <span class="mock-badge">Beta</span>
+            </div>
+          </div>
+        </section>
 
-          <label for="betaNote">What are you most excited about? <span style="opacity: 0.75">(optional)</span></label>
-          <textarea id="betaNote" name="note" maxlength="500" placeholder="e.g. reminders for streaming shows, watchlist…"></textarea>
+        <aside class="card" id="betaCard" aria-labelledby="waitlistHeading">
+          <form id="betaForm" autocomplete="on">
+            <h2 id="waitlistHeading">Get early access</h2>
+            <p class="lead">Leave your email and we’ll send beta invite updates when the public test opens.</p>
 
-          <input type="hidden" id="betaSource" name="source" value="" />
+            <label for="betaEmail">Email <span style="text-transform: none; font-weight: 500; opacity: 0.85">(required)</span></label>
+            <input id="betaEmail" name="email" type="email" required autocomplete="email" inputmode="email" placeholder="you@example.com" />
 
-          <p class="err" id="betaErr" hidden></p>
-          <button type="submit" id="betaSubmit">Join the list</button>
-        </form>
+            <label for="betaDisplay">What should we call you? <span style="opacity: 0.75">(optional)</span></label>
+            <input id="betaDisplay" name="displayName" type="text" maxlength="80" autocomplete="name" placeholder="First name or @handle you’d like" />
+            <p class="hint">This is only for waitlist follow-up. It does not create an AirAlert account.</p>
 
-        <div class="done" id="betaDone" hidden>
-          <h2>You’re on the list</h2>
-          <p>We’ll email you when beta opens. Thanks for your interest.</p>
+            <label for="betaNote">What are you most excited about? <span style="opacity: 0.75">(optional)</span></label>
+            <textarea id="betaNote" name="note" maxlength="500" placeholder="e.g. reminders for streaming shows, spoiler-safe episode threads, community…"></textarea>
+
+            <input type="hidden" id="betaSource" name="source" value="" />
+
+            <p class="err" id="betaErr" hidden></p>
+            <button type="submit" id="betaSubmit">Join the beta waitlist</button>
+            <p class="hint">No account is created yet. Duplicate emails are safely ignored.</p>
+          </form>
+
+          <div class="done" id="betaDone" hidden>
+            <h2>You’re on the list</h2>
+            <p>We’ll email you when beta opens. If you were already signed up, you’re still covered.</p>
+          </div>
+        </aside>
+      </main>
+
+      <section class="section card" aria-labelledby="contactHeading">
+        <h2 id="contactHeading">Support and legal paths</h2>
+        <p class="lead">
+          AirAlert now has in-app support, privacy, terms, and account deletion entry points for beta testing. Mailbox aliases
+          still need to be connected before public store submission.
+        </p>
+        <div class="contact-grid">
+          <div class="contact-card">
+            <strong>Support</strong>
+            <code>/support.html</code>
+            <p>Account help, beta issue reporting, and account deletion guidance.</p>
+          </div>
+          <div class="contact-card">
+            <strong>Privacy</strong>
+            <code>/privacy.html</code>
+            <p>Review-facing privacy entry point until a hosted legal policy is connected.</p>
+          </div>
+          <div class="contact-card">
+            <strong>Terms</strong>
+            <code>/terms.html</code>
+            <p>Beta terms placeholder for account, Community, notification, and moderation expectations.</p>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <p class="foot">Already testing? <a href="/">Open the app</a></p>
+      <p class="foot">
+        <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/support.html">Support</a>
+      </p>
     </div>
     <script>
       (function () {
         var params = new URLSearchParams(window.location.search);
-        var src = params.get("source") || params.get("utm_campaign") || "";
+        var src =
+          params.get("source") ||
+          params.get("utm_campaign") ||
+          params.get("utm_source") ||
+          params.get("ref") ||
+          "beta_landing";
         var srcEl = document.getElementById("betaSource");
         if (srcEl && src) srcEl.value = String(src).trim().slice(0, 120);
 
@@ -237,6 +478,9 @@
             }
             form.hidden = true;
             done.hidden = false;
+            if (data && data.duplicate) {
+              done.querySelector("p").textContent = "That email is already on the list. You’re still covered.";
+            }
           } catch (e) {
             err.textContent = (e && e.message) || "Could not save. Try again.";
             err.hidden = false;

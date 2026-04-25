@@ -1,5 +1,11 @@
 import { db } from "./db.js";
 
+/**
+ * Progression / “unlock” model (separate from account auth in `accountModel.ts`):
+ * - `viewerRole` is derived from subscribed show count (`show_subscriptions`) with optional `viewer_role_override` on `users`
+ * - Community/DM write access also requires a public `username` and is blocked by `moderation_status` (enforced in server)
+ */
+
 /** Mirrors client / API: derived from subscribed show count (not stored in DB). */
 export type ViewerRole = "newb" | "tv_watcher" | "tv_binger";
 

@@ -1,5 +1,10 @@
 import webpush from "web-push";
 import { db } from "./db.js";
+import {
+  pushNotificationCategory,
+  pushNotificationSurface,
+  type PushNotificationKind,
+} from "./notificationTypes.js";
 
 /** Strips quotes/BOM/whitespace often introduced when pasting into Railway or .env files. */
 function normalizeVapidKey(raw: string | undefined | null): string | null {
@@ -36,20 +41,22 @@ type SubRow = { endpoint: string; p256dh: string; auth: string };
 /** Granular push toggles (stored in users.push_prefs_json). All default true when unset. */
 export type PushPrefs = {
   episodeAirsToday: boolean;
+  taskStillWatching: boolean;
   dmMessage: boolean;
   communityMention: boolean;
+  communityReply: boolean;
   communityThreadNewPost: boolean;
-  taskStillWatching: boolean;
   /** People you follow — new show on their TVMaze cast/crew credits */
   personNewProject: boolean;
 };
 
 export const DEFAULT_PUSH_PREFS: PushPrefs = {
   episodeAirsToday: true,
+  taskStillWatching: true,
   dmMessage: true,
   communityMention: true,
+  communityReply: true,
   communityThreadNewPost: true,
-  taskStillWatching: true,
   personNewProject: true,
 };
 
@@ -90,7 +97,7 @@ export function mergePushPrefsFromJson(
   return base;
 }
 
-type SendOpts = { kind?: keyof PushPrefs };
+type SendOpts = { kind?: PushNotificationKind };
 
 export async function sendWebPushToUser(
   userId: string,
@@ -114,6 +121,9 @@ export async function sendWebPushToUser(
     title: payload.title,
     body: payload.body,
     url: payload.url ?? "/",
+    kind: options?.kind ?? null,
+    category: options?.kind ? pushNotificationCategory(options.kind) : null,
+    surface: options?.kind ? pushNotificationSurface(options.kind) : null,
   });
 
   for (const row of rows) {

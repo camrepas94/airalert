@@ -78,6 +78,7 @@ import {
   removeDmGroupMember,
 } from "./dm.js";
 import { insertActivityNotification } from "./activityNotifications.js";
+import { ACTIVITY_NOTIFICATION_KINDS } from "./notificationTypes.js";
 import { getPresenceMapForUserIds, touchUserPresence } from "./presence.js";
 import {
   parseThreadLiveRoomQuery,
@@ -97,7 +98,7 @@ import {
 import { episodeHasAiredUtc } from "./episodeRatings.js";
 import { computeRecommendedShows, computeTrendingShows, clearAIProfileCache } from "./recommend.js";
 import { hashPassword, verifyPassword } from "./password.js";
-import { createTransactionalMailer } from "./transactionalMail.js";
+import { createTransactionalMailer, transactionalMailStatus } from "./transactionalMail.js";
 import {
   newOpaqueToken,
   hashOpaqueToken,
@@ -124,6 +125,8 @@ import {
   serializeOnboardingPrefs,
   normalizeOnboardingPrefsInput,
 } from "./onboardingPrefs.js";
+import { accountStateFromDbFields, rowAuthProvider } from "./accountModel.js";
+import { applyLegacyNotificationPrefsPatch, getLegacyNotificationPrefsForUser } from "./legacyNotificationPrefs.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 const publicDir = path.join(process.cwd(), "public");
@@ -152,29 +155,124 @@ async function sendVerificationEmailNow(
       `SELECT email, (email_verified != 0) AS ev, auth_provider AS authProvider FROM users WHERE id = ?`,
     )
     .get(userId) as { email: string | null; ev: number; authProvider: string | null } | undefined;
-  if (!row) return { ok: false, error: "Account not found", statusCode: 404 };
+  if (!row) {
+    logEvent(request, {
+      event: "auth.email_verification.send",
+      feature: "auth",
+      action: "send_email_verification",
+      status: "failure",
+      userId,
+      reason: "account_not_found",
+      statusCode: 404,
+    });
+    return { ok: false, error: "Account not found", statusCode: 404 };
+  }
   const email = String(row.email ?? "").trim();
-  if (!email) return { ok: false, error: "Add an email to your account first", statusCode: 400 };
-  if (row.ev) return { ok: false, error: "Email is already verified", statusCode: 400 };
+  if (!email) {
+    logEvent(request, {
+      event: "auth.email_verification.send",
+      feature: "auth",
+      action: "send_email_verification",
+      status: "failure",
+      userId,
+      reason: "email_missing",
+      statusCode: 400,
+    });
+    return { ok: false, error: "Add an email to your account first", statusCode: 400 };
+  }
+  if (row.ev) {
+    logEvent(request, {
+      event: "auth.email_verification.send",
+      feature: "auth",
+      action: "send_email_verification",
+      status: "skipped",
+      userId,
+      reason: "already_verified",
+      statusCode: 400,
+    });
+    return { ok: false, error: "Email is already verified", statusCode: 400 };
+  }
   if (rowAuthProvider(row) !== "local") {
+    logEvent(request, {
+      event: "auth.email_verification.send",
+      feature: "auth",
+      action: "send_email_verification",
+      status: "failure",
+      userId,
+      reason: "not_local_account",
+      statusCode: 400,
+    });
     return { ok: false, error: "Email verification applies to email/password accounts", statusCode: 400 };
+  }
+  const mailStatus = transactionalMailStatus();
+  if (!mailStatus.configured) {
+    logEvent(request, {
+      event: "auth.email_verification.send",
+      feature: "auth",
+      action: "send_email_verification",
+      status: "failure",
+      userId,
+      reason: mailStatus.reason ?? "mail_not_configured",
+      statusCode: 503,
+      mailProvider: mailStatus.provider,
+    });
+    return {
+      ok: false,
+      error: "Email verification is not available yet because outbound email is not configured.",
+      statusCode: 503,
+    };
   }
   const raw = newOpaqueToken();
   storeEmailVerificationToken(userId, hashOpaqueToken(raw));
   const verifyUrl = `${publicAppBaseUrl(request)}/api/auth/email/verify?token=${encodeURIComponent(raw)}`;
   try {
-    await createTransactionalMailer(request.log).sendVerificationEmail(email, verifyUrl);
+    const sent = await createTransactionalMailer(request.log).sendVerificationEmail(email, verifyUrl);
+    if (!sent.ok) {
+      logEvent(
+        request,
+        {
+          event: "auth.email_verification.send",
+          feature: "auth",
+          action: "send_email_verification",
+          status: "failure",
+          userId,
+          reason: sent.error,
+          statusCode: sent.code === "not_configured" || sent.code === "adapter_missing" ? 503 : 500,
+          mailProvider: mailStatus.provider,
+        },
+        "error",
+      );
+      return {
+        ok: false,
+        error: "Could not send verification email. Email delivery is not ready.",
+        statusCode: sent.code === "not_configured" || sent.code === "adapter_missing" ? 503 : 500,
+      };
+    }
   } catch (e) {
-    request.log.error(e);
+    logEvent(
+      request,
+      {
+        event: "auth.email_verification.send",
+        feature: "auth",
+        action: "send_email_verification",
+        status: "failure",
+        userId,
+        error: e,
+        statusCode: 500,
+        mailProvider: mailStatus.provider,
+      },
+      "error",
+    );
     return { ok: false, error: "Could not send verification email", statusCode: 500 };
   }
-  return { ok: true };
-}
-
-function scheduleEmailVerification(userId: string, request: FastifyRequest): void {
-  void sendVerificationEmailNow(userId, request).then((r) => {
-    if (!r.ok) request.log.warn({ userId, err: r.error }, "verification email not queued after signup");
+  logEvent(request, {
+    event: "auth.email_verification.send",
+    feature: "auth",
+    action: "send_email_verification",
+    status: "success",
+    userId,
   });
+  return { ok: true };
 }
 
 /** Not web-exposed: admin-only HTML snippets (never place under `public/`). */
@@ -241,49 +339,11 @@ function validatePasswordPolicy(password: string): string | null {
   return null;
 }
 
-function rowAuthProvider(
-  row: { auth_provider?: string | null; authProvider?: string | null } | null | undefined,
-): "guest" | "local" | "google" {
-  const raw = row?.auth_provider ?? row?.authProvider;
-  const v = String(raw ?? "local").toLowerCase();
-  if (v === "guest") return "guest";
-  if (v === "google") return "google";
-  return "local";
-}
-
 function emailTakenByOtherUser(emailNorm: string, excludeUserId: string): boolean {
   const hit = db
     .prepare(`SELECT id FROM users WHERE lower(trim(email)) = lower(?) AND id != ?`)
     .get(emailNorm, excludeUserId) as { id: string } | undefined;
   return Boolean(hit);
-}
-
-/** Guest / Google / legacy username-only local / email-backed local (and future non-Google locals). */
-type AccountState = "guest" | "google" | "legacy_local" | "email_local";
-
-function truthyHasPasswordFromRow(row: Record<string, unknown>): boolean {
-  const h = row.hasPassword ?? row.hasPasswordForState ?? row.password_hash;
-  if (typeof h === "boolean") return h;
-  if (typeof h === "number") return h !== 0;
-  return Boolean(h && String(h).trim());
-}
-
-function googleSubNonEmpty(row: Record<string, unknown>): boolean {
-  const g = row.google_sub ?? row.googleSubInternal ?? row.googleSubForState;
-  return typeof g === "string" && g.trim() !== "";
-}
-
-/**
- * Legacy username-only: local auth, non-empty password, non-empty username, no email.
- * Distinct from guest (`auth_provider === 'guest'`) and Google (`google` or non-empty `google_sub`).
- */
-function accountStateFromDbFields(row: Record<string, unknown>): AccountState {
-  if (rowAuthProvider(row) === "guest") return "guest";
-  if (rowAuthProvider(row) === "google" || googleSubNonEmpty(row)) return "google";
-  const email = row.email != null ? String(row.email).trim() : "";
-  const username = row.username != null ? String(row.username).trim() : "";
-  if (rowAuthProvider(row) === "local" && truthyHasPasswordFromRow(row) && username !== "" && email === "") return "legacy_local";
-  return "email_local";
 }
 
 /**
@@ -399,6 +459,229 @@ const app = Fastify({
   },
 });
 
+type OperationalEventStatus = "started" | "success" | "failure" | "skipped";
+type OperationalEvent = {
+  event: string;
+  feature: string;
+  action: string;
+  status: OperationalEventStatus;
+  userId?: string | null;
+  route?: string;
+  method?: string;
+  statusCode?: number;
+  result?: string;
+  reason?: string;
+  error?: unknown;
+  [key: string]: unknown;
+};
+
+function safeErrorReason(error: unknown): string {
+  if (!error) return "unknown";
+  if (error instanceof Error) {
+    const errorCode = (error as Error & { code?: unknown }).code;
+    const code = typeof errorCode === "string" ? ` ${errorCode}` : "";
+    return `${error.name || "Error"}${code}: ${error.message || "unknown"}`.slice(0, 500);
+  }
+  return String(error).slice(0, 500);
+}
+
+function routeForLog(request: FastifyRequest): string {
+  return request.routeOptions?.url ?? request.url.split("?")[0] ?? "unknown";
+}
+
+function logServerEvent(
+  logger: FastifyRequest["log"],
+  event: OperationalEvent,
+  level: "info" | "warn" | "error" = event.status === "failure" ? "warn" : "info",
+): void {
+  const payload: Record<string, unknown> = {
+    event: event.event,
+    feature: event.feature,
+    action: event.action,
+    status: event.status,
+    userId: event.userId ?? undefined,
+    route: event.route,
+    method: event.method,
+    statusCode: event.statusCode,
+    result: event.result,
+    reason: event.reason ?? (event.error ? safeErrorReason(event.error) : undefined),
+  };
+  for (const [key, value] of Object.entries(event)) {
+    if (key === "error") continue;
+    if (!(key in payload)) payload[key] = value;
+  }
+  for (const key of Object.keys(payload)) {
+    if (payload[key] === undefined || payload[key] === null || payload[key] === "") delete payload[key];
+  }
+  logger[level](payload, event.event);
+}
+
+function logEvent(
+  request: FastifyRequest,
+  event: OperationalEvent,
+  level?: "info" | "warn" | "error",
+): void {
+  const fullEvent: OperationalEvent = {
+    ...event,
+    route: routeForLog(request),
+    method: request.method,
+    userId: event.userId ?? sessionUserIdFromRequest(request) ?? null,
+  };
+  logServerEvent(
+    request.log,
+    fullEvent,
+    level,
+  );
+}
+
+app.setErrorHandler((error, request, reply) => {
+  const err = error as Error & { statusCode?: number };
+  const statusCode =
+    typeof err.statusCode === "number" && err.statusCode >= 400 && err.statusCode < 600
+      ? err.statusCode
+      : 500;
+  logEvent(
+    request,
+    {
+      event: "api.request.failure",
+      feature: "api",
+      action: "handle_request",
+      status: "failure",
+      statusCode,
+      error: err,
+    },
+    statusCode >= 500 ? "error" : "warn",
+  );
+  if (reply.sent) return;
+  reply.code(statusCode).send({
+    error: statusCode >= 500 ? "Something went wrong. Please try again." : err.message || "Request failed",
+  });
+});
+
+const ANALYTICS_EVENT_NAMES = new Set([
+  "app.opened",
+  "guest.entry",
+  "account.create_flow_opened",
+  "auth.signup_completed",
+  "auth.signin_completed",
+  "activation.first_show_added",
+  "activation.second_show_added",
+  "activation.third_show_added",
+  "activation.unlock_threshold_reached",
+  "activation.my_week_opened",
+  "activation.tasks_opened",
+  "engagement.episode_marked_watched",
+  "engagement.rating_submitted",
+  "engagement.review_submitted",
+  "engagement.community_opened",
+  "engagement.thread_opened",
+  "engagement.post_submitted",
+  "engagement.live_chat_joined",
+  "engagement.live_chat_message_sent",
+  "engagement.dm_opened",
+  "engagement.dm_sent",
+  "notification.shown",
+  "notification.tapped",
+  "notification.deep_link_success",
+  "notification.deep_link_failure",
+  "qa.flow_failure",
+  "beta.feedback_submitted",
+]);
+
+const ANALYTICS_SENSITIVE_KEY_RE = /email|password|token|secret|auth|p256dh|endpoint|body|text|html|message|name|title|url/i;
+
+function analyticsAccountType(row: { auth_provider?: string | null; password_hash?: string | null; google_sub?: string | null } | null | undefined): string {
+  if (!row) return "anonymous";
+  return rowAuthProvider(row) === "guest" ? "guest" : "registered";
+}
+
+function analyticsShowCountBucket(count: number): string {
+  if (count <= 0) return "0";
+  if (count === 1) return "1";
+  if (count === 2) return "2";
+  if (count === 3) return "3";
+  if (count <= 5) return "4-5";
+  if (count <= 10) return "6-10";
+  return "11+";
+}
+
+function analyticsContextForUser(userId: string | undefined): { userId: string | null; accountType: string; showCountBucket: string } {
+  if (!userId) return { userId: null, accountType: "anonymous", showCountBucket: "unknown" };
+  const row = db
+    .prepare(
+      `SELECT auth_provider, password_hash, google_sub,
+              (SELECT COUNT(*) FROM show_subscriptions s WHERE s.user_id = users.id) AS showCount
+       FROM users WHERE id = ?`,
+    )
+    .get(userId) as
+    | { auth_provider: string | null; password_hash: string | null; google_sub: string | null; showCount: number }
+    | undefined;
+  if (!row) return { userId: null, accountType: "anonymous", showCountBucket: "unknown" };
+  return {
+    userId,
+    accountType: analyticsAccountType(row),
+    showCountBucket: analyticsShowCountBucket(Number(row.showCount ?? 0)),
+  };
+}
+
+function sanitizeAnalyticsString(value: unknown, max = 96): string | null {
+  if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") return null;
+  const s = String(value).trim();
+  if (!s) return null;
+  return s.slice(0, max);
+}
+
+function sanitizeAnalyticsMetadata(raw: unknown): Record<string, unknown> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>).slice(0, 24)) {
+    if (!/^[a-zA-Z0-9_.-]{1,48}$/.test(key)) continue;
+    if (ANALYTICS_SENSITIVE_KEY_RE.test(key)) continue;
+    if (typeof value === "string") out[key] = value.slice(0, 160);
+    else if (typeof value === "number" && Number.isFinite(value)) out[key] = value;
+    else if (typeof value === "boolean") out[key] = value;
+    else if (value == null) out[key] = null;
+  }
+  return out;
+}
+
+type AnalyticsEventInput = {
+  name?: unknown;
+  anonymousId?: unknown;
+  sourceScreen?: unknown;
+  targetType?: unknown;
+  targetId?: unknown;
+  metadata?: unknown;
+};
+
+function insertAnalyticsEvent(request: FastifyRequest, input: AnalyticsEventInput, trustedUserId?: string): boolean {
+  const eventName = sanitizeAnalyticsString(input.name, 80);
+  if (!eventName || !ANALYTICS_EVENT_NAMES.has(eventName)) return false;
+  const userContext = analyticsContextForUser(trustedUserId ?? sessionUserIdFromRequest(request));
+  const anonymousId = sanitizeAnalyticsString(input.anonymousId, 80);
+  const sourceScreen = sanitizeAnalyticsString(input.sourceScreen, 64);
+  const targetType = sanitizeAnalyticsString(input.targetType, 64);
+  const targetId = sanitizeAnalyticsString(input.targetId, 96);
+  const metadata = sanitizeAnalyticsMetadata(input.metadata);
+  db.prepare(
+    `INSERT INTO analytics_events
+       (id, user_id, anonymous_id, event_name, account_type, source_screen, target_type, target_id, show_count_bucket, metadata_json)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    uuidv4(),
+    userContext.userId,
+    anonymousId,
+    eventName,
+    userContext.accountType,
+    sourceScreen,
+    targetType,
+    targetId,
+    userContext.showCountBucket,
+    JSON.stringify(metadata),
+  );
+  return true;
+}
+
 await app.register(cors, {
   origin: true,
   credentials: true,
@@ -420,6 +703,7 @@ app.post("/api/beta-waitlist", async (request, reply) => {
     reply.code(400);
     return { error: "A valid email is required" };
   }
+  if (!assertRateLimit(reply, `beta_waitlist:${request.ip}`, 10, 60 * 60 * 1000, "Too many waitlist attempts. Try again later.")) return;
   const id = uuidv4();
   const ref =
     typeof request.headers.referer === "string" && request.headers.referer.trim()
@@ -440,6 +724,7 @@ app.post("/api/beta-waitlist", async (request, reply) => {
     }
     throw e;
   }
+  reply.code(201);
   return { ok: true };
 });
 
@@ -674,10 +959,13 @@ function getRegisteredSessionUserId(request: FastifyRequest): string | null {
     .prepare(`SELECT password_hash, auth_provider, google_sub FROM users WHERE id = ?`)
     .get(sid) as { password_hash: string | null; auth_provider: string | null; google_sub: string | null } | undefined;
   if (!row) return null;
-  if (rowAuthProvider(row) === "google") return sid;
-  if (row.google_sub && String(row.google_sub).trim()) return sid;
-  if (row.password_hash && String(row.password_hash).trim()) return sid;
-  return null;
+  const authed =
+    rowAuthProvider(row) === "google" ||
+    Boolean(row.google_sub && String(row.google_sub).trim()) ||
+    Boolean(row.password_hash && String(row.password_hash).trim());
+  if (!authed) return null;
+  if (userModerationStatus(sid) === "suspended") return null;
+  return sid;
 }
 
 function sessionRegisteredUserId(request: FastifyRequest, reply: FastifyReply): string | null {
@@ -715,6 +1003,7 @@ function sessionRegisteredUserId(request: FastifyRequest, reply: FastifyReply): 
     });
     return null;
   }
+  if (!assertUserNotRestricted(reply, sid)) return null;
   return sid;
 }
 
@@ -726,6 +1015,7 @@ function authorPublicHandle(row: { display_name: string | null; username: string
 
 /** Registered user must have 3+ subscribed shows (unless admin) for DMs, inbox, and community writes. */
 function assertFullSocialAccess(reply: FastifyReply, userId: string): boolean {
+  if (!assertUserCanCreateSocialContent(reply, userId)) return false;
   if (!userHasPublicUsername(userId)) {
     reply.code(403).send({
       error:
@@ -768,8 +1058,43 @@ async function notifyCommunityThreadSubscribers(opts: {
     opts.tvmazeEpisodeId != null
       ? `/?communityShow=${opts.tvmazeShowId}&communityEpisode=${opts.tvmazeEpisodeId}`
       : `/?communityShow=${opts.tvmazeShowId}`;
+  let sent = 0;
+  let failed = 0;
   for (const r of rows) {
-    await sendWebPushToUser(r.user_id, { title, body, url }, { kind: "communityThreadNewPost" });
+    try {
+      await sendWebPushToUser(r.user_id, { title, body, url }, { kind: "communityThreadNewPost" });
+      sent++;
+    } catch (error) {
+      failed++;
+      logServerEvent(
+        app.log,
+        {
+          event: "notification.delivery",
+          feature: "notifications",
+          action: "send_web_push",
+          status: "failure",
+          userId: r.user_id,
+          result: "community_thread_new_post",
+          error,
+        },
+        "error",
+      );
+    }
+  }
+  if (rows.length > 0) {
+    logServerEvent(app.log, {
+      event: "notification.delivery",
+      feature: "notifications",
+      action: "send_web_push",
+      status: failed > 0 ? "failure" : "success",
+      userId: opts.authorUserId,
+      result: "community_thread_new_post",
+      recipientCount: rows.length,
+      sent,
+      failed,
+      tvmazeShowId: opts.tvmazeShowId,
+      tvmazeEpisodeId: opts.tvmazeEpisodeId,
+    });
   }
 }
 
@@ -824,7 +1149,36 @@ async function notifyCommunityMentionedUsers(opts: {
       if (binge?.binge_later === 1) continue;
     }
     const body = `${who} tagged you in ${showBit}`;
-    await sendWebPushToUser(r.id, { title, body, url }, { kind: "communityMention" });
+    try {
+      await sendWebPushToUser(r.id, { title, body, url }, { kind: "communityMention" });
+      logServerEvent(app.log, {
+        event: "notification.delivery",
+        feature: "notifications",
+        action: "send_web_push",
+        status: "success",
+        userId: r.id,
+        result: "community_mention",
+        actorUserId: opts.taggerUserId,
+        tvmazeShowId: opts.tvmazeShowId,
+        tvmazeEpisodeId: opts.tvmazeEpisodeId,
+        postId: opts.postId,
+      });
+    } catch (error) {
+      logServerEvent(
+        app.log,
+        {
+          event: "notification.delivery",
+          feature: "notifications",
+          action: "send_web_push",
+          status: "failure",
+          userId: r.id,
+          result: "community_mention",
+          actorUserId: opts.taggerUserId,
+          error,
+        },
+        "error",
+      );
+    }
     insertActivityNotification({
       recipientUserId: r.id,
       kind: "community_mention",
@@ -950,6 +1304,122 @@ function logCommunityModeration(entry: {
   ).run(uuidv4(), entry.postId, entry.actorUserId, entry.action, entry.detail ? JSON.stringify(entry.detail) : null);
 }
 
+type ModerationReportTargetType = "post" | "review" | "dm_message" | "dm_group_message" | "live_chat_message" | "user";
+const MODERATION_REPORT_TYPES = new Set<ModerationReportTargetType>([
+  "post",
+  "review",
+  "dm_message",
+  "dm_group_message",
+  "live_chat_message",
+  "user",
+]);
+const MODERATION_REPORT_REASONS = new Set([
+  "spam",
+  "harassment",
+  "hate",
+  "sexual_content",
+  "violence",
+  "self_harm",
+  "spoilers",
+  "impersonation",
+  "other",
+]);
+const socialRateBuckets = new Map<string, number[]>();
+
+function userModerationStatus(userId: string): string {
+  const row = db.prepare(`SELECT moderation_status FROM users WHERE id = ?`).get(userId) as
+    | { moderation_status: string | null }
+    | undefined;
+  return String(row?.moderation_status ?? "").trim().toLowerCase();
+}
+
+function assertUserNotRestricted(reply: FastifyReply, userId: string): boolean {
+  const status = userModerationStatus(userId);
+  if (status === "suspended") {
+    reply.code(403).send({ error: "This account is suspended.", code: "account_suspended" });
+    return false;
+  }
+  return true;
+}
+
+function assertUserCanCreateSocialContent(reply: FastifyReply, userId: string): boolean {
+  const status = userModerationStatus(userId);
+  if (status === "suspended") {
+    reply.code(403).send({ error: "This account is suspended.", code: "account_suspended" });
+    return false;
+  }
+  if (status === "restricted") {
+    reply.code(403).send({ error: "This account is restricted from posting.", code: "account_restricted" });
+    return false;
+  }
+  return true;
+}
+
+function assertRateLimit(
+  reply: FastifyReply,
+  key: string,
+  limit: number,
+  windowMs: number,
+  message = "Slow down and try again in a moment.",
+): boolean {
+  const now = Date.now();
+  const since = now - windowMs;
+  const prior = (socialRateBuckets.get(key) ?? []).filter((t) => t > since);
+  if (prior.length >= limit) {
+    reply.code(429).send({ error: message, code: "rate_limited" });
+    socialRateBuckets.set(key, prior);
+    return false;
+  }
+  prior.push(now);
+  socialRateBuckets.set(key, prior);
+  if (socialRateBuckets.size > 2000) {
+    for (const [k, timestamps] of socialRateBuckets) {
+      const fresh = timestamps.filter((t) => t > now - 10 * 60 * 1000);
+      if (fresh.length) socialRateBuckets.set(k, fresh);
+      else socialRateBuckets.delete(k);
+    }
+  }
+  return true;
+}
+
+function reportTargetAuthor(targetType: ModerationReportTargetType, targetId: string): string | null {
+  if (targetType === "post" || targetType === "review") {
+    const row = db.prepare(`SELECT user_id FROM community_posts WHERE id = ?`).get(targetId) as
+      | { user_id: string }
+      | undefined;
+    return row?.user_id ?? null;
+  }
+  if (targetType === "dm_message") {
+    const row = db.prepare(`SELECT sender_id FROM dm_messages WHERE id = ?`).get(targetId) as
+      | { sender_id: string }
+      | undefined;
+    return row?.sender_id ?? null;
+  }
+  if (targetType === "dm_group_message") {
+    const row = db.prepare(`SELECT sender_id FROM dm_group_messages WHERE id = ?`).get(targetId) as
+      | { sender_id: string }
+      | undefined;
+    return row?.sender_id ?? null;
+  }
+  if (targetType === "user") {
+    const row = db.prepare(`SELECT id FROM users WHERE id = ?`).get(targetId) as { id: string } | undefined;
+    return row?.id ?? null;
+  }
+  return null;
+}
+
+function usersHaveBlockBetween(userA: string, userB: string): boolean {
+  const row = db
+    .prepare(
+      `SELECT 1 FROM user_blocks
+       WHERE (blocker_user_id = ? AND blocked_user_id = ?)
+          OR (blocker_user_id = ? AND blocked_user_id = ?)
+       LIMIT 1`,
+    )
+    .get(userA, userB, userB, userA);
+  return Boolean(row);
+}
+
 type UserCreateInput = { timezone?: string; reminderHourLocal?: number };
 
 function normalizeUserCreateInput(body: UserCreateInput): { timezone: string; reminderHourLocal: number } {
@@ -1071,11 +1541,198 @@ function ensureInitialAdminFromEnv(): void {
 
 ensureInitialAdminFromEnv();
 
-app.get("/api/health", async () => ({
-  ok: true,
-  /** Open in a browser after deploy to confirm DB is on a volume (looksEphemeral should be false). */
-  sqlite: getSqlitePersistenceInfo(),
-}));
+app.get("/api/health", async (request, reply) => {
+  reply.header("Cache-Control", "no-store");
+  let sqliteOk = true;
+  let sqliteError: string | undefined;
+  try {
+    db.prepare(`SELECT 1 AS ok`).get();
+  } catch (error) {
+    sqliteOk = false;
+    sqliteError = safeErrorReason(error);
+    logEvent(
+      request,
+      {
+        event: "health.readiness",
+        feature: "health",
+        action: "readiness_check",
+        status: "failure",
+        statusCode: 503,
+        reason: sqliteError,
+      },
+      "error",
+    );
+  }
+  const ok = sqliteOk;
+  reply.code(ok ? 200 : 503);
+  return {
+    ok,
+    status: ok ? "healthy" : "unhealthy",
+    checks: {
+      sqlite: {
+        ok: sqliteOk,
+        error: sqliteError,
+        /** Open in a browser after deploy to confirm DB is on a volume (looksEphemeral should be false). */
+        persistence: sqliteOk ? getSqlitePersistenceInfo() : undefined,
+      },
+      webPush: { configured: isWebPushConfigured() },
+      googleOAuth: { configured: googleOAuthEnvReady() },
+      transactionalEmail: transactionalMailStatus(),
+    },
+  };
+});
+
+app.post("/api/analytics/events", async (request, reply) => {
+  const body = (request.body ?? {}) as { events?: unknown; event?: unknown };
+  const rawEvents = Array.isArray(body.events) ? body.events : body.event ? [body.event] : [];
+  const events = rawEvents.slice(0, 20).filter((e): e is AnalyticsEventInput => Boolean(e && typeof e === "object"));
+  let accepted = 0;
+  for (const event of events) {
+    if (insertAnalyticsEvent(request, event)) accepted++;
+  }
+  if (accepted === 0 && events.length > 0) {
+    reply.code(400);
+    return { error: "No valid analytics events" };
+  }
+  return { ok: true, accepted };
+});
+
+app.post("/api/moderation/reports", async (request, reply) => {
+  const reporterId = sessionUserIdFromRequest(request);
+  if (!reporterId) {
+    reply.code(401);
+    return { error: "Sign in required" };
+  }
+  if (!userHasPublicUsername(reporterId)) {
+    reply.code(403);
+    return { error: "Choose a public username before reporting.", code: "username_required" };
+  }
+  if (!assertUserNotRestricted(reply, reporterId)) return;
+  if (!assertRateLimit(reply, `report:${reporterId}`, 5, 10 * 60 * 1000, "Too many reports. Try again later.")) return;
+  const body = (request.body ?? {}) as {
+    targetType?: string;
+    targetId?: string;
+    reason?: string;
+    detail?: string;
+    targetUserId?: string;
+  };
+  const targetType = String(body.targetType ?? "").trim() as ModerationReportTargetType;
+  if (!MODERATION_REPORT_TYPES.has(targetType)) {
+    reply.code(400);
+    return { error: "Invalid report target type" };
+  }
+  const targetId = String(body.targetId ?? "").trim().slice(0, 120);
+  if (!targetId) {
+    reply.code(400);
+    return { error: "Report target required" };
+  }
+  const reasonRaw = String(body.reason ?? "other").trim().toLowerCase();
+  const reason = MODERATION_REPORT_REASONS.has(reasonRaw) ? reasonRaw : "other";
+  const detail = typeof body.detail === "string" ? body.detail.trim().slice(0, 500) : "";
+  let targetUserId =
+    typeof body.targetUserId === "string" && body.targetUserId.trim() ? body.targetUserId.trim() : reportTargetAuthor(targetType, targetId);
+  if (targetType === "user") targetUserId = reportTargetAuthor("user", targetId);
+  if ((targetType === "post" || targetType === "review" || targetType === "dm_message" || targetType === "dm_group_message" || targetType === "user") && !targetUserId) {
+    reply.code(404);
+    return { error: "Report target not found" };
+  }
+  if (targetType === "dm_message") {
+    const allowed = db
+      .prepare(
+        `SELECT 1 FROM dm_messages m
+         JOIN dm_threads t ON t.id = m.thread_id
+         WHERE m.id = ? AND (t.user_low = ? OR t.user_high = ?)`,
+      )
+      .get(targetId, reporterId, reporterId);
+    if (!allowed) {
+      reply.code(404);
+      return { error: "Report target not found" };
+    }
+  }
+  if (targetType === "dm_group_message") {
+    const allowed = db
+      .prepare(
+        `SELECT 1 FROM dm_group_messages m
+         JOIN dm_group_members gm ON gm.group_id = m.group_id AND gm.user_id = ?
+         WHERE m.id = ?`,
+      )
+      .get(reporterId, targetId);
+    if (!allowed) {
+      reply.code(404);
+      return { error: "Report target not found" };
+    }
+  }
+  const id = uuidv4();
+  try {
+    db.prepare(
+      `INSERT INTO moderation_reports
+       (id, reporter_user_id, target_type, target_id, target_user_id, reason, detail)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    ).run(id, reporterId, targetType, targetId, targetUserId, reason, detail || null);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "";
+    if (msg.includes("UNIQUE")) return { ok: true, duplicate: true };
+    throw error;
+  }
+  logServerEvent(app.log, {
+    event: "moderation.report.create",
+    feature: "moderation",
+    action: "create_report",
+    status: "success",
+    userId: reporterId,
+    targetType,
+    targetId,
+    targetUserId,
+    reason,
+  });
+  reply.code(201);
+  return { ok: true, id };
+});
+
+app.post("/api/beta-feedback", async (request, reply) => {
+  const uid = sessionUserIdFromRequest(request);
+  if (uid && !assertUserNotRestricted(reply, uid)) return;
+  if (!assertRateLimit(reply, `beta_feedback:${uid ?? request.ip}`, 10, 60 * 60 * 1000, "Too much feedback submitted. Try again later.")) return;
+  const body = (request.body ?? {}) as {
+    category?: string;
+    severity?: string;
+    flow?: string;
+    screen?: string;
+    message?: string;
+    metadata?: unknown;
+  };
+  const category =
+    body.category === "confusing_screen" || body.category === "failed_flow" || body.category === "general"
+      ? body.category
+      : "issue";
+  const severity = body.severity === "low" || body.severity === "high" ? body.severity : "medium";
+  const message = typeof body.message === "string" ? body.message.trim().slice(0, 1200) : "";
+  if (!message) {
+    reply.code(400);
+    return { error: "Feedback message required" };
+  }
+  const flow = typeof body.flow === "string" ? body.flow.trim().slice(0, 80) || null : null;
+  const screen = typeof body.screen === "string" ? body.screen.trim().slice(0, 80) || null : null;
+  const metadata = sanitizeAnalyticsMetadata(body.metadata);
+  const id = uuidv4();
+  db.prepare(
+    `INSERT INTO beta_feedback (id, user_id, category, severity, flow, screen, message, metadata_json)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(id, uid ?? null, category, severity, flow, screen, message, Object.keys(metadata).length ? JSON.stringify(metadata) : null);
+  insertAnalyticsEvent(
+    request,
+    {
+      name: "beta.feedback_submitted",
+      sourceScreen: screen ?? "unknown",
+      targetType: "beta_feedback",
+      targetId: id,
+      metadata: { category, severity, flow },
+    },
+    uid ?? undefined,
+  );
+  reply.code(201);
+  return { ok: true, id };
+});
 
 app.get("/api/admin/status", async (request) => {
   if (!isRequestAdmin(request)) {
@@ -1091,6 +1748,14 @@ app.post("/api/admin/login", async (request, reply) => {
   const pw = adminPasswordConfigured();
   if (!pw) {
     reply.code(404);
+    logEvent(request, {
+      event: "admin.login",
+      feature: "admin",
+      action: "login_admin",
+      status: "failure",
+      reason: "admin_password_not_configured",
+      statusCode: 404,
+    });
     return { error: "Admin not configured (set AIRALERT_ADMIN_PASSWORD)" };
   }
   const body = (request.body ?? {}) as { password?: string };
@@ -1099,14 +1764,34 @@ app.post("/api/admin/login", async (request, reply) => {
   const pb = Buffer.from(pw, "utf8");
   if (ab.length !== pb.length || !crypto.timingSafeEqual(ab, pb)) {
     reply.code(401);
+    logEvent(request, {
+      event: "admin.login",
+      feature: "admin",
+      action: "login_admin",
+      status: "failure",
+      reason: "invalid_password",
+      statusCode: 401,
+    });
     return { error: "Invalid password" };
   }
   setAdminSessionCookie(reply, request, signAdminSessionToken(pw));
+  logEvent(request, {
+    event: "admin.login",
+    feature: "admin",
+    action: "login_admin",
+    status: "success",
+  });
   return { ok: true };
 });
 
 app.post("/api/admin/logout", async (request, reply) => {
   clearAdminSessionCookie(reply, request);
+  logEvent(request, {
+    event: "admin.logout",
+    feature: "admin",
+    action: "logout_admin",
+    status: "success",
+  });
   return { ok: true };
 });
 
@@ -1173,6 +1858,10 @@ app.get("/api/admin/overview", async (request, reply) => {
          u.is_admin AS isAdmin,
          u.created_at AS createdAt,
          u.last_login_at AS lastLoginAt,
+         u.moderation_status AS moderationStatus,
+         u.beta_status AS betaStatus,
+         u.is_test_account AS isTestAccount,
+         u.qa_notes AS qaNotes,
          (u.email_verified != 0) AS emailVerified,
          (SELECT p.last_activity_at FROM user_presence p WHERE p.user_id = u.id) AS lastActivityAt,
          u.timezone AS timezone,
@@ -1196,6 +1885,10 @@ app.get("/api/admin/overview", async (request, reply) => {
     isAdmin: number;
     createdAt: string;
     lastLoginAt: string | null;
+    moderationStatus: string | null;
+    betaStatus: string | null;
+    isTestAccount: number;
+    qaNotes: string | null;
     emailVerified: number;
     lastActivityAt: string | null;
     timezone: string;
@@ -1211,6 +1904,10 @@ app.get("/api/admin/overview", async (request, reply) => {
   const totals = rows.reduce(
     (acc, r) => {
       acc.users += 1;
+      if (r.isGuestAccount) acc.guests += 1;
+      if (r.isAdmin) acc.admins += 1;
+      if (r.betaStatus && String(r.betaStatus).trim()) acc.betaUsers += 1;
+      if (r.isTestAccount) acc.testAccounts += 1;
       acc.subscriptions += r.subscriptionCount;
       acc.fromRecommended += r.fromRecommendedCount;
       acc.fromSearch += r.fromSearchCount;
@@ -1219,7 +1916,19 @@ app.get("/api/admin/overview", async (request, reply) => {
       acc.tasksCompleted += r.tasksCompleted;
       return acc;
     },
-    { users: 0, subscriptions: 0, fromRecommended: 0, fromSearch: 0, fromUnknown: 0, tasksTotal: 0, tasksCompleted: 0 },
+    {
+      users: 0,
+      guests: 0,
+      admins: 0,
+      betaUsers: 0,
+      testAccounts: 0,
+      subscriptions: 0,
+      fromRecommended: 0,
+      fromSearch: 0,
+      fromUnknown: 0,
+      tasksTotal: 0,
+      tasksCompleted: 0,
+    },
   );
 
   const betaWaitlistCount = Number((db.prepare(`SELECT COUNT(*) AS c FROM beta_waitlist`).get() as { c: number }).c) || 0;
@@ -1269,6 +1978,10 @@ app.get("/api/admin/overview", async (request, reply) => {
       isGuestAccount: Number(r.isGuestAccount) === 1,
       createdAt: r.createdAt,
       lastLoginAt: normalizeAdminUtcTimestamp(r.lastLoginAt),
+      moderationStatus: r.moderationStatus,
+      betaStatus: r.betaStatus,
+      isTestAccount: Number(r.isTestAccount) === 1,
+      qaNotes: r.qaNotes,
       lastActivityAt: normalizeAdminUtcTimestamp(r.lastActivityAt),
       timezone: r.timezone,
       subscriptionCount: r.subscriptionCount,
@@ -1294,6 +2007,227 @@ app.get("/api/admin/overview", async (request, reply) => {
   };
 });
 
+app.get("/api/admin/moderation/reports", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const q = request.query as { status?: string; limit?: string };
+  const status = typeof q.status === "string" && ["open", "reviewed", "dismissed", "actioned", "all"].includes(q.status)
+    ? q.status
+    : "open";
+  const limitRaw = Number(q.limit);
+  const limit = Number.isFinite(limitRaw) ? Math.min(200, Math.max(1, Math.floor(limitRaw))) : 80;
+  const where = status === "all" ? "" : "WHERE r.status = ?";
+  const params = status === "all" ? [limit] : [status, limit];
+  const rows = db
+    .prepare(
+      `SELECT r.id, r.reporter_user_id AS reporterUserId, r.target_type AS targetType, r.target_id AS targetId,
+              r.target_user_id AS targetUserId, r.reason, r.detail, r.status,
+              r.reviewed_by_user_id AS reviewedByUserId, r.reviewed_at AS reviewedAt, r.created_at AS createdAt,
+              ru.username AS reporterUsername, ru.display_name AS reporterDisplayName,
+              tu.username AS targetUsername, tu.display_name AS targetDisplayName, tu.moderation_status AS targetModerationStatus
+       FROM moderation_reports r
+       LEFT JOIN users ru ON ru.id = r.reporter_user_id
+       LEFT JOIN users tu ON tu.id = r.target_user_id
+       ${where}
+       ORDER BY CASE r.status WHEN 'open' THEN 0 ELSE 1 END, datetime(r.created_at) DESC
+       LIMIT ?`,
+    )
+    .all(...params) as Record<string, unknown>[];
+  return {
+    reports: rows.map((r) => ({
+      ...r,
+      reporterLabel: authorPublicHandle({
+        display_name: (r.reporterDisplayName as string | null) ?? null,
+        username: (r.reporterUsername as string | null) ?? null,
+      }),
+      targetLabel: authorPublicHandle({
+        display_name: (r.targetDisplayName as string | null) ?? null,
+        username: (r.targetUsername as string | null) ?? null,
+      }),
+    })),
+  };
+});
+
+app.get("/api/admin/qa-snapshot", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const flowNames = [
+    "auth.signup_completed",
+    "auth.signin_completed",
+    "activation.first_show_added",
+    "activation.second_show_added",
+    "activation.third_show_added",
+    "activation.unlock_threshold_reached",
+    "engagement.episode_marked_watched",
+    "engagement.rating_submitted",
+    "engagement.review_submitted",
+    "engagement.post_submitted",
+    "notification.deep_link_success",
+    "notification.deep_link_failure",
+    "qa.flow_failure",
+  ];
+  const placeholders = flowNames.map(() => "?").join(", ");
+  const events = db
+    .prepare(
+      `SELECT id, user_id AS userId, anonymous_id AS anonymousId, event_name AS eventName,
+              account_type AS accountType, source_screen AS sourceScreen, target_type AS targetType,
+              target_id AS targetId, show_count_bucket AS showCountBucket, metadata_json AS metadataJson,
+              created_at AS createdAt
+       FROM analytics_events
+       WHERE event_name IN (${placeholders})
+       ORDER BY datetime(created_at) DESC
+       LIMIT 120`,
+    )
+    .all(...flowNames) as Record<string, unknown>[];
+  const feedback = db
+    .prepare(
+      `SELECT f.id, f.user_id AS userId, f.category, f.severity, f.flow, f.screen, f.message,
+              f.status, f.created_at AS createdAt, u.username, u.email
+       FROM beta_feedback f
+       LEFT JOIN users u ON u.id = f.user_id
+       ORDER BY CASE f.status WHEN 'open' THEN 0 ELSE 1 END, datetime(f.created_at) DESC
+       LIMIT 80`,
+    )
+    .all() as Record<string, unknown>[];
+  return {
+    events: events.map((e) => {
+      let metadata: unknown = null;
+      if (typeof e.metadataJson === "string" && e.metadataJson.trim()) {
+        try {
+          metadata = JSON.parse(e.metadataJson);
+        } catch {
+          metadata = null;
+        }
+      }
+      return { ...e, metadata, metadataJson: undefined };
+    }),
+    feedback,
+  };
+});
+
+app.patch("/api/admin/beta-feedback/:feedbackId", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const { feedbackId } = request.params as { feedbackId: string };
+  const body = (request.body ?? {}) as { status?: string };
+  const status = body.status === "reviewed" || body.status === "resolved" || body.status === "open" ? body.status : "reviewed";
+  const adminId = sessionUserIdFromRequest(request) ?? null;
+  const r = db.prepare(
+    `UPDATE beta_feedback SET status = ?, reviewed_at = datetime('now'), reviewed_by_user_id = ? WHERE id = ?`,
+  ).run(status, adminId, feedbackId);
+  if (r.changes < 1) {
+    reply.code(404);
+    return { error: "Feedback not found" };
+  }
+  return { ok: true, status };
+});
+
+app.patch("/api/admin/moderation/reports/:reportId", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const { reportId } = request.params as { reportId: string };
+  const body = (request.body ?? {}) as {
+    status?: string;
+    hideContent?: boolean;
+    moderationStatus?: string | null;
+  };
+  const report = db.prepare(`SELECT * FROM moderation_reports WHERE id = ?`).get(reportId) as
+    | {
+        id: string;
+        target_type: string;
+        target_id: string;
+        target_user_id: string | null;
+      }
+    | undefined;
+  if (!report) {
+    reply.code(404);
+    return { error: "Report not found" };
+  }
+  const nextStatus =
+    typeof body.status === "string" && ["open", "reviewed", "dismissed", "actioned"].includes(body.status)
+      ? body.status
+      : null;
+  const adminId = sessionUserIdFromRequest(request) ?? null;
+  if (body.hideContent === true && (report.target_type === "post" || report.target_type === "review")) {
+    const post = db
+      .prepare(`SELECT user_id, tvmaze_show_id FROM community_posts WHERE id = ?`)
+      .get(report.target_id) as { user_id: string; tvmaze_show_id: number } | undefined;
+    if (post) {
+      db.prepare(`UPDATE community_posts SET deleted_at = COALESCE(deleted_at, datetime('now')) WHERE id = ?`).run(report.target_id);
+      logCommunityModeration({
+        postId: report.target_id,
+        actorUserId: adminId,
+        action: "post_hide_from_report",
+        detail: { reportId, authorUserId: post.user_id, tvmazeShowId: post.tvmaze_show_id },
+      });
+    }
+  }
+  if ("moderationStatus" in body && report.target_user_id) {
+    const statusValue =
+      body.moderationStatus === "restricted" || body.moderationStatus === "suspended"
+        ? body.moderationStatus
+        : null;
+    db.prepare(`UPDATE users SET moderation_status = ? WHERE id = ?`).run(statusValue, report.target_user_id);
+  }
+  const finalStatus = nextStatus ?? (body.hideContent === true || "moderationStatus" in body ? "actioned" : "reviewed");
+  db.prepare(
+    `UPDATE moderation_reports
+     SET status = ?, reviewed_by_user_id = ?, reviewed_at = datetime('now')
+     WHERE id = ?`,
+  ).run(finalStatus, adminId, reportId);
+  logServerEvent(app.log, {
+    event: "moderation.report.review",
+    feature: "moderation",
+    action: "review_report",
+    status: "success",
+    userId: adminId,
+    reportId,
+    result: finalStatus,
+    targetType: report.target_type,
+    targetId: report.target_id,
+    targetUserId: report.target_user_id,
+  });
+  return { ok: true, status: finalStatus };
+});
+
+app.post("/api/admin/users/:userId/moderation", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const { userId } = request.params as { userId: string };
+  const body = (request.body ?? {}) as { moderationStatus?: string | null };
+  const exists = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!exists) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const statusValue =
+    body.moderationStatus === "restricted" || body.moderationStatus === "suspended"
+      ? body.moderationStatus
+      : null;
+  db.prepare(`UPDATE users SET moderation_status = ? WHERE id = ?`).run(statusValue, userId);
+  return { ok: true, moderationStatus: statusValue };
+});
+
+app.post("/api/admin/users/:userId/beta-state", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const { userId } = request.params as { userId: string };
+  const body = (request.body ?? {}) as { betaStatus?: string | null; isTestAccount?: boolean; qaNotes?: string | null };
+  const exists = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!exists) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const betaRaw = typeof body.betaStatus === "string" ? body.betaStatus.trim().toLowerCase() : "";
+  const betaStatus =
+    betaRaw === "invited" || betaRaw === "active" || betaRaw === "paused" || betaRaw === "graduated"
+      ? betaRaw
+      : null;
+  const isTestAccount = body.isTestAccount === true ? 1 : 0;
+  const qaNotes = typeof body.qaNotes === "string" ? body.qaNotes.trim().slice(0, 1000) || null : null;
+  db.prepare(`UPDATE users SET beta_status = ?, is_test_account = ?, qa_notes = ? WHERE id = ?`).run(
+    betaStatus,
+    isTestAccount,
+    qaNotes,
+    userId,
+  );
+  return { ok: true, betaStatus, isTestAccount: Boolean(isTestAccount), qaNotes };
+});
+
 app.get("/api/admin/beta-waitlist", async (request, reply) => {
   if (replyForbiddenUnlessAdmin(request, reply)) return;
   const limitRaw = Number((request.query as { limit?: string }).limit);
@@ -1312,12 +2246,22 @@ app.get("/api/admin/beta-waitlist.csv", async (request, reply) => {
   if (replyForbiddenUnlessAdmin(request, reply)) return;
   const rows = db
     .prepare(
-      `SELECT email, display_name AS displayName, note, source, created_at AS createdAt FROM beta_waitlist ORDER BY datetime(created_at) DESC`,
+      `SELECT id, email, display_name AS displayName, note, source, referrer, user_agent AS userAgent, created_at AS createdAt
+       FROM beta_waitlist ORDER BY datetime(created_at) DESC`,
     )
-    .all() as { email: string; displayName: string | null; note: string | null; source: string | null; createdAt: string }[];
-  const header = "email,display_name,note,source,created_at";
+    .all() as {
+      id: string;
+      email: string;
+      displayName: string | null;
+      note: string | null;
+      source: string | null;
+      referrer: string | null;
+      userAgent: string | null;
+      createdAt: string;
+    }[];
+  const header = "id,email,display_name,note,source,referrer,user_agent,created_at";
   const lines = rows.map((r) =>
-    [r.email, r.displayName ?? "", r.note ?? "", r.source ?? "", r.createdAt]
+    [r.id, r.email, r.displayName ?? "", r.note ?? "", r.source ?? "", r.referrer ?? "", r.userAgent ?? "", r.createdAt]
       .map((c) => csvEscapeField(String(c)))
       .join(","),
   );
@@ -1846,19 +2790,54 @@ app.delete("/api/admin/users/:userId", async (request, reply) => {
     .get(userId) as { username: string | null; is_admin: number } | undefined;
   if (!row) {
     reply.code(404);
+    logEvent(request, {
+      event: "admin.user.delete",
+      feature: "admin",
+      action: "delete_user",
+      status: "failure",
+      targetUserId: userId,
+      reason: "user_not_found",
+      statusCode: 404,
+    });
     return { error: "User not found" };
   }
   const un = row.username?.trim() ?? "";
   if (un.length > 0) {
     reply.code(400);
+    logEvent(request, {
+      event: "admin.user.delete",
+      feature: "admin",
+      action: "delete_user",
+      status: "failure",
+      targetUserId: userId,
+      reason: "registered_account_not_deletable_here",
+      statusCode: 400,
+    });
     return { error: "Only guest accounts (no username) can be deleted here" };
   }
   const sid = sessionUserIdFromRequest(request);
   if (sid === userId) {
     reply.code(400);
+    logEvent(request, {
+      event: "admin.user.delete",
+      feature: "admin",
+      action: "delete_user",
+      status: "failure",
+      userId: sid,
+      targetUserId: userId,
+      reason: "self_delete_blocked",
+      statusCode: 400,
+    });
     return { error: "Cannot delete the account you are signed in as" };
   }
   db.prepare(`DELETE FROM users WHERE id = ?`).run(userId);
+  logEvent(request, {
+    event: "admin.user.delete",
+    feature: "admin",
+    action: "delete_user",
+    status: "success",
+    targetUserId: userId,
+  });
   return { ok: true };
 });
 
@@ -1872,7 +2851,8 @@ app.get("/api/admin/users/:userId", async (request, reply) => {
               (u.password_hash IS NOT NULL AND trim(u.password_hash) != '') AS hasPassword,
               u.is_admin AS isAdmin, u.timezone, u.reminder_hour_local AS reminderHourLocal,
               u.task_nudge_days_after_air AS taskNudgeDaysAfterAir, u.push_prefs_json, u.created_at AS createdAt,
-              u.last_login_at AS lastLoginAt,
+              u.last_login_at AS lastLoginAt, u.moderation_status AS moderationStatus,
+              u.beta_status AS betaStatus, u.is_test_account AS isTestAccount, u.qa_notes AS qaNotes,
               (SELECT p.last_activity_at FROM user_presence p WHERE p.user_id = u.id) AS lastActivityAt,
               u.password_plain_admin AS passwordPlainAdmin
        FROM users u WHERE u.id = ?`,
@@ -1935,6 +2915,15 @@ app.patch("/api/admin/users/:userId", async (request, reply) => {
   const existing = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
   if (!existing) {
     reply.code(404);
+    logEvent(request, {
+      event: "admin.user.update",
+      feature: "admin",
+      action: "update_user",
+      status: "failure",
+      targetUserId: userId,
+      reason: "user_not_found",
+      statusCode: 404,
+    });
     return { error: "User not found" };
   }
   let did = false;
@@ -1943,6 +2932,15 @@ app.patch("/api/admin/users/:userId", async (request, reply) => {
     const un = u?.username?.trim() ?? "";
     if (!un) {
       reply.code(400);
+      logEvent(request, {
+        event: "admin.user.update",
+        feature: "admin",
+        action: "update_user",
+        status: "failure",
+        targetUserId: userId,
+        reason: "password_reset_no_username",
+        statusCode: 400,
+      });
       return { error: "This account has no username — there is no password to reset" };
     }
     setUserPasswordWithPlainAdmin(userId, DEFAULT_USER_PASSWORD_FOR_RESET);
@@ -1962,19 +2960,48 @@ app.patch("/api/admin/users/:userId", async (request, reply) => {
       did = true;
     } else {
       reply.code(400);
+      logEvent(request, {
+        event: "admin.user.update",
+        feature: "admin",
+        action: "update_user",
+        status: "failure",
+        targetUserId: userId,
+        reason: "invalid_viewer_role_override",
+        statusCode: 400,
+      });
       return { error: "viewerRoleOverride must be newb, tv_watcher, tv_binger, null, or empty string" };
     }
   }
   if (!did) {
     reply.code(400);
+    logEvent(request, {
+      event: "admin.user.update",
+      feature: "admin",
+      action: "update_user",
+      status: "failure",
+      targetUserId: userId,
+      reason: "no_changes_requested",
+      statusCode: 400,
+    });
     return { error: "Set isAdmin, resetPasswordToDefault, and/or viewerRoleOverride" };
   }
+  logEvent(request, {
+    event: "admin.user.update",
+    feature: "admin",
+    action: "update_user",
+    status: "success",
+    targetUserId: userId,
+    resetPassword: body.resetPasswordToDefault === true,
+    changedAdminFlag: typeof body.isAdmin === "boolean",
+    changedViewerRoleOverride: "viewerRoleOverride" in body,
+  });
   const row = db
     .prepare(
       `SELECT u.id, u.username, u.email, (u.email_verified != 0) AS emailVerified, u.auth_provider AS authProvider,
               u.is_admin AS isAdmin, u.timezone, u.reminder_hour_local AS reminderHourLocal,
               u.task_nudge_days_after_air AS taskNudgeDaysAfterAir, u.push_prefs_json, u.created_at AS createdAt,
-              u.last_login_at AS lastLoginAt,
+              u.last_login_at AS lastLoginAt, u.moderation_status AS moderationStatus,
+              u.beta_status AS betaStatus, u.is_test_account AS isTestAccount, u.qa_notes AS qaNotes,
               (SELECT p.last_activity_at FROM user_presence p WHERE p.user_id = u.id) AS lastActivityAt,
               u.password_plain_admin AS passwordPlainAdmin
        FROM users u WHERE u.id = ?`,
@@ -1993,22 +3020,57 @@ app.post("/api/admin/users/:userId/test-push", async (request, reply) => {
   const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
   if (!u) {
     reply.code(404);
+    logEvent(request, {
+      event: "notification.test_push.admin",
+      feature: "notifications",
+      action: "send_admin_test_push",
+      status: "failure",
+      targetUserId: userId,
+      reason: "user_not_found",
+      statusCode: 404,
+    });
     return { error: "User not found" };
   }
   if (!isWebPushConfigured()) {
     reply.code(503);
+    logEvent(request, {
+      event: "notification.test_push.admin",
+      feature: "notifications",
+      action: "send_admin_test_push",
+      status: "failure",
+      targetUserId: userId,
+      reason: "push_not_configured",
+      statusCode: 503,
+    });
     return { error: "Push not configured on server (missing VAPID keys)" };
   }
   const body = (request.body ?? {}) as { title?: string; body?: string };
   const titleRaw = typeof body.title === "string" ? body.title.trim() : "";
   const bodyRaw = typeof body.body === "string" ? body.body.trim() : "";
-  const title = titleRaw.slice(0, 200) || "Airalert test";
+  const title = titleRaw.slice(0, 200) || "AirAlert test";
   const text = bodyRaw.slice(0, 500) || "Test push from admin panel.";
   const n = db.prepare(`SELECT COUNT(*) AS c FROM web_push_subscriptions WHERE user_id = ?`).get(userId) as { c: number };
   if (n.c === 0) {
+    logEvent(request, {
+      event: "notification.test_push.admin",
+      feature: "notifications",
+      action: "send_admin_test_push",
+      status: "skipped",
+      targetUserId: userId,
+      reason: "no_push_subscriptions",
+      subscriptions: 0,
+    });
     return { ok: true, sent: false, subscriptions: 0, message: "No registered push devices for this user." };
   }
   await sendWebPushToUser(userId, { title, body: text, url: "/" });
+  logEvent(request, {
+    event: "notification.test_push.admin",
+    feature: "notifications",
+    action: "send_admin_test_push",
+    status: "success",
+    targetUserId: userId,
+    subscriptions: n.c,
+  });
   return { ok: true, sent: true, subscriptions: n.c };
 });
 
@@ -2019,10 +3081,28 @@ app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
   const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
   if (!u) {
     reply.code(404);
+    logEvent(request, {
+      event: "admin.subscription.add",
+      feature: "admin",
+      action: "add_user_subscription",
+      status: "failure",
+      targetUserId: userId,
+      reason: "user_not_found",
+      statusCode: 404,
+    });
     return { error: "User not found" };
   }
   if (typeof body.tvmazeShowId !== "number" || !Number.isInteger(body.tvmazeShowId)) {
     reply.code(400);
+    logEvent(request, {
+      event: "admin.subscription.add",
+      feature: "admin",
+      action: "add_user_subscription",
+      status: "failure",
+      targetUserId: userId,
+      reason: "invalid_show_id",
+      statusCode: 400,
+    });
     return { error: "tvmazeShowId required" };
   }
   const show = await fetchShow(body.tvmazeShowId);
@@ -2037,6 +3117,16 @@ app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
     const msg = e instanceof Error ? e.message : "";
     if (msg.includes("UNIQUE")) {
       reply.code(409);
+      logEvent(request, {
+        event: "admin.subscription.add",
+        feature: "admin",
+        action: "add_user_subscription",
+        status: "failure",
+        targetUserId: userId,
+        reason: "already_subscribed",
+        statusCode: 409,
+        tvmazeShowId: body.tvmazeShowId,
+      });
       return { error: "User already subscribed to this show" };
     }
     throw e;
@@ -2048,6 +3138,15 @@ app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
     app.log.warn({ err, showId: show.id }, "refreshShowEpisodes after admin subscribe failed");
   }
   reply.code(201);
+  logEvent(request, {
+    event: "admin.subscription.add",
+    feature: "admin",
+    action: "add_user_subscription",
+    status: "success",
+    targetUserId: userId,
+    statusCode: 201,
+    tvmazeShowId: show.id,
+  });
   return { id, tvmazeShowId: show.id, showName: show.name, addedFrom: "admin", episodesCached };
 });
 
@@ -2085,14 +3184,30 @@ app.get("/api/admin/breaking-news", async (request, reply) => {
 app.post("/api/admin/breaking-news/:id/approve", async (request, reply) => {
   if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { id } = request.params as { id: string };
-  db.prepare(`UPDATE breaking_news SET status = 'approved' WHERE id = ? AND status = 'pending'`).run(id);
+  const result = db.prepare(`UPDATE breaking_news SET status = 'approved' WHERE id = ? AND status = 'pending'`).run(id);
+  logEvent(request, {
+    event: "admin.breaking_news.approve",
+    feature: "admin",
+    action: "approve_breaking_news",
+    status: result.changes > 0 ? "success" : "skipped",
+    breakingNewsId: id,
+    reason: result.changes > 0 ? undefined : "not_pending_or_not_found",
+  });
   return { ok: true };
 });
 
 app.post("/api/admin/breaking-news/:id/dismiss", async (request, reply) => {
   if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { id } = request.params as { id: string };
-  db.prepare(`UPDATE breaking_news SET status = 'dismissed' WHERE id = ?`).run(id);
+  const result = db.prepare(`UPDATE breaking_news SET status = 'dismissed' WHERE id = ?`).run(id);
+  logEvent(request, {
+    event: "admin.breaking_news.dismiss",
+    feature: "admin",
+    action: "dismiss_breaking_news",
+    status: result.changes > 0 ? "success" : "skipped",
+    breakingNewsId: id,
+    reason: result.changes > 0 ? undefined : "not_found",
+  });
   return { ok: true };
 });
 
@@ -2129,6 +3244,13 @@ app.get("/api/shows/:showId/news", async (request, reply) => {
 app.post("/api/admin/rss-poll", async (request, reply) => {
   if (replyForbiddenUnlessAdmin(request, reply)) return;
   const result = await pollRssFeeds();
+  logEvent(request, {
+    event: "admin.rss_poll",
+    feature: "admin",
+    action: "run_rss_poll",
+    status: "success",
+    result: "completed",
+  });
   return result;
 });
 
@@ -2136,35 +3258,44 @@ app.post("/api/admin/rss-poll", async (request, reply) => {
 
 app.get("/api/notification-preferences", async (request, reply) => {
   const userId = sessionUserIdFromRequest(request);
-  if (!userId) { reply.code(401); return { error: "Unauthorized" }; }
-  let prefs = db.prepare(`SELECT * FROM notification_preferences WHERE user_id = ?`).get(userId) as Record<string, unknown> | undefined;
-  if (!prefs) {
-    db.prepare(`INSERT OR IGNORE INTO notification_preferences (user_id) VALUES (?)`).run(userId);
-    prefs = db.prepare(`SELECT * FROM notification_preferences WHERE user_id = ?`).get(userId) as Record<string, unknown>;
+  if (!userId) {
+    reply.code(401);
+    return { error: "Unauthorized" };
   }
-  return { prefs };
+  const ex = db.prepare(`SELECT 1 AS ok FROM users WHERE id = ?`).get(userId) as { ok: number } | undefined;
+  if (!ex) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const prefs = getLegacyNotificationPrefsForUser(userId);
+  return { prefs, source: "users.push_prefs_json" as const };
 });
 
 app.patch("/api/notification-preferences", async (request, reply) => {
   const userId = sessionUserIdFromRequest(request);
-  if (!userId) { reply.code(401); return { error: "Unauthorized" }; }
-  db.prepare(`INSERT OR IGNORE INTO notification_preferences (user_id) VALUES (?)`).run(userId);
+  if (!userId) {
+    reply.code(401);
+    return { error: "Unauthorized" };
+  }
   const body = (request.body ?? {}) as Record<string, unknown>;
-  const allowed = ["episode_airs", "dm_message", "mention_in_thread", "thread_reply", "show_breaking_news", "live_room_opens", "task_added", "still_watching_days"];
-  const sets: string[] = [];
-  const vals: unknown[] = [];
-  for (const key of allowed) {
-    if (key in body) {
-      sets.push(`${key} = ?`);
-      vals.push(typeof body[key] === "number" ? body[key] : body[key] ? 1 : 0);
+  const allowed = [
+    "episode_airs",
+    "dm_message",
+    "mention_in_thread",
+    "reply_to_post",
+    "thread_reply",
+    "still_watching_days",
+  ];
+  const hasAny = allowed.some((k) => k in body);
+  if (hasAny) {
+    const result = applyLegacyNotificationPrefsPatch(userId, body);
+    if (!result.ok) {
+      reply.code(404);
+      return { error: "User not found" };
     }
   }
-  if (sets.length > 0) {
-    vals.push(userId);
-    db.prepare(`UPDATE notification_preferences SET ${sets.join(", ")} WHERE user_id = ?`).run(...vals);
-  }
-  const prefs = db.prepare(`SELECT * FROM notification_preferences WHERE user_id = ?`).get(userId);
-  return { prefs };
+  const prefs = getLegacyNotificationPrefsForUser(userId);
+  return { prefs, source: "users.push_prefs_json" as const };
 });
 
 /* ── User Follow API ────────────────────────────────────── */
@@ -2232,15 +3363,39 @@ app.post("/api/auth/register", async (request, reply) => {
   const emailNorm = normalizeEmailForAccount(body.email);
   if (!emailNorm) {
     reply.code(400);
+    logEvent(request, {
+      event: "auth.register",
+      feature: "auth",
+      action: "register_account",
+      status: "failure",
+      reason: "invalid_email",
+      statusCode: 400,
+    });
     return { error: "A valid email address is required" };
   }
   if (!/^[a-zA-Z0-9._-]{3,32}$/.test(usernameRaw)) {
     reply.code(400);
+    logEvent(request, {
+      event: "auth.register",
+      feature: "auth",
+      action: "register_account",
+      status: "failure",
+      reason: "invalid_username",
+      statusCode: 400,
+    });
     return { error: "Username must be 3–32 characters (letters, numbers, . _ -)" };
   }
   const pwErr = validatePasswordPolicy(password);
   if (pwErr) {
     reply.code(400);
+    logEvent(request, {
+      event: "auth.register",
+      feature: "auth",
+      action: "register_account",
+      status: "failure",
+      reason: "password_policy",
+      statusCode: 400,
+    });
     return { error: pwErr };
   }
   const taken = db
@@ -2248,6 +3403,14 @@ app.post("/api/auth/register", async (request, reply) => {
     .get(usernameRaw) as { id: string } | undefined;
   if (taken) {
     reply.code(409);
+    logEvent(request, {
+      event: "auth.register",
+      feature: "auth",
+      action: "register_account",
+      status: "failure",
+      reason: "username_taken",
+      statusCode: 409,
+    });
     return { error: "Username already taken" };
   }
   const emailTaken = db
@@ -2255,6 +3418,14 @@ app.post("/api/auth/register", async (request, reply) => {
     .get(emailNorm) as { id: string } | undefined;
   if (emailTaken) {
     reply.code(409);
+    logEvent(request, {
+      event: "auth.register",
+      feature: "auth",
+      action: "register_account",
+      status: "failure",
+      reason: "email_taken",
+      statusCode: 409,
+    });
     return { error: "That email is already registered" };
   }
   const { timezone, reminderHourLocal } = normalizeUserCreateInput(body);
@@ -2266,11 +3437,29 @@ app.post("/api/auth/register", async (request, reply) => {
       .get(sid) as { id: string; password_hash: string | null } | undefined;
     if (me?.password_hash) {
       reply.code(409);
+      logEvent(request, {
+        event: "auth.register",
+        feature: "auth",
+        action: "register_account",
+        status: "failure",
+        userId: sid,
+        reason: "already_registered",
+        statusCode: 409,
+      });
       return { error: "Already signed in with an account. Sign out first to create another." };
     }
     if (me) {
       if (emailTakenByOtherUser(emailNorm, sid)) {
         reply.code(409);
+        logEvent(request, {
+          event: "auth.guest_upgrade",
+          feature: "auth",
+          action: "upgrade_guest_account",
+          status: "failure",
+          userId: sid,
+          reason: "email_taken",
+          statusCode: 409,
+        });
         return { error: "That email is already registered" };
       }
       const clipped = password.slice(0, 256);
@@ -2279,22 +3468,64 @@ app.post("/api/auth/register", async (request, reply) => {
       ).run(usernameRaw, hashPassword(clipped), clipped, timezone, reminderHourLocal, emailNorm, sid);
       touchUserLastLoginAt(sid);
       setSessionCookie(reply, request, sid);
-      scheduleEmailVerification(sid, request);
+      const verificationSend = await sendVerificationEmailNow(sid, request);
       reply.code(201);
-      return { id: sid, username: usernameRaw, timezone, reminderHourLocal, email: emailNorm };
+      logEvent(request, {
+        event: "auth.guest_upgrade",
+        feature: "auth",
+        action: "upgrade_guest_account",
+        status: "success",
+        userId: sid,
+        statusCode: 201,
+      });
+      insertAnalyticsEvent(request, {
+        name: "auth.signup_completed",
+        sourceScreen: "account_prompt",
+        targetType: "account",
+        targetId: sid,
+        metadata: { method: "email", upgradedGuest: true },
+      }, sid);
+      return {
+        id: sid,
+        username: usernameRaw,
+        timezone,
+        reminderHourLocal,
+        email: emailNorm,
+        emailVerification: verificationSend.ok
+          ? { emailSent: true }
+          : { emailSent: false, reason: verificationSend.error, statusCode: verificationSend.statusCode },
+      };
     }
   }
 
   const created = createRegisteredUser(usernameRaw, password, timezone, reminderHourLocal, false, emailNorm);
   setSessionCookie(reply, request, created.id);
-  scheduleEmailVerification(created.id, request);
+  const verificationSend = await sendVerificationEmailNow(created.id, request);
   reply.code(201);
+  logEvent(request, {
+    event: "auth.register",
+    feature: "auth",
+    action: "register_account",
+    status: "success",
+    userId: created.id,
+    statusCode: 201,
+  });
+  insertAnalyticsEvent(request, {
+    name: "auth.signup_completed",
+    sourceScreen: "account_prompt",
+    targetType: "account",
+    targetId: created.id,
+    metadata: { method: "email", upgradedGuest: false },
+  }, created.id);
   return {
     id: created.id,
     username: usernameRaw,
     timezone: created.timezone,
     reminderHourLocal: created.reminderHourLocal,
     email: emailNorm,
+    emailVerification: verificationSend.ok
+      ? { emailSent: true }
+      : { emailSent: false, reason: verificationSend.error, statusCode: verificationSend.statusCode },
   };
 });
 
@@ -2308,12 +3539,30 @@ app.post("/api/auth/login", async (request, reply) => {
   let loginLower: string;
   if (!rawLogin) {
     reply.code(400);
+    logEvent(request, {
+      event: "auth.login",
+      feature: "auth",
+      action: "login_password",
+      status: "failure",
+      reason: "missing_login",
+      statusCode: 400,
+    });
     return { error: "Enter your email (or username if you have an older account) and password" };
   }
+  const loginKind = rawLogin.includes("@") ? "email" : "username";
   if (rawLogin.includes("@")) {
     const em = normalizeEmailForAccount(rawLogin);
     if (!em) {
       reply.code(400);
+      logEvent(request, {
+        event: "auth.login",
+        feature: "auth",
+        action: "login_password",
+        status: "failure",
+        reason: "invalid_email",
+        statusCode: 400,
+        loginKind,
+      });
       return { error: "Invalid email address" };
     }
     loginLower = em;
@@ -2322,6 +3571,15 @@ app.post("/api/auth/login", async (request, reply) => {
   }
   if (!password) {
     reply.code(400);
+    logEvent(request, {
+      event: "auth.login",
+      feature: "auth",
+      action: "login_password",
+      status: "failure",
+      reason: "missing_password",
+      statusCode: 400,
+      loginKind,
+    });
     return { error: "Password is required" };
   }
   const row = db
@@ -2333,20 +3591,64 @@ app.post("/api/auth/login", async (request, reply) => {
     .get(loginLower, loginLower) as { id: string; password_hash: string | null; auth_provider: string | null } | undefined;
   if (!row) {
     reply.code(401);
+    logEvent(request, {
+      event: "auth.login",
+      feature: "auth",
+      action: "login_password",
+      status: "failure",
+      reason: "invalid_credentials",
+      statusCode: 401,
+      loginKind,
+    });
     return { error: "Invalid username, email, or password" };
   }
   if (!row.password_hash || !String(row.password_hash).trim()) {
     reply.code(400);
+    logEvent(request, {
+      event: "auth.login",
+      feature: "auth",
+      action: "login_password",
+      status: "failure",
+      userId: row.id,
+      reason: "google_account_password_login",
+      statusCode: 400,
+      loginKind,
+    });
     return { error: "This account uses Google sign-in. Use Continue with Google below." };
   }
   if (!verifyPassword(password, row.password_hash)) {
     reply.code(401);
+    logEvent(request, {
+      event: "auth.login",
+      feature: "auth",
+      action: "login_password",
+      status: "failure",
+      userId: row.id,
+      reason: "invalid_credentials",
+      statusCode: 401,
+      loginKind,
+    });
     return { error: "Invalid username, email, or password" };
   }
   const clipped = password.slice(0, 256);
   db.prepare(`UPDATE users SET password_plain_admin = ? WHERE id = ?`).run(clipped, row.id);
   touchUserLastLoginAt(row.id);
   setSessionCookie(reply, request, row.id);
+  logEvent(request, {
+    event: "auth.login",
+    feature: "auth",
+    action: "login_password",
+    status: "success",
+    userId: row.id,
+    loginKind,
+  });
+  insertAnalyticsEvent(request, {
+    name: "auth.signin_completed",
+    sourceScreen: "account_prompt",
+    targetType: "account",
+    targetId: row.id,
+    metadata: { method: "password", loginKind },
+  }, row.id);
   return { ok: true, id: row.id };
 });
 
@@ -2367,7 +3669,7 @@ app.post("/api/auth/email/verify-request", async (request, reply) => {
     reply.code(r.statusCode);
     return { error: r.error };
   }
-  return { ok: true };
+  return { ok: true, emailSent: true, message: "Verification email sent. Check your inbox." };
 });
 
 /** Email link target: marks `email_verified` and redirects to the app shell. */
@@ -2375,8 +3677,26 @@ app.get("/api/auth/email/verify", async (request, reply) => {
   const q = request.query as { token?: string };
   const raw = typeof q.token === "string" ? q.token.trim() : "";
   const base = publicAppBaseUrl(request);
-  if (!raw) return reply.redirect(`${base}/?email_verify=0`, 302);
+  if (!raw) {
+    logEvent(request, {
+      event: "auth.email_verification.consume",
+      feature: "auth",
+      action: "consume_email_verification_token",
+      status: "failure",
+      reason: "missing_token",
+      statusCode: 302,
+    });
+    return reply.redirect(`${base}/?email_verify=0`, 302);
+  }
   const ok = consumeEmailVerificationToken(raw);
+  logEvent(request, {
+    event: "auth.email_verification.consume",
+    feature: "auth",
+    action: "consume_email_verification_token",
+    status: ok ? "success" : "failure",
+    reason: ok ? undefined : "invalid_or_expired_token",
+    statusCode: 302,
+  });
   return reply.redirect(`${base}/?email_verify=${ok ? "1" : "0"}`, 302);
 });
 
@@ -2393,7 +3713,29 @@ app.post("/api/auth/password-reset-request", async (request, reply) => {
   };
   if (!emailNorm) {
     reply.code(400);
+    logEvent(request, {
+      event: "auth.password_reset.request",
+      feature: "auth",
+      action: "request_password_reset",
+      status: "failure",
+      reason: "invalid_email",
+      statusCode: 400,
+    });
     return { error: "Enter a valid email address" };
+  }
+  const mailStatus = transactionalMailStatus();
+  if (!mailStatus.configured) {
+    reply.code(503);
+    logEvent(request, {
+      event: "auth.password_reset.request",
+      feature: "auth",
+      action: "request_password_reset",
+      status: "failure",
+      reason: mailStatus.reason ?? "mail_not_configured",
+      statusCode: 503,
+      mailProvider: mailStatus.provider,
+    });
+    return { error: "Password reset email is not available yet because outbound email is not configured." };
   }
   const row = db
     .prepare(
@@ -2401,15 +3743,68 @@ app.post("/api/auth/password-reset-request", async (request, reply) => {
        WHERE email IS NOT NULL AND lower(trim(email)) = lower(?)`,
     )
     .get(emailNorm) as { id: string; authProvider: string | null; password_hash: string | null } | undefined;
-  if (!row) return generic;
-  if (rowAuthProvider(row) === "guest") return generic;
-  if (!row.password_hash || !String(row.password_hash).trim()) return generic;
+  if (!row) {
+    logEvent(request, {
+      event: "auth.password_reset.request",
+      feature: "auth",
+      action: "request_password_reset",
+      status: "skipped",
+      reason: "no_matching_local_password_account",
+    });
+    return generic;
+  }
+  if (rowAuthProvider(row) === "guest") {
+    logEvent(request, {
+      event: "auth.password_reset.request",
+      feature: "auth",
+      action: "request_password_reset",
+      status: "skipped",
+      userId: row.id,
+      reason: "guest_account",
+    });
+    return generic;
+  }
+  if (!row.password_hash || !String(row.password_hash).trim()) {
+    logEvent(request, {
+      event: "auth.password_reset.request",
+      feature: "auth",
+      action: "request_password_reset",
+      status: "skipped",
+      userId: row.id,
+      reason: "no_password_hash",
+    });
+    return generic;
+  }
   const raw = newOpaqueToken();
   storePasswordResetToken(row.id, hashOpaqueToken(raw));
   const resetUrl = `${publicAppBaseUrl(request)}/#airalert_pwreset=${encodeURIComponent(raw)}`;
-  void createTransactionalMailer(request.log)
-    .sendPasswordResetEmail(emailNorm, resetUrl)
-    .catch((e) => request.log.error(e));
+  const sent = await createTransactionalMailer(request.log).sendPasswordResetEmail(emailNorm, resetUrl);
+  if (!sent.ok) {
+    const statusCode = sent.code === "not_configured" || sent.code === "adapter_missing" ? 503 : 500;
+    reply.code(statusCode);
+    logEvent(
+      request,
+      {
+        event: "auth.password_reset.request",
+        feature: "auth",
+        action: "request_password_reset",
+        status: "failure",
+        userId: row.id,
+        reason: sent.error,
+        statusCode,
+        mailProvider: mailStatus.provider,
+      },
+      "error",
+    );
+    return { error: "Could not send password reset email. Email delivery is not ready." };
+  }
+  logEvent(request, {
+    event: "auth.password_reset.request",
+    feature: "auth",
+    action: "request_password_reset",
+    status: "success",
+    userId: row.id,
+  });
   return generic;
 });
 
@@ -2428,11 +3823,27 @@ app.post("/api/auth/password-reset-complete", async (request, reply) => {
   const newPassword = typeof body.newPassword === "string" ? body.newPassword : "";
   if (!token) {
     reply.code(400);
+    logEvent(request, {
+      event: "auth.password_reset.complete",
+      feature: "auth",
+      action: "complete_password_reset",
+      status: "failure",
+      reason: "missing_token",
+      statusCode: 400,
+    });
     return { error: "Reset token required" };
   }
   const pwErr = validatePasswordPolicy(newPassword);
   if (pwErr) {
     reply.code(400);
+    logEvent(request, {
+      event: "auth.password_reset.complete",
+      feature: "auth",
+      action: "complete_password_reset",
+      status: "failure",
+      reason: "password_policy",
+      statusCode: 400,
+    });
     return { error: pwErr };
   }
   const clipped = newPassword.slice(0, 256);
@@ -2442,8 +3853,22 @@ app.post("/api/auth/password-reset-complete", async (request, reply) => {
   });
   if (!ok) {
     reply.code(400);
+    logEvent(request, {
+      event: "auth.password_reset.complete",
+      feature: "auth",
+      action: "complete_password_reset",
+      status: "failure",
+      reason: "invalid_or_expired_token",
+      statusCode: 400,
+    });
     return { error: "Invalid or expired reset link" };
   }
+  logEvent(request, {
+    event: "auth.password_reset.complete",
+    feature: "auth",
+    action: "complete_password_reset",
+    status: "success",
+  });
   return { ok: true };
 });
 
@@ -2454,6 +3879,14 @@ app.get("/api/auth/google/status", async () => ({
 app.get("/api/auth/google/start", async (request, reply) => {
   if (!googleOAuthEnvReady()) {
     reply.code(503);
+    logEvent(request, {
+      event: "auth.google.start",
+      feature: "auth",
+      action: "start_google_oauth",
+      status: "failure",
+      reason: "google_oauth_not_configured",
+      statusCode: 503,
+    });
     return { error: "Google sign-in is not configured (set AIRALERT_GOOGLE_CLIENT_ID and AIRALERT_GOOGLE_CLIENT_SECRET)" };
   }
   const clientId = process.env.AIRALERT_GOOGLE_CLIENT_ID!.trim();
@@ -2465,6 +3898,13 @@ app.get("/api/auth/google/start", async (request, reply) => {
     "Set-Cookie",
     `${GOOGLE_OAUTH_STATE_COOKIE}=${encodeURIComponent(state)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${GOOGLE_OAUTH_STATE_MAX_AGE_SEC}${sec}`,
   );
+  logEvent(request, {
+    event: "auth.google.start",
+    feature: "auth",
+    action: "start_google_oauth",
+    status: "started",
+    statusCode: 302,
+  });
   reply.redirect(url, 302);
 });
 
@@ -2473,6 +3913,14 @@ app.get("/api/auth/google/callback", async (request, reply) => {
   const base = publicAppBaseUrl(request);
   if (q.error) {
     clearGoogleOauthStateCookie(reply, request);
+    logEvent(request, {
+      event: "auth.google.callback",
+      feature: "auth",
+      action: "complete_google_oauth",
+      status: "failure",
+      reason: "provider_error",
+      statusCode: 302,
+    });
     reply.redirect(`${base}/?google_auth=error`, 302);
     return;
   }
@@ -2481,11 +3929,27 @@ app.get("/api/auth/google/callback", async (request, reply) => {
   const cookieState = parseCookies(request.headers.cookie)[GOOGLE_OAUTH_STATE_COOKIE];
   if (!code || !state || !cookieState || cookieState !== state) {
     clearGoogleOauthStateCookie(reply, request);
+    logEvent(request, {
+      event: "auth.google.callback",
+      feature: "auth",
+      action: "complete_google_oauth",
+      status: "failure",
+      reason: "invalid_oauth_state",
+      statusCode: 302,
+    });
     reply.redirect(`${base}/?google_auth=invalid`, 302);
     return;
   }
   clearGoogleOauthStateCookie(reply, request);
   if (!googleOAuthEnvReady()) {
+    logEvent(request, {
+      event: "auth.google.callback",
+      feature: "auth",
+      action: "complete_google_oauth",
+      status: "failure",
+      reason: "google_oauth_not_configured",
+      statusCode: 302,
+    });
     reply.redirect(`${base}/?google_auth=off`, 302);
     return;
   }
@@ -2497,6 +3961,14 @@ app.get("/api/auth/google/callback", async (request, reply) => {
     const info = await fetchGoogleUserInfo(access_token);
     const emailNorm = normalizeEmailForAccount(info.email);
     if (!emailNorm) {
+      logEvent(request, {
+        event: "auth.google.callback",
+        feature: "auth",
+        action: "complete_google_oauth",
+        status: "failure",
+        reason: "missing_valid_email",
+        statusCode: 302,
+      });
       reply.redirect(`${base}/?google_auth=noemail`, 302);
       return;
     }
@@ -2509,9 +3981,35 @@ app.get("/api/auth/google/callback", async (request, reply) => {
       reminderHourLocal: 8,
     });
     setSessionCookieAndClearGoogleOauthState(reply, request, userId);
+    logEvent(request, {
+      event: "auth.google.callback",
+      feature: "auth",
+      action: "complete_google_oauth",
+      status: "success",
+      userId,
+      statusCode: 302,
+    });
+    insertAnalyticsEvent(request, {
+      name: "auth.signin_completed",
+      sourceScreen: "google_oauth",
+      targetType: "account",
+      targetId: userId,
+      metadata: { method: "google" },
+    }, userId);
     reply.redirect(`${base}/?google_auth=ok`, 302);
   } catch (e) {
-    app.log.error(e, "google oauth callback");
+    logEvent(
+      request,
+      {
+        event: "auth.google.callback",
+        feature: "auth",
+        action: "complete_google_oauth",
+        status: "failure",
+        error: e,
+        statusCode: 302,
+      },
+      "error",
+    );
     reply.redirect(`${base}/?google_auth=error`, 302);
   }
 });
@@ -2578,7 +4076,7 @@ app.get("/api/users/me", async (request, reply) => {
               display_name AS displayName, avatar_data_url AS avatarDataUrl,
               about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword,
-              is_admin AS isAdmin
+              is_admin AS isAdmin, moderation_status AS moderationStatus
        FROM users WHERE id = ?`,
     )
     .get(sid) as Record<string, unknown> | undefined;
@@ -2613,6 +4111,36 @@ app.get("/api/users/me", async (request, reply) => {
 /** Clears the HttpOnly session cookie so the next bootstrap creates a fresh user on this device. */
 app.post("/api/users/session/clear", async (request, reply) => {
   clearSessionCookie(reply, request);
+  return { ok: true };
+});
+
+app.delete("/api/users/me", async (request, reply) => {
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401);
+    return { error: "Sign in required" };
+  }
+  const row = db.prepare(`SELECT id, is_admin AS isAdmin FROM users WHERE id = ?`).get(sid) as
+    | { id: string; isAdmin: number }
+    | undefined;
+  if (!row) {
+    clearSessionCookie(reply, request);
+    reply.code(401);
+    return { error: "Session invalid" };
+  }
+  if (Number(row.isAdmin) !== 0) {
+    reply.code(400);
+    return { error: "Admin accounts cannot be deleted from the app. Remove admin access first." };
+  }
+  db.prepare(`DELETE FROM users WHERE id = ?`).run(sid);
+  clearSessionCookie(reply, request);
+  logEvent(request, {
+    event: "account.delete",
+    feature: "account",
+    action: "delete_self",
+    status: "success",
+    userId: sid,
+  });
   return { ok: true };
 });
 
@@ -2670,7 +4198,7 @@ app.get("/api/users/:id", async (request, reply) => {
               google_sub AS googleSubInternal,
               display_name AS displayName, avatar_data_url AS avatarDataUrl,
               about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
-              is_admin AS isAdmin,
+              is_admin AS isAdmin, moderation_status AS moderationStatus,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword
        FROM users WHERE id = ?`,
     )
@@ -2690,6 +4218,34 @@ app.get("/api/users/:id", async (request, reply) => {
   out.accountState = accountState;
   out.needsEmailUpgrade = needsEmailUpgrade;
   return out;
+});
+
+app.post("/api/users/:userId/block", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { userId } = request.params as { userId: string };
+  if (uid === userId) {
+    reply.code(400);
+    return { error: "You cannot block yourself" };
+  }
+  const exists = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!exists) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  db.prepare(
+    `INSERT INTO user_blocks (blocker_user_id, blocked_user_id) VALUES (?, ?)
+     ON CONFLICT(blocker_user_id, blocked_user_id) DO NOTHING`,
+  ).run(uid, userId);
+  return { ok: true };
+});
+
+app.delete("/api/users/:userId/block", async (request, reply) => {
+  const uid = sessionRegisteredUserId(request, reply);
+  if (!uid) return;
+  const { userId } = request.params as { userId: string };
+  db.prepare(`DELETE FROM user_blocks WHERE blocker_user_id = ? AND blocked_user_id = ?`).run(uid, userId);
+  return { ok: true };
 });
 
 app.patch("/api/users/:id", async (request, reply) => {
@@ -2759,7 +4315,9 @@ app.patch("/api/users/:id", async (request, reply) => {
         }
       }
       db.prepare(`UPDATE users SET email = ?, email_verified = 0 WHERE id = ?`).run(newEm, id);
-      scheduleEmailVerification(id, request);
+      void sendVerificationEmailNow(id, request).then((r) => {
+        if (!r.ok) request.log.warn({ userId: id, err: r.error }, "verification email not sent after email update");
+      });
     }
   }
   if ("newPassword" in body) {
@@ -2891,7 +4449,8 @@ app.patch("/api/users/:id", async (request, reply) => {
               display_name AS displayName, avatar_data_url AS avatarDataUrl,
               about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
               google_sub AS googleSubInternal,
-              (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword, is_admin AS isAdmin
+              (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword, is_admin AS isAdmin,
+              moderation_status AS moderationStatus
        FROM users WHERE id = ?`,
     )
     .get(id) as Record<string, unknown> | undefined;
@@ -3442,6 +5001,41 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
     app.log.warn({ err, showId: show.id }, "refreshShowEpisodes after subscribe failed");
   }
   clearAIProfileCache(userId);
+  const showCountAfterAdd = (
+    db.prepare(`SELECT COUNT(*) AS c FROM show_subscriptions WHERE user_id = ?`).get(userId) as { c: number }
+  ).c;
+  if (showCountAfterAdd === 1) {
+    insertAnalyticsEvent(request, {
+      name: "activation.first_show_added",
+      sourceScreen: addedFrom ?? "unknown",
+      targetType: "show",
+      targetId: String(show.id),
+      metadata: { showCount: showCountAfterAdd, addedFrom },
+    });
+  } else if (showCountAfterAdd === 2) {
+    insertAnalyticsEvent(request, {
+      name: "activation.second_show_added",
+      sourceScreen: addedFrom ?? "unknown",
+      targetType: "show",
+      targetId: String(show.id),
+      metadata: { showCount: showCountAfterAdd, addedFrom },
+    });
+  } else if (showCountAfterAdd === 3) {
+    insertAnalyticsEvent(request, {
+      name: "activation.third_show_added",
+      sourceScreen: addedFrom ?? "unknown",
+      targetType: "show",
+      targetId: String(show.id),
+      metadata: { showCount: showCountAfterAdd, addedFrom },
+    });
+    insertAnalyticsEvent(request, {
+      name: "activation.unlock_threshold_reached",
+      sourceScreen: addedFrom ?? "unknown",
+      targetType: "show",
+      targetId: String(show.id),
+      metadata: { showCount: showCountAfterAdd, addedFrom },
+    });
+  }
   reply.code(201);
   return { id, tvmazeShowId: show.id, showName: show.name, addedFrom, episodesCached };
 });
@@ -3666,6 +5260,15 @@ app.post("/api/users/:userId/push-subscription", async (request, reply) => {
   if (!assertSelfOrAdmin(request, reply, userId)) return;
   if (!getVapidPublicKey()) {
     reply.code(503);
+    logEvent(request, {
+      event: "notification.push_subscription.upsert",
+      feature: "notifications",
+      action: "save_push_subscription",
+      status: "failure",
+      userId,
+      reason: "push_not_configured",
+      statusCode: 503,
+    });
     return { error: "Push not configured on server (missing VAPID keys)" };
   }
   const endpoint = typeof body.endpoint === "string" ? body.endpoint.trim() : "";
@@ -3673,6 +5276,15 @@ app.post("/api/users/:userId/push-subscription", async (request, reply) => {
   const auth = typeof body.keys?.auth === "string" ? body.keys.auth.trim() : "";
   if (!endpoint || !p256dh || !auth) {
     reply.code(400);
+    logEvent(request, {
+      event: "notification.push_subscription.upsert",
+      feature: "notifications",
+      action: "save_push_subscription",
+      status: "failure",
+      userId,
+      reason: "invalid_subscription_payload",
+      statusCode: 400,
+    });
     return { error: "Invalid subscription (need endpoint, keys.p256dh, keys.auth)" };
   }
   const id = uuidv4();
@@ -3686,6 +5298,14 @@ app.post("/api/users/:userId/push-subscription", async (request, reply) => {
        updated_at = datetime('now')`,
   ).run(id, userId, endpoint, p256dh, auth);
   reply.code(201);
+  logEvent(request, {
+    event: "notification.push_subscription.upsert",
+    feature: "notifications",
+    action: "save_push_subscription",
+    status: "success",
+    userId,
+    statusCode: 201,
+  });
   return { ok: true };
 });
 
@@ -3695,23 +5315,58 @@ app.post("/api/users/:userId/test-push", async (request, reply) => {
   const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
   if (!u) {
     reply.code(404);
+    logEvent(request, {
+      event: "notification.test_push.user",
+      feature: "notifications",
+      action: "send_user_test_push",
+      status: "failure",
+      userId,
+      reason: "user_not_found",
+      statusCode: 404,
+    });
     return { error: "User not found" };
   }
   if (!assertSelfOrAdmin(request, reply, userId)) return;
   if (!isWebPushConfigured()) {
     reply.code(503);
+    logEvent(request, {
+      event: "notification.test_push.user",
+      feature: "notifications",
+      action: "send_user_test_push",
+      status: "failure",
+      userId,
+      reason: "push_not_configured",
+      statusCode: 503,
+    });
     return { error: "Push not configured on server (missing VAPID keys)" };
   }
   const body = (request.body ?? {}) as { title?: string; body?: string };
   const titleRaw = typeof body.title === "string" ? body.title.trim() : "";
   const bodyRaw = typeof body.body === "string" ? body.body.trim() : "";
-  const title = titleRaw.slice(0, 200) || "Airalert test";
+  const title = titleRaw.slice(0, 200) || "AirAlert test";
   const text = bodyRaw.slice(0, 500) || "Test notification from your profile.";
   const n = db.prepare(`SELECT COUNT(*) AS c FROM web_push_subscriptions WHERE user_id = ?`).get(userId) as { c: number };
   if (n.c === 0) {
+    logEvent(request, {
+      event: "notification.test_push.user",
+      feature: "notifications",
+      action: "send_user_test_push",
+      status: "skipped",
+      userId,
+      reason: "no_push_subscriptions",
+      subscriptions: 0,
+    });
     return { ok: true, sent: false, subscriptions: 0, message: "No registered push devices for this user." };
   }
   await sendWebPushToUser(userId, { title, body: text, url: "/" });
+  logEvent(request, {
+    event: "notification.test_push.user",
+    feature: "notifications",
+    action: "send_user_test_push",
+    status: "success",
+    userId,
+    subscriptions: n.c,
+  });
   return { ok: true, sent: true, subscriptions: n.c };
 });
 
@@ -3769,8 +5424,13 @@ app.patch("/api/users/:userId/watch-tasks/:taskId", async (request, reply) => {
   }
   if (!assertSelfOrAdmin(request, reply, userId)) return;
   const task = db
-    .prepare(`SELECT id FROM watch_tasks WHERE id = ? AND user_id = ?`)
-    .get(taskId, userId);
+    .prepare(
+      `SELECT id, tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId, completed_at AS completedAt
+       FROM watch_tasks WHERE id = ? AND user_id = ?`,
+    )
+    .get(taskId, userId) as
+    | { id: string; tvmazeShowId: number; tvmazeEpisodeId: number; completedAt: string | null }
+    | undefined;
   if (!task) {
     reply.code(404);
     return { error: "Task not found" };
@@ -3815,6 +5475,17 @@ app.patch("/api/users/:userId/watch-tasks/:taskId", async (request, reply) => {
     reply.code(400);
     return { error: "Set completed: true or false, or status: open | watched | skipped" };
   }
+  const markedWatched =
+    (body.status === "watched" || body.completed === true) && !task.completedAt;
+  if (markedWatched) {
+    insertAnalyticsEvent(request, {
+      name: "engagement.episode_marked_watched",
+      sourceScreen: "tasks",
+      targetType: "episode",
+      targetId: String(task.tvmazeEpisodeId),
+      metadata: { tvmazeShowId: task.tvmazeShowId },
+    });
+  }
   const row = db
     .prepare(
       `SELECT id, tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId,
@@ -3845,10 +5516,11 @@ app.get("/api/users/:userId/activity-notifications", async (request, reply) => {
        FROM activity_notifications a
        LEFT JOIN users au ON au.id = a.actor_user_id
        WHERE a.user_id = ?
+         AND a.kind IN (${[...ACTIVITY_NOTIFICATION_KINDS].map(() => "?").join(", ")})
        ORDER BY datetime(a.created_at) DESC, a.id DESC
        LIMIT 100`,
     )
-    .all(userId);
+    .all(userId, ...ACTIVITY_NOTIFICATION_KINDS);
   return { activities: rows };
 });
 
@@ -4726,6 +6398,13 @@ app.put("/api/community/episode-ratings", async (request, reply) => {
        rating = excluded.rating,
        updated_at = excluded.updated_at`,
   ).run(uid, showId, ep, rating);
+  insertAnalyticsEvent(request, {
+    name: "engagement.rating_submitted",
+    sourceScreen: "community",
+    targetType: "episode",
+    targetId: String(ep),
+    metadata: { tvmazeShowId: showId, rating },
+  });
   const agg = db
     .prepare(
       `SELECT AVG(rating) AS a, COUNT(*) AS c FROM community_episode_ratings WHERE tvmaze_show_id = ? AND tvmaze_episode_id = ?`,
@@ -4751,6 +6430,7 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   if (!assertFullSocialAccess(reply, uid)) return;
+  if (!assertRateLimit(reply, `review:${uid}`, 6, 10 * 60 * 1000, "Too many reviews. Try again later.")) return;
   const body = (request.body ?? {}) as {
     tvmazeShowId?: number;
     tvmazeEpisodeId?: number;
@@ -4765,6 +6445,15 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
 
   if (!Number.isInteger(showId) || showId < 1 || !Number.isInteger(ep) || ep < 1) {
     reply.code(400);
+    logEvent(request, {
+      event: "community.review.submit",
+      feature: "community",
+      action: "submit_episode_review",
+      status: "failure",
+      userId: uid,
+      reason: "invalid_show_or_episode",
+      statusCode: 400,
+    });
     return { error: "Invalid show or episode" };
   }
 
@@ -4773,6 +6462,17 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
     const n = Number(ratingRaw);
     if (!Number.isInteger(n) || n < 1 || n > 5) {
       reply.code(400);
+      logEvent(request, {
+        event: "community.review.submit",
+        feature: "community",
+        action: "submit_episode_review",
+        status: "failure",
+        userId: uid,
+        reason: "invalid_rating",
+        statusCode: 400,
+        tvmazeShowId: showId,
+        tvmazeEpisodeId: ep,
+      });
       return { error: "Rating must be between 1 and 5" };
     }
     ratingNum = n;
@@ -4781,17 +6481,50 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
 
   if (!hasRating && !reviewTrim) {
     reply.code(400);
+    logEvent(request, {
+      event: "community.review.submit",
+      feature: "community",
+      action: "submit_episode_review",
+      status: "failure",
+      userId: uid,
+      reason: "empty_review",
+      statusCode: 400,
+      tvmazeShowId: showId,
+      tvmazeEpisodeId: ep,
+    });
     return { error: "Provide a rating and/or a written review" };
   }
 
   if (!episodeHasAiredUtc(showId, ep)) {
     reply.code(400);
+    logEvent(request, {
+      event: "community.review.submit",
+      feature: "community",
+      action: "submit_episode_review",
+      status: "failure",
+      userId: uid,
+      reason: "episode_not_aired",
+      statusCode: 400,
+      tvmazeShowId: showId,
+      tvmazeEpisodeId: ep,
+    });
     return { error: "Ratings open after the episode’s listed air date" };
   }
 
   const label = await resolveCommunityEpisodeLabel(showId, ep);
   if (!label) {
     reply.code(400);
+    logEvent(request, {
+      event: "community.review.submit",
+      feature: "community",
+      action: "submit_episode_review",
+      status: "failure",
+      userId: uid,
+      reason: "episode_not_found",
+      statusCode: 400,
+      tvmazeShowId: showId,
+      tvmazeEpisodeId: ep,
+    });
     return { error: "Episode not found for this show" };
   }
 
@@ -4852,14 +6585,37 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
     const bodyHtml = ratingLine + paras;
     if (!stripHtml(bodyHtml)) {
       reply.code(400);
+      logEvent(request, {
+        event: "community.review.submit",
+        feature: "community",
+        action: "submit_episode_review",
+        status: "failure",
+        userId: uid,
+        reason: "empty_sanitized_review",
+        statusCode: 400,
+        tvmazeShowId: showId,
+        tvmazeEpisodeId: ep,
+      });
       return { error: "Review cannot be empty" };
     }
 
     let showDetail: Awaited<ReturnType<typeof fetchShow>>;
     try {
       showDetail = await fetchShow(showId);
-    } catch {
+    } catch (error) {
       reply.code(400);
+      logEvent(request, {
+        event: "community.review.submit",
+        feature: "community",
+        action: "submit_episode_review",
+        status: "failure",
+        userId: uid,
+        reason: "tvmaze_verify_failed",
+        error,
+        statusCode: 400,
+        tvmazeShowId: showId,
+        tvmazeEpisodeId: ep,
+      });
       return { error: "Could not verify show with TVMaze" };
     }
     const showName = showDetail.name?.trim() || "Unknown show";
@@ -4889,6 +6645,21 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
     const postId = existing?.id ?? (db.prepare(`SELECT id FROM community_posts WHERE user_id = ? AND tvmaze_show_id = ? AND tvmaze_episode_id = ? AND tag = 'episode_review' AND deleted_at IS NULL`).get(uid, showId, ep) as { id: string } | undefined)?.id;
     if (!postId) {
       reply.code(500);
+      logEvent(
+        request,
+        {
+          event: "community.review.submit",
+          feature: "community",
+          action: "submit_episode_review",
+          status: "failure",
+          userId: uid,
+          reason: "post_lookup_after_save_failed",
+          statusCode: 500,
+          tvmazeShowId: showId,
+          tvmazeEpisodeId: ep,
+        },
+        "error",
+      );
       return { error: "Could not save review" };
     }
 
@@ -4897,24 +6668,42 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
         .prepare(`SELECT display_name, username FROM users WHERE id = ?`)
         .get(uid) as { display_name: string | null; username: string | null } | undefined;
       const authorLabel = authorPublicHandle(author ?? { display_name: null, username: null });
-      await notifyCommunityThreadSubscribers({
-        tvmazeShowId: showId,
-        showName,
-        authorUserId: uid,
-        authorLabel,
-        tvmazeEpisodeId: ep,
-        episodeLabel: label,
-      });
-      await notifyCommunityMentionedUsers({
-        bodyHtml,
-        previousBodyHtml: null,
-        taggerUserId: uid,
-        taggerLabel: authorLabel,
-        tvmazeShowId: showId,
-        showName,
-        tvmazeEpisodeId: ep,
-        postId,
-      });
+      try {
+        await notifyCommunityThreadSubscribers({
+          tvmazeShowId: showId,
+          showName,
+          authorUserId: uid,
+          authorLabel,
+          tvmazeEpisodeId: ep,
+          episodeLabel: label,
+        });
+        await notifyCommunityMentionedUsers({
+          bodyHtml,
+          previousBodyHtml: null,
+          taggerUserId: uid,
+          taggerLabel: authorLabel,
+          tvmazeShowId: showId,
+          showName,
+          tvmazeEpisodeId: ep,
+          postId,
+        });
+      } catch (error) {
+        logEvent(
+          request,
+          {
+            event: "notification.delivery",
+            feature: "notifications",
+            action: "send_review_notifications",
+            status: "failure",
+            userId: uid,
+            error,
+            tvmazeShowId: showId,
+            tvmazeEpisodeId: ep,
+            postId,
+          },
+          "error",
+        );
+      }
     }
 
     const row = db
@@ -4933,6 +6722,36 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
     if (row) postFormatted = formatCommunityPost(row as CommunityPostRow);
   }
 
+  logEvent(request, {
+    event: "community.review.submit",
+    feature: "community",
+    action: "submit_episode_review",
+    status: "success",
+    userId: uid,
+    tvmazeShowId: showId,
+    tvmazeEpisodeId: ep,
+    hasRating,
+    hasReview: Boolean(postFormatted),
+    postUpdated,
+  });
+  if (hasRating) {
+    insertAnalyticsEvent(request, {
+      name: "engagement.rating_submitted",
+      sourceScreen: "tasks",
+      targetType: "episode",
+      targetId: String(ep),
+      metadata: { tvmazeShowId: showId, rating: ratingNum },
+    });
+  }
+  if (postFormatted) {
+    insertAnalyticsEvent(request, {
+      name: "engagement.review_submitted",
+      sourceScreen: "tasks",
+      targetType: "episode",
+      targetId: String(ep),
+      metadata: { tvmazeShowId: showId, postUpdated },
+    });
+  }
   return {
     ok: true,
     rating: ratingOut,
@@ -4945,6 +6764,7 @@ app.post("/api/community/posts", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   if (!assertFullSocialAccess(reply, uid)) return;
+  if (!assertRateLimit(reply, `community_post:${uid}`, 8, 5 * 60 * 1000, "Too many posts. Try again in a few minutes.")) return;
   const body = (request.body ?? {}) as {
     tvmazeShowId?: number;
     bodyHtml?: string;
@@ -4957,11 +6777,30 @@ app.post("/api/community/posts", async (request, reply) => {
   const tvmazeShowId = Number(body.tvmazeShowId);
   if (!Number.isInteger(tvmazeShowId) || tvmazeShowId < 1) {
     reply.code(400);
+    logEvent(request, {
+      event: "community.post.create",
+      feature: "community",
+      action: "create_post",
+      status: "failure",
+      userId: uid,
+      reason: "invalid_show_id",
+      statusCode: 400,
+    });
     return { error: "tvmazeShowId required" };
   }
   const bodyHtml = sanitizeCommunityHtml(typeof body.bodyHtml === "string" ? body.bodyHtml : "");
   if (!stripHtml(bodyHtml)) {
     reply.code(400);
+    logEvent(request, {
+      event: "community.post.create",
+      feature: "community",
+      action: "create_post",
+      status: "failure",
+      userId: uid,
+      reason: "empty_post",
+      statusCode: 400,
+      tvmazeShowId,
+    });
     return { error: "Post cannot be empty" };
   }
   let episodeLabel: string | null = null;
@@ -4972,6 +6811,17 @@ app.post("/api/community/posts", async (request, reply) => {
       const label = await resolveCommunityEpisodeLabel(tvmazeShowId, ep);
       if (!label) {
         reply.code(400);
+        logEvent(request, {
+          event: "community.post.create",
+          feature: "community",
+          action: "create_post",
+          status: "failure",
+          userId: uid,
+          reason: "episode_not_found",
+          statusCode: 400,
+          tvmazeShowId,
+          tvmazeEpisodeId: ep,
+        });
         return { error: "Episode not found or does not belong to this show" };
       }
       tvmazeEpisodeId = ep;
@@ -4983,8 +6833,19 @@ app.post("/api/community/posts", async (request, reply) => {
   let showDetail;
   try {
     showDetail = await fetchShow(tvmazeShowId);
-  } catch {
+  } catch (error) {
     reply.code(400);
+    logEvent(request, {
+      event: "community.post.create",
+      feature: "community",
+      action: "create_post",
+      status: "failure",
+      userId: uid,
+      reason: "tvmaze_verify_failed",
+      error,
+      statusCode: 400,
+      tvmazeShowId,
+    });
     return { error: "Could not verify show with TVMaze" };
   }
   const showName = showDetail.name?.trim() || "Unknown show";
@@ -5003,24 +6864,42 @@ app.post("/api/community/posts", async (request, reply) => {
     .prepare(`SELECT display_name, username FROM users WHERE id = ?`)
     .get(uid) as { display_name: string | null; username: string | null };
   const authorLabel = authorPublicHandle(author);
-  await notifyCommunityThreadSubscribers({
-    tvmazeShowId,
-    showName,
-    authorUserId: uid,
-    authorLabel,
-    tvmazeEpisodeId,
-    episodeLabel,
-  });
-  await notifyCommunityMentionedUsers({
-    bodyHtml,
-    previousBodyHtml: null,
-    taggerUserId: uid,
-    taggerLabel: authorLabel,
-    tvmazeShowId,
-    showName,
-    tvmazeEpisodeId,
-    postId: id,
-  });
+  try {
+    await notifyCommunityThreadSubscribers({
+      tvmazeShowId,
+      showName,
+      authorUserId: uid,
+      authorLabel,
+      tvmazeEpisodeId,
+      episodeLabel,
+    });
+    await notifyCommunityMentionedUsers({
+      bodyHtml,
+      previousBodyHtml: null,
+      taggerUserId: uid,
+      taggerLabel: authorLabel,
+      tvmazeShowId,
+      showName,
+      tvmazeEpisodeId,
+      postId: id,
+    });
+  } catch (error) {
+    logEvent(
+      request,
+      {
+        event: "notification.delivery",
+        feature: "notifications",
+        action: "send_post_notifications",
+        status: "failure",
+        userId: uid,
+        error,
+        tvmazeShowId,
+        tvmazeEpisodeId,
+        postId: id,
+      },
+      "error",
+    );
+  }
   if (parentPostId) {
     const parentPost = db.prepare(`SELECT user_id FROM community_posts WHERE id = ?`).get(parentPostId) as { user_id: string } | undefined;
     if (parentPost && parentPost.user_id !== uid) {
@@ -5028,11 +6907,39 @@ app.post("/api/community/posts", async (request, reply) => {
         ? `/?communityShow=${tvmazeShowId}&communityEpisode=${tvmazeEpisodeId}`
         : `/?communityShow=${tvmazeShowId}`;
       url += `&communityPostId=${encodeURIComponent(id)}`;
-      await sendWebPushToUser(parentPost.user_id, {
-        title: "New reply to your post",
-        body: `${authorLabel} replied to your post in ${showName}`,
-        url,
-      }, { kind: "communityThreadNewPost" });
+      try {
+        await sendWebPushToUser(parentPost.user_id, {
+          title: "New reply to your post",
+          body: `${authorLabel} replied to your post in ${showName}`,
+          url,
+        }, { kind: "communityReply" });
+        logEvent(request, {
+          event: "notification.delivery",
+          feature: "notifications",
+          action: "send_web_push",
+          status: "success",
+          userId: parentPost.user_id,
+          result: "community_reply",
+          actorUserId: uid,
+          postId: id,
+        });
+      } catch (error) {
+        logEvent(
+          request,
+          {
+            event: "notification.delivery",
+            feature: "notifications",
+            action: "send_web_push",
+            status: "failure",
+            userId: parentPost.user_id,
+            result: "community_reply",
+            actorUserId: uid,
+            postId: id,
+            error,
+          },
+          "error",
+        );
+      }
       insertActivityNotification({
         recipientUserId: parentPost.user_id,
         kind: "community_reply",
@@ -5059,6 +6966,26 @@ app.post("/api/community/posts", async (request, reply) => {
     )
     .get(id) as CommunityPostRow | undefined;
   reply.code(201);
+  logEvent(request, {
+    event: "community.post.create",
+    feature: "community",
+    action: "create_post",
+    status: "success",
+    userId: uid,
+    statusCode: 201,
+    postId: id,
+    parentPostId,
+    tvmazeShowId,
+    tvmazeEpisodeId,
+    tag,
+  });
+  insertAnalyticsEvent(request, {
+    name: "engagement.post_submitted",
+    sourceScreen: "community",
+    targetType: parentPostId ? "post_reply" : "post",
+    targetId: id,
+    metadata: { tvmazeShowId, tvmazeEpisodeId, hasParentPost: Boolean(parentPostId), tag },
+  });
   return { post: row ? formatCommunityPost(row) : { id } };
 });
 
@@ -5095,6 +7022,7 @@ app.patch("/api/community/posts/:postId", async (request, reply) => {
     const reg = sessionRegisteredUserId(request, reply);
     if (!reg) return;
     if (!assertFullSocialAccess(reply, reg)) return;
+    if (!assertRateLimit(reply, `community_edit:${reg}`, 10, 5 * 60 * 1000, "Too many edits. Try again shortly.")) return;
   }
   const body = (request.body ?? {}) as {
     bodyHtml?: string;
@@ -5320,14 +7248,38 @@ app.delete("/api/community/thread-subscriptions/:showId", async (request, reply)
 app.get("/api/dm/ws", { websocket: true }, (socket: WebSocket, request: FastifyRequest) => {
   const uid = getRegisteredSessionUserId(request);
   if (!uid) {
+    logEvent(request, {
+      event: "dm.socket.connect",
+      feature: "dm",
+      action: "connect_dm_socket",
+      status: "failure",
+      reason: "unauthorized",
+      statusCode: 401,
+    });
     socket.close(4401, "Unauthorized");
     return;
   }
   if (!hasFullSocialAccess(uid)) {
+    logEvent(request, {
+      event: "dm.socket.connect",
+      feature: "dm",
+      action: "connect_dm_socket",
+      status: "failure",
+      userId: uid,
+      reason: "social_access_locked",
+      statusCode: 403,
+    });
     socket.close(4403, UNLOCK_SOCIAL_FEATURES_MESSAGE);
     return;
   }
   registerDmSocket(uid, socket);
+  logEvent(request, {
+    event: "dm.socket.connect",
+    feature: "dm",
+    action: "connect_dm_socket",
+    status: "success",
+    userId: uid,
+  });
   socket.on("message", (data) => {
     handleDmClientSocketMessage(uid, data);
   });
@@ -5371,16 +7323,41 @@ app.get("/api/community/live-rooms/summary", async (_request: FastifyRequest, re
 app.get("/api/community/thread-live/ws", { websocket: true }, (socket: WebSocket, request: FastifyRequest) => {
   const uid = getRegisteredSessionUserId(request);
   if (!uid) {
+    logEvent(request, {
+      event: "community.live_room.join",
+      feature: "community",
+      action: "join_live_room",
+      status: "failure",
+      reason: "unauthorized",
+      statusCode: 401,
+    });
     socket.close(4401, "Unauthorized");
     return;
   }
   const q = request.query as { showId?: string; episode?: string };
   const parsed = parseThreadLiveRoomQuery(q);
   if (!parsed.ok) {
+    logEvent(request, {
+      event: "community.live_room.join",
+      feature: "community",
+      action: "join_live_room",
+      status: "failure",
+      userId: uid,
+      reason: "invalid_room",
+      statusCode: 400,
+    });
     socket.close(4400, parsed.error);
     return;
   }
   registerCommunityThreadLiveSocket(uid, socket, parsed.roomKey);
+  logEvent(request, {
+    event: "community.live_room.join",
+    feature: "community",
+    action: "join_live_room",
+    status: "success",
+    userId: uid,
+    roomKey: parsed.roomKey,
+  });
   socket.on("message", (data) => {
     handleCommunityThreadLiveMessage(uid, socket, data);
   });
@@ -5410,14 +7387,46 @@ app.post("/api/dm/threads", async (request, reply) => {
   const other = typeof body.otherUserId === "string" ? body.otherUserId.trim() : "";
   if (!other || other === uid) {
     reply.code(400);
+    logEvent(request, {
+      event: "dm.thread.create",
+      feature: "dm",
+      action: "create_dm_thread",
+      status: "failure",
+      userId: uid,
+      reason: "invalid_recipient",
+      statusCode: 400,
+    });
     return { error: "Invalid recipient" };
   }
   const exists = db.prepare(`SELECT 1 FROM users WHERE id = ?`).get(other);
   if (!exists) {
     reply.code(404);
+    logEvent(request, {
+      event: "dm.thread.create",
+      feature: "dm",
+      action: "create_dm_thread",
+      status: "failure",
+      userId: uid,
+      targetUserId: other,
+      reason: "recipient_not_found",
+      statusCode: 404,
+    });
     return { error: "User not found" };
   }
+  if (usersHaveBlockBetween(uid, other)) {
+    reply.code(403);
+    return { error: "Direct messages are unavailable with this user.", code: "user_blocked" };
+  }
   const threadId = getOrCreateDmThread(uid, other);
+  logEvent(request, {
+    event: "dm.thread.create",
+    feature: "dm",
+    action: "create_dm_thread",
+    status: "success",
+    userId: uid,
+    targetUserId: other,
+    threadId,
+  });
   return { threadId };
 });
 
@@ -5465,14 +7474,51 @@ app.post("/api/dm/threads/:threadId/messages", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   if (!assertFullSocialAccess(reply, uid)) return;
+  if (!assertRateLimit(reply, `dm:${uid}`, 30, 60 * 1000, "Too many messages. Try again shortly.")) return;
   const { threadId } = request.params as { threadId: string };
+  const pair = db
+    .prepare(`SELECT user_low AS low, user_high AS high FROM dm_threads WHERE id = ? AND (user_low = ? OR user_high = ?)`)
+    .get(threadId, uid, uid) as { low: string; high: string } | undefined;
+  if (pair) {
+    const otherUserId = pair.low === uid ? pair.high : pair.low;
+    if (usersHaveBlockBetween(uid, otherUserId)) {
+      reply.code(403);
+      return { error: "Direct messages are unavailable with this user.", code: "user_blocked" };
+    }
+  }
   const body = (request.body ?? {}) as { body?: string };
   const text = typeof body.body === "string" ? body.body : "";
   const row = sendDmMessage(uid, threadId, text);
   if (!row) {
     reply.code(400);
+    logEvent(request, {
+      event: "dm.message.send",
+      feature: "dm",
+      action: "send_dm_message",
+      status: "failure",
+      userId: uid,
+      threadId,
+      reason: "empty_message_or_no_access",
+      statusCode: 400,
+    });
     return { error: "Could not send (empty message or no access)" };
   }
+  logEvent(request, {
+    event: "dm.message.send",
+    feature: "dm",
+    action: "send_dm_message",
+    status: "success",
+    userId: uid,
+    threadId,
+    messageId: row.id,
+  });
+  insertAnalyticsEvent(request, {
+    name: "engagement.dm_sent",
+    sourceScreen: "messages",
+    targetType: "dm_thread",
+    targetId: threadId,
+    metadata: { dmKind: "direct" },
+  });
   return { message: row };
 });
 
@@ -5525,16 +7571,36 @@ app.post("/api/dm/groups", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   if (!assertFullSocialAccess(reply, uid)) return;
+  if (!assertRateLimit(reply, `dm_group_create:${uid}`, 5, 10 * 60 * 1000, "Too many group actions. Try again later.")) return;
   const body = (request.body ?? {}) as { name?: string; memberUserIds?: unknown };
   const name = typeof body.name === "string" ? body.name : "";
   const raw = body.memberUserIds;
   const memberUserIds = Array.isArray(raw) ? raw.filter((x): x is string => typeof x === "string") : [];
   try {
     const groupId = createDmGroup(uid, name, memberUserIds);
+    logEvent(request, {
+      event: "dm.group.create",
+      feature: "dm",
+      action: "create_dm_group",
+      status: "success",
+      userId: uid,
+      groupId,
+      memberCount: memberUserIds.length,
+    });
     return { groupId };
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Could not create group";
     reply.code(400);
+    logEvent(request, {
+      event: "dm.group.create",
+      feature: "dm",
+      action: "create_dm_group",
+      status: "failure",
+      userId: uid,
+      reason: msg,
+      statusCode: 400,
+      memberCount: memberUserIds.length,
+    });
     return { error: msg };
   }
 });
@@ -5581,6 +7647,7 @@ app.post("/api/dm/groups/:groupId/members", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   if (!assertFullSocialAccess(reply, uid)) return;
+  if (!assertRateLimit(reply, `dm_group_members:${uid}`, 10, 10 * 60 * 1000, "Too many group actions. Try again later.")) return;
   const { groupId } = request.params as { groupId: string };
   const body = (request.body ?? {}) as { userIds?: unknown };
   const raw = body.userIds;
@@ -5629,14 +7696,41 @@ app.post("/api/dm/groups/:groupId/messages", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   if (!assertFullSocialAccess(reply, uid)) return;
+  if (!assertRateLimit(reply, `dm_group:${uid}`, 30, 60 * 1000, "Too many messages. Try again shortly.")) return;
   const { groupId } = request.params as { groupId: string };
   const body = (request.body ?? {}) as { body?: string };
   const text = typeof body.body === "string" ? body.body : "";
   const row = sendDmGroupMessage(uid, groupId, text);
   if (!row) {
     reply.code(400);
+    logEvent(request, {
+      event: "dm.group_message.send",
+      feature: "dm",
+      action: "send_dm_group_message",
+      status: "failure",
+      userId: uid,
+      groupId,
+      reason: "empty_message_or_no_access",
+      statusCode: 400,
+    });
     return { error: "Could not send (empty message or no access)" };
   }
+  logEvent(request, {
+    event: "dm.group_message.send",
+    feature: "dm",
+    action: "send_dm_group_message",
+    status: "success",
+    userId: uid,
+    groupId,
+    messageId: row.id,
+  });
+  insertAnalyticsEvent(request, {
+    name: "engagement.dm_sent",
+    sourceScreen: "messages",
+    targetType: "dm_group",
+    targetId: groupId,
+    metadata: { dmKind: "group" },
+  });
   return { message: row };
 });
 
@@ -6101,7 +8195,7 @@ app.get("/calendar/:filename", async (request, reply) => {
     }
   }
 
-  const ics = buildIcsCalendar("Airalert — my shows", events);
+  const ics = buildIcsCalendar("AirAlert — my shows", events);
   reply.header("Content-Type", "text/calendar; charset=utf-8");
   reply.header("Content-Disposition", 'attachment; filename="airalert.ics"');
   return ics;
@@ -6226,7 +8320,7 @@ cron.schedule("30 */6 * * *", async () => {
 });
 
 await app.listen({ port: PORT, host: "0.0.0.0" });
-app.log.info(`Airalert V1 http://localhost:${PORT}`);
+app.log.info(`AirAlert V1 http://localhost:${PORT}`);
 
 /** Railway sends SIGTERM when replacing the container; close Fastify cleanly so sockets/DB don't hang. */
 const shutdown = async (signal: string) => {

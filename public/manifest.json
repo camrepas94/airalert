@@ -1,9 +1,17 @@
 {
-  "name": "Airalert",
-  "short_name": "Airalert",
-  "description": "TV show episode reminders",
+  "name": "AirAlert",
+  "short_name": "AirAlert",
+  "description": "TV episode reminders, watch tasks, and spoiler-aware Community.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#020308",
-  "theme_color": "#03051a"
+  "theme_color": "#03051a",
+  "icons": [
+    {
+      "src": "/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

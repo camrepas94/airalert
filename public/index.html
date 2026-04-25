@@ -15,6 +15,8 @@
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#03051a" />
+    <link rel="icon" href="/app-icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/app-icon.svg" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,7 +24,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <title>Airalert</title>
+    <title>AirAlert</title>
     <style>
       :root {
         color-scheme: dark;
@@ -2303,6 +2305,32 @@
       .settings-save-tz-btn {
         max-width: 16rem;
       }
+      .store-readiness-link-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.5rem;
+      }
+      .store-readiness-link-grid a,
+      .store-readiness-link-grid button {
+        width: 100%;
+        min-height: 2.65rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .support-note-list {
+        margin: 0.5rem 0 0;
+        padding-left: 1.1rem;
+        color: var(--muted);
+        font-size: 0.78rem;
+        line-height: 1.45;
+      }
+      @media (max-width: 560px) {
+        .store-readiness-link-grid {
+          grid-template-columns: 1fr;
+        }
+      }
       @media (min-width: 500px) {
         .settings-modal-body {
           padding: 0.75rem 0.95rem 1.2rem;
@@ -2944,57 +2972,6 @@
       .profile-readonly-value {
         color: var(--text);
         font-weight: 600;
-      }
-      .profile-role-badge-row .role-badge {
-        flex: 1 1 auto;
-      }
-      .role-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.28rem;
-        font-size: 0.68rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        padding: 0.22rem 0.5rem;
-        border-radius: 999px;
-        border: 1px solid;
-        line-height: 1;
-        white-space: nowrap;
-      }
-      .role-badge__icon {
-        font-size: 0.75rem;
-        opacity: 0.95;
-      }
-      .role-badge--newb {
-        background: linear-gradient(145deg, rgba(34, 211, 238, 0.12) 0%, rgba(91, 156, 255, 0.08) 100%);
-        border-color: rgba(34, 211, 238, 0.42);
-        color: #a5f3fc;
-        box-shadow: 0 0 12px -2px rgba(34, 211, 238, 0.25);
-      }
-      .role-badge--watcher {
-        background: linear-gradient(145deg, rgba(91, 156, 255, 0.18) 0%, rgba(34, 211, 238, 0.1) 100%);
-        border-color: rgba(91, 156, 255, 0.45);
-        color: #bfdbfe;
-        box-shadow: 0 0 14px -2px rgba(91, 156, 255, 0.28);
-      }
-      .role-badge--binger {
-        background: linear-gradient(145deg, rgba(232, 121, 249, 0.2) 0%, rgba(236, 72, 153, 0.12) 100%);
-        border-color: rgba(232, 121, 249, 0.48);
-        color: #f5d0fe;
-        box-shadow: 0 0 16px -2px rgba(232, 121, 249, 0.35);
-      }
-      body.aa-newb-session .tab-nav .tab-btn[data-tab="community"] {
-        opacity: 0.78;
-      }
-      body.aa-newb-session .header-inbox-wrap {
-        opacity: 0.72;
-      }
-      body.aa-newb-session .tab-nav .tab-btn[data-tab="add"] .tab-label,
-      body.aa-newb-session .tab-nav .tab-btn[data-tab="guide"] .tab-label,
-      body.aa-newb-session .tab-nav .tab-btn[data-tab="tasks"] .tab-label {
-        font-weight: 700;
-        letter-spacing: 0.02em;
       }
       .onboarding-mission-strip__hint {
         margin: 0.4rem 0 0;
@@ -4050,7 +4027,7 @@
         min-width: 0;
         width: auto;
       }
-      @keyframes quickstart-pop-in {
+      @keyframes utility-modal-pop-in {
         from {
           opacity: 0;
           transform: scale(0.92) translateY(14px);
@@ -4060,20 +4037,20 @@
           transform: scale(1) translateY(0);
         }
       }
-      .modal-backdrop.quickstart-help-backdrop {
+      .modal-backdrop.utility-modal-backdrop {
         z-index: 55;
         align-items: center;
         padding: 0.85rem;
       }
-      .modal-backdrop.quickstart-help-backdrop.open {
+      .modal-backdrop.utility-modal-backdrop.open {
         background: rgba(4, 6, 12, 0.82);
         -webkit-backdrop-filter: blur(12px) saturate(1.15);
         backdrop-filter: blur(12px) saturate(1.15);
       }
-      .modal-backdrop.quickstart-help-backdrop.open .quickstart-help-panel {
-        animation: quickstart-pop-in 0.38s cubic-bezier(0.18, 1, 0.32, 1) forwards;
+      .modal-backdrop.utility-modal-backdrop.open .utility-modal-panel {
+        animation: utility-modal-pop-in 0.38s cubic-bezier(0.18, 1, 0.32, 1) forwards;
       }
-      .quickstart-help-panel {
+      .utility-modal-panel {
         max-width: min(520px, calc(100vw - 2rem));
         max-height: min(85vh, 640px);
         width: 100%;
@@ -4087,11 +4064,11 @@
           0 0 96px 12px rgba(34, 211, 238, 0.18), 0 0 80px -8px rgba(91, 156, 255, 0.35),
           0 28px 72px rgba(0, 0, 0, 0.65), var(--panel-glow-blue);
       }
-      .quickstart-help-head-text {
+      .utility-modal-head-text {
         min-width: 0;
         flex: 1;
       }
-      .quickstart-help-head {
+      .utility-modal-head {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
@@ -4104,7 +4081,7 @@
         backdrop-filter: blur(20px) saturate(1.35);
         box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07) inset, 0 12px 40px -20px rgba(34, 211, 238, 0.12);
       }
-      .quickstart-help-head h3 {
+      .utility-modal-head h3 {
         margin: 0;
         font-size: 1.08rem;
         font-weight: 750;
@@ -4855,16 +4832,14 @@
         background: linear-gradient(165deg, rgba(10, 14, 24, 0.97) 0%, rgba(5, 8, 18, 0.98) 100%);
         contain: layout;
       }
-      .community-list-head {
+      .community-list-view {
         display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-        margin-bottom: 0.15rem;
+        flex-direction: column;
+        gap: 0.7rem;
       }
       /* ── Breaking news rail: compact hero cards (image-led, scroll-snap, auto-scroll) */
       .community-headlines-rail-wrap {
-        margin: 0.1rem 0 0.35rem;
+        margin: 0;
       }
       .community-headlines-rail-wrap .community-subsection-heading {
         margin-bottom: 0.3rem;
@@ -5129,7 +5104,7 @@
       }
       /* ── Live Rooms Hub Module — progressive prominence ── */
       .community-live-rooms-hub {
-        margin: 0 0 0.65rem;
+        margin: 0;
         border-radius: 12px;
         border: 1px solid rgba(130, 200, 255, 0.12);
         background: linear-gradient(165deg, rgba(8, 14, 28, 0.6), rgba(4, 8, 18, 0.7));
@@ -5156,10 +5131,38 @@
         transition: color 0.3s ease;
       }
       .community-live-rooms-hub-count {
-        margin-left: auto;
         font-size: 0.68rem;
         font-weight: 600;
         color: var(--muted);
+      }
+      .community-live-rooms-action {
+        margin-left: auto;
+        flex-shrink: 0;
+        min-height: 30px;
+        padding: 0.32rem 0.72rem;
+        border-radius: 999px;
+        border: 1px solid rgba(34, 211, 238, 0.28);
+        background: rgba(34, 211, 238, 0.1);
+        color: #cffafe;
+        font-size: 0.72rem;
+        font-weight: 750;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        box-shadow: none;
+      }
+      .community-live-rooms-action:hover {
+        background: rgba(34, 211, 238, 0.18);
+        border-color: rgba(34, 211, 238, 0.42);
+      }
+      .community-live-rooms-hub[data-state="early"] .community-live-rooms-action,
+      .community-live-rooms-hub[data-state="active"] .community-live-rooms-action {
+        border-color: rgba(0, 230, 118, 0.36);
+        background: rgba(0, 230, 118, 0.12);
+        color: #bbf7d0;
+      }
+      .community-live-rooms-hub[data-state="early"] .community-live-rooms-action:hover,
+      .community-live-rooms-hub[data-state="active"] .community-live-rooms-action:hover {
+        background: rgba(0, 230, 118, 0.2);
       }
       .community-live-rooms-hub-body {
         padding: 0 0.75rem 0.5rem;
@@ -5255,7 +5258,6 @@
       .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-icon {
         color: #4ade80;
         text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
-        animation: community-live-hub-pulse 1.4s ease-in-out infinite;
       }
       .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-title {
         color: #a7f3d0;
@@ -5274,7 +5276,7 @@
       }
       .community-subsection-heading--primary {
         font-size: 0.78rem;
-        margin-top: 0.25rem;
+        margin: 0.1rem 0 0.15rem;
       }
       /* ── Show News ── */
       .community-show-news-panel {
@@ -5570,7 +5572,7 @@
         box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.35);
       }
       .community-chat-live-dot.is-live {
-        animation: community-chat-live-pulse 2.2s ease-in-out infinite;
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.16), 0 0 10px rgba(34, 197, 94, 0.28);
       }
       @keyframes community-chat-live-pulse {
         0%,
@@ -5623,13 +5625,12 @@
         flex-shrink: 0;
         background: #22c55e;
         box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.35);
-        animation: community-thread-live-dot-pulse 2s ease-in-out infinite;
       }
       .community-thread-presence-dot[hidden] {
         display: none !important;
       }
       .community-thread-presence-dot.is-live {
-        animation: community-chat-live-pulse 2.2s ease-in-out infinite;
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.16), 0 0 10px rgba(34, 197, 94, 0.28);
       }
       .community-thread-presence-copy {
         min-width: 0;
@@ -5704,7 +5705,6 @@
       .community-thread-live-strip--room-active .community-thread-live-strip-dot {
         opacity: 1;
         box-shadow: 0 0 10px rgba(34, 197, 94, 0.65);
-        animation: community-thread-live-dot-pulse 2s ease-in-out infinite;
       }
       @keyframes community-thread-live-dot-pulse {
         0%,
@@ -5986,9 +5986,6 @@
       }
       .app-fab.open svg {
         transform: rotate(45deg);
-      }
-      #tab-community.active .community-fab-plus {
-        display: flex;
       }
       #tab-messages.active .dm-fab-plus {
         display: flex;
@@ -6725,7 +6722,6 @@
         color: #f87171;
         font-size: 0.65rem;
         line-height: 1.6;
-        animation: community-live-air-pulse 1.4s ease-in-out infinite;
       }
       @keyframes community-live-air-pulse {
         0%,
@@ -8260,13 +8256,18 @@
       }
 
       /* ─── Edit Profile modal (mobile-first) ───────────────────────────────── */
-      .profile-edit-modal.quickstart-help-panel {
+      .profile-edit-modal.utility-modal-panel {
         max-width: min(520px, calc(100vw - 1rem));
         max-height: min(92vh, 900px);
       }
       @media (min-width: 820px) {
-        .profile-edit-modal.quickstart-help-panel {
-          max-width: min(720px, calc(100vw - 1.5rem));
+        .profile-edit-modal.utility-modal-panel {
+          max-width: min(920px, calc(100vw - 1.5rem));
+        }
+      }
+      @media (min-width: 1120px) {
+        .profile-edit-modal.utility-modal-panel {
+          max-width: min(1040px, calc(100vw - 2rem));
         }
       }
       .profile-edit-modal-shell {
@@ -8276,7 +8277,7 @@
         min-height: 0;
         overflow: hidden;
       }
-      .profile-edit-modal-head.quickstart-help-head {
+      .profile-edit-modal-head.utility-modal-head {
         align-items: flex-start;
       }
       .profile-edit-modal-title {
@@ -8303,16 +8304,18 @@
         flex-direction: column;
         gap: 1rem;
       }
-      .profile-edit-top-grid {
+      .profile-edit-main-grid,
+      .profile-edit-profile-column,
+      .profile-edit-account-column {
         display: flex;
         flex-direction: column;
         gap: 1rem;
       }
-      @media (min-width: 720px) {
-        .profile-edit-top-grid {
+      @media (min-width: 860px) {
+        .profile-edit-main-grid {
           display: grid;
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
-          gap: 1rem 1.2rem;
+          grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+          gap: 1rem 1.25rem;
           align-items: start;
         }
       }
@@ -8346,6 +8349,7 @@
       }
       .profile-edit-card--share {
         border-left: 3px solid rgba(34, 211, 238, 0.42);
+        background: linear-gradient(150deg, rgba(8, 18, 30, 0.62), rgba(8, 12, 28, 0.5));
       }
       .profile-edit-card--account {
         border-left: 3px solid rgba(232, 121, 249, 0.48);
@@ -8354,7 +8358,6 @@
         border-left: 3px solid rgba(248, 113, 113, 0.45);
         border-color: rgba(248, 113, 113, 0.22);
         background: rgba(18, 8, 14, 0.42);
-        margin-top: 0.15rem;
       }
       .profile-edit-card--session .profile-edit-card-title {
         color: rgba(255, 200, 210, 0.95);
@@ -8364,7 +8367,6 @@
         min-height: 1.1em;
       }
       .profile-edit-scroll .profile-edit-section,
-      .profile-edit-scroll .profile-edit-card,
       .profile-edit-scroll .panel-rail-cyan,
       .profile-edit-scroll .panel-rail-magenta,
       .profile-edit-scroll .panel-rail-blue {
@@ -8446,7 +8448,7 @@
         padding-top: 1rem;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
       }
-      .profile-edit-subsection--share[hidden] {
+      .profile-share-card-section[hidden] {
         display: none !important;
       }
       h3.profile-edit-subsection-title {
@@ -8457,35 +8459,13 @@
         text-transform: uppercase;
         color: rgba(186, 230, 255, 0.78);
       }
-      .profile-edit-subsection--share h3#profileShareCardHeading {
-        background: linear-gradient(90deg, #5eead4, #7dd3fc 55%, #c4b5fd);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        font-size: 0.76rem;
+      .profile-edit-session-band {
+        margin-top: 0.2rem;
       }
-      .profile-edit-subsection--share .profile-edit-card-lead,
-      .profile-edit-subsection--share .profile-share-preview-wrap,
-      .profile-edit-subsection--share .profile-share-actions {
-        margin-top: 0.5rem;
-      }
-      .profile-edit-account-session-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-      @media (min-width: 800px) {
-        .profile-edit-account-session-grid {
-          display: grid;
-          grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.85fr);
-          gap: 1rem 1.15rem;
-          align-items: start;
-        }
-        .profile-edit-card--account {
-          grid-row: 1;
-        }
-        .profile-edit-card--session {
-          grid-row: 1;
+      @media (min-width: 860px) {
+        .profile-edit-session-band {
+          max-width: 34rem;
+          margin-left: auto;
         }
       }
       .profile-edit-destructive-actions {
@@ -8504,15 +8484,41 @@
         text-transform: uppercase;
         color: rgba(215, 225, 250, 0.88);
       }
+      .profile-account-subcard {
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.16);
+      }
+      .profile-account-subcard:first-child {
+        margin-top: 0;
+      }
+      .profile-account-subcard--signin {
+        border-color: rgba(34, 211, 238, 0.12);
+      }
+      .profile-account-subcard--security {
+        border-color: rgba(232, 121, 249, 0.14);
+      }
+      .profile-account-subcard--security:has(#accountEmailUpgrade[hidden]):has(#accountChangePassword[hidden]) {
+        display: none;
+      }
       @media (max-width: 719px) {
         .profile-edit-scroll {
           font-size: 0.9rem;
+          padding-left: 0.7rem;
+          padding-right: 0.7rem;
         }
         .profile-edit-card {
-          padding: 0.85rem 0.8rem 0.95rem;
+          padding: 0.82rem 0.78rem 0.92rem;
         }
-        .profile-edit-top-grid {
+        .profile-edit-main-grid,
+        .profile-edit-profile-column,
+        .profile-edit-account-column {
           gap: 0.9rem;
+        }
+        .profile-account-subcard {
+          padding: 0.68rem;
         }
       }
       .profile-edit-save-primary {
@@ -8522,6 +8528,24 @@
         font-weight: 750;
         border-radius: 12px;
         padding: 0.65rem 1rem;
+      }
+      @media (min-width: 720px) {
+        .profile-edit-sticky {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          padding-left: 1.15rem;
+          padding-right: 1.15rem;
+        }
+        .profile-edit-save-primary {
+          width: auto;
+          min-width: 12rem;
+          order: 2;
+        }
+        .profile-edit-sticky-hint {
+          text-align: left;
+        }
       }
       .profile-remove-photo-btn {
         width: 100%;
@@ -8813,69 +8837,10 @@
       }
 
       /**
-       * Desktop UX — Inbox (split pane, readable column) + Community (hub + Breaking News rail).
-       * Inbox: syncDmInboxSplitLayout + syncDmInboxActiveRowHighlight in JS.
+       * Desktop UX — Inbox split pane. Community keeps a single curated landing
+       * sequence: Breaking News, Live Rooms, Discussions.
        */
       @media (min-width: 900px) {
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
-          gap: 0.85rem 1.25rem;
-          align-items: start;
-        }
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-list-head {
-          grid-column: 1 / -1;
-        }
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityHeadlinesWrap {
-          grid-column: 2;
-          grid-row: 3 / -1;
-          position: sticky;
-          top: 0.65rem;
-          align-self: start;
-          max-height: min(78dvh, 44rem);
-          overflow-y: auto;
-          overflow-x: hidden;
-          overscroll-behavior: contain;
-          padding: 0.55rem 0.65rem 0.75rem;
-          border-radius: 14px;
-          border: 1px solid rgba(130, 200, 255, 0.16);
-          background: linear-gradient(165deg, rgba(8, 12, 22, 0.72), rgba(4, 8, 16, 0.88));
-          scrollbar-width: thin;
-        }
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-headlines-rail-wrap .community-subsection-heading {
-          margin-top: 0;
-          margin-bottom: 0.45rem;
-          font-size: 0.68rem;
-        }
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-headlines-rail {
-          flex-direction: column;
-          overflow-x: visible;
-          overflow-y: visible;
-          gap: 0.55rem;
-          scroll-snap-type: none;
-          padding-bottom: 0;
-        }
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-headlines-rail > li,
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-headline-skeleton-li {
-          flex: 0 0 auto;
-          width: 100%;
-          min-width: 0;
-          max-width: none;
-          scroll-snap-align: none;
-        }
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-live-rooms-hub,
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-subsection-heading,
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityThreadsErr,
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityThreadList,
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityGeneralHeading,
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityGeneralList {
-          grid-column: 1;
-        }
-        /* Desktop: When Live Room is active, let it span both columns for event prominence */
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-live-rooms-hub[data-state="active"] {
-          grid-column: 1 / -1;
-        }
-
         #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread {
           display: grid;
           grid-template-columns: minmax(280px, 38%) minmax(0, 1fr);
@@ -8968,8 +8933,8 @@
         #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread .dm-inbox-group-msg {
           max-width: min(40rem, 100%);
         }
-        .profile-edit-modal.quickstart-help-panel {
-          max-width: min(720px, calc(100vw - 2rem));
+        .profile-edit-modal.utility-modal-panel {
+          max-width: min(1040px, calc(100vw - 2rem));
         }
       }
       @media (min-width: 1024px) {
@@ -8978,20 +8943,11 @@
           min-height: min(84dvh, 48rem);
           gap: 0 1.15rem;
         }
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) {
-          grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
-          gap: 0.9rem 1.35rem;
-        }
       }
       @media (min-width: 1280px) {
         #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread {
           grid-template-columns: minmax(320px, 34%) minmax(0, 1fr);
           min-height: min(86dvh, 50rem);
-        }
-        /** With Breaking News rail, keep discussions at 2 cols so cards stay readable */
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-thread-list,
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-general-list {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
     </style>
@@ -9010,7 +8966,7 @@
       <header class="app-top" id="appTopBar">
         <div class="app-top-brand-row">
           <h1 class="brand-heading">
-            <img class="brand-logo" src="/logo.svg" width="240" height="41" alt="Airalert" />
+            <img class="brand-logo" src="/logo.svg" width="240" height="41" alt="AirAlert" />
           </h1>
           <div class="app-top-header-actions">
             <div class="header-menu-wrap">
@@ -9075,20 +9031,7 @@
                 </svg>
               </button>
               <div class="header-dropdown" id="headerProfileDropdown" hidden role="menu" aria-label="Profile">
-                <div class="header-profile-menu-group" id="headerProfileMenuGuest" role="group" aria-label="Get an account">
-                  <button type="button" class="header-menu-item" role="menuitem" id="headerMenuCreateAccount">
-                    Create account
-                  </button>
-                </div>
-                <div class="header-profile-menu-group" id="headerProfileMenuSignedIn" role="group" aria-label="Your account" hidden>
-                  <button type="button" class="header-menu-item" role="menuitem" id="headerMenuYourProfile">Your profile</button>
-                  <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSignOut">Sign out</button>
-                </div>
-                <div class="header-profile-menu-group" role="group" aria-label="Community">
-                  <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSearchUsername">
-                    Search username
-                  </button>
-                </div>
+                <div id="headerProfileMenuItems" role="group" aria-label="Account actions"></div>
               </div>
             </div>
             <div class="header-inbox-wrap" id="headerInboxWrap" hidden>
@@ -9116,10 +9059,10 @@
                 type="button"
                 class="header-icon-btn"
                 id="headerNotificationsBtn"
-                aria-label="Notifications and activity"
+                aria-label="Activity"
                 aria-expanded="false"
                 aria-haspopup="true"
-                title="Notifications"
+                title="Activity"
               >
                 <span class="header-notifications-icon-wrap" aria-hidden="true">
                   <svg
@@ -9301,12 +9244,12 @@
           <div id="onboardingMissionStrip" class="onboarding-mission-strip" hidden>
             <div class="onboarding-mission-strip__top">
               <div class="onboarding-mission-strip__copy">
-                <p class="onboarding-mission-strip__title">Get started with AirAlert</p>
+                <p class="onboarding-mission-strip__title">Add your first shows</p>
                 <p class="onboarding-mission-strip__sub">
                   Add 3 shows to personalize your app and unlock <strong>Community</strong> + <strong>Inbox</strong>.
                 </p>
                 <p class="onboarding-mission-strip__sub muted" id="onboardingMissionGuestNote" hidden style="margin-top: 0.35rem">
-                  Create a free account from the profile menu (top right) to save your list across devices.
+                  Create an email account from the profile menu (top right) to save your list across devices.
                 </p>
               </div>
               <button type="button" class="onboarding-mission-strip__cta" id="onboardingMissionAddShowsBtn">
@@ -9607,10 +9550,6 @@
       <template id="tpl-shell-tab-community">
         <section class="panel-rail-cyan community-root" aria-label="Community">
           <div class="community-list-view" id="communityListView">
-            <div class="community-list-head">
-              <h2 class="section-header-highlight header-cyan-glow" style="margin-top: 0">Community</h2>
-            </div>
-
             <div
               class="community-headlines-rail-wrap"
               id="communityHeadlinesWrap"
@@ -9630,18 +9569,14 @@
                 <span class="community-live-rooms-hub-icon" aria-hidden="true">●</span>
                 <span class="community-live-rooms-hub-title">Live Rooms</span>
                 <span class="community-live-rooms-hub-count" id="communityLiveRoomsHubCount"></span>
+                <button type="button" class="community-live-rooms-action" id="communityLiveRoomsActionBtn">Start</button>
               </div>
               <div class="community-live-rooms-hub-body" id="communityLiveRoomsHubBody">
-                <p class="community-live-rooms-hub-empty" id="communityLiveRoomsHubEmpty">No one is live right now. Be the first to start the conversation.</p>
+                <p class="community-live-rooms-hub-empty" id="communityLiveRoomsHubEmpty">No rooms live right now. Start one from a show discussion.</p>
               </div>
               <ul class="community-live-rooms-hub-list" id="communityLiveRoomsHubList" role="list" hidden></ul>
             </div>
 
-            <button type="button" class="app-fab community-fab-plus" id="communityNewThreadBtn" title="New discussion">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-              </svg>
-            </button>
             <h3 class="community-subsection-heading community-subsection-heading--primary">Discussions</h3>
             <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
             <ul class="community-thread-list" id="communityThreadList"></ul>
@@ -9725,7 +9660,7 @@
                 <div class="community-composer-wrap" id="communityComposerWrap">
               <p class="muted community-post-as" id="communityPostAsLine" hidden>Post as <strong id="communityPostAsName">—</strong></p>
               <p class="muted community-guest-hint" id="communityGuestHint" hidden>
-                <a href="#" id="communityGoProfileLink">Create an account with your email</a> (Profile menu → Create account) to post and subscribe to threads.
+                <a href="#" id="communityGoProfileLink">Create an email account</a> (Profile menu → Create account) to post and subscribe to threads.
               </p>
               <p class="muted community-guest-hint" id="communityUnlockHint" hidden></p>
               <div class="community-composer-meta community-composer-meta--slim" id="communityComposerEpisodeRow">
@@ -9762,7 +9697,7 @@
               ></div>
               <div id="communityReplyIndicator" class="community-post-reply-indicator" hidden aria-hidden="true">
                 <div class="community-reply-indicator-main">
-                  <span>Replying to <strong id="communityReplyToName"></strong></span>
+                  <span id="communityReplyLine"></span>
                   <span class="community-reply-preview" id="communityReplyPreview" hidden></span>
                 </div>
                 <button type="button" class="community-reply-cancel-btn" id="communityReplyCancelBtn" hidden aria-label="Clear reply">✕</button>
@@ -9945,7 +9880,7 @@
               Direct message
             </button>
             <p class="muted" id="communityMemberProfileDmHint" hidden style="margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.4">
-              Create an account with your email (Profile menu → Create account) to send direct messages.
+              Create an email account (Profile menu → Create account) to send direct messages.
             </p>
             <p class="err" id="communityMemberProfileErr" style="display: none; margin-top: 0.5rem"></p>
           </div>
@@ -9980,7 +9915,7 @@
             Find members by username. Open a profile to follow, view compatibility, or send a direct message.
           </p>
           <p id="usernameSearchGuestHint" class="community-find-friend-guest-hint" hidden>
-            Create an account with your email (Profile menu → Create account) to search members.
+            Create an email account (Profile menu → Create account) to search members.
           </p>
           <div class="community-find-friend username-search-modal-inner" id="usernameSearchWrap" aria-label="Search members">
             <div class="community-find-friend-field">
@@ -10227,8 +10162,8 @@
         <h3 id="accountPromptHeading">Save your shows &amp; tasks</h3>
         <div id="accountPromptStepIntro">
           <p class="account-prompt-lead">
-            Use your <strong>email</strong> to create a free account so your subscriptions and watchlist sync when you sign in
-            elsewhere. Or continue as a <strong>guest</strong> — your list stays on this browser only.
+            Create an account with your <strong>email</strong> so your subscriptions and watchlist sync when you sign in elsewhere.
+            Your <strong>username</strong> is only your public @handle. Or continue as a <strong>guest</strong> — your list stays on this browser only.
           </p>
           <div class="account-prompt-actions">
             <button type="button" id="accountPromptCreate">Create account</button>
@@ -10241,13 +10176,13 @@
         </div>
         <div id="accountPromptStepRegister" hidden>
           <p class="account-prompt-lead">
-            Sign up with your <strong>email</strong> (sign-in) and a public <strong>username</strong> for Community and your profile.
+            Use your <strong>email</strong> to sign in. Choose a public <strong>username</strong> so others can find you as @yourname.
           </p>
-          <label for="apRegEmail">Email</label>
+          <label for="apRegEmail">Email (account sign-in)</label>
           <input id="apRegEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" />
-          <label for="apRegUsername">Username</label>
+          <label for="apRegUsername">Username (public @handle)</label>
           <input id="apRegUsername" type="text" autocomplete="username" maxlength="32" placeholder="3–32 letters, numbers, . _ -" />
-          <p class="account-prompt-field-hint">Username is public — others see it as @yourname in Community.</p>
+          <p class="account-prompt-field-hint">Your username is public. It is not your account email.</p>
           <label for="apRegPassword">Password</label>
           <input id="apRegPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
           <p class="account-prompt-field-hint">8–128 characters, including at least one letter.</p>
@@ -10262,14 +10197,14 @@
           </button>
         </div>
         <div id="accountPromptStepLogin" hidden>
-          <p class="account-prompt-lead">Sign in with your email and password. Older accounts can use their username instead of email.</p>
-          <label for="apLoginEmail">Email or username</label>
+          <p class="account-prompt-lead">Sign in with your account email and password. Your public username also works as a sign-in shortcut.</p>
+          <label for="apLoginEmail">Email or public username</label>
           <input
             id="apLoginEmail"
             type="text"
             autocomplete="username"
             inputmode="email"
-            placeholder="you@example.com or username"
+            placeholder="you@example.com or @username"
           />
           <label for="apLoginPassword">Password</label>
           <input id="apLoginPassword" type="password" autocomplete="current-password" />
@@ -10302,7 +10237,7 @@
         <h3 id="passwordResetHeading">Reset password</h3>
         <div id="passwordResetStepRequest">
           <p class="account-prompt-lead">
-            Enter the email on your account. If it matches a password-based login, we’ll email a reset link (expires in about an hour).
+            Enter the email on your password-based account. AirAlert sends a reset link only when outbound email is configured.
           </p>
           <label for="pwResetEmail">Email</label>
           <input id="pwResetEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" />
@@ -10311,7 +10246,7 @@
           </p>
           <p class="msg err" id="pwResetRequestErr" style="display: none; margin-top: 0.5rem"></p>
           <div class="account-prompt-row" style="margin-top: 0.75rem">
-            <button type="button" id="pwResetRequestSubmit">Send link</button>
+            <button type="button" id="pwResetRequestSubmit">Request reset link</button>
             <button type="button" class="secondary" id="passwordResetModalClose">Close</button>
           </div>
         </div>
@@ -10341,9 +10276,9 @@
       <div class="modal-panel account-prompt-panel">
         <h3 id="googleUsernameHeading">Choose your public username</h3>
         <p class="account-prompt-lead">
-          You’re signed in with Google. Pick a unique handle — others will see you as @name in Community and messages.
+          You’re signed in with Google using your email. Pick a unique public @handle for Community and messages.
         </p>
-        <label for="googleUsernameInput">Username</label>
+        <label for="googleUsernameInput">Username (public @handle)</label>
         <input id="googleUsernameInput" type="text" autocomplete="username" maxlength="32" placeholder="3–32 letters, numbers, . _ -" />
         <p class="msg err" id="googleUsernameErr" style="display: none; margin-top: 0.5rem"></p>
         <div class="account-prompt-row" style="margin-top: 0.75rem">
@@ -10353,14 +10288,14 @@
     </div>
 
     <div
-      class="modal-backdrop quickstart-help-backdrop"
+      class="modal-backdrop utility-modal-backdrop"
       id="appSettingsModal"
       role="dialog"
       aria-modal="true"
       aria-labelledby="appSettingsHeading"
     >
-      <div class="modal-panel quickstart-help-panel">
-        <div class="quickstart-help-head">
+      <div class="modal-panel utility-modal-panel">
+        <div class="utility-modal-head">
           <h3 id="appSettingsHeading">Settings</h3>
           <button type="button" class="modal-close secondary" id="appSettingsClose" aria-label="Close settings">×</button>
         </div>
@@ -10402,7 +10337,7 @@
             <section id="settingsPushSection" class="settings-surface settings-surface--push push-section" aria-labelledby="pushHeading">
               <h2 id="pushHeading" class="section-header-highlight header-magenta" style="font-size: 0.95rem; margin: 0 0 0.4rem">Push notifications</h2>
               <p class="settings-surface-lead muted" style="margin-bottom: 0.35rem">
-                Turn on push on this device, then pick what to send. Timing uses <strong>Time &amp; timezone</strong> above.
+                Turn on push on this device, then pick what can leave the app. The top-right Activity menu stays focused on mentions, replies, and invites.
               </p>
 
               <div class="settings-pref-block">
@@ -10429,55 +10364,41 @@
               </div>
 
               <div class="settings-pref-block">
-                <h3 class="settings-pref-block-title">Tasks &amp; list</h3>
+                <h3 class="settings-pref-block-title">Show &amp; episode alerts</h3>
                 <div class="push-prefs-list">
                   <label class="push-pref-row">
                     <input type="checkbox" id="pushPrefEpisodeAirsToday" checked />
-                    <span>Episode airs today — new episode on your <strong>Tasks</strong> list</span>
+                    <span>Episode airs today — opens <strong>Tasks</strong></span>
                   </label>
                   <label class="push-pref-row">
                     <input type="checkbox" id="pushPrefTaskStillWatching" checked />
                     <span>“Still watching?” for unchecked tasks (uses timing above)</span>
                   </label>
                   <label class="push-pref-row">
-                    <input type="checkbox" id="pushPrefTaskAdded" checked />
-                    <span>When a task is added to your list</span>
+                    <input type="checkbox" id="pushPrefPersonNewProject" checked />
+                    <span><strong>People you follow</strong> — new show in their TVMaze credits</span>
                   </label>
                 </div>
               </div>
 
               <div class="settings-pref-block">
-                <h3 class="settings-pref-block-title">Inbox &amp; Community</h3>
+                <h3 class="settings-pref-block-title">Social &amp; Community push</h3>
                 <div class="push-prefs-list">
                   <label class="push-pref-row">
                     <input type="checkbox" id="pushPrefDmMessage" checked />
-                    <span>Direct messages when you’re not in the app</span>
+                    <span>Direct messages — opens <strong>Inbox</strong></span>
                   </label>
                   <label class="push-pref-row">
                     <input type="checkbox" id="pushPrefCommunityMention" checked />
-                    <span>When someone @mentions you</span>
+                    <span>When someone @mentions you — also appears in Activity</span>
+                  </label>
+                  <label class="push-pref-row">
+                    <input type="checkbox" id="pushPrefCommunityReply" checked />
+                    <span>Replies to your posts — also appears in Activity</span>
                   </label>
                   <label class="push-pref-row">
                     <input type="checkbox" id="pushPrefCommunityThreadNewPost" checked />
-                    <span>New post in a show thread you follow</span>
-                  </label>
-                  <label class="push-pref-row">
-                    <input type="checkbox" id="pushPrefLiveRoomOpens" checked />
-                    <span>Live episode room opens for a show you follow</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="settings-pref-block settings-pref-block--tight">
-                <h3 class="settings-pref-block-title">News &amp; people</h3>
-                <div class="push-prefs-list">
-                  <label class="push-pref-row">
-                    <input type="checkbox" id="pushPrefShowBreakingNews" checked />
-                    <span>Breaking news for a show you follow</span>
-                  </label>
-                  <label class="push-pref-row">
-                    <input type="checkbox" id="pushPrefPersonNewProject" checked />
-                    <span><strong>People you follow</strong> — new show in their TVMaze credits</span>
+                    <span>New post in a followed show thread — opens Community</span>
                   </label>
                 </div>
               </div>
@@ -10489,21 +10410,36 @@
                 <p class="muted msg" id="pushMsg" style="width: 100%"></p>
               </div>
             </section>
+            <section class="settings-surface" aria-labelledby="settingsHelpHeading">
+              <h4 id="settingsHelpHeading" class="settings-surface-h section-header-highlight header-cyan">Help, privacy &amp; legal</h4>
+              <p class="settings-surface-lead muted">
+                Store-review essentials in one place: privacy details, beta support, terms, and account deletion guidance.
+              </p>
+              <div class="store-readiness-link-grid" aria-label="Help and legal links">
+                <a class="secondary" href="/privacy.html" target="_blank" rel="noopener">Privacy</a>
+                <a class="secondary" href="/terms.html" target="_blank" rel="noopener">Terms</a>
+                <a class="secondary" href="/support.html" target="_blank" rel="noopener">Support</a>
+              </div>
+              <ul class="support-note-list">
+                <li>Account deletion is available from Profile → Session for signed-in accounts.</li>
+                <li>Beta testers can send structured feedback from Profile → Help &amp; legal.</li>
+              </ul>
+            </section>
           </div>
         </div>
       </div>
     </div>
 
     <div
-      class="modal-backdrop quickstart-help-backdrop"
+      class="modal-backdrop utility-modal-backdrop"
       id="appProfileModal"
       role="dialog"
       aria-modal="true"
       aria-labelledby="profileEditModalHeading"
     >
-      <div class="modal-panel quickstart-help-panel profile-edit-modal">
-        <div class="quickstart-help-head profile-edit-modal-head">
-          <div class="quickstart-help-head-text">
+      <div class="modal-panel utility-modal-panel profile-edit-modal">
+        <div class="utility-modal-head profile-edit-modal-head">
+          <div class="utility-modal-head-text">
             <h2 id="profileEditModalHeading" class="profile-edit-modal-title">Edit profile</h2>
           </div>
           <button type="button" class="modal-close secondary" id="appProfileClose" aria-label="Close profile">×</button>
@@ -10511,10 +10447,11 @@
         <div class="profile-edit-modal-shell">
           <div class="modal-body-scroll profile-edit-scroll" id="appProfileModalBody">
             <div class="profile-edit-stack">
-              <div class="profile-edit-top-grid">
+              <div class="profile-edit-main-grid">
+                <div class="profile-edit-profile-column">
                 <section class="profile-edit-card profile-edit-card--basics" aria-labelledby="profileBasicsHeading">
                   <h2 id="profileBasicsHeading" class="profile-edit-card-title">Profile basics</h2>
-                  <p class="profile-edit-card-lead muted">Photo and name shown across the app.</p>
+                  <p class="profile-edit-card-lead muted">Photo, name, username, and public bio shown across the app.</p>
                   <div class="profile-identity">
                   <div class="profile-identity-inner">
                     <div class="profile-avatar-wrap">
@@ -10536,24 +10473,23 @@
                         <span class="profile-readonly-label">Member since</span>
                         <span id="profileMemberSince" class="profile-readonly-value">—</span>
                       </div>
-                      <div class="profile-readonly-row profile-role-badge-row">
-                        <span class="profile-readonly-label">Role</span>
-                        <span id="profileRoleBadge" class="role-badge" hidden></span>
-                      </div>
                       <div class="profile-photo-actions">
                         <button type="button" class="secondary profile-remove-photo-btn" id="removeAvatarBtn">Remove photo</button>
                       </div>
                     </div>
                   </div>
                   </div>
+                  <div class="profile-edit-subsection profile-edit-subsection--bio">
+                    <h3 class="profile-edit-subsection-title">Bio</h3>
+                    <label for="profileAboutMe">About you</label>
+                    <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="A few words about you…"></textarea>
+                  </div>
                   <p class="muted msg profile-card-msg" id="profileInfoMsg"></p>
                 </section>
 
                 <section class="profile-edit-card profile-edit-card--about" aria-labelledby="profileAboutCardHeading">
-                  <h2 id="profileAboutCardHeading" class="profile-edit-card-title">About you</h2>
-                  <p class="profile-edit-card-lead muted">Optional — stored on your account. Clear a field and save to remove it.</p>
-                  <label for="profileAboutMe">Bio</label>
-                  <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="A few words about you…"></textarea>
+                  <h2 id="profileAboutCardHeading" class="profile-edit-card-title">Profile details</h2>
+                  <p class="profile-edit-card-lead muted">Optional details for your account. Clear a field and save to remove it.</p>
                   <div class="profile-form-row profile-form-row--split">
                     <div>
                       <label for="profileAge">Age</label>
@@ -10572,16 +10508,17 @@
                   <label for="profileFavoriteShow">Favorite show</label>
                   <input id="profileFavoriteShow" type="text" maxlength="200" placeholder="e.g. The Bear, Doctor Who…" autocomplete="off" />
                   <p class="muted msg profile-card-msg" id="profileAboutMsg"></p>
+                </section>
 
-                  <div
-                    class="profile-edit-subsection profile-edit-subsection--share profile-share-card-section"
+                <section
+                    class="profile-edit-card profile-edit-card--share profile-share-card-section"
                     id="profileShareCardSection"
                     hidden
                     aria-labelledby="profileShareCardHeading"
                   >
-                    <h3 id="profileShareCardHeading" class="profile-edit-subsection-title">Share your stats</h3>
+                    <h2 id="profileShareCardHeading" class="profile-edit-card-title">Preferences &amp; sharing</h2>
                     <p class="profile-edit-card-lead muted" style="margin-top: 0">
-                      Square PNG for Instagram, X, or anywhere — your episode and show totals, Airalert-branded.
+                      Square PNG for Instagram, X, or anywhere — your episode and show totals, AirAlert-branded.
                     </p>
                     <p class="profile-share-preview-wrap" id="profileSharePreviewWrap" hidden>
                       <canvas id="profileShareCanvas" width="1080" height="1080" class="profile-share-canvas"></canvas>
@@ -10592,31 +10529,31 @@
                       <button type="button" class="secondary" id="profileShareCardShareBtn" disabled>Share…</button>
                     </div>
                     <p class="muted msg profile-card-msg" id="profileShareCardMsg"></p>
-                  </div>
                 </section>
               </div>
 
-              <div class="profile-edit-account-session-grid">
+              <div class="profile-edit-account-column">
               <section class="profile-edit-card profile-edit-card--account" aria-labelledby="profileAccountHeading">
                 <h2 id="profileAccountHeading" class="profile-edit-card-title">Account</h2>
                 <p class="profile-edit-card-lead muted">
-                  Your <strong>email</strong> is the main way to sign in. Add a public <strong>@username</strong> for Community and a
-                  password. <strong>Guest</strong> mode keeps your list on this device only until you create an account.
+                  Your <strong>email</strong> is your account identity. Your <strong>@username</strong> is public for Community and messages.
+                  <strong>Guest</strong> mode stays on this browser only.
                 </p>
                 <div id="accountGuest">
+                  <div class="profile-account-subcard profile-account-subcard--signin">
                   <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn" data-google-login hidden style="margin-bottom: 0.65rem">
                     Continue with Google
                   </button>
                   <div class="profile-account-grid profile-account-grid--register profile-account-register-block">
                     <div>
-                      <label for="regEmail">Email</label>
+                      <label for="regEmail">Email (account sign-in)</label>
                       <input id="regEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" />
                     </div>
                     <div>
-                      <label for="regUsername">Username (public)</label>
+                      <label for="regUsername">Username (public @handle)</label>
                       <input id="regUsername" type="text" autocomplete="username" maxlength="32" placeholder="3–32 chars: letters, numbers, . _ -" />
                       <p class="muted" style="font-size: 0.76rem; margin: 0.25rem 0 0; line-height: 1.35">
-                        Shown as @handle in Community — not the same as your email.
+                        Public handle for Community and messages. This is not your account email.
                       </p>
                     </div>
                     <div>
@@ -10633,13 +10570,13 @@
                   <p class="muted profile-account-divider-label">Already have an account?</p>
                   <div class="profile-account-login-row">
                     <div>
-                      <label for="loginEmail">Email or username</label>
+                      <label for="loginEmail">Email or public username</label>
                       <input
                         id="loginEmail"
                         type="text"
                         autocomplete="username"
                         inputmode="email"
-                        placeholder="you@example.com or username"
+                        placeholder="you@example.com or @username"
                       />
                     </div>
                     <div>
@@ -10656,10 +10593,12 @@
                   <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn" data-google-login hidden style="margin-top: 0.5rem">
                     Continue with Google
                   </button>
+                  </div>
                 </div>
                 <div id="accountSignedIn" hidden>
+                  <div class="profile-account-subcard profile-account-subcard--signin">
                   <p class="profile-account-signed-lead">
-                    Signed in as <strong id="accountUsernameLabel"></strong>
+                    Account signed in as <strong id="accountUsernameLabel"></strong>
                   </p>
                   <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">
                     Use <strong>Sign out</strong> in the profile menu or in Session below to end this session on this device.
@@ -10667,16 +10606,18 @@
                   <div id="accountEmailVerifyBanner" class="account-email-verify" hidden>
                     <h3 class="profile-account-block-title" style="margin-top: 0.35rem">Verify your email</h3>
                     <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">
-                      We sent a link when you registered or changed email — check your inbox and spam. You can keep using AirAlert while it’s pending.
+                      Your account email is not verified yet. AirAlert will send a verification link when outbound email is configured.
                     </p>
                     <button type="button" class="secondary profile-account-primary-btn" id="acctResendVerifyBtn">
-                      Resend verification email
+                      Send verification email
                     </button>
                   </div>
+                  </div>
+                  <div class="profile-account-subcard profile-account-subcard--security">
                   <div id="accountEmailUpgrade" class="account-email-upgrade" hidden>
-                    <h3 class="profile-account-block-title" style="margin-top: 0.35rem">Add an email (optional)</h3>
+                    <h3 class="profile-account-block-title" style="margin-top: 0.35rem">Add an account email</h3>
                     <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">
-                      Link an address to this account for recovery and email sign-in. Your username and password keep working until you add one.
+                      Add an email so this account has a recoverable sign-in identity. Your public username stays your @handle.
                     </p>
                     <div class="profile-account-grid profile-account-pw-grid">
                       <div>
@@ -10709,13 +10650,34 @@
                     </div>
                     <button type="button" class="secondary profile-account-primary-btn" id="acctUpdatePwBtn">Update password</button>
                   </div>
+                  </div>
                 </div>
                 <p class="msg err profile-card-msg" id="accountErr"></p>
+              </section>
+              </div>
+              </div>
+
+              <section class="profile-edit-card profile-edit-card--account" aria-labelledby="profileHelpLegalHeading">
+                <h2 id="profileHelpLegalHeading" class="profile-edit-card-title">Help &amp; legal</h2>
+                <p class="profile-edit-card-lead muted">
+                  Privacy, terms, support, and beta feedback links for account help and store-review readiness.
+                </p>
+                <div class="store-readiness-link-grid" aria-label="Profile help and legal links">
+                  <a class="secondary" href="/privacy.html" target="_blank" rel="noopener">Privacy</a>
+                  <a class="secondary" href="/terms.html" target="_blank" rel="noopener">Terms</a>
+                  <a class="secondary" href="/support.html" target="_blank" rel="noopener">Support</a>
+                </div>
+                <button type="button" class="secondary profile-account-primary-btn" id="profileBetaFeedbackBtn" style="margin-top: 0.65rem">
+                  Send beta feedback
+                </button>
+                <p class="muted profile-edit-card-lead" style="margin: 0.45rem 0 0">
+                  Use this for confusing screens, broken flows, or private beta issues.
+                </p>
               </section>
 
               <section
                 id="profileSignOutSection"
-                class="profile-edit-card profile-edit-card--session profile-signout-section"
+                class="profile-edit-card profile-edit-card--session profile-signout-section profile-edit-session-band"
                 hidden
                 aria-labelledby="profileSessionHeading"
               >
@@ -10726,8 +10688,13 @@
                 <div class="profile-edit-destructive-actions" role="group" aria-label="End session on this device">
                   <button type="button" class="secondary profile-session-signout-btn" id="signOutAccountBtn">Sign out</button>
                 </div>
+                <div id="profileAccountDeletionSection" class="profile-edit-destructive-actions" role="group" aria-label="Delete account" hidden>
+                  <button type="button" class="danger" id="deleteAccountBtn">Delete account</button>
+                  <p class="muted profile-edit-card-lead" style="margin: 0.45rem 0 0">
+                    Permanently removes your AirAlert account, watch list, tasks, Community content, messages, and push subscriptions.
+                  </p>
+                </div>
               </section>
-              </div>
             </div>
           </div>
         <div class="profile-edit-sticky" role="region" aria-label="Save profile changes">
@@ -10792,7 +10759,7 @@
       const LS_EMAIL_UPGRADE_HINT_MS = "airalert_email_upgrade_hint_last_ms";
       const EMAIL_UPGRADE_HINT_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
 
-      /** After username/password sign-in: gentle nudge toward Profile → Account (throttled). */
+      /** After sign-in without account email: gentle nudge toward Profile → Account (throttled). */
       function maybePromptLegacyEmailUpgrade(me) {
         if (!me || me.needsEmailUpgrade !== true) return;
         try {
@@ -10803,7 +10770,7 @@
           /* ignore */
         }
         showToast(
-          "Optional: add an email under Profile → Account so you can recover this login. You can keep using your username for now.",
+          "Add an email under Profile → Account so this sign-in can be recovered. Your public username stays your @handle.",
         );
       }
 
@@ -10893,6 +10860,163 @@
           return data;
         });
       };
+
+      window.airalertBetaFeedback = async function airalertBetaFeedback(message, opts) {
+        const o = opts && typeof opts === "object" ? opts : {};
+        return api("/api/beta-feedback", {
+          method: "POST",
+          body: JSON.stringify({
+            message: String(message || ""),
+            category: o.category || "issue",
+            severity: o.severity || "medium",
+            flow: o.flow || null,
+            screen: o.screen || getActiveTabName(),
+            metadata: o.metadata || null,
+          }),
+        });
+      };
+
+      async function promptForBetaFeedback(sourceScreen) {
+        const message = window.prompt("What went wrong, or what was confusing?");
+        if (!message || !message.trim()) return false;
+        await window.airalertBetaFeedback(message.trim(), {
+          category: "general",
+          severity: "medium",
+          flow: "user_support",
+          screen: sourceScreen || getActiveTabName(),
+        });
+        return true;
+      }
+
+      function trackQaFlowFailure(flow, screen, reason, metadata) {
+        trackAnalyticsEvent("qa.flow_failure", {
+          flow: flow || "unknown",
+          reason: reason || "unknown",
+          ...(metadata || {}),
+        }, {
+          sourceScreen: screen || getActiveTabName(),
+          targetType: "flow",
+          targetId: flow || "unknown",
+          flushSoon: true,
+        });
+      }
+
+      const ANALYTICS_ANON_ID_KEY = "airalert_analytics_anon_id";
+      const analyticsSessionId =
+        (crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "-" + Math.random().toString(16).slice(2));
+      const analyticsOnceKeys = new Set();
+      let analyticsQueue = [];
+      let analyticsFlushTimer = null;
+
+      function analyticsAnonymousId() {
+        try {
+          let id = localStorage.getItem(ANALYTICS_ANON_ID_KEY);
+          if (!id) {
+            id = crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "-" + Math.random().toString(16).slice(2);
+            localStorage.setItem(ANALYTICS_ANON_ID_KEY, id);
+          }
+          return id;
+        } catch {
+          return analyticsSessionId;
+        }
+      }
+
+      function showCountBucketFromMe(me) {
+        const n = Number(me && me.subscribedShowCount);
+        if (!Number.isFinite(n)) return "unknown";
+        if (n <= 0) return "0";
+        if (n === 1) return "1";
+        if (n === 2) return "2";
+        if (n === 3) return "3";
+        if (n <= 5) return "4-5";
+        if (n <= 10) return "6-10";
+        return "11+";
+      }
+
+      function analyticsMetadata(extra) {
+        return {
+          sessionId: analyticsSessionId,
+          accountType: accountKind(sessionMeSnapshot),
+          showCountBucket: showCountBucketFromMe(sessionMeSnapshot),
+          ...sanitizeAnalyticsMetadata(extra || {}),
+        };
+      }
+
+      function sanitizeAnalyticsMetadata(raw) {
+        const out = {};
+        if (!raw || typeof raw !== "object") return out;
+        const sensitive = /email|password|token|secret|auth|p256dh|endpoint|body|text|html|message|name|title|url/i;
+        Object.entries(raw).slice(0, 24).forEach(([key, value]) => {
+          if (!/^[a-zA-Z0-9_.-]{1,48}$/.test(key) || sensitive.test(key)) return;
+          if (typeof value === "string") out[key] = value.slice(0, 160);
+          else if (typeof value === "number" && Number.isFinite(value)) out[key] = value;
+          else if (typeof value === "boolean") out[key] = value;
+          else if (value == null) out[key] = null;
+        });
+        return out;
+      }
+
+      function queueAnalyticsFlush(delay) {
+        if (analyticsFlushTimer) return;
+        analyticsFlushTimer = setTimeout(() => {
+          analyticsFlushTimer = null;
+          flushAnalyticsEvents();
+        }, delay == null ? 900 : delay);
+      }
+
+      function trackAnalyticsEvent(name, metadata, opts) {
+        opts = opts || {};
+        if (opts.onceKey) {
+          const k = name + ":" + opts.onceKey;
+          if (analyticsOnceKeys.has(k)) return;
+          analyticsOnceKeys.add(k);
+        }
+        analyticsQueue.push({
+          name,
+          anonymousId: analyticsAnonymousId(),
+          sourceScreen: opts.sourceScreen || getActiveTabName(),
+          targetType: opts.targetType || undefined,
+          targetId: opts.targetId == null ? undefined : String(opts.targetId),
+          metadata: analyticsMetadata(metadata),
+        });
+        if (analyticsQueue.length >= 8) flushAnalyticsEvents();
+        else queueAnalyticsFlush(opts.flushSoon ? 0 : 900);
+      }
+
+      function flushAnalyticsEvents() {
+        const batch = analyticsQueue.splice(0, 20);
+        if (!batch.length) return;
+        const body = JSON.stringify({ events: batch });
+        try {
+          if (navigator.sendBeacon) {
+            const ok = navigator.sendBeacon(new URL("/api/analytics/events", apiOrigin()).href, new Blob([body], { type: "application/json" }));
+            if (ok) return;
+          }
+        } catch {
+          /* fall through to fetch */
+        }
+        fetch(new URL("/api/analytics/events", apiOrigin()).href, {
+          method: "POST",
+          credentials: "include",
+          keepalive: true,
+          headers: { "Content-Type": "application/json" },
+          body,
+        }).catch(() => {});
+      }
+
+      window.addEventListener("pagehide", () => flushAnalyticsEvents());
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker.addEventListener("message", (event) => {
+          const data = event && event.data;
+          if (!data || data.type !== "airalert.analytics") return;
+          trackAnalyticsEvent(data.name, data.metadata || {}, {
+            sourceScreen: "service_worker",
+            targetType: data.targetType,
+            targetId: data.targetId,
+            flushSoon: true,
+          });
+        });
+      }
 
       function isStaleUserError(e) {
         const m = e && e.message ? String(e.message) : "";
@@ -11038,36 +11162,6 @@
         } else {
           profileWatchSummary = { episodesCompleted: 0, showsTracked: 0 };
         }
-        const badge = document.getElementById("profileRoleBadge");
-        if (badge) {
-          badge.className = "role-badge";
-          badge.innerHTML = "";
-          if (u && accountIsRegistered(u)) {
-            const role = u.viewerRole;
-            const n = Number(u.subscribedShowCount);
-            const eff =
-              role ||
-              (Number.isFinite(n) && n <= 2 ? "newb" : Number.isFinite(n) && n <= 9 ? "tv_watcher" : "tv_binger");
-            if (eff === "tv_binger") {
-              badge.className = "role-badge role-badge--binger";
-              badge.innerHTML =
-                '<span class="role-badge__icon" aria-hidden="true">\uD83D\uDD25</span><span>TV Binger</span>';
-              badge.hidden = false;
-            } else if (eff === "tv_watcher") {
-              badge.className = "role-badge role-badge--watcher";
-              badge.innerHTML =
-                '<span class="role-badge__icon" aria-hidden="true">\uD83D\uDCFA</span><span>TV Watcher</span>';
-              badge.hidden = false;
-            } else {
-              badge.className = "role-badge role-badge--newb";
-              badge.innerHTML =
-                '<span class="role-badge__icon" aria-hidden="true">\u2728</span><span>Getting started</span>';
-              badge.hidden = false;
-            }
-          } else {
-            badge.hidden = true;
-          }
-        }
         syncSelfProfilePresenceFromSession();
       }
 
@@ -11077,7 +11171,7 @@
         sec.hidden = !(sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot));
       }
 
-      function renderAiralertShareStatsToCanvas(canvas, episodes, shows) {
+      function renderAirAlertShareStatsToCanvas(canvas, episodes, shows) {
         const W = 1080;
         const H = 1080;
         const ep = Math.max(0, Math.floor(Number(episodes)) || 0);
@@ -11114,7 +11208,7 @@
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#7dd3fc";
         ctx.font = "600 44px system-ui, Segoe UI, sans-serif";
-        ctx.fillText("AIRALERT", W / 2, 100);
+        ctx.fillText("AirAlert", W / 2, 100);
         ctx.fillStyle = "#94a3b8";
         ctx.font = "300 40px system-ui, Segoe UI, sans-serif";
         ctx.fillText("I've watched", W / 2, 220);
@@ -11159,15 +11253,16 @@
           if (el) el.checked = p[key] !== false;
         };
         setCb("pushPrefEpisodeAirsToday", "episodeAirsToday");
-        setCb("pushPrefDmMessage", "dmMessage");
-        setCb("pushPrefCommunityMention", "communityMention");
-        setCb("pushPrefCommunityThreadNewPost", "communityThreadNewPost");
         setCb("pushPrefTaskStillWatching", "taskStillWatching");
         setCb("pushPrefPersonNewProject", "personNewProject");
+        setCb("pushPrefDmMessage", "dmMessage");
+        setCb("pushPrefCommunityMention", "communityMention");
+        setCb("pushPrefCommunityReply", "communityReply");
+        setCb("pushPrefCommunityThreadNewPost", "communityThreadNewPost");
       }
 
-      async function loadUser(userId) {
-        const u = await api("/api/users/" + userId);
+      function applyLoadedUserToSettings(u) {
+        if (!u) return;
         document.getElementById("tz").value = u.timezone || "";
         document.getElementById("hour").value = u.reminderHourLocal ?? 8;
         const nudge = u.taskNudgeDaysAfterAir;
@@ -11177,16 +11272,11 @@
         }
         applyPushPrefsToForm(u.pushPrefs);
         syncProfileIdentityFromUser(u);
-        try {
-          const np = await api("/api/notification-preferences");
-          if (np.prefs) {
-            const p = np.prefs;
-            const set = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
-            set("pushPrefShowBreakingNews", p.show_breaking_news);
-            set("pushPrefLiveRoomOpens", p.live_room_opens);
-            set("pushPrefTaskAdded", p.task_added);
-          }
-        } catch {}
+      }
+
+      async function loadUser(userId) {
+        const u = await api("/api/users/" + userId);
+        applyLoadedUserToSettings(u);
       }
 
       async function saveProfileAll(userId) {
@@ -11272,21 +11362,12 @@
         const taskNudgeDaysAfterAir = nv === "" ? null : Number(nv);
         const pushPrefs = {
           episodeAirsToday: document.getElementById("pushPrefEpisodeAirsToday").checked,
-          dmMessage: document.getElementById("pushPrefDmMessage").checked,
-          communityMention: document.getElementById("pushPrefCommunityMention").checked,
-          communityThreadNewPost: document.getElementById("pushPrefCommunityThreadNewPost").checked,
           taskStillWatching: document.getElementById("pushPrefTaskStillWatching").checked,
           personNewProject: document.getElementById("pushPrefPersonNewProject").checked,
-        };
-        const notifPrefs = {
-          episode_airs: document.getElementById("pushPrefEpisodeAirsToday").checked ? 1 : 0,
-          dm_message: document.getElementById("pushPrefDmMessage").checked ? 1 : 0,
-          mention_in_thread: document.getElementById("pushPrefCommunityMention").checked ? 1 : 0,
-          thread_reply: document.getElementById("pushPrefCommunityThreadNewPost").checked ? 1 : 0,
-          show_breaking_news: document.getElementById("pushPrefShowBreakingNews")?.checked ? 1 : 0,
-          live_room_opens: document.getElementById("pushPrefLiveRoomOpens")?.checked ? 1 : 0,
-          task_added: document.getElementById("pushPrefTaskAdded")?.checked ? 1 : 0,
-          still_watching_days: taskNudgeDaysAfterAir ?? 0,
+          dmMessage: document.getElementById("pushPrefDmMessage").checked,
+          communityMention: document.getElementById("pushPrefCommunityMention").checked,
+          communityReply: document.getElementById("pushPrefCommunityReply").checked,
+          communityThreadNewPost: document.getElementById("pushPrefCommunityThreadNewPost").checked,
         };
         try {
           await api("/api/users/" + encodeURIComponent(userId), {
@@ -11296,10 +11377,6 @@
               taskNudgeDaysAfterAir,
               reminderHourLocal: Number(document.getElementById("hour").value),
             }),
-          });
-          await api("/api/notification-preferences", {
-            method: "PATCH",
-            body: JSON.stringify(notifPrefs),
           });
           await loadUser(userId);
           if (msg) msg.textContent = "Notification preferences saved.";
@@ -11354,7 +11431,8 @@
         }
       }
 
-      async function loadSubs(userId) {
+      async function loadSubs(userId, opts) {
+        const skipSessionRefresh = opts && opts.skipSessionRefresh === true;
         const { subscriptions } = await api("/api/users/" + userId + "/subscriptions");
         const ul = document.getElementById("subs");
         const empty = document.getElementById("subsEmptyState");
@@ -11437,14 +11515,17 @@
           li.appendChild(btn);
           ul.appendChild(li);
         }
-        try {
-          const uidRefresh = resolveUserId();
-          if (uidRefresh) {
-            const meNow = await api("/api/users/me");
-            applyMeToUI(meNow);
+        if (!skipSessionRefresh) {
+          try {
+            const uidRefresh = resolveUserId();
+            if (uidRefresh) {
+              const meNow = await api("/api/users/me");
+              applyMeToUI(meNow);
+              applyLoadedUserToSettings(meNow);
+            }
+          } catch {
+            /* ignore */
           }
-        } catch {
-          /* ignore */
         }
       }
 
@@ -11593,30 +11674,27 @@
         }
       }
 
+      function deferAfterIdle(fn, timeout) {
+        if (typeof requestIdleCallback === "function") {
+          requestIdleCallback(() => fn(), { timeout: timeout || 1800 });
+        } else {
+          setTimeout(fn, Math.min(timeout || 350, 700));
+        }
+      }
+
       function loadTrendingShowsDeferred(userId) {
         if (userId == null) return;
-        deferAfterPaint(() => {
+        deferAfterIdle(() => {
           void loadTrendingShows(userId);
-        });
+        }, 2200);
       }
 
       function scheduleCommunityListSecondary() {
-        if (typeof requestIdleCallback === "function") {
-          requestIdleCallback(
-            () => {
-              void loadCommunityHeadlines();
-              void loadLiveRoomsSummary();
-              startLiveRoomsRefresh();
-            },
-            { timeout: 2000 },
-          );
-        } else {
-          setTimeout(() => {
-            void loadCommunityHeadlines();
-            void loadLiveRoomsSummary();
-            startLiveRoomsRefresh();
-          }, 200);
-        }
+        deferAfterIdle(() => {
+          void loadCommunityHeadlines();
+          void loadLiveRoomsSummary();
+          startLiveRoomsRefresh();
+        }, 2200);
       }
 
       function renderWeekGuideSkeleton(grid) {
@@ -11910,6 +11988,7 @@
         const li = document.createElement("li");
         li.dataset.airdate = t.airdate || "";
         li.dataset.showKey = taskShowKey(t);
+        if (t.tvmazeEpisodeId != null) li.dataset.tvmazeEpisodeId = String(t.tvmazeEpisodeId);
         const kind = taskRowKind(t);
         const body = document.createElement("div");
         body.className =
@@ -11947,6 +12026,9 @@
                 }
               }
             } catch (e) {
+              trackQaFlowFailure("watched_to_rating_review", "tasks", e.message || "watch_task_failed", {
+                tvmazeEpisodeId: t.tvmazeEpisodeId,
+              });
               showToast(e.message || "Could not update task");
             }
           });
@@ -12886,6 +12968,17 @@
         if (msg.createdAt) div.dataset.createdAt = msg.createdAt;
         div.textContent = msg.body || "";
         body.appendChild(div);
+        if (!isMe) {
+          const reportBtn = document.createElement("button");
+          reportBtn.type = "button";
+          reportBtn.className = "secondary";
+          reportBtn.style.cssText = "margin-top:0.2rem;padding:0.16rem 0.4rem;font-size:0.68rem";
+          reportBtn.textContent = "Report";
+          reportBtn.addEventListener("click", () =>
+            submitModerationReport("dm_group_message", msg.id, msg.senderId, "harassment"),
+          );
+          body.appendChild(reportBtn);
+        }
         if (isMe && msg.seenBy && msg.seenBy.length) {
           const seen = document.createElement("div");
           seen.className = "dm-inbox-group-seen";
@@ -12915,6 +13008,15 @@
         if (msg.createdAt) div.dataset.createdAt = msg.createdAt;
         div.textContent = msg.body || "";
         wrap.appendChild(div);
+        if (!isMe) {
+          const reportBtn = document.createElement("button");
+          reportBtn.type = "button";
+          reportBtn.className = "secondary";
+          reportBtn.style.cssText = "margin-top:0.2rem;padding:0.16rem 0.4rem;font-size:0.68rem";
+          reportBtn.textContent = "Report";
+          reportBtn.addEventListener("click", () => submitModerationReport("dm_message", msg.id, msg.senderId, "harassment"));
+          wrap.appendChild(reportBtn);
+        }
         if (isMe) {
           const rr = document.createElement("span");
           rr.className = "dm-inbox-read-receipt";
@@ -13073,7 +13175,7 @@
       async function openDmInboxModal(opts) {
         closeHeaderMenus();
         if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an account with your email (Profile menu → Create account) to use messages.");
+          showToast("Create an email account (Profile menu → Create account) to use messages.");
           return;
         }
         if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
@@ -13097,6 +13199,11 @@
           err.style.display = "none";
         }
         setTab("messages");
+        trackAnalyticsEvent("engagement.dm_opened", { openedThread: Boolean(threadId) }, {
+          sourceScreen: "messages",
+          targetType: threadId ? "dm_thread" : "dm_inbox",
+          targetId: threadId || "inbox",
+        });
         ensureDmWebSocket();
         if (threadId && DM_THREAD_ID_RE.test(threadId)) {
           const label = titleLabel || (await resolveDmThreadTitle(threadId));
@@ -13886,7 +13993,7 @@
 
       async function startDirectMessageToUser(otherUserId, otherLabel) {
         if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an account with your email (Profile menu → Create account) to send messages.");
+          showToast("Create an email account (Profile menu → Create account) to send messages.");
           return;
         }
         if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
@@ -14085,10 +14192,6 @@
         adminUiEpoch++;
         const epoch = adminUiEpoch;
         sessionMeSnapshot = me;
-        document.body.classList.toggle(
-          "aa-newb-session",
-          !!(me && !userIsDbAdmin(me) && !hasFullSocialUiAccess(me)),
-        );
         if (!userIsDbAdmin(me)) removeAdminUiFromDom();
         syncInboxChromeFromMe(me);
         syncUsernameSearchChrome();
@@ -14099,9 +14202,16 @@
         }
         if (me) syncProfileIdentityFromUser(me);
         else syncProfileIdentityFromUser(null);
+        if (me && accountIsGuest(me)) {
+          trackAnalyticsEvent("guest.entry", {}, { sourceScreen: getActiveTabName(), onceKey: "guest:" + me.id });
+        }
         const signOutSec = document.getElementById("profileSignOutSection");
         if (signOutSec) {
           signOutSec.hidden = !accountIsRegistered(me);
+        }
+        const deleteSec = document.getElementById("profileAccountDeletionSection");
+        if (deleteSec) {
+          deleteSec.hidden = !(accountIsRegistered(me) && !userIsDbAdmin(me));
         }
         const guest = document.getElementById("accountGuest");
         const signed = document.getElementById("accountSignedIn");
@@ -14342,6 +14452,37 @@
                 "\" " +
                 (isAdm ? "checked" : "") +
                 "/> Admin access</label></div>";
+              const betaStatus = ua.betaStatus || "";
+              html +=
+                "<div style='margin:0 0 0.65rem 0;padding:0.5rem;border-radius:10px;border:1px solid rgba(34,211,238,0.28);background:rgba(34,211,238,0.06)'>" +
+                "<strong style='font-size:0.82rem'>Private beta / QA</strong> " +
+                "<select id=\"admBetaSel_" + u.id + "\" style='margin-left:0.35rem;max-width:12rem;font:inherit'>" +
+                "<option value=\"\"" + (!betaStatus ? " selected" : "") + ">Not beta</option>" +
+                "<option value=\"invited\"" + (betaStatus === "invited" ? " selected" : "") + ">Invited</option>" +
+                "<option value=\"active\"" + (betaStatus === "active" ? " selected" : "") + ">Active beta</option>" +
+                "<option value=\"paused\"" + (betaStatus === "paused" ? " selected" : "") + ">Paused</option>" +
+                "<option value=\"graduated\"" + (betaStatus === "graduated" ? " selected" : "") + ">Graduated</option>" +
+                "</select> " +
+                "<label style='margin-left:0.45rem'><input type='checkbox' id=\"admTestAcct_" + u.id + "\"" +
+                (ua.isTestAccount ? " checked" : "") +
+                " /> Test account</label>" +
+                "<textarea id=\"admQaNotes_" + u.id + "\" rows='2' maxlength='1000' placeholder='QA notes for this user…' style='width:100%;margin-top:0.45rem;font:inherit'>" +
+                escapeHtml(ua.qaNotes || "") +
+                "</textarea>" +
+                "<button type='button' class='secondary' id=\"admBetaSave_" + u.id + "\" style='margin-top:0.35rem'>Save beta state</button>" +
+                "</div>";
+              const modStatus = ua.moderationStatus || "";
+              html +=
+                "<div style='margin:0 0 0.65rem 0;padding:0.5rem;border-radius:10px;border:1px solid rgba(248,113,113,0.32);background:rgba(248,113,113,0.06)'>" +
+                "<strong style='font-size:0.82rem'>Moderation status</strong> " +
+                "<select id=\"admModSel_" + u.id + "\" style='margin-left:0.35rem;max-width:12rem;font:inherit'>" +
+                "<option value=\"\"" + (!modStatus ? " selected" : "") + ">Normal</option>" +
+                "<option value=\"restricted\"" + (modStatus === "restricted" ? " selected" : "") + ">Restricted</option>" +
+                "<option value=\"suspended\"" + (modStatus === "suspended" ? " selected" : "") + ">Suspended</option>" +
+                "</select> " +
+                "<button type='button' class='secondary' id=\"admModSave_" + u.id + "\" style='margin-left:0.35rem'>Save</button>" +
+                "<p class='muted' style='margin:0.25rem 0 0;font-size:0.74rem'>Restricted users cannot post or message. Suspended users cannot use social features.</p>" +
+                "</div>";
               const vro =
                 d.viewerRoleOverride != null && String(d.viewerRoleOverride).trim() !== ""
                   ? String(d.viewerRoleOverride).trim()
@@ -14432,6 +14573,29 @@
                   }
                 });
               }
+              const betaSel = document.getElementById("admBetaSel_" + u.id);
+              const testCb = document.getElementById("admTestAcct_" + u.id);
+              const qaNotes = document.getElementById("admQaNotes_" + u.id);
+              const betaSave = document.getElementById("admBetaSave_" + u.id);
+              if (betaSave && betaSel && testCb && qaNotes) {
+                betaSave.addEventListener("click", async (ev) => {
+                  ev.stopPropagation();
+                  try {
+                    await api("/api/admin/users/" + encodeURIComponent(u.id) + "/beta-state", {
+                      method: "POST",
+                      body: JSON.stringify({
+                        betaStatus: betaSel.value || null,
+                        isTestAccount: testCb.checked,
+                        qaNotes: qaNotes.value || null,
+                      }),
+                    });
+                    showToast("Beta state saved");
+                    await loadAdminOverview();
+                  } catch (e) {
+                    showToast(e.message || "Failed to save beta state");
+                  }
+                });
+              }
               const resetPwBtn = document.getElementById("admResetPw_" + u.id);
               if (resetPwBtn) {
                 resetPwBtn.addEventListener("click", async (ev) => {
@@ -14469,6 +14633,23 @@
                     await loadAdminOverview();
                   } catch (e) {
                     showToast(e.message || "Failed to save role");
+                  }
+                });
+              }
+              const modSel = document.getElementById("admModSel_" + u.id);
+              const modSave = document.getElementById("admModSave_" + u.id);
+              if (modSel && modSave) {
+                modSave.addEventListener("click", async (ev) => {
+                  ev.stopPropagation();
+                  try {
+                    await api("/api/admin/users/" + encodeURIComponent(u.id) + "/moderation", {
+                      method: "POST",
+                      body: JSON.stringify({ moderationStatus: modSel.value || null }),
+                    });
+                    showToast("Moderation status saved");
+                    await loadAdminOverview();
+                  } catch (e) {
+                    showToast(e.message || "Failed to save moderation status");
                   }
                 });
               }
@@ -14549,6 +14730,8 @@
               "</span>" +
               (u.isAdmin ? "<span class=\"admin-pill adm\">admin</span>" : "") +
               (guest ? "<span class=\"admin-pill\">guest</span>" : "") +
+              (u.betaStatus ? "<span class=\"admin-pill\" style=\"border:1px solid rgba(34,211,238,0.45);color:#7dd3fc;background:rgba(34,211,238,0.12)\">beta:" + escapeHtml(String(u.betaStatus)) + "</span>" : "") +
+              (u.isTestAccount ? "<span class=\"admin-pill\" style=\"border:1px solid rgba(251,191,36,0.45);color:#fde68a;background:rgba(251,191,36,0.12)\">test</span>" : "") +
               "</div>" +
               "<div class=\"admin-account-summary-meta\">Email: " +
               emailLine +
@@ -14571,6 +14754,224 @@
               fillAdminAccountPanel(panel, u, guest);
             });
             accountsHost.appendChild(det);
+          }
+
+          const qaHost = document.getElementById("adminQaHost");
+          if (qaHost) {
+            try {
+              const qaData = await api("/api/admin/qa-snapshot");
+              const feedback = qaData.feedback || [];
+              const events = qaData.events || [];
+              qaHost.innerHTML = "";
+              const summary = document.createElement("p");
+              summary.className = "muted";
+              summary.style.cssText = "font-size:0.8rem;margin:0 0 0.55rem;line-height:1.45";
+              summary.textContent = feedback.length + " recent feedback item(s), " + events.length + " recent flow event(s).";
+              qaHost.appendChild(summary);
+              const fbTitle = document.createElement("strong");
+              fbTitle.style.cssText = "display:block;font-size:0.8rem;margin:0.35rem 0";
+              fbTitle.textContent = "Open beta feedback";
+              qaHost.appendChild(fbTitle);
+              const openFeedback = feedback.filter((f) => f.status === "open").slice(0, 8);
+              if (!openFeedback.length) {
+                const p = document.createElement("p");
+                p.className = "muted";
+                p.style.fontSize = "0.78rem";
+                p.textContent = "No open feedback.";
+                qaHost.appendChild(p);
+              } else {
+                for (const f of openFeedback) {
+                  const card = document.createElement("details");
+                  card.className = "admin-account-item";
+                  const sum = document.createElement("summary");
+                  sum.innerHTML =
+                    "<div class=\"admin-account-summary-row\"><span class=\"admin-account-name\">" +
+                    escapeHtml(f.category || "feedback") +
+                    "</span><span class=\"admin-pill\">" +
+                    escapeHtml(f.severity || "medium") +
+                    "</span></div><div class=\"admin-account-summary-meta\">" +
+                    escapeHtml(f.screen || f.flow || "unknown screen") +
+                    (f.createdAt ? " · " + escapeHtml(f.createdAt) : "") +
+                    "</div>";
+                  card.appendChild(sum);
+                  const panel = document.createElement("div");
+                  panel.className = "admin-account-panel";
+                  panel.innerHTML =
+                    "<p style=\"font-size:0.78rem;white-space:pre-wrap;word-break:break-word;margin:0 0 0.45rem\">" +
+                    escapeHtml(f.message || "") +
+                    "</p><p class=\"muted\" style=\"font-size:0.72rem;margin:0 0 0.45rem\">User: " +
+                    escapeHtml(f.username || f.email || f.userId || "anonymous") +
+                    "</p>";
+                  const reviewBtn = document.createElement("button");
+                  reviewBtn.type = "button";
+                  reviewBtn.className = "secondary";
+                  reviewBtn.textContent = "Mark reviewed";
+                  reviewBtn.addEventListener("click", async (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    try {
+                      await api("/api/admin/beta-feedback/" + encodeURIComponent(f.id), {
+                        method: "PATCH",
+                        body: JSON.stringify({ status: "reviewed" }),
+                      });
+                      showToast("Feedback reviewed");
+                      await loadAdminOverview();
+                    } catch (e) {
+                      showToast(e.message || "Could not update feedback");
+                    }
+                  });
+                  panel.appendChild(reviewBtn);
+                  card.appendChild(panel);
+                  qaHost.appendChild(card);
+                }
+              }
+              const evTitle = document.createElement("strong");
+              evTitle.style.cssText = "display:block;font-size:0.8rem;margin:0.65rem 0 0.35rem";
+              evTitle.textContent = "Recent critical-flow events";
+              qaHost.appendChild(evTitle);
+              const evList = document.createElement("div");
+              evList.className = "admin-accounts-host";
+              for (const ev of events.slice(0, 12)) {
+                const p = document.createElement("p");
+                p.className = "muted";
+                p.style.cssText = "font-size:0.74rem;margin:0.2rem 0;line-height:1.35";
+                p.textContent =
+                  String(ev.createdAt || "") +
+                  " · " +
+                  String(ev.eventName || "") +
+                  " · " +
+                  String(ev.sourceScreen || "unknown") +
+                  " · user " +
+                  String(ev.userId || ev.anonymousId || "anonymous");
+                evList.appendChild(p);
+              }
+              qaHost.appendChild(evList);
+            } catch {
+              qaHost.innerHTML = "<p class=\"muted\" style=\"font-size:0.8rem\">Could not load QA snapshot.</p>";
+            }
+          }
+
+          const reportsHost = document.getElementById("adminReportsHost");
+          if (reportsHost) {
+            try {
+              const reportsData = await api("/api/admin/moderation/reports?status=open&limit=80");
+              const reports = reportsData.reports || [];
+              reportsHost.innerHTML = "";
+              if (!reports.length) {
+                const p = document.createElement("p");
+                p.className = "muted";
+                p.style.fontSize = "0.8rem";
+                p.textContent = "No open reports.";
+                reportsHost.appendChild(p);
+              } else {
+                for (const r of reports) {
+                  const card = document.createElement("details");
+                  card.className = "admin-account-item";
+                  const sum = document.createElement("summary");
+                  sum.innerHTML =
+                    "<div class=\"admin-account-summary-row\"><span class=\"admin-account-name\" style=\"color:#fecaca\">" +
+                    escapeHtml(r.targetType || "report") +
+                    "</span><span class=\"admin-pill\">" +
+                    escapeHtml(r.reason || "other") +
+                    "</span></div>" +
+                    "<div class=\"admin-account-summary-meta\">Reported by " +
+                    escapeHtml(r.reporterLabel || "Member") +
+                    " · Target " +
+                    escapeHtml(r.targetLabel || r.targetUserId || "—") +
+                    (r.createdAt ? " · " + escapeHtml(r.createdAt) : "") +
+                    "</div>";
+                  card.appendChild(sum);
+                  const panel = document.createElement("div");
+                  panel.className = "admin-account-panel";
+                  panel.innerHTML =
+                    "<div class=\"admin-account-detail-grid\">" +
+                    "<div><strong>Target</strong><br><span class=\"mono\" style=\"font-size:0.72rem;word-break:break-all\">" +
+                    escapeHtml(String(r.targetId || "")) +
+                    "</span></div>" +
+                    "<div><strong>Detail</strong><br><span style=\"font-size:0.76rem;white-space:pre-wrap;word-break:break-word\">" +
+                    escapeHtml(r.detail || "—") +
+                    "</span></div></div>";
+                  const reviewedBtn = document.createElement("button");
+                  reviewedBtn.type = "button";
+                  reviewedBtn.className = "secondary";
+                  reviewedBtn.textContent = "Mark reviewed";
+                  reviewedBtn.addEventListener("click", async (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    try {
+                      await api("/api/admin/moderation/reports/" + encodeURIComponent(r.id), {
+                        method: "PATCH",
+                        body: JSON.stringify({ status: "reviewed" }),
+                      });
+                      showToast("Report reviewed");
+                      await loadAdminOverview();
+                    } catch (e) { showToast(e.message || "Review failed"); }
+                  });
+                  panel.appendChild(reviewedBtn);
+                  if (r.targetType === "post" || r.targetType === "review") {
+                    const hideBtn = document.createElement("button");
+                    hideBtn.type = "button";
+                    hideBtn.className = "danger";
+                    hideBtn.textContent = "Hide content";
+                    hideBtn.addEventListener("click", async (ev) => {
+                      ev.preventDefault();
+                      ev.stopPropagation();
+                      if (!confirm("Hide this content from Community?")) return;
+                      try {
+                        await api("/api/admin/moderation/reports/" + encodeURIComponent(r.id), {
+                          method: "PATCH",
+                          body: JSON.stringify({ hideContent: true }),
+                        });
+                        showToast("Content hidden");
+                        await loadAdminOverview();
+                      } catch (e) { showToast(e.message || "Hide failed"); }
+                    });
+                    panel.appendChild(hideBtn);
+                  }
+                  if (r.targetUserId) {
+                    const restrictBtn = document.createElement("button");
+                    restrictBtn.type = "button";
+                    restrictBtn.className = "secondary";
+                    restrictBtn.textContent = "Restrict user";
+                    restrictBtn.addEventListener("click", async (ev) => {
+                      ev.preventDefault();
+                      ev.stopPropagation();
+                      try {
+                        await api("/api/admin/moderation/reports/" + encodeURIComponent(r.id), {
+                          method: "PATCH",
+                          body: JSON.stringify({ moderationStatus: "restricted" }),
+                        });
+                        showToast("User restricted");
+                        await loadAdminOverview();
+                      } catch (e) { showToast(e.message || "Restrict failed"); }
+                    });
+                    panel.appendChild(restrictBtn);
+                    const suspendBtn = document.createElement("button");
+                    suspendBtn.type = "button";
+                    suspendBtn.className = "danger";
+                    suspendBtn.textContent = "Suspend user";
+                    suspendBtn.addEventListener("click", async (ev) => {
+                      ev.preventDefault();
+                      ev.stopPropagation();
+                      if (!confirm("Suspend this user from social features?")) return;
+                      try {
+                        await api("/api/admin/moderation/reports/" + encodeURIComponent(r.id), {
+                          method: "PATCH",
+                          body: JSON.stringify({ moderationStatus: "suspended" }),
+                        });
+                        showToast("User suspended");
+                        await loadAdminOverview();
+                      } catch (e) { showToast(e.message || "Suspend failed"); }
+                    });
+                    panel.appendChild(suspendBtn);
+                  }
+                  card.appendChild(panel);
+                  reportsHost.appendChild(card);
+                }
+              }
+            } catch {
+              reportsHost.innerHTML = "<p class=\"muted\" style=\"font-size:0.8rem\">Could not load reports.</p>";
+            }
           }
 
           const logHost = document.getElementById("adminCommunityLog");
@@ -15540,6 +15941,17 @@
         strong.textContent = (msg.handle || "Member") + ":";
         row.appendChild(strong);
         row.appendChild(document.createTextNode(" " + (msg.body || "")));
+        if (uid && msg.userId && msg.userId !== uid) {
+          const reportBtn = document.createElement("button");
+          reportBtn.type = "button";
+          reportBtn.className = "secondary";
+          reportBtn.style.cssText = "margin-left:0.35rem;padding:0.12rem 0.35rem;font-size:0.66rem";
+          reportBtn.textContent = "Report";
+          reportBtn.addEventListener("click", () =>
+            submitModerationReport("live_chat_message", msg.id, msg.userId, "harassment"),
+          );
+          row.appendChild(reportBtn);
+        }
         host.appendChild(row);
         host.scrollTop = host.scrollHeight;
         syncCommunityLiveRailEmptyHint();
@@ -15547,8 +15959,9 @@
 
       function handleCommunityThreadLivePayload(data) {
         if (!data || typeof data !== "object") return;
-        if (data.type === "thread_live_error" && data.code === "newb_restricted") {
-          showUnlockSocialToast();
+        if (data.type === "thread_live_error") {
+          if (data.code === "newb_restricted") showUnlockSocialToast();
+          else showToast(data.message || "Live chat unavailable");
           return;
         }
         if (data.type === "thread_live_presence") applyCommunityThreadLivePresence(data);
@@ -15576,6 +15989,11 @@
         sendLiveChatTyping(false);
         try {
           communityThreadLiveWs.send(JSON.stringify({ type: "chat", body }));
+          trackAnalyticsEvent("engagement.live_chat_message_sent", { tvmazeShowId: communityState.showId }, {
+            sourceScreen: "community",
+            targetType: "live_room",
+            targetId: communityThreadLiveRoomKey,
+          });
           inp.value = "";
         } catch {
           /* ignore */
@@ -15609,6 +16027,15 @@
           const wsUrl = wsProto + "//" + u.host + "/api/community/thread-live/ws?" + qs.toString();
           communityThreadLiveWs = new WebSocket(wsUrl);
           communityThreadLiveWs.onopen = () => {
+            trackAnalyticsEvent("engagement.live_chat_joined", {
+              tvmazeShowId: communityState.showId,
+              tvmazeEpisodeId: communityState.episodeId,
+            }, {
+              sourceScreen: "community",
+              targetType: "live_room",
+              targetId: roomKey,
+              onceKey: "live:" + roomKey,
+            });
             if (communityThreadLivePingTimer) {
               clearInterval(communityThreadLivePingTimer);
               communityThreadLivePingTimer = null;
@@ -15937,8 +16364,6 @@
         const tv = document.getElementById("communityThreadView");
         if (lv) lv.classList.remove("hidden");
         if (tv) tv.classList.add("hidden");
-        const communityFab = document.getElementById("communityNewThreadBtn");
-        if (communityFab) communityFab.style.display = "";
         void loadCommunityThreads().then(() => {
           scheduleCommunityListSecondary();
         });
@@ -16497,7 +16922,15 @@
         const emptyEl = document.getElementById("communityLiveRoomsHubEmpty");
         const listEl = document.getElementById("communityLiveRoomsHubList");
         const countEl = document.getElementById("communityLiveRoomsHubCount");
+        const actionBtn = document.getElementById("communityLiveRoomsActionBtn");
         if (!hub) return;
+        function setLiveRoomsAction(label, ariaLabel, onClick) {
+          if (!actionBtn) return;
+          actionBtn.textContent = label;
+          actionBtn.setAttribute("aria-label", ariaLabel);
+          actionBtn.onclick = onClick;
+        }
+        setLiveRoomsAction("Start", "Start a Live Room from a show discussion", () => openCommunityNewModal());
         try {
           const data = await api("/api/community/live-rooms/summary");
           const total = data.totalViewers || 0;
@@ -16521,9 +16954,25 @@
             if (emptyEl) emptyEl.hidden = false;
             if (body) body.hidden = false;
             if (listEl) listEl.hidden = true;
+            setLiveRoomsAction("Start", "Start a Live Room from a show discussion", () => openCommunityNewModal());
             return;
           }
 
+          const primaryRoom = rooms[0] || null;
+          setLiveRoomsAction(
+            "Join",
+            primaryRoom && primaryRoom.showName
+              ? "Join live room for " + String(primaryRoom.showName)
+              : "Join an active Live Room",
+            () => {
+              if (!primaryRoom) {
+                openCommunityNewModal();
+                return;
+              }
+              const epDeep = primaryRoom.tvmazeEpisodeId != null ? { episodeId: primaryRoom.tvmazeEpisodeId } : null;
+              openCommunityThread(primaryRoom.showId, primaryRoom.showName, null, epDeep);
+            },
+          );
           if (emptyEl) emptyEl.hidden = true;
           if (body) body.hidden = true;
           if (listEl) {
@@ -16557,9 +17006,10 @@
           }
         } catch {
           hub.dataset.state = "dormant";
-          if (emptyEl) { emptyEl.hidden = false; emptyEl.textContent = "No one is live right now. Be the first to start the conversation."; }
+          if (emptyEl) { emptyEl.hidden = false; emptyEl.textContent = "No rooms live right now. Start one from a show discussion."; }
           if (body) body.hidden = false;
           if (listEl) listEl.hidden = true;
+          setLiveRoomsAction("Start", "Start a Live Room from a show discussion", () => openCommunityNewModal());
         }
       }
 
@@ -16735,7 +17185,9 @@
           errEl.style.display = "none";
           errEl.textContent = "";
         }
-        renderCommunityThreadListsSkeleton();
+        if (!listEl.children.length && (!generalEl || !generalEl.children.length)) {
+          renderCommunityThreadListsSkeleton();
+        }
         try {
           const data = await api("/api/community/threads");
           const threads = data.threads || [];
@@ -16752,6 +17204,7 @@
           // ── Episode threads → horizontal carousel ──
           listEl.removeAttribute("aria-busy");
           listEl.innerHTML = "";
+          const episodeFrag = document.createDocumentFragment();
           for (const th of episodeThreads) {
             const li = document.createElement("li");
             const btn = document.createElement("button");
@@ -16795,22 +17248,15 @@
               }),
             );
             li.appendChild(btn);
-            li.style.opacity = "0";
-            li.style.transform = "translateX(20px)";
-            listEl.appendChild(li);
+            episodeFrag.appendChild(li);
           }
-          listEl.querySelectorAll("li").forEach((li, i) => {
-            setTimeout(() => {
-              li.style.transition = "opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)";
-              li.style.opacity = "1";
-              li.style.transform = "translateX(0)";
-            }, i * 80);
-          });
+          listEl.appendChild(episodeFrag);
 
           // ── General threads → horizontal scrolling cards ──
           if (generalEl) {
             generalEl.innerHTML = "";
             if (generalHeading) generalHeading.hidden = generalThreads.length === 0;
+            const generalFrag = document.createDocumentFragment();
             for (const th of generalThreads) {
               const li = document.createElement("li");
               const btn = document.createElement("button");
@@ -16840,17 +17286,9 @@
                 openCommunityThread(th.tvmazeShowId, th.showName, th.postCount, { episodeId: null }),
               );
               li.appendChild(btn);
-              li.style.opacity = "0";
-              li.style.transform = "translateX(20px)";
-              generalEl.appendChild(li);
+              generalFrag.appendChild(li);
             }
-            generalEl.querySelectorAll("li").forEach((li, i) => {
-              setTimeout(() => {
-                li.style.transition = "opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)";
-                li.style.opacity = "1";
-                li.style.transform = "translateX(0)";
-              }, i * 80);
-            });
+            generalEl.appendChild(generalFrag);
           }
 
           applyCommunityFilter();
@@ -16872,8 +17310,6 @@
         hideUsernameSearchDropdown();
         stopLiveRoomsRefresh();
         communityState.view = "thread";
-        const communityFab = document.getElementById("communityNewThreadBtn");
-        if (communityFab) communityFab.style.display = "none";
         communityState.showId = showId;
         communityState.showNameFallback = showNameFallback || "";
         if (episodeDeepLink && Object.prototype.hasOwnProperty.call(episodeDeepLink, "episodeId")) {
@@ -16883,6 +17319,15 @@
         }
         communityState.pendingEpisodeId =
           typeof communityState.episodeId === "number" ? communityState.episodeId : null;
+        trackAnalyticsEvent("engagement.thread_opened", {
+          tvmazeShowId: showId,
+          tvmazeEpisodeId: communityState.episodeId,
+          hasEpisodeDeepLink: Boolean(episodeDeepLink),
+        }, {
+          sourceScreen: "community",
+          targetType: typeof communityState.episodeId === "number" ? "episode_thread" : "show_thread",
+          targetId: typeof communityState.episodeId === "number" ? communityState.episodeId : showId,
+        });
         const pcEl = document.getElementById("communityShowPostCount");
         if (pcEl && postCountHint != null && postCountHint !== undefined) {
           pcEl.textContent = formatCommunityPostCount(postCountHint);
@@ -16978,6 +17423,8 @@
       /* ── Reply Threading ── */
       let communityReplyToPostId = null;
       let communityReplyToUsername = null;
+      let communityReplyTargetLabel = null;
+      let communityReplyTargetPreview = null;
 
       /** A reply row / parentPostId is only valid for a real target id (avoids “Replying to” with junk state). */
       function isValidCommunityReplyParentPostId(v) {
@@ -16989,33 +17436,58 @@
         if (s === "undefined" || s === "null" || s === "NaN") return false;
         const n = Number(s);
         if (s === String(n) && Number.isFinite(n) && n > 0) return true;
-        return s.length > 0;
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s);
+      }
+
+      function hasActiveCommunityReplyTarget() {
+        return (
+          isValidCommunityReplyParentPostId(communityReplyToPostId) &&
+          Boolean(
+            (communityReplyTargetLabel && String(communityReplyTargetLabel).trim()) ||
+              (communityReplyTargetPreview && String(communityReplyTargetPreview).trim()) ||
+              (communityReplyToUsername && String(communityReplyToUsername).trim()),
+          )
+        );
       }
 
       function syncCommunityReplyIndicatorUi() {
         const indicator = document.getElementById("communityReplyIndicator");
         const cancelEl = document.getElementById("communityReplyCancelBtn");
-        if (!isValidCommunityReplyParentPostId(communityReplyToPostId)) {
+        if (!hasActiveCommunityReplyTarget()) {
           communityReplyToPostId = null;
           communityReplyToUsername = null;
+          communityReplyTargetLabel = null;
+          communityReplyTargetPreview = null;
         }
         if (!indicator) {
           if (cancelEl) cancelEl.setAttribute("hidden", "");
           return;
         }
-        const active = isValidCommunityReplyParentPostId(communityReplyToPostId);
-        const nameEl = document.getElementById("communityReplyToName");
+        const active = hasActiveCommunityReplyTarget();
+        const lineEl = document.getElementById("communityReplyLine");
         const prevEl = document.getElementById("communityReplyPreview");
         if (!active) {
-          if (nameEl) nameEl.textContent = "";
+          if (lineEl) lineEl.textContent = "";
           if (prevEl) {
             prevEl.textContent = "";
             prevEl.hidden = true;
           }
-        } else if (nameEl) {
-          const t = (nameEl.textContent || "").trim();
-          if (!t && communityReplyToUsername) nameEl.textContent = "@" + String(communityReplyToUsername).trim();
-          if (!(nameEl.textContent || "").trim()) nameEl.textContent = "this post";
+        } else {
+          const label =
+            (communityReplyTargetLabel && String(communityReplyTargetLabel).trim()) ||
+            (communityReplyToUsername && "@" + String(communityReplyToUsername).trim()) ||
+            "this post";
+          if (lineEl) lineEl.textContent = "Replying to " + label;
+          if (prevEl) {
+            const preview = communityReplyTargetPreview && String(communityReplyTargetPreview).trim();
+            if (preview) {
+              prevEl.textContent = "\u201C" + preview + "\u201D";
+              prevEl.hidden = false;
+            } else {
+              prevEl.textContent = "";
+              prevEl.hidden = true;
+            }
+          }
         }
         if (active) {
           indicator.removeAttribute("hidden");
@@ -17040,7 +17512,7 @@
 
       function handleCommunityReplyClick(p) {
         if (!accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an account with your email (Profile \u2192 Create account) to reply.");
+          showToast("Create an email account (Profile \u2192 Create account) to reply.");
           return;
         }
         if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
@@ -17051,24 +17523,13 @@
         if (!isValidCommunityReplyParentPostId(p.id)) return;
         const displayName = p.authorHandle && String(p.authorHandle).trim();
         const un = p.authorUsername && String(p.authorUsername).trim();
-        const replyTitle = displayName || (un ? "@" + un : "this post");
+        const replyTitle = displayName || (un ? "@" + un : "");
+        const preview = communityReplyPreviewFromPost(p);
+        if (!replyTitle && !preview) return;
         communityReplyToPostId = p.id;
         communityReplyToUsername = un || null;
-        const nameEl = document.getElementById("communityReplyToName");
-        const prevEl = document.getElementById("communityReplyPreview");
-        if (nameEl) {
-          nameEl.textContent = replyTitle;
-          const prev = communityReplyPreviewFromPost(p);
-          if (prevEl) {
-            if (prev) {
-              prevEl.textContent = "\u201C" + prev + "\u201D";
-              prevEl.hidden = false;
-            } else {
-              prevEl.textContent = "";
-              prevEl.hidden = true;
-            }
-          }
-        }
+        communityReplyTargetLabel = replyTitle || null;
+        communityReplyTargetPreview = preview || null;
         syncCommunityReplyIndicatorUi();
         if (un) {
           insertTextAtCommunityComposer("@" + un + " ");
@@ -17083,6 +17544,8 @@
       function cancelCommunityReply() {
         communityReplyToPostId = null;
         communityReplyToUsername = null;
+        communityReplyTargetLabel = null;
+        communityReplyTargetPreview = null;
         syncCommunityReplyIndicatorUi();
       }
 
@@ -17286,7 +17749,7 @@
           errEl.style.display = "none";
           errEl.textContent = "";
         }
-        if (feed) {
+        if (feed && !feed.children.length) {
           renderCommunityPostFeedSkeleton(feed);
         }
         try {
@@ -17416,9 +17879,11 @@
           feed.removeAttribute("aria-busy");
           const viewerBingeLater =
             data.viewerCatchUp && data.viewerCatchUp.subscriptionId && data.viewerCatchUp.bingeLater === true;
+          const postFrag = document.createDocumentFragment();
           for (const p of posts) {
-            feed.appendChild(renderCommunityPostCard(p, { viewerBingeLater: viewerBingeLater }));
+            postFrag.appendChild(renderCommunityPostCard(p, { viewerBingeLater: viewerBingeLater }));
           }
+          feed.appendChild(postFrag);
           if (typeof communityState.episodeId === "number") {
             await populateCommunityEpisodeSelect(
               showId,
@@ -17440,18 +17905,21 @@
               first.scrollIntoView({ block: "center", behavior: "smooth" });
             }
           }
-          if (typeof communityState.episodeId === "number") {
-            await loadCommunityEpisodePolls(showId);
-            await loadCommunityEpisodeRating(showId);
-            const ch = document.getElementById("communityShowRatingsChartPanel");
-            if (ch) ch.hidden = true;
-          } else {
-            const pp = document.getElementById("communityEpisodePollsPanel");
-            if (pp) pp.hidden = true;
-            const er = document.getElementById("communityEpisodeRatingPanel");
-            if (er) er.hidden = true;
-            await loadCommunityShowRatingsChart(showId);
-          }
+          deferAfterIdle(() => {
+            if (communityState.showId !== showId) return;
+            if (typeof communityState.episodeId === "number") {
+              void loadCommunityEpisodePolls(showId);
+              void loadCommunityEpisodeRating(showId);
+              const ch = document.getElementById("communityShowRatingsChartPanel");
+              if (ch) ch.hidden = true;
+            } else {
+              const pp = document.getElementById("communityEpisodePollsPanel");
+              if (pp) pp.hidden = true;
+              const er = document.getElementById("communityEpisodeRatingPanel");
+              if (er) er.hidden = true;
+              void loadCommunityShowRatingsChart(showId);
+            }
+          }, 1600);
         } catch (e) {
           communityThreadLiveAirNight = false;
           applyCommunityLiveAirNightChrome();
@@ -18042,6 +18510,8 @@
         if (p.authorAvatarDataUrl) {
           const img = document.createElement("img");
           img.className = "community-post-avatar";
+          img.loading = "lazy";
+          img.decoding = "async";
           img.src = p.authorAvatarDataUrl;
           img.alt = "";
           authorHit.appendChild(img);
@@ -18152,8 +18622,36 @@
           });
           actions.appendChild(delBtn);
         }
+        if (!isOwner && uid) {
+          const reportBtn = document.createElement("button");
+          reportBtn.type = "button";
+          reportBtn.className = "secondary";
+          reportBtn.textContent = "Report";
+          reportBtn.addEventListener("click", () =>
+            submitModerationReport(isReview ? "review" : "post", p.id, p.userId, isReview ? "other" : "spam"),
+          );
+          actions.appendChild(reportBtn);
+        }
         wrap.appendChild(actions);
         return wrap;
+      }
+
+      async function submitModerationReport(targetType, targetId, targetUserId, defaultReason) {
+        const reason = prompt(
+          "Report reason (spam, harassment, hate, sexual_content, violence, spoilers, impersonation, other):",
+          defaultReason || "spam",
+        );
+        if (reason == null) return;
+        const detail = prompt("Optional note for moderators:", "") || "";
+        try {
+          await api("/api/moderation/reports", {
+            method: "POST",
+            body: JSON.stringify({ targetType, targetId, targetUserId, reason, detail }),
+          });
+          showToast("Report sent to moderators");
+        } catch (e) {
+          showToast(e.message || "Could not send report");
+        }
       }
 
       function communityAuthorLabelFromPublicProfile(d) {
@@ -18284,35 +18782,6 @@
             escapeHtml(formatMemberSince(d.createdAt)) +
             "</span>";
           heroText.appendChild(rowSince);
-
-          if (d.viewerRole) {
-            const rowRole = document.createElement("div");
-            rowRole.className = "profile-readonly-row";
-            rowRole.style.marginTop = "0.35rem";
-            const labR = document.createElement("span");
-            labR.className = "profile-readonly-label";
-            labR.textContent = "Role";
-            const valR = document.createElement("span");
-            valR.className = "profile-readonly-value";
-            const rb = document.createElement("span");
-            if (d.viewerRole === "tv_binger") {
-              rb.className = "role-badge role-badge--binger";
-              rb.innerHTML =
-                '<span class="role-badge__icon" aria-hidden="true">\uD83D\uDD25</span><span>TV Binger</span>';
-            } else if (d.viewerRole === "tv_watcher") {
-              rb.className = "role-badge role-badge--watcher";
-              rb.innerHTML =
-                '<span class="role-badge__icon" aria-hidden="true">\uD83D\uDCFA</span><span>TV Watcher</span>';
-            } else {
-              rb.className = "role-badge role-badge--newb";
-              rb.innerHTML =
-                '<span class="role-badge__icon" aria-hidden="true">\u2728</span><span>Getting started</span>';
-            }
-            valR.appendChild(rb);
-            rowRole.appendChild(labR);
-            rowRole.appendChild(valR);
-            heroText.appendChild(rowRole);
-          }
 
           if (d.username && String(d.username).trim()) {
             const rowUn = document.createElement("div");
@@ -18553,7 +19022,7 @@
               dmBtn.hidden = true;
               dmHint.hidden = false;
               dmHint.textContent =
-                "Create an account with your email (Profile menu → Create account) to send direct messages.";
+                "Create an email account (Profile menu → Create account) to send direct messages.";
             } else if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
               dmBtn.hidden = true;
               dmHint.hidden = false;
@@ -18602,6 +19071,31 @@
           } else if (followBar) {
             followBar.hidden = true;
           }
+          if (selfId && userId !== selfId) {
+            const safetyBar = document.createElement("div");
+            safetyBar.style.cssText = "display:flex;gap:0.45rem;margin-top:0.55rem;flex-wrap:wrap";
+            const reportUserBtn = document.createElement("button");
+            reportUserBtn.type = "button";
+            reportUserBtn.className = "secondary";
+            reportUserBtn.textContent = "Report user";
+            reportUserBtn.addEventListener("click", () => submitModerationReport("user", userId, userId, "harassment"));
+            safetyBar.appendChild(reportUserBtn);
+            const blockUserBtn = document.createElement("button");
+            blockUserBtn.type = "button";
+            blockUserBtn.className = "secondary";
+            blockUserBtn.textContent = "Block";
+            blockUserBtn.title = "Blocks and mutes are stored for this account; deeper feed/message filtering can build on this.";
+            blockUserBtn.addEventListener("click", async () => {
+              try {
+                await api("/api/users/" + encodeURIComponent(userId) + "/block", { method: "POST", body: "{}" });
+                showToast("User blocked");
+              } catch (e) {
+                showToast(e.message || "Could not block user");
+              }
+            });
+            safetyBar.appendChild(blockUserBtn);
+            body.appendChild(safetyBar);
+          }
         } catch (e) {
           body.innerHTML = "";
           if (errEl) {
@@ -18644,7 +19138,7 @@
 
       function openCommunityNewModal() {
         if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an account with your email (Profile menu → Create account) to start a discussion.");
+          showToast("Create an email account (Profile menu → Create account) to start a discussion.");
           return;
         }
         if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
@@ -18754,6 +19248,8 @@
         if (s.image) {
           const img = document.createElement("img");
           img.className = "search-thumb";
+          img.loading = "lazy";
+          img.decoding = "async";
           img.src = s.image;
           img.alt = "";
           inner.appendChild(img);
@@ -18809,6 +19305,10 @@
             await postSub(uid);
           } catch (e) {
             if (!isStaleUserError(e)) {
+              trackQaFlowFailure("add_show", "shows", e.message || "add_show_failed", {
+                addedFrom: addedFrom || "unknown",
+                tvmazeShowId: s.id,
+              });
               err.textContent = e.message;
               err.classList.add("err");
               subBtn.disabled = false;
@@ -18818,6 +19318,10 @@
               uid = await recreateUserSession();
               await postSub(uid);
             } catch (e2) {
+              trackQaFlowFailure("add_show", "shows", e2.message || "add_show_retry_failed", {
+                addedFrom: addedFrom || "unknown",
+                tvmazeShowId: s.id,
+              });
               err.textContent = e2.message;
               err.classList.add("err");
               subBtn.disabled = false;
@@ -18826,7 +19330,12 @@
           }
           await loadSubs(uid);
           void loadUser(uid);
-          void refreshSessionMeFromServer();
+          try {
+            const meAfterAdd = await api("/api/users/me");
+            applyMeToUI(meAfterAdd);
+          } catch {
+            void refreshSessionMeFromServer();
+          }
           loadRecommended(uid);
           loadTrendingShowsDeferred(uid);
           subBtn.textContent = addedFrom === "trending" ? "Added" : "Subscribed";
@@ -19322,9 +19831,9 @@
           btn.setAttribute("data-unread-count", String(n));
           btn.setAttribute(
             "aria-label",
-            n > 0 ? "Notifications and activity, " + n + " unread" : "Notifications and activity",
+            n > 0 ? "Activity, " + n + " unread" : "Activity",
           );
-          btn.setAttribute("title", n > 0 ? "Notifications (" + n + " new)" : "Notifications");
+          btn.setAttribute("title", n > 0 ? "Activity (" + n + " new)" : "Activity");
         }
       }
 
@@ -19596,7 +20105,8 @@
 
       function wireDeferredCommunityTabPanel() {
         document.getElementById("communityBackBtn")?.addEventListener("click", () => openCommunityListView());
-        document.getElementById("communityNewThreadBtn")?.addEventListener("click", () => openCommunityNewModal());
+        const liveRoomsAction = document.getElementById("communityLiveRoomsActionBtn");
+        if (liveRoomsAction) liveRoomsAction.onclick = () => openCommunityNewModal();
         document.getElementById("communitySortSelect")?.addEventListener("change", (e) => {
           communityState.sort = e.target.value === "oldest" ? "oldest" : "newest";
           loadCommunityThreadPosts();
@@ -19637,7 +20147,7 @@
             } else if (epVal) {
               postBody.tvmazeEpisodeId = Number(epVal);
             }
-            if (isValidCommunityReplyParentPostId(communityReplyToPostId)) {
+            if (hasActiveCommunityReplyTarget()) {
               postBody.parentPostId = communityReplyToPostId;
             }
             await api("/api/community/posts", {
@@ -19656,6 +20166,7 @@
               msg.textContent = e.message || "Could not post";
               msg.classList.add("err");
             }
+            trackQaFlowFailure("community_post", "community", e.message || "post_failed", { tvmazeShowId: showId });
             showToast(e.message || "Could not post");
           }
         });
@@ -19817,6 +20328,7 @@
           if (id) loadTrendingShowsDeferred(id);
         }
         if (name === "tasks") {
+          trackAnalyticsEvent("activation.tasks_opened", {}, { sourceScreen: "tasks", onceKey: "tab:tasks" });
           const id = resolveUserId();
           if (id) loadTasks(id);
         }
@@ -19829,10 +20341,15 @@
           }
         }
         if (name === "guide") {
+          trackAnalyticsEvent("activation.my_week_opened", {}, { sourceScreen: "guide", onceKey: "tab:guide" });
           const id = resolveUserId();
           if (id) void loadWeekGuide(id);
         }
         if (name === "community") {
+          trackAnalyticsEvent("engagement.community_opened", { view: communityState.view }, {
+            sourceScreen: "community",
+            onceKey: "tab:community",
+          });
           if (communityState.view === "list") {
             void loadCommunityThreads().then(() => {
               scheduleCommunityListSecondary();
@@ -20877,28 +21394,71 @@
       });
 
       /**
-       * Real app account: not a device guest. Prefer server `accountState`; legacy fallback uses `authProvider`.
-       * Sign-in email + password, Google, or local legacy (username-only) all count as “signed in” vs guest.
+       * Guest vs real account. Prefer server `accountState`; fallback supports alternate `/me`
+       * payload shapes (`isGuestAccount`, then `authProvider`) without mixing the two menus.
        */
-      function accountIsRegistered(me) {
-        if (!me || !me.id) return false;
-        if (me.accountState) return me.accountState !== "guest";
-        return !!(me.authProvider && me.authProvider !== "guest");
+      function accountKind(me) {
+        if (!me || !me.id) return "unknown";
+        if (typeof me.accountState === "string" && me.accountState.trim()) {
+          return me.accountState.trim().toLowerCase() === "guest" ? "guest" : "registered";
+        }
+        if (me.isGuestAccount === true || me.isGuestAccount === 1) return "guest";
+        if (typeof me.authProvider === "string" && me.authProvider.trim()) {
+          return me.authProvider.trim().toLowerCase() === "guest" ? "guest" : "registered";
+        }
+        return "unknown";
       }
 
+      /** Real app account: email/password, Google, or migrated local account. */
+      function accountIsRegistered(me) {
+        return accountKind(me) === "registered";
+      }
+
+      function accountIsGuest(me) {
+        return accountKind(me) === "guest";
+      }
+
+      const HEADER_PROFILE_MENU_BY_KIND = {
+        guest: [
+          { id: "headerMenuCreateAccount", action: "create-account", label: "Create account" },
+          { id: "headerMenuSearchUsername", action: "search-username", label: "Search username" },
+        ],
+        registered: [
+          { id: "headerMenuYourProfile", action: "your-profile", label: "Your profile" },
+          { id: "headerMenuSearchUsername", action: "search-username", label: "Search username" },
+          { id: "headerMenuSignOut", action: "sign-out", label: "Sign out" },
+        ],
+      };
+
       /**
-       * Profile header menu: two mutually exclusive groups ({@link #headerProfileMenuGuest} vs {@link #headerProfileMenuSignedIn}).
-       * Guest: Create account + Search. Real account: Your profile, Search, Sign out.
+       * Profile header menu: one live render path. Unknown/loading renders no account
+       * actions, so the menu cannot flash guest-only or registered-only controls.
        */
       function syncHeaderProfileDropdown(me) {
-        const guestGroup = document.getElementById("headerProfileMenuGuest");
-        const signedInGroup = document.getElementById("headerProfileMenuSignedIn");
-        const searchBtn = document.getElementById("headerMenuSearchUsername");
-        if (!guestGroup || !signedInGroup || !searchBtn) return;
-        const reg = accountIsRegistered(me);
-        guestGroup.hidden = reg;
-        signedInGroup.hidden = !reg;
-        searchBtn.hidden = false;
+        const menu = document.getElementById("headerProfileMenuItems");
+        const btn = document.getElementById("headerProfileBtn");
+        const dropdown = document.getElementById("headerProfileDropdown");
+        if (!menu) return;
+        const kind = accountKind(me);
+        const items = HEADER_PROFILE_MENU_BY_KIND[kind] || [];
+        menu.innerHTML = "";
+        menu.dataset.accountKind = kind;
+        if (dropdown) dropdown.setAttribute("aria-label", kind === "registered" ? "Profile" : kind === "guest" ? "Guest profile" : "Profile loading");
+        if (btn) {
+          btn.disabled = kind === "unknown";
+          btn.setAttribute("aria-disabled", kind === "unknown" ? "true" : "false");
+          if (kind === "unknown") btn.setAttribute("aria-expanded", "false");
+        }
+        for (const item of items) {
+          const actionBtn = document.createElement("button");
+          actionBtn.type = "button";
+          actionBtn.className = "header-menu-item";
+          actionBtn.id = item.id;
+          actionBtn.setAttribute("role", "menuitem");
+          actionBtn.dataset.profileMenuAction = item.action;
+          actionBtn.textContent = item.label;
+          menu.appendChild(actionBtn);
+        }
       }
 
       const UNLOCK_SOCIAL_UX_MESSAGE = "Add 3 shows to unlock this feature.";
@@ -20924,10 +21484,13 @@
         if (me) applyMeToUI(me);
         appUserId = userId;
         localStorage.setItem(LS_USER, userId);
-        await loadUser(userId);
-        await loadSubs(userId);
-        await loadPersonFollows(userId);
-        setupPersonFollowSearch(userId);
+        if (me) applyLoadedUserToSettings(me);
+        else await loadUser(userId);
+        await loadSubs(userId, { skipSessionRefresh: true });
+        deferAfterIdle(() => {
+          void loadPersonFollows(userId);
+          setupPersonFollowSearch(userId);
+        }, 2400);
         loadTrendingShowsDeferred(userId);
         const fr = document.getElementById("foldRecommendedBtn");
         if (fr && fr.getAttribute("aria-expanded") === "true") {
@@ -20963,6 +21526,10 @@
       function openAccountPromptModal() {
         const el = document.getElementById("accountPromptModal");
         if (!el) return;
+        trackAnalyticsEvent("account.create_flow_opened", { entryPoint: "account_prompt" }, {
+          sourceScreen: getActiveTabName(),
+          onceKey: "account_prompt:" + getActiveTabName(),
+        });
         showAccountPromptStep("intro");
         el.classList.add("open");
       }
@@ -21015,10 +21582,13 @@
         consumeEmailVerifyQueryFromUrl();
         await consumeGoogleAuthFromUrl();
         consumePasswordResetFromHash();
-        await loadUser(userId);
-        await loadSubs(userId);
-        await loadPersonFollows(userId);
-        setupPersonFollowSearch(userId);
+        if (me) applyLoadedUserToSettings(me);
+        else await loadUser(userId);
+        await loadSubs(userId, { skipSessionRefresh: true });
+        deferAfterIdle(() => {
+          void loadPersonFollows(userId);
+          setupPersonFollowSearch(userId);
+        }, 2400);
         loadTrendingShowsDeferred(userId);
         renderRecentChips();
         if (getActiveTabName() === "tasks") void loadTasks(userId);
@@ -21030,10 +21600,21 @@
           const cep = cq.get("communityEpisode");
           const cpost = cq.get("communityPostId");
           if (cshow && /^\d+$/.test(cshow)) {
+            let deepLinkTracked = false;
             setTab("community");
             openCommunityThread(Number(cshow), "", undefined, {
               episodeId: cep && /^\d+$/.test(cep) ? Number(cep) : null,
             }).then(() => {
+              deepLinkTracked = true;
+              trackAnalyticsEvent("notification.deep_link_success", {
+                destination: "community_thread",
+                hasPostTarget: Boolean(cpost),
+              }, {
+                sourceScreen: "notification",
+                targetType: cpost ? "post" : "community_thread",
+                targetId: cpost || cshow,
+                flushSoon: true,
+              });
               if (cpost) {
                 requestAnimationFrame(() => {
                   const el = document.querySelector('[data-post-id="' + CSS.escape(cpost) + '"]');
@@ -21044,7 +21625,31 @@
                   }
                 });
               }
+            }).catch(() => {
+              deepLinkTracked = true;
+              trackAnalyticsEvent("notification.deep_link_failure", {
+                destination: "community_thread",
+                reason: "thread_open_failed",
+              }, {
+                sourceScreen: "notification",
+                targetType: cpost ? "post" : "community_thread",
+                targetId: cpost || cshow,
+                flushSoon: true,
+              });
             });
+            setTimeout(() => {
+              if (!deepLinkTracked) {
+                trackAnalyticsEvent("notification.deep_link_failure", {
+                  destination: "community_thread",
+                  reason: "thread_open_timeout",
+                }, {
+                  sourceScreen: "notification",
+                  targetType: cpost ? "post" : "community_thread",
+                  targetId: cpost || cshow,
+                  flushSoon: true,
+                });
+              }
+            }, 8000);
             const u = new URL(window.location.href);
             u.searchParams.delete("communityShow");
             u.searchParams.delete("communityEpisode");
@@ -21061,7 +21666,25 @@
           const dmThreadParam = u2.searchParams.get("dmThread");
           if (dmThreadParam && DM_THREAD_ID_RE.test(dmThreadParam)) {
             void (async () => {
-              await openDmInboxModal({ threadId: dmThreadParam });
+              try {
+                await openDmInboxModal({ threadId: dmThreadParam });
+                trackAnalyticsEvent("notification.deep_link_success", { destination: "dm_thread" }, {
+                  sourceScreen: "notification",
+                  targetType: "dm_thread",
+                  targetId: dmThreadParam,
+                  flushSoon: true,
+                });
+              } catch {
+                trackAnalyticsEvent("notification.deep_link_failure", {
+                  destination: "dm_thread",
+                  reason: "dm_open_failed",
+                }, {
+                  sourceScreen: "notification",
+                  targetType: "dm_thread",
+                  targetId: dmThreadParam,
+                  flushSoon: true,
+                });
+              }
               u2.searchParams.delete("dmThread");
               const qs2 = u2.searchParams.toString();
               history.replaceState({}, "", u2.pathname + (qs2 ? "?" + qs2 : "") + u2.hash);
@@ -21076,10 +21699,55 @@
           /* ignore */
         }
 
+        try {
+          const u3 = new URL(window.location.href);
+          const tabParam = u3.searchParams.get("tab");
+          const taskEpisodeParam = u3.searchParams.get("taskEpisode");
+          if (tabParam === "tasks") {
+            setTab("tasks");
+            await loadTasks(userId);
+            trackAnalyticsEvent("notification.deep_link_success", { destination: "tasks" }, {
+              sourceScreen: "notification",
+              targetType: taskEpisodeParam ? "episode" : "tasks",
+              targetId: taskEpisodeParam || "tasks",
+              flushSoon: true,
+            });
+            if (taskEpisodeParam) {
+              requestAnimationFrame(() => {
+                const el = document.querySelector('[data-tvmaze-episode-id="' + CSS.escape(taskEpisodeParam) + '"]');
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth", block: "center" });
+                  el.classList.add("community-post-highlight");
+                  setTimeout(() => el.classList.remove("community-post-highlight"), 3000);
+                }
+              });
+            }
+            u3.searchParams.delete("tab");
+            u3.searchParams.delete("taskEpisode");
+            const qs3 = u3.searchParams.toString();
+            history.replaceState({}, "", u3.pathname + (qs3 ? "?" + qs3 : "") + u3.hash);
+          }
+        } catch {
+          trackAnalyticsEvent("notification.deep_link_failure", {
+            destination: "tasks",
+            reason: "tasks_open_failed",
+          }, {
+            sourceScreen: "notification",
+            targetType: "tasks",
+            targetId: "tasks",
+            flushSoon: true,
+          });
+        }
+
         setInterval(() => void refreshDmUnread(), 60000);
         document.addEventListener("visibilitychange", () => {
           if (document.visibilityState === "visible") void refreshDmUnread();
         });
+        trackAnalyticsEvent("app.opened", {
+          entryPath: window.location.pathname,
+          hasCommunityLink: new URLSearchParams(window.location.search).has("communityShow"),
+          hasDmLink: new URLSearchParams(window.location.search).has("dmThread") || new URLSearchParams(window.location.search).get("openInbox") === "1",
+        }, { sourceScreen: getActiveTabName(), onceKey: "session:" + analyticsSessionId, flushSoon: true });
 
         function clientValidateSignupEmail(email) {
           const t = String(email || "")
@@ -21439,7 +22107,7 @@
           }
           try {
             const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            await api("/api/auth/register", {
+            const regOut = await api("/api/auth/register", {
               method: "POST",
               body: JSON.stringify({
                 email: emailRaw.trim(),
@@ -21455,8 +22123,13 @@
             const meNow = await api("/api/users/me");
             await refreshAllForUserId(meNow.id, meNow);
             closeAccountPromptModal();
-            showToast("Account created");
+            if (regOut && regOut.emailVerification && regOut.emailVerification.emailSent === false) {
+              showToast("Account created. Email verification will be available when outbound email is configured.");
+            } else {
+              showToast("Account created. Check your inbox to verify your email.");
+            }
           } catch (e) {
+            trackQaFlowFailure("signup", "auth", e.message || "register_failed", {});
             setAccountPromptErr(e.message || "Register failed");
           }
         });
@@ -21466,7 +22139,7 @@
           const idVal = document.getElementById("apLoginEmail").value.trim();
           const pw = document.getElementById("apLoginPassword").value;
           if (!idVal) {
-            setAccountPromptErr("Enter your email or username.");
+            setAccountPromptErr("Enter your account email or public username.");
             return;
           }
           if (!pw) {
@@ -21485,6 +22158,7 @@
             showToast("Signed in");
             maybePromptLegacyEmailUpgrade(meNow);
           } catch (e) {
+            trackQaFlowFailure("signin", "auth", e.message || "signin_failed", {});
             setAccountPromptErr(e.message || "Sign in failed");
           }
         });
@@ -21559,7 +22233,7 @@
           }
           const ep = profileWatchSummary.episodesCompleted;
           const shows = profileWatchSummary.showsTracked;
-          renderAiralertShareStatsToCanvas(canvas, ep, shows);
+          renderAirAlertShareStatsToCanvas(canvas, ep, shows);
           wrap.hidden = false;
           if (dl) dl.disabled = false;
           if (sh) sh.disabled = !(navigator.share && typeof navigator.canShare === "function");
@@ -21596,8 +22270,8 @@
               profileWatchSummary.episodesCompleted.toLocaleString() +
               " episodes across " +
               profileWatchSummary.showsTracked.toLocaleString() +
-              " shows on Airalert.";
-            const payload = { files: [file], title: "My Airalert stats", text };
+              " shows on AirAlert.";
+            const payload = { files: [file], title: "My AirAlert stats", text };
             if (navigator.share && navigator.canShare && navigator.canShare(payload)) {
               await navigator.share(payload);
             } else {
@@ -21755,6 +22429,10 @@
         });
         document.getElementById("headerProfileBtn")?.addEventListener("click", (e) => {
           e.stopPropagation();
+          if (accountKind(sessionMeSnapshot) === "unknown") {
+            closeHeaderMenus();
+            return;
+          }
           closeAppSettingsModal();
           closeUsernameSearchModal({ skipFocusRestore: true });
           const d = document.getElementById("headerProfileDropdown");
@@ -21811,27 +22489,23 @@
           closeHeaderMenus();
           openAppSettingsModal("push");
         });
-        document.getElementById("headerMenuCreateAccount")?.addEventListener("click", (e) => {
+        document.getElementById("headerProfileDropdown")?.addEventListener("click", (e) => {
+          const btn = e.target && e.target.closest && e.target.closest("[data-profile-menu-action]");
+          if (!btn) return;
           e.stopPropagation();
+          const action = btn.getAttribute("data-profile-menu-action");
           closeHeaderMenus();
-          openAccountPromptModal();
-          showAccountPromptStep("register");
-          requestAnimationFrame(() => document.getElementById("apRegEmail")?.focus());
-        });
-        document.getElementById("headerMenuYourProfile")?.addEventListener("click", (e) => {
-          e.stopPropagation();
-          closeHeaderMenus();
-          openAppProfileModal();
-        });
-        document.getElementById("headerMenuSearchUsername")?.addEventListener("click", (e) => {
-          e.stopPropagation();
-          closeHeaderMenus();
-          openUsernameSearchModal();
-        });
-        document.getElementById("headerMenuSignOut")?.addEventListener("click", (e) => {
-          e.stopPropagation();
-          closeHeaderMenus();
-          document.getElementById("signOutAccountBtn")?.click();
+          if (action === "create-account") {
+            openAccountPromptModal();
+            showAccountPromptStep("register");
+            requestAnimationFrame(() => document.getElementById("apRegEmail")?.focus());
+          } else if (action === "your-profile") {
+            openAppProfileModal();
+          } else if (action === "search-username") {
+            openUsernameSearchModal();
+          } else if (action === "sign-out") {
+            document.getElementById("signOutAccountBtn")?.click();
+          }
         });
         document.getElementById("appSettingsClose")?.addEventListener("click", () => closeAppSettingsModal());
         document.getElementById("appSettingsModal")?.addEventListener("click", (e) => {
@@ -21901,7 +22575,7 @@
           const idVal = document.getElementById("loginEmail").value.trim();
           const pw = document.getElementById("loginPassword").value;
           if (!idVal) {
-            accountErr.textContent = "Enter your email or username.";
+            accountErr.textContent = "Enter your account email or public username.";
             accountErr.classList.add("err");
             return;
           }
@@ -21953,10 +22627,46 @@
           showToast("Signed out");
         });
 
+        document.getElementById("profileBetaFeedbackBtn")?.addEventListener("click", async () => {
+          try {
+            const sent = await promptForBetaFeedback("profile_help_legal");
+            if (sent) showToast("Feedback sent");
+          } catch (e) {
+            showToast(e.message || "Could not send feedback");
+          }
+        });
+
+        document.getElementById("deleteAccountBtn")?.addEventListener("click", async () => {
+          clearAccountErr();
+          const typed = window.prompt('Type "DELETE" to permanently delete your AirAlert account.');
+          if (typed !== "DELETE") return;
+          try {
+            await api("/api/users/me", { method: "DELETE" });
+            localStorage.removeItem(LS_USER);
+            localStorage.removeItem(LS_GUEST_PROMPT);
+            appUserId = null;
+            const id = await ensureUser();
+            appUserId = id;
+            const me = await api("/api/users/me");
+            applyMeToUI(me);
+            await loadUser(id);
+            await loadSubs(id);
+            if (getActiveTabName() === "tasks") await loadTasks(id);
+            showToast("Account deleted");
+          } catch (e) {
+            const accountErr = document.getElementById("accountErr");
+            if (accountErr) {
+              accountErr.textContent = e.message || "Could not delete account";
+              accountErr.classList.add("err");
+            }
+            showToast(e.message || "Could not delete account");
+          }
+        });
+
         document.getElementById("acctResendVerifyBtn")?.addEventListener("click", async () => {
           try {
-            await api("/api/auth/email/verify-request", { method: "POST", body: "{}" });
-            showToast("Verification email sent. Check your inbox.");
+            const out = await api("/api/auth/email/verify-request", { method: "POST", body: "{}" });
+            showToast(out.message || "Verification email sent. Check your inbox.");
           } catch (e) {
             showToast(e.message || "Could not resend verification email");
           }
@@ -21992,7 +22702,7 @@
               });
               if (pwIn) pwIn.value = "";
               if (emIn) emIn.value = "";
-              showToast("Email saved. You can sign in with it after verification when enabled.");
+              showToast("Email saved. Verification email will be available when outbound email is configured.");
               await refreshSessionMeFromServer();
             } catch (e) {
               const msg = e.message || "Could not save email";

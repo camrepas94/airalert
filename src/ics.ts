@@ -27,7 +27,7 @@ export function buildIcsCalendar(title: string, events: IcsEventInput[]): string
   const lines: string[] = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Airalert//EN",
+    "PRODID:-//AirAlert//EN",
     "CALSCALE:GREGORIAN",
     "X-WR-CALNAME:" + escapeText(title),
   ];

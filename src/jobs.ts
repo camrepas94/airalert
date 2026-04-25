@@ -157,7 +157,7 @@ export async function runDailyNotifications(): Promise<DryRunNotification[]> {
           {
             title: sub.show_name,
             body: `Airs today: ${episodeLabel}`,
-            url: `/?communityShow=${sub.tvmaze_show_id}&communityEpisode=${ep.tvmaze_episode_id}`,
+            url: `/?tab=tasks&taskEpisode=${ep.tvmaze_episode_id}`,
           },
           { kind: "episodeAirsToday" },
         );
@@ -224,7 +224,7 @@ export async function runTaskNudgeNotifications(): Promise<number> {
         {
           title: "Still watching?",
           body: `Have you watched ${row.show_name} yet?!`,
-          url: "/",
+          url: "/?tab=tasks",
         },
         { kind: "taskStillWatching" },
       );
