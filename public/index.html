@@ -2202,6 +2202,124 @@
         font-size: 1rem;
         padding: 0.65rem 1rem;
       }
+      #appSettingsModal .settings-modal-stack > section {
+        margin-bottom: 0;
+      }
+      .settings-modal-body {
+        padding: 0.7rem 0.75rem 1.1rem;
+      }
+      .settings-modal-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1.1rem;
+        max-width: 32rem;
+        margin: 0 auto;
+      }
+      .settings-surface-lead {
+        font-size: 0.8rem;
+        line-height: 1.5;
+        margin: 0 0 0.75rem;
+      }
+      .settings-surface-h {
+        margin: 0 0 0.4rem;
+        font-size: 0.9rem;
+      }
+      .settings-pref-block {
+        margin: 0;
+        padding: 0.9rem 0 0.55rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .settings-pref-block--tight {
+        padding-bottom: 0;
+        margin-top: 0.85rem;
+      }
+      h3.settings-pref-block-title {
+        margin: 0 0 0.5rem;
+        font-size: 0.64rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: rgba(200, 215, 240, 0.8);
+      }
+      .settings-field-tight label {
+        display: block;
+        margin-bottom: 0.2rem;
+        font-size: 0.82rem;
+      }
+      .settings-field-tight input,
+      .settings-field-tight select {
+        max-width: 12rem;
+      }
+      .settings-surface--push .push-prefs-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.48rem;
+        margin: 0;
+      }
+      .settings-surface--push .push-pref-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-size: 0.84rem;
+        line-height: 1.4;
+        margin: 0;
+      }
+      .settings-surface--push .push-pref-row input {
+        margin-top: 0.16rem;
+        flex-shrink: 0;
+      }
+      .settings-push-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding-top: 0.9rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      .settings-push-actions #savePushPrefsBtn {
+        width: 100%;
+        box-sizing: border-box;
+        margin: 0;
+        font-size: 0.98rem;
+        padding: 0.6rem 1rem;
+      }
+      @media (min-width: 480px) {
+        .settings-push-actions {
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+        .settings-push-actions #savePushPrefsBtn {
+          flex: 1 1 100%;
+        }
+        .settings-push-actions .push-btn {
+          flex: 1 1 calc(50% - 0.25rem);
+          min-width: 0;
+        }
+        .settings-push-actions #pushMsg {
+          flex: 1 1 100%;
+        }
+      }
+      .settings-save-tz-btn {
+        max-width: 16rem;
+      }
+      @media (min-width: 500px) {
+        .settings-modal-body {
+          padding: 0.75rem 0.95rem 1.2rem;
+        }
+      }
+      #appSettingsModal .settings-surface--data {
+        border-left-color: rgba(91, 156, 255, 0.8);
+        border-right-color: rgba(91, 156, 255, 0.38);
+      }
+      #appSettingsModal .settings-surface--time {
+        border-left-color: rgba(34, 211, 238, 0.7);
+        border-right-color: rgba(34, 211, 238, 0.32);
+      }
+      #appSettingsModal .settings-surface--push {
+        border-left-color: rgba(244, 114, 182, 0.7);
+        border-right-color: rgba(244, 114, 182, 0.32);
+      }
       .profile-jump {
         margin-top: 0.65rem;
         font-size: 0.9rem;
@@ -2703,83 +2821,6 @@
       .how-to-steps strong {
         color: var(--text);
       }
-      /* Shared “sheet” layout for taste onboarding + similar modals */
-      .welcome-sheet-panel {
-        max-width: 22rem;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-      }
-      .welcome-sheet-head {
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-start;
-        gap: 0;
-        padding: 1.1rem 1.15rem 0.5rem;
-      }
-      .welcome-sheet-head-text {
-        min-width: 0;
-      }
-      .welcome-sheet-title {
-        margin: 0;
-        font-size: 1.22rem;
-        font-weight: 750;
-        letter-spacing: -0.02em;
-        line-height: 1.2;
-        background: linear-gradient(105deg, #7af5ff 0%, #a5d8ff 38%, #7c9cff 72%, #e9d5ff 100%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.28));
-      }
-      .welcome-sheet-lead {
-        margin: 0.45rem 0 0;
-        font-size: 0.9rem;
-        line-height: 1.45;
-        color: rgba(226, 232, 240, 0.88);
-        font-weight: 500;
-      }
-      .welcome-sheet-body {
-        padding: 0.35rem 1.15rem 1rem;
-      }
-      .welcome-sheet-bullets {
-        margin: 0;
-        padding-left: 1.2rem;
-        font-size: 0.86rem;
-        line-height: 1.55;
-        color: rgba(214, 226, 248, 0.92);
-      }
-      .welcome-sheet-bullets li {
-        margin: 0.4rem 0;
-        padding-left: 0.15rem;
-      }
-      .welcome-sheet-bullets li:first-child {
-        margin-top: 0;
-      }
-      .welcome-sheet-actions {
-        display: flex;
-        flex-direction: column-reverse;
-        gap: 0.5rem;
-        padding: 0.85rem 1.15rem 1.1rem;
-        border-top: 1px solid rgba(130, 200, 255, 0.12);
-        background: linear-gradient(180deg, transparent 0%, rgba(10, 14, 26, 0.65) 100%);
-      }
-      @media (min-width: 420px) {
-        .welcome-sheet-actions {
-          flex-direction: row;
-          justify-content: flex-end;
-          align-items: center;
-        }
-        .welcome-sheet-actions .secondary {
-          margin-right: auto;
-        }
-      }
-      .welcome-sheet-actions button {
-        min-height: 44px;
-        padding: 0.55rem 1.1rem;
-        font-size: 0.9rem;
-      }
       /* One-time section tips (not full-screen) */
       .contextual-tip {
         display: flex;
@@ -3053,77 +3094,6 @@
         font-size: 0.86rem;
         font-weight: 600;
         color: rgba(186, 214, 255, 0.95);
-      }
-      .starter-packs-section {
-        margin-bottom: 1.1rem;
-      }
-      .starter-pack-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.45rem;
-        margin-top: 0.55rem;
-      }
-      .starter-pack-chip {
-        margin: 0;
-        padding: 0.45rem 0.75rem;
-        font-size: 0.88rem;
-        border-radius: 999px;
-        border: 1px solid rgba(130, 200, 255, 0.35);
-        background: rgba(4, 12, 28, 0.55);
-        color: var(--text);
-        cursor: pointer;
-        min-height: 44px;
-        line-height: 1.2;
-      }
-      .starter-pack-chip:hover:not(:disabled) {
-        border-color: rgba(34, 211, 238, 0.55);
-        background: rgba(34, 211, 238, 0.1);
-      }
-      .starter-pack-chip:disabled {
-        opacity: 0.45;
-        cursor: default;
-      }
-      .starter-pack-expand {
-        margin-top: 0.75rem;
-        padding-top: 0.65rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-      }
-      .starter-pack-expand-title {
-        margin: 0 0 0.5rem;
-        font-size: 0.92rem;
-        font-weight: 600;
-        color: #bae6fd;
-      }
-      .onboarding-setup-genres,
-      .onboarding-setup-networks {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.45rem;
-        margin: 0.35rem 0 0.85rem;
-      }
-      .onboarding-setup-chip {
-        margin: 0;
-        padding: 0.45rem 0.7rem;
-        font-size: 0.86rem;
-        border-radius: 999px;
-        border: 1px solid rgba(130, 200, 255, 0.28);
-        background: rgba(4, 12, 28, 0.45);
-        color: var(--text);
-        cursor: pointer;
-        min-height: 44px;
-      }
-      .onboarding-setup-chip.is-selected {
-        border-color: rgba(34, 211, 238, 0.65);
-        background: rgba(34, 211, 238, 0.18);
-        box-shadow: 0 0 12px -4px rgba(34, 211, 238, 0.45);
-      }
-      .tv-watcher-unlock-panel {
-        text-align: center;
-      }
-      .tv-watcher-unlock-panel .unlock-emoji {
-        font-size: 2.5rem;
-        line-height: 1;
-        margin: 0 0 0.5rem;
       }
       .profile-identity-actions {
         display: flex;
@@ -4117,10 +4087,6 @@
           0 0 96px 12px rgba(34, 211, 238, 0.18), 0 0 80px -8px rgba(91, 156, 255, 0.35),
           0 28px 72px rgba(0, 0, 0, 0.65), var(--panel-glow-blue);
       }
-      .quickstart-help-panel.welcome-sheet-panel {
-        max-width: min(22rem, calc(100vw - 2rem));
-        max-height: none;
-      }
       .quickstart-help-head-text {
         min-width: 0;
         flex: 1;
@@ -4830,6 +4796,20 @@
         outline: 2px solid rgba(34, 211, 238, 0.55);
         outline-offset: 1px;
       }
+      .header-profile-menu-group[hidden] {
+        display: none !important;
+      }
+      .header-profile-menu-group {
+        display: block;
+        margin-top: 0.3rem;
+        padding-top: 0.3rem;
+        border-top: 1px solid rgba(130, 200, 255, 0.1);
+      }
+      .header-profile-menu-group:first-of-type {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 0;
+      }
       .tab-panel {
         display: none;
         position: relative;
@@ -4849,6 +4829,14 @@
       }
       .tab-panel[data-shell-lazy-root]:not(.active) {
         min-height: 40vh;
+      }
+      /* Main section panels: scoped mount root for lazy tabs (My list / My week / Tasks). */
+      .tab-panel.app-shell-surface[data-shell-lazy-root] {
+        position: relative;
+        isolation: isolate;
+      }
+      .app-shell-mounted {
+        min-height: 100%;
       }
 
       .community-root {
@@ -4882,10 +4870,32 @@
         margin-bottom: 0.3rem;
         font-size: 0.72rem;
       }
+      /* Breaking news: explicit state (loading | active | empty | error) — `inactive` = hidden). */
+      .community-headlines-rail-wrap[data-headlines-state="empty"] .community-subsection-heading,
+      .community-headlines-rail-wrap[data-headlines-state="error"] .community-subsection-heading {
+        margin-bottom: 0.25rem;
+      }
+      .community-headlines-empty {
+        font-size: 0.75rem;
+        line-height: 1.4;
+        margin: 0 0 0.1rem;
+        color: rgba(200, 215, 235, 0.8);
+        max-width: 22rem;
+      }
       .community-headlines-err {
-        font-size: 0.72rem;
-        margin: 0 0 0.3rem;
-        line-height: 1.3;
+        font-size: 0.75rem;
+        margin: 0 0 0.35rem;
+        line-height: 1.35;
+      }
+      .community-headlines-rail-wrap[data-headlines-state="loading"] .community-headlines-rail,
+      .community-headlines-rail-wrap[data-headlines-state="active"] .community-headlines-rail {
+        min-height: 132px;
+      }
+      .community-headlines-rail-wrap[data-headlines-state="error"] {
+        min-height: 0;
+      }
+      .community-headlines-rail-wrap[data-headlines-state="empty"] {
+        margin-bottom: 0.2rem;
       }
       .community-headlines-rail {
         list-style: none;
@@ -5444,13 +5454,16 @@
       /* ── Reply threading ── */
       .community-post-reply-indicator {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
         gap: 0.35rem;
-        font-size: 0.72rem;
-        color: rgba(79, 195, 247, 0.7);
-        margin-bottom: 0.3rem;
-        padding-left: 0.15rem;
+        font-size: 0.7rem;
+        color: rgba(79, 195, 247, 0.75);
+        margin: 0.15rem 0 0.35rem;
+        padding: 0.2rem 0.35rem;
+        border-radius: 8px;
+        background: rgba(34, 99, 180, 0.12);
+        border: 1px solid rgba(100, 160, 255, 0.15);
       }
       .community-post-reply-indicator[hidden] {
         display: none !important;
@@ -5573,6 +5586,79 @@
         opacity: 0.88;
         white-space: nowrap;
       }
+      /* Sticky line under sub-tabs: live room at-a-glance (source: same WS payload as Chat tab) */
+      .community-thread-presence-row {
+        margin: -0.1rem 0 0.55rem;
+        padding: 0.32rem 0.55rem 0.38rem;
+        border-radius: 9px;
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        background: rgba(0, 0, 0, 0.22);
+        font-size: 0.74rem;
+        line-height: 1.35;
+        color: rgba(215, 230, 250, 0.86);
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        min-height: 0;
+        transition: border-color 0.2s ease, background 0.2s ease;
+      }
+      .community-thread-presence-row[hidden] {
+        display: none !important;
+      }
+      .community-thread-presence-row-inner {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        min-width: 0;
+        flex: 1;
+      }
+      .community-thread-presence-row.is-room-active {
+        border-color: rgba(34, 197, 94, 0.32);
+        background: linear-gradient(100deg, rgba(34, 197, 94, 0.1), rgba(0, 0, 0, 0.18));
+      }
+      .community-thread-presence-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: #22c55e;
+        box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.35);
+        animation: community-thread-live-dot-pulse 2s ease-in-out infinite;
+      }
+      .community-thread-presence-dot[hidden] {
+        display: none !important;
+      }
+      .community-thread-presence-dot.is-live {
+        animation: community-chat-live-pulse 2.2s ease-in-out infinite;
+      }
+      .community-thread-presence-copy {
+        min-width: 0;
+        flex: 1;
+      }
+      .community-thread-presence-text {
+        min-width: 0;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: rgba(236, 244, 255, 0.95);
+      }
+      .community-thread-presence-sub {
+        display: block;
+        font-size: 0.68rem;
+        font-weight: 500;
+        color: rgba(200, 215, 240, 0.72);
+        margin-top: 0.1rem;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      @media (min-width: 700px) {
+        .community-thread-presence-sub {
+          display: inline;
+          margin-top: 0;
+          margin-left: 0.2rem;
+        }
+      }
       @media (max-width: 380px) {
         .community-show-subtab.community-chat-subtab {
           padding-left: 0.2rem;
@@ -5611,6 +5697,12 @@
         border-radius: 50%;
         flex-shrink: 0;
         background: #22c55e;
+        opacity: 0.58;
+        box-shadow: none;
+        animation: none;
+      }
+      .community-thread-live-strip--room-active .community-thread-live-strip-dot {
+        opacity: 1;
         box-shadow: 0 0 10px rgba(34, 197, 94, 0.65);
         animation: community-thread-live-dot-pulse 2s ease-in-out infinite;
       }
@@ -5969,84 +6061,6 @@
         margin: 0.75rem 0 0.45rem;
         font-weight: 700;
       }
-      .community-challenge-create-view {
-        padding: 0.35rem 0 1rem;
-      }
-      .community-challenge-create-view.hidden {
-        display: none !important;
-      }
-      .challenge-create-search-wrap {
-        position: relative;
-        margin-bottom: 0.35rem;
-      }
-      .challenge-create-search {
-        width: 100%;
-        padding: 0.5rem 0.65rem;
-        border-radius: 10px;
-        border: 1px solid rgba(130, 200, 255, 0.22);
-        background: rgba(0, 0, 0, 0.35);
-        color: inherit;
-        font: inherit;
-        box-sizing: border-box;
-      }
-      .challenge-create-dropdown {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 100%;
-        z-index: 40;
-        margin-top: 4px;
-        max-height: 200px;
-        overflow-y: auto;
-        border-radius: 10px;
-        border: 1px solid rgba(130, 200, 255, 0.28);
-        background: rgba(12, 18, 32, 0.98);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-      }
-      .challenge-create-dropdown button {
-        display: block;
-        width: 100%;
-        text-align: left;
-        padding: 0.45rem 0.6rem;
-        border: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        background: transparent;
-        color: inherit;
-        font: inherit;
-        cursor: pointer;
-        font-size: 0.86rem;
-      }
-      .challenge-create-dropdown button:last-child {
-        border-bottom: none;
-      }
-      .challenge-create-picked {
-        font-size: 0.8rem;
-        margin: 0 0 0.55rem !important;
-      }
-      .community-challenge-detail-meta {
-        font-size: 0.84rem;
-        line-height: 1.5;
-        margin: 0 0 0.75rem;
-      }
-      .community-challenge-leaderboard {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.82rem;
-        margin: 0.5rem 0 0;
-      }
-      .community-challenge-leaderboard th,
-      .community-challenge-leaderboard td {
-        padding: 0.4rem 0.45rem;
-        text-align: left;
-        border-bottom: 1px solid rgba(130, 200, 255, 0.12);
-      }
-      .community-challenge-leaderboard th {
-        color: var(--muted);
-        font-weight: 600;
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
       .community-thread-list {
         list-style: none;
         margin: 0;
@@ -6389,30 +6403,12 @@
         color: rgba(255, 255, 255, 0.82);
         font-size: 0.8rem;
       }
-      .community-hero-chat-presence {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.28rem;
-        font-size: 0.74rem;
-        font-weight: 650;
-        color: rgba(167, 243, 208, 0.95);
-        padding: 0.12rem 0.45rem;
-        border-radius: 999px;
-        border: 1px solid rgba(34, 197, 94, 0.28);
-        background: rgba(22, 101, 52, 0.22);
-        letter-spacing: 0.02em;
+      /* Count + names live in the thread strip; hide duplicate “in chat” pill in the hero for a calmer header. */
+      .community-show-hero-content .community-hero-chat-presence {
+        display: none !important;
       }
       .community-hero-chat-presence[hidden] {
         display: none !important;
-      }
-      .community-hero-chat-presence::before {
-        content: "";
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        flex-shrink: 0;
-        background: #4ade80;
-        box-shadow: 0 0 8px rgba(74, 222, 128, 0.75);
       }
       .community-subscribe-wrap {
         display: flex;
@@ -6436,7 +6432,7 @@
       .community-show-composer-shell {
         position: relative;
         z-index: 3;
-        margin: 0.5rem 0 0.75rem;
+        margin: 0.85rem 0 0;
         padding: 0;
       }
       .community-show-composer-shell .community-composer-wrap {
@@ -6477,6 +6473,55 @@
         gap: 0.75rem;
         margin-bottom: 0.5rem;
         contain: layout;
+      }
+      .community-post-skeleton {
+        border: 1px solid rgba(130, 200, 255, 0.1);
+        border-radius: 14px;
+        padding: 0.85rem 1rem;
+        background: rgba(6, 10, 20, 0.6);
+        pointer-events: none;
+      }
+      .community-post-skeleton-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.65rem;
+      }
+      .community-post-skeleton-av {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
+        background-size: 200% 100%;
+        animation: community-headline-skeleton-shimmer 1.35s ease-in-out infinite;
+      }
+      .community-post-skeleton-lines {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+      .community-post-skeleton-line {
+        height: 0.65rem;
+        border-radius: 6px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+        background-size: 200% 100%;
+        animation: community-headline-skeleton-shimmer 1.35s ease-in-out infinite;
+      }
+      .community-post-skeleton-line.short {
+        max-width: 45%;
+        opacity: 0.7;
+      }
+      .community-thread-skeleton-card {
+        width: 100%;
+        height: 112px;
+        border-radius: 14px;
+        border: 1px solid rgba(130, 200, 255, 0.1);
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+        background-size: 200% 100%;
+        animation: community-headline-skeleton-shimmer 1.35s ease-in-out infinite;
+        flex-shrink: 0;
       }
       .community-post-card {
         border: 1px solid rgba(130, 200, 255, 0.12);
@@ -7339,8 +7384,59 @@
         padding-top: 1rem;
       }
       .community-post-as {
-        font-size: 0.88rem;
-        margin: 0 0 0.5rem;
+        font-size: 0.8rem;
+        margin: 0 0 0.35rem;
+        opacity: 0.9;
+      }
+      .community-composer-format-details {
+        margin: 0 0 0.4rem;
+      }
+      .community-composer-format-details > summary {
+        list-style: none;
+        cursor: pointer;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: rgba(148, 163, 184, 0.95);
+        letter-spacing: 0.04em;
+        padding: 0.2rem 0;
+      }
+      .community-composer-format-details > summary::-webkit-details-marker {
+        display: none;
+      }
+      .community-composer-format-details > summary::before {
+        content: "▸ ";
+        font-size: 0.65rem;
+        opacity: 0.75;
+      }
+      .community-composer-format-details[open] > summary::before {
+        content: "▾ ";
+      }
+      .community-thread-extras {
+        margin: 0.75rem 0 0;
+        border-radius: 12px;
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        background: rgba(4, 8, 18, 0.45);
+        padding: 0.1rem 0.65rem 0.5rem;
+      }
+      .community-thread-extras > summary {
+        list-style: none;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 650;
+        color: rgba(186, 210, 255, 0.9);
+        padding: 0.5rem 0.15rem;
+      }
+      .community-thread-extras > summary::-webkit-details-marker {
+        display: none;
+      }
+      .community-thread-extras[open] > summary {
+        margin-bottom: 0.25rem;
+      }
+      .community-thread-extras-inner {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding-bottom: 0.35rem;
       }
       .community-format-bar {
         display: flex;
@@ -7355,7 +7451,7 @@
         font-size: 0.82rem !important;
       }
       .community-composer {
-        min-height: 6.5rem;
+        min-height: 4.75rem;
         max-height: 14rem;
         overflow-y: auto;
         padding: 0.65rem 0.75rem;
@@ -8076,6 +8172,41 @@
         padding: 0.5rem 0;
         font-size: 0.78rem;
       }
+      .week-guide-grid--loading {
+        min-height: 140px;
+        pointer-events: none;
+      }
+      .week-guide-day--skeleton {
+        min-height: 140px;
+        border-color: rgba(52, 211, 153, 0.12);
+        background: linear-gradient(180deg, rgba(8, 28, 22, 0.35), rgba(4, 12, 10, 0.75));
+      }
+      .week-guide-day--skeleton .week-guide-skel-bar {
+        height: 0.6rem;
+        border-radius: 6px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+        background-size: 200% 100%;
+        margin: 0.25rem 0 0;
+        animation: community-headline-skeleton-shimmer 1.4s ease-in-out infinite;
+      }
+      .week-guide-day--skeleton .week-guide-skel-bar.short {
+        max-width: 70%;
+        opacity: 0.7;
+      }
+      .week-guide-day--skeleton .week-guide-dow {
+        opacity: 0.5;
+      }
+      .week-guide-day--skeleton .week-guide-dmd {
+        display: inline-block;
+        min-width: 1.2rem;
+        min-height: 0.5rem;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 4px;
+        text-indent: -99px;
+        overflow: hidden;
+        margin-top: 0.15rem;
+        animation: community-headline-skeleton-shimmer 1.4s ease-in-out infinite;
+      }
       .week-guide-slot {
         border-radius: 10px;
         padding: 0.38rem 0.42rem;
@@ -8132,6 +8263,11 @@
       .profile-edit-modal.quickstart-help-panel {
         max-width: min(520px, calc(100vw - 1rem));
         max-height: min(92vh, 900px);
+      }
+      @media (min-width: 820px) {
+        .profile-edit-modal.quickstart-help-panel {
+          max-width: min(720px, calc(100vw - 1.5rem));
+        }
       }
       .profile-edit-modal-shell {
         display: flex;
@@ -8304,6 +8440,80 @@
         text-align: center;
         line-height: 1.35;
         opacity: 0.88;
+      }
+      .profile-edit-subsection {
+        margin-top: 1.15rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .profile-edit-subsection--share[hidden] {
+        display: none !important;
+      }
+      h3.profile-edit-subsection-title {
+        margin: 0 0 0.4rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: rgba(186, 230, 255, 0.78);
+      }
+      .profile-edit-subsection--share h3#profileShareCardHeading {
+        background: linear-gradient(90deg, #5eead4, #7dd3fc 55%, #c4b5fd);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-size: 0.76rem;
+      }
+      .profile-edit-subsection--share .profile-edit-card-lead,
+      .profile-edit-subsection--share .profile-share-preview-wrap,
+      .profile-edit-subsection--share .profile-share-actions {
+        margin-top: 0.5rem;
+      }
+      .profile-edit-account-session-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      @media (min-width: 800px) {
+        .profile-edit-account-session-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.85fr);
+          gap: 1rem 1.15rem;
+          align-items: start;
+        }
+        .profile-edit-card--account {
+          grid-row: 1;
+        }
+        .profile-edit-card--session {
+          grid-row: 1;
+        }
+      }
+      .profile-edit-destructive-actions {
+        margin-top: 0.5rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(248, 113, 113, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+      h3.profile-account-block-title {
+        margin: 0 0 0.4rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: rgba(215, 225, 250, 0.88);
+      }
+      @media (max-width: 719px) {
+        .profile-edit-scroll {
+          font-size: 0.9rem;
+        }
+        .profile-edit-card {
+          padding: 0.85rem 0.8rem 0.95rem;
+        }
+        .profile-edit-top-grid {
+          gap: 0.9rem;
+        }
       }
       .profile-edit-save-primary {
         width: 100%;
@@ -8613,8 +8823,7 @@
           gap: 0.85rem 1.25rem;
           align-items: start;
         }
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-list-head,
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-headlines-err {
+        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-list-head {
           grid-column: 1 / -1;
         }
         #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityHeadlinesWrap {
@@ -8656,7 +8865,6 @@
         }
         #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-live-rooms-hub,
         #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-subsection-heading,
-        #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) .community-loading,
         #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityThreadsErr,
         #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityThreadList,
         #tab-community #communityListView:has(#communityHeadlinesWrap:not([hidden])) #communityGeneralHeading,
@@ -8867,18 +9075,20 @@
                 </svg>
               </button>
               <div class="header-dropdown" id="headerProfileDropdown" hidden role="menu" aria-label="Profile">
-                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuCreateAccount">
-                  Create account
-                </button>
-                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSearchUsername">
-                  Search username
-                </button>
-                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuYourProfile" hidden>
-                  Your profile
-                </button>
-                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSignOut" hidden>
-                  Sign out
-                </button>
+                <div class="header-profile-menu-group" id="headerProfileMenuGuest" role="group" aria-label="Get an account">
+                  <button type="button" class="header-menu-item" role="menuitem" id="headerMenuCreateAccount">
+                    Create account
+                  </button>
+                </div>
+                <div class="header-profile-menu-group" id="headerProfileMenuSignedIn" role="group" aria-label="Your account" hidden>
+                  <button type="button" class="header-menu-item" role="menuitem" id="headerMenuYourProfile">Your profile</button>
+                  <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSignOut">Sign out</button>
+                </div>
+                <div class="header-profile-menu-group" role="group" aria-label="Community">
+                  <button type="button" class="header-menu-item" role="menuitem" id="headerMenuSearchUsername">
+                    Search username
+                  </button>
+                </div>
               </div>
             </div>
             <div class="header-inbox-wrap" id="headerInboxWrap" hidden>
@@ -9068,7 +9278,7 @@
       </header>
 
       <div class="main-scroll" id="mainScroll">
-      <div id="tab-add" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtnAdd">
+      <div id="tab-add" class="tab-panel active app-shell-surface" data-app-shell="add" role="tabpanel" aria-labelledby="tabBtnAdd">
         <section class="search-shell" aria-label="Search and subscribe">
           <div class="add-shows-hero-bar">
             <div class="section-header-highlight search-hero-unified" aria-labelledby="searchHeroHeading">
@@ -9119,17 +9329,6 @@
               Dismiss
             </button>
           </div>
-          <section id="starterPacksSection" class="starter-packs-section panel-rail-cyan" hidden aria-labelledby="starterPacksHeading">
-            <h2 id="starterPacksHeading" class="section-header-highlight" style="font-size: 1rem">Starter packs</h2>
-            <p class="muted" style="font-size: 0.84rem; margin: 0.35rem 0 0; line-height: 1.45">
-              Pick a vibe — we’ll surface a few strong shows you can add in one tap (no empty search required).
-            </p>
-            <div class="starter-pack-chips" id="starterPackChips"></div>
-            <div id="starterPackExpand" class="starter-pack-expand" hidden>
-              <h3 class="starter-pack-expand-title" id="starterPackExpandTitle"></h3>
-              <div class="search-results" id="starterPackResults"></div>
-            </div>
-          </section>
           <div class="search-fields">
             <div>
               <label for="searchTitle">Show title</label>
@@ -9195,7 +9394,33 @@
         </section>
       </div>
 
-      <div id="tab-shows" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnShows">
+      <div
+        id="tab-shows"
+        class="tab-panel app-shell-surface"
+        data-shell-lazy-root="shows"
+        role="tabpanel"
+        aria-labelledby="tabBtnShows"
+        data-app-shell="shows"
+      ></div>
+      <div
+        id="tab-guide"
+        class="tab-panel app-shell-surface"
+        data-shell-lazy-root="guide"
+        role="tabpanel"
+        aria-labelledby="tabBtnGuide"
+        data-app-shell="guide"
+      ></div>
+      <div
+        id="tab-tasks"
+        class="tab-panel app-shell-surface"
+        data-shell-lazy-root="tasks"
+        role="tabpanel"
+        aria-labelledby="tabBtnTasks"
+        data-app-shell="tasks"
+      ></div>
+
+      <template id="tpl-shell-tab-shows">
+        <div class="app-shell-mounted" data-app-shell-mounted="shows">
         <section class="panel-rail-blue shows-list-section" aria-labelledby="foldSubsHeading">
           <button
             type="button"
@@ -9248,9 +9473,10 @@
             <p id="personFollowsEmpty" class="muted person-follows-empty" hidden>You are not following anyone yet.</p>
           </div>
         </section>
-      </div>
-
-      <div id="tab-guide" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnGuide">
+        </div>
+      </template>
+      <template id="tpl-shell-tab-guide">
+        <div class="app-shell-mounted" data-app-shell-mounted="guide">
         <section class="panel-rail-guide" aria-label="Weekly TV guide">
           <div class="week-guide-head">
             <div>
@@ -9265,13 +9491,13 @@
           </div>
           <p class="muted week-guide-tz" id="weekGuideTzNote"></p>
           <p class="week-guide-empty-banner" id="weekGuideEmpty" hidden></p>
-          <p class="search-loading" id="weekGuideLoading" hidden>Fetching schedule…</p>
           <p class="msg err" id="weekGuideErr" style="display: none"></p>
           <div id="weekGuideGrid" class="week-guide-grid" aria-label="Episodes by day"></div>
         </section>
-      </div>
-
-      <div id="tab-tasks" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnTasks">
+        </div>
+      </template>
+      <template id="tpl-shell-tab-tasks">
+        <div class="app-shell-mounted" data-app-shell-mounted="tasks">
         <div
           class="contextual-tip"
           id="contextualTipTasks"
@@ -9375,7 +9601,8 @@
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </template>
 
       <template id="tpl-shell-tab-community">
         <section class="panel-rail-cyan community-root" aria-label="Community">
@@ -9384,9 +9611,16 @@
               <h2 class="section-header-highlight header-cyan-glow" style="margin-top: 0">Community</h2>
             </div>
 
-            <p class="muted community-headlines-err" id="communityHeadlinesErr" hidden></p>
-            <div class="community-headlines-rail-wrap" id="communityHeadlinesWrap" hidden>
-              <h3 class="community-subsection-heading">Breaking news</h3>
+            <div
+              class="community-headlines-rail-wrap"
+              id="communityHeadlinesWrap"
+              data-headlines-state="inactive"
+              hidden
+              aria-live="polite"
+            >
+              <h3 class="community-subsection-heading" id="communityHeadlinesTitle">Breaking news</h3>
+              <p class="community-headlines-err msg" id="communityHeadlinesErr" role="alert" hidden></p>
+              <p class="community-headlines-empty muted" id="communityHeadlinesEmpty" hidden></p>
               <ul class="community-headlines-rail" id="communityHeadlinesRail" role="list" aria-label="Breaking news"></ul>
             </div>
 
@@ -9409,14 +9643,11 @@
               </svg>
             </button>
             <h3 class="community-subsection-heading community-subsection-heading--primary">Discussions</h3>
-            <div id="communityThreadsLoading" class="muted community-loading" hidden>Fetching discussions…</div>
             <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
             <ul class="community-thread-list" id="communityThreadList"></ul>
             <h3 class="community-subsection-heading" id="communityGeneralHeading" hidden>General Discussion</h3>
             <ul class="community-general-list" id="communityGeneralList"></ul>
           </div>
-          <!-- Challenge create view (secondary — accessible via FAB menu if wired) -->
-          <div class="community-challenge-create-view hidden" id="communityChallengeCreateView" style="display:none!important"></div>
           <div class="community-thread-view hidden" id="communityThreadView">
             <div class="community-show-page" id="communityShowPage">
               <header class="community-show-hero" id="communityShowHero" aria-label="Show community">
@@ -9457,34 +9688,46 @@
                 >
                   <span class="community-chat-subtab-inner">
                     <span class="community-chat-live-dot" hidden aria-hidden="true"></span>
-                    <span class="community-chat-subtab-text">Chat</span><span class="community-chat-subtab-count" hidden></span>
+                    <span class="community-chat-subtab-text">Chat</span><span class="community-chat-subtab-count" hidden aria-hidden="true"></span>
                   </span>
                 </button>
               </div>
+              <div
+                class="community-thread-presence-row"
+                id="communityThreadPresenceRow"
+                role="status"
+                aria-live="polite"
+                hidden
+              >
+                <div class="community-thread-presence-row-inner">
+                  <span class="community-thread-presence-dot" id="communityThreadPresenceDot" hidden aria-hidden="true"></span>
+                  <div class="community-thread-presence-copy">
+                    <span class="community-thread-presence-text" id="communityThreadPresenceText"></span>
+                    <span class="community-thread-presence-sub" id="communityThreadPresenceSub" hidden></span>
+                  </div>
+                </div>
+              </div>
               <div class="community-thread-main-row" id="communityThreadMainRow">
                 <div class="community-thread-main-col" id="communityThreadMainCol">
-              <div class="community-show-composer-shell" style="position:relative">
+              <div class="community-thread-controls">
+                <label class="community-sort-label">
+                  Sort
+                  <select id="communitySortSelect" class="community-sort-select">
+                    <option value="newest">Newest</option>
+                    <option value="oldest">Oldest</option>
+                  </select>
+                </label>
+              </div>
+              <p class="err" id="communityPostsErr" style="display: none"></p>
+              <div class="community-post-feed" id="communityPostFeed"></div>
+              <div class="community-show-composer-shell" style="position: relative">
                 <div class="community-mention-dropdown" id="communityMentionDropdown" hidden></div>
                 <div class="community-composer-wrap" id="communityComposerWrap">
               <p class="muted community-post-as" id="communityPostAsLine" hidden>Post as <strong id="communityPostAsName">—</strong></p>
               <p class="muted community-guest-hint" id="communityGuestHint" hidden>
-                <a href="#" id="communityGoProfileLink">Create an account</a> (profile icon → Your profile) to post and subscribe to threads.
+                <a href="#" id="communityGoProfileLink">Create an account with your email</a> (Profile menu → Create account) to post and subscribe to threads.
               </p>
               <p class="muted community-guest-hint" id="communityUnlockHint" hidden></p>
-              <div class="community-format-bar" id="communityFormatBar" hidden>
-                <button type="button" class="secondary community-fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>
-                <button type="button" class="secondary community-fmt-btn" data-cmd="italic" title="Italic"><i>I</i></button>
-                <button type="button" class="secondary community-fmt-btn" data-cmd="underline" title="Underline"><u>U</u></button>
-                <button type="button" class="secondary community-fmt-btn" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
-              </div>
-              <div
-                class="community-composer"
-                id="communityComposer"
-                contenteditable="true"
-                data-placeholder="What did you think of the latest episode?"
-                role="textbox"
-                aria-multiline="true"
-              ></div>
               <div class="community-composer-meta community-composer-meta--slim" id="communityComposerEpisodeRow">
                 <span class="community-composer-ep-chip" id="communityComposerEpChip" hidden></span>
                 <select
@@ -9500,29 +9743,34 @@
                   Spoiler
                 </label>
               </div>
-              <div id="communityReplyIndicator" class="community-post-reply-indicator" hidden>
+              <details class="community-composer-format-details" id="communityComposerFormatDetails" hidden>
+                <summary>Text formatting</summary>
+                <div class="community-format-bar" id="communityFormatBar" hidden>
+                  <button type="button" class="secondary community-fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>
+                  <button type="button" class="secondary community-fmt-btn" data-cmd="italic" title="Italic"><i>I</i></button>
+                  <button type="button" class="secondary community-fmt-btn" data-cmd="underline" title="Underline"><u>U</u></button>
+                  <button type="button" class="secondary community-fmt-btn" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
+                </div>
+              </details>
+              <div
+                class="community-composer"
+                id="communityComposer"
+                contenteditable="true"
+                data-placeholder="What did you think of the latest episode?"
+                role="textbox"
+                aria-multiline="true"
+              ></div>
+              <div id="communityReplyIndicator" class="community-post-reply-indicator" hidden aria-hidden="true">
                 <div class="community-reply-indicator-main">
                   <span>Replying to <strong id="communityReplyToName"></strong></span>
                   <span class="community-reply-preview" id="communityReplyPreview" hidden></span>
                 </div>
-                <button type="button" class="community-reply-cancel-btn" id="communityReplyCancelBtn" aria-label="Clear reply">✕</button>
+                <button type="button" class="community-reply-cancel-btn" id="communityReplyCancelBtn" hidden aria-label="Clear reply">✕</button>
               </div>
               <button type="button" id="communityPostSubmitBtn">Post</button>
               <p class="muted msg" id="communityComposerMsg" style="margin-top: 0.5rem"></p>
                 </div>
               </div>
-              <div class="community-thread-controls">
-                <label class="community-sort-label">
-                  Sort
-                  <select id="communitySortSelect" class="community-sort-select">
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
-                  </select>
-                </label>
-              </div>
-              <p class="muted community-loading" id="communityPostsLoading" hidden>Fetching thread…</p>
-              <p class="err" id="communityPostsErr" style="display: none"></p>
-              <div class="community-post-feed" id="communityPostFeed"></div>
                 </div>
                 <aside class="community-live-rail" id="communityLiveRail" hidden aria-label="Watching now live chat">
                   <div class="community-live-rail-head">
@@ -9542,7 +9790,7 @@
                 </aside>
               </div>
               <details class="community-catchup-panel" id="communityCatchUpPanel" hidden>
-                <summary class="community-catchup-summary">Watch progress and blur settings</summary>
+                <summary class="community-catchup-summary">Watch progress &amp; blur</summary>
                 <div class="community-catchup-panel-inner">
                   <label class="community-catchup-binge" id="communityBingeLaterLabel">
                     <input type="checkbox" id="communityBingeLaterCb" />
@@ -9562,6 +9810,21 @@
                   While <strong>binge-watching later</strong> is on, the number above is ignored: every aired episode thread is treated as ahead of you. Turn it off when you’re current to use “episodes behind” again.
                 </p>
               </details>
+              <section class="community-show-news-panel" id="communityShowNewsPanel" hidden aria-label="Show news">
+                <h3 class="community-polls-heading">Breaking News</h3>
+                <div id="communityShowNewsList" class="community-show-news-list"></div>
+                <p class="muted" id="communityShowNewsEmpty" hidden style="font-size: 0.82rem; margin: 0">No breaking news for this show yet.</p>
+              </section>
+              <details class="community-thread-extras" id="communityThreadExtras">
+                <summary>Scores, polls, live room info</summary>
+                <div class="community-thread-extras-inner" id="communityThreadExtrasInner">
+              <div class="community-live-air-banner" id="communityLiveAirNightBanner" hidden role="status">
+                <span class="community-live-air-banner-dot" aria-hidden="true">●</span>
+                <span
+                  ><strong>Live room</strong> — open for 24 hours from this episode’s air date. Quick chat here is
+                  ephemeral; posts in Discussion stay as the archive.</span
+                >
+              </div>
               <section class="community-sentiment-chart-panel" id="communityShowRatingsChartPanel" hidden aria-label="Season scores">
                 <h3 class="community-polls-heading">Community scores</h3>
                 <div class="community-sentiment-chart-toolbar">
@@ -9570,18 +9833,6 @@
                 </div>
                 <div id="communityRatingsChartSvg" class="community-sentiment-chart-svg" role="img" aria-label="Ratings chart"></div>
               </section>
-              <section class="community-show-news-panel" id="communityShowNewsPanel" hidden aria-label="Show news">
-                <h3 class="community-polls-heading">Breaking News</h3>
-                <div id="communityShowNewsList" class="community-show-news-list"></div>
-                <p class="muted" id="communityShowNewsEmpty" hidden style="font-size: 0.82rem; margin: 0">No breaking news for this show yet.</p>
-              </section>
-              <div class="community-live-air-banner" id="communityLiveAirNightBanner" hidden role="status">
-                <span class="community-live-air-banner-dot" aria-hidden="true">●</span>
-                <span
-                  ><strong>Live room</strong> — open for 24 hours from this episode’s air date. Quick chat here is
-                  ephemeral; posts below stay as the archive.</span
-                >
-              </div>
               <section class="community-episode-polls" id="communityEpisodePollsPanel" hidden aria-label="Prediction polls">
                 <h3 class="community-polls-heading">Predictions</h3>
                 <p class="muted community-polls-lead" id="communityPollsLead">
@@ -9612,11 +9863,20 @@
                 <div class="community-rating-stars" id="communityEpisodeRatingStars" role="group" aria-label="Rate 1 to 5"></div>
                 <p class="muted" id="communityEpisodeRatingSummary" style="margin: 0.4rem 0 0; font-size: 0.8rem"></p>
               </section>
+                </div>
+              </details>
             </div>
           </div>
         </section>
       </template>
-      <div id="tab-community" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnCommunity" data-shell-lazy-root="community"></div>
+      <div
+        id="tab-community"
+        class="tab-panel app-shell-surface"
+        role="tabpanel"
+        aria-labelledby="tabBtnCommunity"
+        data-shell-lazy-root="community"
+        data-app-shell="community"
+      ></div>
 
       <div id="communityNewModal" class="community-modal" hidden aria-hidden="true">
         <div class="community-modal-backdrop" data-close-community-modal></div>
@@ -9660,23 +9920,6 @@
         </div>
       </div>
 
-      <div id="communityChallengeDetailModal" class="community-modal" hidden aria-hidden="true">
-        <div class="community-modal-backdrop" data-close-challenge-detail></div>
-        <div class="community-modal-panel community-challenge-detail-panel" role="dialog" aria-modal="true" aria-labelledby="communityChallengeDetailTitle">
-          <h3 id="communityChallengeDetailTitle" class="community-modal-title">Challenge</h3>
-          <div id="communityChallengeDetailBody"></div>
-          <label class="community-challenge-join-row" id="communityChallengeJoinRow" style="display: none; margin: 0.65rem 0; flex-wrap: wrap; align-items: center; gap: 0.5rem; cursor: pointer">
-            <input type="checkbox" id="communityChallengeJoinCb" />
-            <span>I’m in — track my progress on the leaderboard</span>
-          </label>
-          <p class="muted" id="communityChallengeGuestHint" hidden style="font-size: 0.82rem">Sign in to join.</p>
-          <div class="community-modal-actions">
-            <button type="button" class="secondary community-modal-close" data-close-challenge-detail>Close</button>
-          </div>
-          <p class="err" id="communityChallengeDetailErr" style="display: none; margin-top: 0.5rem"></p>
-        </div>
-      </div>
-
       <div id="communityMemberProfileModal" class="community-modal" hidden aria-hidden="true">
         <div class="community-modal-backdrop" data-close-member-profile></div>
         <div class="community-modal-panel community-member-profile-panel" role="dialog" aria-modal="true" aria-labelledby="communityMemberProfileHeading">
@@ -9702,7 +9945,7 @@
               Direct message
             </button>
             <p class="muted" id="communityMemberProfileDmHint" hidden style="margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.4">
-              Create an account (profile icon → Your profile) to send direct messages.
+              Create an account with your email (Profile menu → Create account) to send direct messages.
             </p>
             <p class="err" id="communityMemberProfileErr" style="display: none; margin-top: 0.5rem"></p>
           </div>
@@ -9737,7 +9980,7 @@
             Find members by username. Open a profile to follow, view compatibility, or send a direct message.
           </p>
           <p id="usernameSearchGuestHint" class="community-find-friend-guest-hint" hidden>
-            Create an account (Your profile in this menu) to search members.
+            Create an account with your email (Profile menu → Create account) to search members.
           </p>
           <div class="community-find-friend username-search-modal-inner" id="usernameSearchWrap" aria-label="Search members">
             <div class="community-find-friend-field">
@@ -9961,7 +10204,14 @@
           </div>
         </div>
       </template>
-      <div id="tab-messages" class="tab-panel" role="tabpanel" aria-labelledby="dmInboxTitle" data-shell-lazy-root="messages"></div>
+      <div
+        id="tab-messages"
+        class="tab-panel app-shell-surface"
+        role="tabpanel"
+        aria-labelledby="dmInboxTitle"
+        data-shell-lazy-root="messages"
+        data-app-shell="messages"
+      ></div>
 
       </div>
     </main>
@@ -9977,8 +10227,8 @@
         <h3 id="accountPromptHeading">Save your shows &amp; tasks</h3>
         <div id="accountPromptStepIntro">
           <p class="account-prompt-lead">
-            Create a free account so your subscriptions and watch checklist follow you when you sign in on another device.
-            Or continue without an account — your list stays on this browser only.
+            Use your <strong>email</strong> to create a free account so your subscriptions and watchlist sync when you sign in
+            elsewhere. Or continue as a <strong>guest</strong> — your list stays on this browser only.
           </p>
           <div class="account-prompt-actions">
             <button type="button" id="accountPromptCreate">Create account</button>
@@ -9991,7 +10241,7 @@
         </div>
         <div id="accountPromptStepRegister" hidden>
           <p class="account-prompt-lead">
-            Sign up with your email (used to sign in) and a public username for Community and your profile.
+            Sign up with your <strong>email</strong> (sign-in) and a public <strong>username</strong> for Community and your profile.
           </p>
           <label for="apRegEmail">Email</label>
           <input id="apRegEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" />
@@ -10104,56 +10354,6 @@
 
     <div
       class="modal-backdrop quickstart-help-backdrop"
-      id="onboardingSetupModal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="onboardingSetupHeading"
-    >
-      <div class="modal-panel quickstart-help-panel welcome-sheet-panel">
-        <div class="welcome-sheet-head">
-          <div class="welcome-sheet-head-text">
-            <h3 id="onboardingSetupHeading">Personalize AirAlert</h3>
-            <p class="welcome-sheet-lead">Pick a few favorites — recommendations improve right away. Takes under a minute.</p>
-          </div>
-          <button type="button" class="modal-close secondary" id="onboardingSetupClose" aria-label="Close personalize">×</button>
-        </div>
-        <div class="welcome-sheet-body">
-          <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.35rem">Favorite genres</p>
-          <div class="onboarding-setup-genres" id="onboardingSetupGenres"></div>
-          <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.35rem">Streaming / networks you use (optional)</p>
-          <div class="onboarding-setup-networks" id="onboardingSetupNetworks"></div>
-        </div>
-        <div class="welcome-sheet-actions">
-          <button type="button" class="secondary" id="onboardingSetupSkipBtn">Skip for now</button>
-          <button type="button" id="onboardingSetupSaveBtn">Save &amp; continue</button>
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="modal-backdrop quickstart-help-backdrop"
-      id="tvWatcherUnlockModal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="tvWatcherUnlockHeading"
-    >
-      <div class="modal-panel quickstart-help-panel">
-        <div class="quickstart-help-head">
-          <h3 id="tvWatcherUnlockHeading">You’re a TV Watcher</h3>
-          <button type="button" class="modal-close secondary" id="tvWatcherUnlockClose" aria-label="Close">×</button>
-        </div>
-        <div class="modal-body-scroll tv-watcher-unlock-panel">
-          <p class="unlock-emoji" aria-hidden="true">📺</p>
-          <p style="margin: 0 0 0.65rem; line-height: 1.5">
-            Nice — you added three shows. You’ve unlocked <strong>Community</strong> posting and your <strong>Inbox</strong>. Jump into discussions or messages anytime.
-          </p>
-          <button type="button" id="tvWatcherUnlockOk">Let’s go</button>
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="modal-backdrop quickstart-help-backdrop"
       id="appSettingsModal"
       role="dialog"
       aria-modal="true"
@@ -10164,98 +10364,132 @@
           <h3 id="appSettingsHeading">Settings</h3>
           <button type="button" class="modal-close secondary" id="appSettingsClose" aria-label="Close settings">×</button>
         </div>
-        <div class="modal-body-scroll" id="appSettingsModalBody">
-          <section id="settingsRefreshSection" class="panel-rail-cyan" style="margin-bottom: 1rem">
-            <h4 class="section-header-highlight header-blue" style="font-size: 0.95rem; margin-top: 0">Refresh data</h4>
-            <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.65rem; line-height: 1.45">
-              Update TVMaze episode dates in the server cache so <strong>My List</strong> air dates and <strong>Tasks</strong> stay current. New shows refresh automatically when you add them.
-            </p>
-            <button type="button" class="secondary" id="settingsRefreshDataBtn">Refresh all show data</button>
-            <p class="muted msg" id="settingsJobMsg" style="margin: 0.5rem 0 0; font-size: 0.8rem; line-height: 1.4"></p>
-            <pre id="settingsJobOut" style="display: none; margin: 0.35rem 0 0; font-size: 0.72rem"></pre>
-          </section>
-          <section id="settingsRemindersSection" class="panel-rail-cyan" style="margin-bottom: 1rem" aria-label="Timezone">
-            <h4 class="section-header-highlight header-blue" style="font-size: 0.95rem; margin-top: 0">Timezone</h4>
-            <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.65rem; line-height: 1.45">
-              Your account uses one timezone everywhere (tasks, reminders, and episode-day notifications).
-            </p>
-            <div>
-              <label for="tz">Timezone</label>
-              <input id="tz" type="text" placeholder="America/Los_Angeles" />
-            </div>
-            <button type="button" id="saveProfile" style="margin-top: 0.75rem">Save timezone</button>
-            <p class="muted msg" id="profileMsg"></p>
-          </section>
-          <section id="settingsPushSection" class="push-section" aria-labelledby="pushHeading">
-            <h2 id="pushHeading" class="section-header-highlight header-magenta">Push notifications</h2>
-            <p class="muted" style="font-size: 0.84rem; margin: 0 0 0.65rem; line-height: 1.45">
-              Choose which alerts to receive when push is enabled on this device.
-            </p>
-            <div style="margin-bottom: 0.85rem">
-              <label for="hour">Reminder hour (local)</label>
-              <input id="hour" type="number" min="0" max="23" value="8" />
-              <p class="muted" style="font-size: 0.78rem; margin-top: 0.35rem; line-height: 1.4">
-                Uses your <strong>Timezone</strong> above. This is the local hour when we run the daily pass for
-                <strong>Episode airs today</strong> and related alerts.
+        <div class="modal-body-scroll settings-modal-body" id="appSettingsModalBody">
+          <div class="settings-modal-stack">
+            <section
+              id="settingsRefreshSection"
+              class="settings-surface settings-surface--data"
+              role="region"
+              aria-labelledby="settingsDataHeading"
+            >
+              <h4 id="settingsDataHeading" class="settings-surface-h section-header-highlight header-blue">Show &amp; episode data</h4>
+              <p class="settings-surface-lead muted">
+                Refresh TVMaze data in the server cache so <strong>My List</strong> and <strong>Tasks</strong> stay current. New shows update when you add them.
               </p>
-            </div>
-            <div class="push-prefs-list" style="display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 0.85rem">
-              <label class="push-pref-row" style="display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; font-size: 0.88rem; line-height: 1.4">
-                <input type="checkbox" id="pushPrefEpisodeAirsToday" checked style="margin-top: 0.15rem" />
-                <span>Episode airs today — when a new episode lands on your <strong>Tasks</strong> list</span>
-              </label>
-              <label class="push-pref-row" style="display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; font-size: 0.88rem; line-height: 1.4">
-                <input type="checkbox" id="pushPrefDmMessage" checked style="margin-top: 0.15rem" />
-                <span>Inbox / direct messages when you’re not using the app</span>
-              </label>
-              <label class="push-pref-row" style="display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; font-size: 0.88rem; line-height: 1.4">
-                <input type="checkbox" id="pushPrefCommunityMention" checked style="margin-top: 0.15rem" />
-                <span>When someone @mentions you in Community</span>
-              </label>
-              <label class="push-pref-row" style="display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; font-size: 0.88rem; line-height: 1.4">
-                <input type="checkbox" id="pushPrefCommunityThreadNewPost" checked style="margin-top: 0.15rem" />
-                <span>New post in a show’s Community threads (episode or general) you follow</span>
-              </label>
-              <label class="push-pref-row" style="display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; font-size: 0.88rem; line-height: 1.4">
-                <input type="checkbox" id="pushPrefTaskStillWatching" checked style="margin-top: 0.15rem" />
-                <span>“Still watching?” follow-up for unchecked tasks (uses the timing below)</span>
-              </label>
-              <label class="push-pref-row" style="display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; font-size: 0.88rem; line-height: 1.4">
-                <input type="checkbox" id="pushPrefPersonNewProject" checked style="margin-top: 0.15rem" />
-                <span
-                  ><strong>People you follow</strong> — new show added to their TVMaze credits (cast or crew)</span
-                >
-              </label>
-              <label class="push-pref-row" style="display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; font-size: 0.88rem; line-height: 1.4">
-                <input type="checkbox" id="pushPrefShowBreakingNews" checked style="margin-top: 0.15rem" />
-                <span>Breaking news about a show you follow</span>
-              </label>
-              <label class="push-pref-row" style="display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; font-size: 0.88rem; line-height: 1.4">
-                <input type="checkbox" id="pushPrefLiveRoomOpens" checked style="margin-top: 0.15rem" />
-                <span>Live episode room opens for a show you follow</span>
-              </label>
-              <label class="push-pref-row" style="display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; font-size: 0.88rem; line-height: 1.4">
-                <input type="checkbox" id="pushPrefTaskAdded" checked style="margin-top: 0.15rem" />
-                <span>When a task is added to your list</span>
-              </label>
-            </div>
-            <div style="margin-bottom: 0.75rem">
-              <label for="taskNudgeDays">“Still watching?” — days after air date</label>
-              <select id="taskNudgeDays" aria-label="Days after air date to nudge about unwatched episodes">
-                <option value="">Off</option>
-                <option value="1">1 day after air date</option>
-                <option value="3">3 days after air date</option>
-                <option value="7">7 days after air date</option>
-              </select>
-              <p class="muted" style="font-size: 0.78rem; margin-top: 0.35rem; line-height: 1.4">
-                Sends at most one reminder per episode, only if it’s still unchecked on <strong>Tasks</strong>. Requires the toggle above and push enabled on this device.
+              <button type="button" class="secondary" id="settingsRefreshDataBtn">Refresh all show data</button>
+              <p class="muted msg" id="settingsJobMsg" style="margin: 0.5rem 0 0; font-size: 0.8rem; line-height: 1.4"></p>
+              <pre id="settingsJobOut" style="display: none; margin: 0.35rem 0 0; font-size: 0.72rem"></pre>
+            </section>
+
+            <section
+              id="settingsRemindersSection"
+              class="settings-surface settings-surface--time"
+              role="region"
+              aria-labelledby="settingsTimeHeading"
+            >
+              <h4 id="settingsTimeHeading" class="settings-surface-h section-header-highlight header-cyan">Time &amp; timezone</h4>
+              <p class="settings-surface-lead muted">
+                One timezone for tasks, reminders, and episode-day notifications.
               </p>
-            </div>
-            <button type="button" id="savePushPrefsBtn" style="margin-bottom: 0.85rem">Save notification preferences</button>
-            <button type="button" class="secondary push-btn" id="enablePushBtn">Turn on push for this device</button>
-            <button type="button" class="secondary push-btn" id="testPushBtn">Send test notification</button>
-            <p class="muted msg" id="pushMsg"></p>
-          </section>
+              <div>
+                <label for="tz">Timezone</label>
+                <input id="tz" type="text" placeholder="America/Los_Angeles" />
+              </div>
+              <button type="button" class="settings-save-tz-btn" id="saveProfile" style="margin-top: 0.75rem">Save timezone</button>
+              <p class="muted msg" id="profileMsg"></p>
+            </section>
+
+            <section id="settingsPushSection" class="settings-surface settings-surface--push push-section" aria-labelledby="pushHeading">
+              <h2 id="pushHeading" class="section-header-highlight header-magenta" style="font-size: 0.95rem; margin: 0 0 0.4rem">Push notifications</h2>
+              <p class="settings-surface-lead muted" style="margin-bottom: 0.35rem">
+                Turn on push on this device, then pick what to send. Timing uses <strong>Time &amp; timezone</strong> above.
+              </p>
+
+              <div class="settings-pref-block">
+                <h3 class="settings-pref-block-title">Schedule &amp; nudges</h3>
+                <div class="settings-field-tight">
+                  <label for="hour">Daily reminder hour (local)</label>
+                  <input id="hour" type="number" min="0" max="23" value="8" />
+                  <p class="muted" style="font-size: 0.76rem; margin-top: 0.3rem; line-height: 1.4">
+                    Local hour (from your timezone) for the pass that includes <strong>Episode airs today</strong> and similar alerts.
+                  </p>
+                </div>
+                <div class="settings-field-tight" style="margin-top: 0.85rem">
+                  <label for="taskNudgeDays">“Still watching?” — days after air</label>
+                  <select id="taskNudgeDays" aria-label="Days after air date to nudge about unwatched episodes">
+                    <option value="">Off</option>
+                    <option value="1">1 day after air date</option>
+                    <option value="3">3 days after air date</option>
+                    <option value="7">7 days after air date</option>
+                  </select>
+                  <p class="muted" style="font-size: 0.76rem; margin-top: 0.3rem; line-height: 1.4">
+                    At most one reminder per episode if still unwatched. Needs the <strong>Still watching?</strong> toggle below and push on this device.
+                  </p>
+                </div>
+              </div>
+
+              <div class="settings-pref-block">
+                <h3 class="settings-pref-block-title">Tasks &amp; list</h3>
+                <div class="push-prefs-list">
+                  <label class="push-pref-row">
+                    <input type="checkbox" id="pushPrefEpisodeAirsToday" checked />
+                    <span>Episode airs today — new episode on your <strong>Tasks</strong> list</span>
+                  </label>
+                  <label class="push-pref-row">
+                    <input type="checkbox" id="pushPrefTaskStillWatching" checked />
+                    <span>“Still watching?” for unchecked tasks (uses timing above)</span>
+                  </label>
+                  <label class="push-pref-row">
+                    <input type="checkbox" id="pushPrefTaskAdded" checked />
+                    <span>When a task is added to your list</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="settings-pref-block">
+                <h3 class="settings-pref-block-title">Inbox &amp; Community</h3>
+                <div class="push-prefs-list">
+                  <label class="push-pref-row">
+                    <input type="checkbox" id="pushPrefDmMessage" checked />
+                    <span>Direct messages when you’re not in the app</span>
+                  </label>
+                  <label class="push-pref-row">
+                    <input type="checkbox" id="pushPrefCommunityMention" checked />
+                    <span>When someone @mentions you</span>
+                  </label>
+                  <label class="push-pref-row">
+                    <input type="checkbox" id="pushPrefCommunityThreadNewPost" checked />
+                    <span>New post in a show thread you follow</span>
+                  </label>
+                  <label class="push-pref-row">
+                    <input type="checkbox" id="pushPrefLiveRoomOpens" checked />
+                    <span>Live episode room opens for a show you follow</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="settings-pref-block settings-pref-block--tight">
+                <h3 class="settings-pref-block-title">News &amp; people</h3>
+                <div class="push-prefs-list">
+                  <label class="push-pref-row">
+                    <input type="checkbox" id="pushPrefShowBreakingNews" checked />
+                    <span>Breaking news for a show you follow</span>
+                  </label>
+                  <label class="push-pref-row">
+                    <input type="checkbox" id="pushPrefPersonNewProject" checked />
+                    <span><strong>People you follow</strong> — new show in their TVMaze credits</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="settings-push-actions">
+                <button type="button" id="savePushPrefsBtn">Save notification preferences</button>
+                <button type="button" class="secondary push-btn" id="enablePushBtn">Turn on push for this device</button>
+                <button type="button" class="secondary push-btn" id="testPushBtn">Send test notification</button>
+                <p class="muted msg" id="pushMsg" style="width: 100%"></p>
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     </div>
@@ -10338,35 +10572,36 @@
                   <label for="profileFavoriteShow">Favorite show</label>
                   <input id="profileFavoriteShow" type="text" maxlength="200" placeholder="e.g. The Bear, Doctor Who…" autocomplete="off" />
                   <p class="muted msg profile-card-msg" id="profileAboutMsg"></p>
+
+                  <div
+                    class="profile-edit-subsection profile-edit-subsection--share profile-share-card-section"
+                    id="profileShareCardSection"
+                    hidden
+                    aria-labelledby="profileShareCardHeading"
+                  >
+                    <h3 id="profileShareCardHeading" class="profile-edit-subsection-title">Share your stats</h3>
+                    <p class="profile-edit-card-lead muted" style="margin-top: 0">
+                      Square PNG for Instagram, X, or anywhere — your episode and show totals, Airalert-branded.
+                    </p>
+                    <p class="profile-share-preview-wrap" id="profileSharePreviewWrap" hidden>
+                      <canvas id="profileShareCanvas" width="1080" height="1080" class="profile-share-canvas"></canvas>
+                    </p>
+                    <div class="profile-share-actions">
+                      <button type="button" id="profileShareCardGenerateBtn">Preview card</button>
+                      <button type="button" class="secondary" id="profileShareCardDownloadBtn" disabled>Download PNG</button>
+                      <button type="button" class="secondary" id="profileShareCardShareBtn" disabled>Share…</button>
+                    </div>
+                    <p class="muted msg profile-card-msg" id="profileShareCardMsg"></p>
+                  </div>
                 </section>
               </div>
 
-              <section
-                class="profile-edit-card profile-edit-card--share profile-share-card-section"
-                id="profileShareCardSection"
-                hidden
-                aria-labelledby="profileShareCardHeading"
-              >
-                <h2 id="profileShareCardHeading" class="profile-edit-card-title header-cyan-glow">Share your stats</h2>
-                <p class="profile-edit-card-lead muted">
-                  Square PNG for Instagram, X, or anywhere — your episode and show totals, Airalert-branded.
-                </p>
-                <p class="profile-share-preview-wrap" id="profileSharePreviewWrap" hidden>
-                  <canvas id="profileShareCanvas" width="1080" height="1080" class="profile-share-canvas"></canvas>
-                </p>
-                <div class="profile-share-actions">
-                  <button type="button" id="profileShareCardGenerateBtn">Preview card</button>
-                  <button type="button" class="secondary" id="profileShareCardDownloadBtn" disabled>Download PNG</button>
-                  <button type="button" class="secondary" id="profileShareCardShareBtn" disabled>Share…</button>
-                </div>
-                <p class="muted msg profile-card-msg" id="profileShareCardMsg"></p>
-              </section>
-
+              <div class="profile-edit-account-session-grid">
               <section class="profile-edit-card profile-edit-card--account" aria-labelledby="profileAccountHeading">
                 <h2 id="profileAccountHeading" class="profile-edit-card-title">Account</h2>
                 <p class="profile-edit-card-lead muted">
-                  Create an account with your email (to sign in), a public username, and a password. Or stay a guest — your list
-                  stays on this device only.
+                  Your <strong>email</strong> is the main way to sign in. Add a public <strong>@username</strong> for Community and a
+                  password. <strong>Guest</strong> mode keeps your list on this device only until you create an account.
                 </p>
                 <div id="accountGuest">
                   <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn" data-google-login hidden style="margin-bottom: 0.65rem">
@@ -10430,7 +10665,7 @@
                     Use <strong>Sign out</strong> in the profile menu or in Session below to end this session on this device.
                   </p>
                   <div id="accountEmailVerifyBanner" class="account-email-verify" hidden>
-                    <p class="profile-edit-card-title" style="margin-top: 0.35rem">Verify your email</p>
+                    <h3 class="profile-account-block-title" style="margin-top: 0.35rem">Verify your email</h3>
                     <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">
                       We sent a link when you registered or changed email — check your inbox and spam. You can keep using AirAlert while it’s pending.
                     </p>
@@ -10439,7 +10674,7 @@
                     </button>
                   </div>
                   <div id="accountEmailUpgrade" class="account-email-upgrade" hidden>
-                    <p class="profile-edit-card-title" style="margin-top: 0.35rem">Add an email (optional)</p>
+                    <h3 class="profile-account-block-title" style="margin-top: 0.35rem">Add an email (optional)</h3>
                     <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">
                       Link an address to this account for recovery and email sign-in. Your username and password keep working until you add one.
                     </p>
@@ -10457,7 +10692,7 @@
                     <p class="msg err profile-card-msg" id="acctUpgradeEmailErr" hidden></p>
                   </div>
                   <div id="accountChangePassword" class="account-change-pw" hidden>
-                    <p class="profile-edit-card-title" style="margin-top: 0.35rem">Change password</p>
+                    <h3 class="profile-account-block-title" style="margin-top: 0.35rem">Change password</h3>
                     <div class="profile-account-grid profile-account-pw-grid">
                       <div>
                         <label for="acctCurPw">Current password</label>
@@ -10488,8 +10723,11 @@
                 <p class="profile-edit-card-lead muted">
                   Sign out ends your logged-in session on this browser. You’ll get a fresh guest list unless you sign in again.
                 </p>
-                <button type="button" class="secondary profile-session-signout-btn" id="signOutAccountBtn">Sign out</button>
+                <div class="profile-edit-destructive-actions" role="group" aria-label="End session on this device">
+                  <button type="button" class="secondary profile-session-signout-btn" id="signOutAccountBtn">Sign out</button>
+                </div>
               </section>
+              </div>
             </div>
           </div>
         <div class="profile-edit-sticky" role="region" aria-label="Save profile changes">
@@ -10535,45 +10773,11 @@
 
       /** Keep in sync with {@link ACTIVATION_MIN_SUBSCRIBED_SHOWS} in src/userRole.ts */
       const ACTIVATION_MIN_SHOWS = 3;
-      const ESTABLISHED_SUB_THRESHOLD = 7;
 
       function isLowShowUser(me) {
         if (!me || me.id == null) return false;
         const n = Number(me.subscribedShowCount);
         return Number.isFinite(n) && n >= 0 && n < ACTIVATION_MIN_SHOWS;
-      }
-      const ONBOARDING_GENRE_OPTIONS = [
-        "drama",
-        "comedy",
-        "crime",
-        "science-fiction",
-        "fantasy",
-        "thriller",
-        "reality",
-        "romance",
-        "mystery",
-        "animation",
-      ];
-      const ONBOARDING_NETWORK_OPTIONS = [
-        "Netflix",
-        "HBO",
-        "Hulu",
-        "Disney+",
-        "Apple TV+",
-        "Prime Video",
-        "Paramount+",
-        "Peacock",
-      ];
-
-      let lastKnownSubCountForCelebration = -1;
-
-      function shouldAutoShowOnboardingSetup(me) {
-        if (!me || !accountIsRegistered(me)) return false;
-        const n = Number(me.subscribedShowCount);
-        if (Number.isFinite(n) && n >= ESTABLISHED_SUB_THRESHOLD) return false;
-        const op = me.onboardingPrefs;
-        if (op && op.setupCompletedAt) return false;
-        return true;
       }
 
       async function refreshSessionMeFromServer() {
@@ -10638,199 +10842,6 @@
                 ? "Add 1 more show to unlock Community + Inbox."
                 : "Add " + left + " more shows to unlock Community + Inbox.";
           }
-        }
-      }
-
-      function updateStarterPacksVisibility(me) {
-        const sec = document.getElementById("starterPacksSection");
-        if (!sec) return;
-        const n = Number(me && me.subscribedShowCount);
-        const show =
-          me &&
-          me.id &&
-          !userIsDbAdmin(me) &&
-          Number.isFinite(n) &&
-          n < ESTABLISHED_SUB_THRESHOLD;
-        sec.hidden = !show;
-      }
-
-      function maybeCelebrateTvWatcherUnlock(me) {
-        if (!me || !accountIsRegistered(me)) return;
-        const n = Number(me.subscribedShowCount);
-        if (!Number.isFinite(n)) return;
-        if (lastKnownSubCountForCelebration < 0) {
-          lastKnownSubCountForCelebration = n;
-          return;
-        }
-        if (lastKnownSubCountForCelebration < ACTIVATION_MIN_SHOWS && n >= ACTIVATION_MIN_SHOWS && hasFullSocialUiAccess(me)) {
-          const key = "airalert_unlock_celebration_v2_" + me.id;
-          if (!localStorage.getItem(key)) {
-            localStorage.setItem(key, "1");
-            openTvWatcherUnlockModal();
-          }
-        }
-        lastKnownSubCountForCelebration = n;
-      }
-
-      function openTvWatcherUnlockModal() {
-        const el = document.getElementById("tvWatcherUnlockModal");
-        if (el) el.classList.add("open");
-      }
-
-      function closeTvWatcherUnlockModal() {
-        const el = document.getElementById("tvWatcherUnlockModal");
-        if (el) el.classList.remove("open");
-      }
-
-      function prettyGenreChipLabel(g) {
-        return String(g)
-          .split(/[-\s]+/)
-          .filter(Boolean)
-          .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-          .join(g.includes("-") ? "-" : " ");
-      }
-
-      function populateOnboardingSetupForm(me) {
-        const gWrap = document.getElementById("onboardingSetupGenres");
-        const nWrap = document.getElementById("onboardingSetupNetworks");
-        if (!gWrap || !nWrap) return;
-        const op = (me && me.onboardingPrefs) || {};
-        const selG = new Set(Array.isArray(op.favoriteGenres) ? op.favoriteGenres.map((x) => String(x).toLowerCase()) : []);
-        const selN = new Set(Array.isArray(op.favoriteNetworks) ? op.favoriteNetworks.map((x) => String(x)) : []);
-        gWrap.innerHTML = "";
-        for (const g of ONBOARDING_GENRE_OPTIONS) {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "onboarding-setup-chip" + (selG.has(g) ? " is-selected" : "");
-          btn.textContent = prettyGenreChipLabel(g);
-          btn.dataset.genre = g;
-          btn.addEventListener("click", () => {
-            btn.classList.toggle("is-selected");
-          });
-          gWrap.appendChild(btn);
-        }
-        nWrap.innerHTML = "";
-        for (const net of ONBOARDING_NETWORK_OPTIONS) {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "onboarding-setup-chip" + (selN.has(net) ? " is-selected" : "");
-          btn.textContent = net;
-          btn.dataset.network = net;
-          btn.addEventListener("click", () => {
-            btn.classList.toggle("is-selected");
-          });
-          nWrap.appendChild(btn);
-        }
-      }
-
-      function readOnboardingSetupSelections() {
-        const genres = [];
-        document.querySelectorAll("#onboardingSetupGenres .onboarding-setup-chip.is-selected").forEach((el) => {
-          const g = el.getAttribute("data-genre");
-          if (g) genres.push(g);
-        });
-        const networks = [];
-        document.querySelectorAll("#onboardingSetupNetworks .onboarding-setup-chip.is-selected").forEach((el) => {
-          const n = el.getAttribute("data-network");
-          if (n) networks.push(n);
-        });
-        return { favoriteGenres: genres, favoriteNetworks: networks, setupCompletedAt: true };
-      }
-
-      function openOnboardingSetupModal(me) {
-        closeAppSettingsModal();
-        populateOnboardingSetupForm(me);
-        const el = document.getElementById("onboardingSetupModal");
-        if (el) el.classList.add("open");
-        requestAnimationFrame(() => {
-          document.getElementById("onboardingSetupSaveBtn")?.focus();
-        });
-      }
-
-      function closeOnboardingSetupModal() {
-        const el = document.getElementById("onboardingSetupModal");
-        if (el) el.classList.remove("open");
-      }
-
-      async function saveOnboardingSetupAndContinue(userId) {
-        const body = readOnboardingSetupSelections();
-        await api("/api/users/" + encodeURIComponent(userId), {
-          method: "PATCH",
-          body: JSON.stringify({ onboardingPrefs: body }),
-        });
-        await refreshSessionMeFromServer();
-        const uid = resolveUserId();
-        if (uid) {
-          loadRecommended(uid);
-          loadTrendingShows(uid);
-        }
-        closeOnboardingSetupModal();
-      }
-
-      async function skipOnboardingSetup(userId) {
-        await api("/api/users/" + encodeURIComponent(userId), {
-          method: "PATCH",
-          body: JSON.stringify({ onboardingPrefs: { setupCompletedAt: true } }),
-        });
-        await refreshSessionMeFromServer();
-        closeOnboardingSetupModal();
-      }
-
-      let starterPackChipsRendered = false;
-      function ensureStarterPackChips() {
-        if (starterPackChipsRendered) return;
-        const box = document.getElementById("starterPackChips");
-        if (!box) return;
-        starterPackChipsRendered = true;
-        const packs = [
-          { slug: "reality-tv", label: "Reality TV" },
-          { slug: "crime", label: "Crime" },
-          { slug: "comedy", label: "Comedy" },
-          { slug: "sci-fi", label: "Sci-Fi" },
-          { slug: "drama", label: "Drama" },
-          { slug: "dating", label: "Dating shows" },
-          { slug: "competition", label: "Competition" },
-        ];
-        for (const p of packs) {
-          const b = document.createElement("button");
-          b.type = "button";
-          b.className = "starter-pack-chip";
-          b.textContent = p.label;
-          b.addEventListener("click", () => void loadStarterPackIntoUi(p.slug, p.label));
-          box.appendChild(b);
-        }
-      }
-
-      async function loadStarterPackIntoUi(slug, label) {
-        const expand = document.getElementById("starterPackExpand");
-        const title = document.getElementById("starterPackExpandTitle");
-        const results = document.getElementById("starterPackResults");
-        const err = document.getElementById("searchErr");
-        if (!expand || !title || !results) return;
-        expand.hidden = false;
-        title.textContent = label;
-        results.innerHTML = "";
-        const loading = document.createElement("p");
-        loading.className = "muted";
-        loading.textContent = "Fetching picks…";
-        results.appendChild(loading);
-        try {
-          const data = await api("/api/onboarding/starter-pack/" + encodeURIComponent(slug));
-          results.innerHTML = "";
-          const uid = resolveUserId();
-          if (!data.shows || !data.shows.length) {
-            results.appendChild(document.createElement("p")).textContent = "No picks available — try search.";
-            return;
-          }
-          for (const s of data.shows) {
-            appendSearchResultCard(results, s, uid, err, "starter_pack");
-          }
-        } catch (e) {
-          results.innerHTML = "";
-          const p = document.createElement("p");
-          p.className = "msg err";
-          p.textContent = e.message || "Could not load pack";
-          results.appendChild(p);
         }
       }
 
@@ -11347,6 +11358,7 @@
         const { subscriptions } = await api("/api/users/" + userId + "/subscriptions");
         const ul = document.getElementById("subs");
         const empty = document.getElementById("subsEmptyState");
+        if (!ul || !empty) return;
         ul.innerHTML = "";
         if (!subscriptions.length) {
           empty.style.display = "block";
@@ -11419,7 +11431,7 @@
             await api("/api/subscriptions/" + s.id, { method: "DELETE" });
             await loadSubs(userId);
             loadRecommended(userId);
-            loadTrendingShows(userId);
+            loadTrendingShowsDeferred(userId);
           };
           li.appendChild(left);
           li.appendChild(btn);
@@ -11569,12 +11581,105 @@
         const min = Number(m[2]);
         const ap = h >= 12 ? "PM" : "AM";
         if (h === 0) h = 12;
-        else if (h > 12) h -= 12;
+        else         if (h > 12) h -= 12;
         return h + ":" + (min < 10 ? "0" : "") + min + " " + ap;
       }
 
+      function deferAfterPaint(fn) {
+        if (typeof requestAnimationFrame === "function") {
+          requestAnimationFrame(() => requestAnimationFrame(() => fn()));
+        } else {
+          setTimeout(fn, 0);
+        }
+      }
+
+      function loadTrendingShowsDeferred(userId) {
+        if (userId == null) return;
+        deferAfterPaint(() => {
+          void loadTrendingShows(userId);
+        });
+      }
+
+      function scheduleCommunityListSecondary() {
+        if (typeof requestIdleCallback === "function") {
+          requestIdleCallback(
+            () => {
+              void loadCommunityHeadlines();
+              void loadLiveRoomsSummary();
+              startLiveRoomsRefresh();
+            },
+            { timeout: 2000 },
+          );
+        } else {
+          setTimeout(() => {
+            void loadCommunityHeadlines();
+            void loadLiveRoomsSummary();
+            startLiveRoomsRefresh();
+          }, 200);
+        }
+      }
+
+      function renderWeekGuideSkeleton(grid) {
+        if (!grid) return;
+        grid.innerHTML = "";
+        grid.classList.add("week-guide-grid--loading");
+        grid.setAttribute("aria-busy", "true");
+        const dows = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        for (const d of dows) {
+          const col = document.createElement("div");
+          col.className = "week-guide-day week-guide-day--skeleton";
+          col.setAttribute("aria-hidden", "true");
+          const head = document.createElement("div");
+          head.className = "week-guide-day-head";
+          head.innerHTML = '<span class="week-guide-dow">' + d + '</span><span class="week-guide-dmd"> </span>';
+          const body = document.createElement("div");
+          body.className = "week-guide-day-body";
+          body.innerHTML =
+            '<div class="week-guide-skel-bar"></div><div class="week-guide-skel-bar short"></div><div class="week-guide-skel-bar"></div>';
+          col.appendChild(head);
+          col.appendChild(body);
+          grid.appendChild(col);
+        }
+      }
+
+      function renderCommunityThreadListsSkeleton() {
+        const listEl = document.getElementById("communityThreadList");
+        const generalEl = document.getElementById("communityGeneralList");
+        const generalHeading = document.getElementById("communityGeneralHeading");
+        if (generalHeading) generalHeading.hidden = true;
+        if (generalEl) generalEl.innerHTML = "";
+        if (!listEl) return;
+        listEl.innerHTML = "";
+        for (let i = 0; i < 4; i++) {
+          const li = document.createElement("li");
+          li.setAttribute("aria-hidden", "true");
+          li.innerHTML = '<div class="community-thread-skeleton-card"></div>';
+          listEl.appendChild(li);
+        }
+        listEl.setAttribute("aria-busy", "true");
+      }
+
+      function renderCommunityPostFeedSkeleton(feed) {
+        if (!feed) return;
+        feed.innerHTML = "";
+        feed.setAttribute("aria-busy", "true");
+        for (let i = 0; i < 3; i++) {
+          const d = document.createElement("div");
+          d.className = "community-post-skeleton";
+          d.setAttribute("aria-hidden", "true");
+          d.innerHTML =
+            '<div class="community-post-skeleton-row">' +
+            '<div class="community-post-skeleton-av"></div>' +
+            '<div class="community-post-skeleton-lines">' +
+            '<div class="community-post-skeleton-line"></div>' +
+            '<div class="community-post-skeleton-line short"></div>' +
+            '<div class="community-post-skeleton-line"></div>' +
+            "</div></div>";
+          feed.appendChild(d);
+        }
+      }
+
       async function loadWeekGuide(userId) {
-        const loading = document.getElementById("weekGuideLoading");
         const errEl = document.getElementById("weekGuideErr");
         const grid = document.getElementById("weekGuideGrid");
         const empty = document.getElementById("weekGuideEmpty");
@@ -11583,11 +11688,16 @@
           errEl.style.display = "none";
           errEl.textContent = "";
         }
-        if (loading) {
-          loading.hidden = false;
-          loading.textContent = "Fetching schedule…";
+        if (empty) {
+          empty.hidden = true;
+          empty.textContent = "";
         }
-        if (rangeEl) rangeEl.textContent = "Fetching this week…";
+        if (grid) {
+          renderWeekGuideSkeleton(grid);
+        }
+        if (rangeEl) rangeEl.textContent = "Loading this week…";
+        const tzEl = document.getElementById("weekGuideTzNote");
+        if (tzEl) tzEl.textContent = "";
         try {
           const qs = weekGuideWeekStart ? "?weekStart=" + encodeURIComponent(weekGuideWeekStart) : "";
           const data = await api("/api/users/" + encodeURIComponent(userId) + "/week-guide" + qs);
@@ -11598,11 +11708,13 @@
             errEl.textContent = e.message || "Could not load schedule";
             errEl.style.display = "block";
           }
-          if (grid) grid.innerHTML = "";
+          if (grid) {
+            grid.innerHTML = "";
+            grid.classList.remove("week-guide-grid--loading");
+            grid.removeAttribute("aria-busy");
+          }
           if (empty) empty.hidden = true;
-          if (rangeEl) rangeEl.textContent = "—";
-        } finally {
-          if (loading) loading.hidden = true;
+          if (rangeEl) rangeEl.textContent = "Couldn’t load this week";
         }
       }
 
@@ -11611,6 +11723,10 @@
         const tzEl = document.getElementById("weekGuideTzNote");
         const grid = document.getElementById("weekGuideGrid");
         const empty = document.getElementById("weekGuideEmpty");
+        if (grid) {
+          grid.classList.remove("week-guide-grid--loading");
+          grid.removeAttribute("aria-busy");
+        }
         const n = Number(data.episodeCount) || 0;
         if (rangeEl) {
           rangeEl.textContent =
@@ -12051,7 +12167,10 @@
         }
       }
 
-      (function setupPostWatchReviewModal() {
+      function setupPostWatchReviewModalWiring() {
+        const modal = document.getElementById("postWatchReviewModal");
+        if (!modal || modal.dataset.aaShellWired === "1") return;
+        modal.dataset.aaShellWired = "1";
         document.getElementById("postWatchReviewSkipBtn")?.addEventListener("click", () => closePostWatchReviewModal());
         document.getElementById("postWatchReviewSubmitBtn")?.addEventListener("click", () => void submitPostWatchReviewFromModal());
         document.querySelectorAll("[data-close-post-watch-review]").forEach((el) => {
@@ -12059,12 +12178,12 @@
         });
         document.addEventListener("keydown", (e) => {
           if (e.key !== "Escape") return;
-          const modal = document.getElementById("postWatchReviewModal");
-          if (!modal || modal.hidden) return;
+          const m = document.getElementById("postWatchReviewModal");
+          if (!m || m.hidden) return;
           e.preventDefault();
           closePostWatchReviewModal();
         });
-      })();
+      }
 
       async function loadTasks(userId) {
         const ulOpen = document.getElementById("tasksList");
@@ -12129,7 +12248,7 @@
         appUserId = id;
         await loadUser(id);
         await loadSubs(id);
-        loadTrendingShows(id);
+        loadTrendingShowsDeferred(id);
         const rList = document.getElementById("recommendedList");
         if (rList) rList.innerHTML = "";
         if (getActiveTabName() === "tasks") await loadTasks(id);
@@ -12954,7 +13073,7 @@
       async function openDmInboxModal(opts) {
         closeHeaderMenus();
         if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an account (profile icon → Your profile) to use messages.");
+          showToast("Create an account with your email (Profile menu → Create account) to use messages.");
           return;
         }
         if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
@@ -13767,7 +13886,7 @@
 
       async function startDirectMessageToUser(otherUserId, otherLabel) {
         if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an account (profile icon → Your profile) to send messages.");
+          showToast("Create an account with your email (Profile menu → Create account) to send messages.");
           return;
         }
         if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
@@ -13982,12 +14101,12 @@
         else syncProfileIdentityFromUser(null);
         const signOutSec = document.getElementById("profileSignOutSection");
         if (signOutSec) {
-          signOutSec.hidden = !(me && me.authProvider && me.authProvider !== "guest");
+          signOutSec.hidden = !accountIsRegistered(me);
         }
         const guest = document.getElementById("accountGuest");
         const signed = document.getElementById("accountSignedIn");
         if (guest && signed) {
-          if (me && me.authProvider && me.authProvider !== "guest") {
+          if (me && accountIsRegistered(me)) {
             guest.hidden = true;
             signed.hidden = false;
             const lab = document.getElementById("accountUsernameLabel");
@@ -14017,9 +14136,6 @@
         void syncCommunityEditAdminMoveUi(adminMoveUiEpoch);
         void ensureAdminUiLoaded(me, epoch);
         updateOnboardingMissionStrip(me);
-        updateStarterPacksVisibility(me);
-        ensureStarterPackChips();
-        maybeCelebrateTvWatcherUnlock(me);
         syncHeaderProfileDropdown(me);
         void refreshHeaderNotificationsUnreadFromServer();
       }
@@ -14028,8 +14144,6 @@
         if (from === "search") return "search";
         if (from === "recommended") return "rec";
         if (from === "trending") return "rec";
-        if (from === "starter_pack") return "rec";
-        if (from === "onboarding") return "rec";
         if (from === "admin") return "adm";
         return "unk";
       }
@@ -14038,8 +14152,6 @@
         if (from === "search") return "search";
         if (from === "recommended") return "rec";
         if (from === "trending") return "trend";
-        if (from === "starter_pack") return "pack";
-        if (from === "onboarding") return "setup";
         if (from === "admin") return "admin";
         return "legacy";
       }
@@ -14795,15 +14907,14 @@
         const pin = document.getElementById("modalNextPinned");
         pin.hidden = true;
         pin.innerHTML = "";
-        document.getElementById("modalShowTitle").textContent = "Fetching…";
+        document.getElementById("modalShowTitle").textContent = "Show details";
         document.getElementById("modalShowStats").textContent = "";
         setModalPoster(null);
         body.innerHTML =
-          '<div class="modal-body-loading-skel" aria-busy="true">' +
+          '<div class="modal-body-loading-skel" aria-busy="true" aria-label="Loading show details">' +
           '<div class="skeleton-line skeleton-line-title skeleton-shimmer" style="max-width:14rem;margin-bottom:0.65rem"></div>' +
           '<div class="skeleton-line skeleton-line-meta skeleton-shimmer" style="max-width:22rem;margin-bottom:0.45rem"></div>' +
           '<div class="skeleton-line skeleton-line-meta skeleton-shimmer" style="max-width:18rem"></div>' +
-          '<p class="muted modal-body-loading-caption" style="margin:0.85rem 0 0;font-size:0.84rem">Fetching show details…</p>' +
           "</div>";
         modal.classList.add("open");
 
@@ -14950,7 +15061,15 @@
         const banner = document.getElementById("communityLiveAirNightBanner");
         const railTitle = document.getElementById("communityLiveRailTitle");
         const rail = document.getElementById("communityLiveRail");
+        const extras = document.getElementById("communityThreadExtras");
         if (banner) banner.hidden = !communityThreadLiveAirNight;
+        if (extras && communityThreadLiveAirNight) {
+          try {
+            extras.open = true;
+          } catch {
+            /* ignore */
+          }
+        }
         if (railTitle) railTitle.textContent = communityThreadLiveAirNight ? "Live room" : "Watching now";
         if (rail) {
           rail.setAttribute(
@@ -15008,21 +15127,7 @@
       function syncCommunityLiveRailEmptyHint() {
         const host = document.getElementById("communityLiveRailMessages");
         if (!host) return;
-        const hasMsg = host.querySelector(".community-live-rail-msg");
-        let hint = host.querySelector(".community-live-rail-empty-hint");
-        const wsOk = communityThreadLiveWs && communityThreadLiveWs.readyState === 1;
-        const show =
-          communityThreadLiveRailOpen && wsOk && !hasMsg;
-        if (show) {
-          if (!hint) {
-            hint = document.createElement("p");
-            hint.className = "community-live-rail-empty-hint";
-            host.insertBefore(hint, host.firstChild);
-          }
-          hint.textContent = "No messages yet — say something below.";
-        } else if (hint) {
-          hint.remove();
-        }
+        host.querySelectorAll(".community-live-rail-empty-hint").forEach((h) => h.remove());
       }
 
       function shortChatPresenceName(handle) {
@@ -15044,6 +15149,77 @@
         return show.join(", ") + " +" + rest + " here now";
       }
 
+      /**
+       * True when the live room should read as “active” (green pulse, highlights).
+       * Uses the `thread_live_presence` payload: `viewerCount`, `watchingCount`, `liveAirNight` (see `src/communityLive.ts` broadcastPresence).
+       */
+      function isLiveChatRoomActive(p) {
+        if (!p || typeof p !== "object") return false;
+        const vc = Math.max(0, Math.floor(Number(p.viewerCount) || 0));
+        const wc = Math.max(0, Math.floor(Number(p.watchingCount) || 0));
+        if (p.liveAirNight === true && vc >= 1) return true;
+        if (vc >= 2) return true;
+        if (wc >= 1) return true;
+        return false;
+      }
+
+      /** Compact status line under sub-tabs; uses the same payload as the Chat tab. */
+      function syncCommunityThreadPresenceRow(p) {
+        const row = document.getElementById("communityThreadPresenceRow");
+        const main = document.getElementById("communityThreadPresenceText");
+        const subEl = document.getElementById("communityThreadPresenceSub");
+        const dot = document.getElementById("communityThreadPresenceDot");
+        if (!row || !main) return;
+        if (!p || typeof p !== "object") {
+          row.hidden = true;
+          row.classList.remove("is-room-active");
+          main.textContent = "";
+          if (subEl) {
+            subEl.textContent = "";
+            subEl.hidden = true;
+          }
+          if (dot) {
+            dot.hidden = true;
+            dot.classList.remove("is-live");
+          }
+          return;
+        }
+        const vc = Math.max(0, Math.floor(Number(p.viewerCount) || 0));
+        const watchers = Array.isArray(p.watchers) ? p.watchers : [];
+        if (vc <= 0) {
+          row.hidden = true;
+          row.classList.remove("is-room-active");
+          main.textContent = "";
+          if (subEl) {
+            subEl.textContent = "";
+            subEl.hidden = true;
+          }
+          if (dot) {
+            dot.hidden = true;
+            dot.classList.remove("is-live");
+          }
+          return;
+        }
+        const active = isLiveChatRoomActive(p);
+        row.hidden = false;
+        row.classList.toggle("is-room-active", active);
+        if (dot) {
+          dot.hidden = !active;
+          dot.classList.toggle("is-live", active);
+        }
+        main.textContent = vc + " in live chat";
+        const nameLine = formatChatPresenceSubtitle(watchers, vc);
+        if (subEl) {
+          if (nameLine) {
+            subEl.textContent = nameLine;
+            subEl.hidden = false;
+          } else {
+            subEl.textContent = "";
+            subEl.hidden = true;
+          }
+        }
+      }
+
       function syncCommunityHeroChatPresence(vc) {
         const el = document.getElementById("communityHeroChatPresence");
         if (!el) return;
@@ -15057,13 +15233,15 @@
         el.hidden = false;
       }
 
-      function syncCommunityThreadHeaderPresence(vc, watchersRaw) {
+      function syncCommunityThreadHeaderPresence(vc, watchersRaw, roomActive) {
         const strip = document.getElementById("communityThreadLiveStrip");
         const main = document.getElementById("communityThreadLiveStripMain");
         const namesEl = document.getElementById("communityThreadLiveStripNames");
         const avatars = document.getElementById("communityThreadLiveAvatars");
         if (!strip || !main) return;
         const n = Math.max(0, Math.floor(Number(vc) || 0));
+        const active = roomActive === true;
+        strip.classList.toggle("community-thread-live-strip--room-active", active && n > 0);
         if (n <= 0) {
           strip.hidden = true;
           main.textContent = "";
@@ -15078,7 +15256,8 @@
           return;
         }
         strip.hidden = false;
-        main.textContent = "Live chat · " + n + (n === 1 ? " person" : " people");
+        const lead = active ? "Live now" : "In this room";
+        main.textContent = lead + " · " + n + (n === 1 ? " person" : " people");
         const watchers = Array.isArray(watchersRaw) ? watchersRaw : [];
         const sub = formatChatPresenceSubtitle(watchers, n);
         if (namesEl) {
@@ -15135,7 +15314,10 @@
 
       function clearCommunityThreadLivePresenceUi() {
         const strip = document.getElementById("communityThreadLiveStrip");
-        if (strip) strip.hidden = true;
+        if (strip) {
+          strip.hidden = true;
+          strip.classList.remove("community-thread-live-strip--room-active");
+        }
         const main = document.getElementById("communityThreadLiveStripMain");
         if (main) main.textContent = "";
         const namesEl = document.getElementById("communityThreadLiveStripNames");
@@ -15143,6 +15325,7 @@
           namesEl.textContent = "";
           namesEl.hidden = true;
         }
+        syncCommunityThreadPresenceRow(null);
         syncCommunityHeroChatPresence(0);
         const avatars = document.getElementById("communityThreadLiveAvatars");
         if (avatars) {
@@ -15262,14 +15445,22 @@
         syncCommunityChatSubtabLabel(0);
       }
 
-      /** Updates the Chat sub-tab: plain "Chat" when nobody in room; green dot + "Chat (n)" when viewerCount ≥ 1. */
-      function syncCommunityChatSubtabLabel(viewerCount) {
+      /**
+       * Chat tab: "Chat" + (n) when n ≥ 1; green pulse + inset glow only when the room is active
+       * (`isLiveChatRoomActive` / same `thread_live_presence` payload). Pass 0 to reset.
+       */
+      function syncCommunityChatSubtabLabel(presence) {
         const btn = document.getElementById("communityChatSubtabBtn");
         if (!btn) return;
         const dot = btn.querySelector(".community-chat-live-dot");
         const countEl = btn.querySelector(".community-chat-subtab-count");
         const labelEl = btn.querySelector(".community-chat-subtab-text");
-        const n = Math.max(0, Math.floor(Number(viewerCount) || 0));
+        let p = presence;
+        if (typeof presence === "number") {
+          p = { viewerCount: presence, watchingCount: 0, liveAirNight: false };
+        }
+        const n = Math.max(0, Math.floor(Number(p && p.viewerCount) || 0));
+        const isActive = isLiveChatRoomActive(p);
         if (n <= 0) {
           if (dot) {
             dot.hidden = true;
@@ -15285,16 +15476,19 @@
           return;
         }
         if (dot) {
-          dot.hidden = false;
-          dot.classList.add("is-live");
+          dot.hidden = !isActive;
+          dot.classList.toggle("is-live", isActive);
         }
         if (countEl) {
-          countEl.textContent = "";
-          countEl.hidden = true;
+          countEl.textContent = " (" + n + ")";
+          countEl.hidden = false;
         }
-        if (labelEl) labelEl.textContent = "Chat (" + n + ")";
-        btn.classList.add("community-chat-subtab--live");
-        btn.setAttribute("aria-label", "Chat, " + n + " active in live room");
+        if (labelEl) labelEl.textContent = "Chat";
+        btn.classList.toggle("community-chat-subtab--live", isActive);
+        btn.setAttribute(
+          "aria-label",
+          isActive ? "Chat, " + n + " in the live room, active now" : "Chat, " + n + " in the live room",
+        );
       }
 
       function applyCommunityThreadLivePresence(data) {
@@ -15305,9 +15499,11 @@
           applyCommunityLiveAirNightChrome();
         }
         const vc = Number(data.viewerCount) || 0;
-        syncCommunityChatSubtabLabel(vc);
+        const roomActive = isLiveChatRoomActive(data);
+        syncCommunityChatSubtabLabel(data);
         syncCommunityHeroChatPresence(vc);
-        syncCommunityThreadHeaderPresence(vc, data.watchers);
+        syncCommunityThreadHeaderPresence(vc, data.watchers, roomActive);
+        syncCommunityThreadPresenceRow(data);
         syncCommunityLiveRailPresenceBar(vc, data.watchers);
         const rail = document.getElementById("communityLiveRail");
         const row = document.getElementById("communityThreadMainRow");
@@ -15739,343 +15935,13 @@
         applyCommunityLiveAirNightChrome();
         const lv = document.getElementById("communityListView");
         const tv = document.getElementById("communityThreadView");
-        const ccv = document.getElementById("communityChallengeCreateView");
         if (lv) lv.classList.remove("hidden");
         if (tv) tv.classList.add("hidden");
-        if (ccv) ccv.classList.add("hidden");
         const communityFab = document.getElementById("communityNewThreadBtn");
         if (communityFab) communityFab.style.display = "";
-        loadCommunityThreads();
-        void loadCommunityHeadlines();
-        void loadLiveRoomsSummary();
-        startLiveRoomsRefresh();
-      }
-
-      async function loadCommunityChallenges() {
-        const listEl = document.getElementById("communityChallengesList");
-        const errEl = document.getElementById("communityChallengesErr");
-        const loadEl = document.getElementById("communityChallengesLoading");
-        if (!listEl) return;
-        if (errEl) {
-          errEl.style.display = "none";
-          errEl.textContent = "";
-        }
-        if (loadEl) loadEl.hidden = false;
-        try {
-          const data = await api("/api/community/challenges");
-          const challenges = data.challenges || [];
-          listEl.innerHTML = "";
-          for (const ch of challenges) {
-            const li = document.createElement("li");
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.className =
-              "community-thread-card community-thread-card--hero community-thread-card--challenge";
-            const sid = Number(ch.tvmazeTargetShowId);
-            if (Number.isFinite(sid) && sid >= 1) btn.dataset.tvmazeShowId = String(sid);
-            const showLine = escapeHtml(ch.targetShowName || "Show");
-            const titleLine = escapeHtml(ch.title || "Watch challenge");
-            const deadlineHint =
-              "Before " +
-              escapeHtml(ch.deadlineEpisodeLabel || "—") +
-              " · " +
-              escapeHtml(ch.deadlineShowName || "") +
-              (ch.deadlineAirdate
-                ? " · " + escapeHtml(String(ch.deadlineAirdate).slice(0, 10))
-                : "");
-            const joinedStat = (ch.participantCount || 0) + " joined";
-            const badge = ch.active
-              ? '<span class="community-challenge-card-badge community-challenge-card-badge--active">Active</span>'
-              : '<span class="community-challenge-card-badge community-challenge-card-badge--ended">Ended</span>';
-            const ctaLabel = ch.active && !ch.joined ? "Join" : "View";
-            let progressStat = "";
-            if (ch.joined && ch.myProgress && typeof ch.myProgress.percent === "number") {
-              progressStat =
-                '<span class="community-thread-footer-stat">\u{1F4CA} ' +
-                escapeHtml(String(ch.myProgress.percent)) +
-                "%</span>";
-            }
-            let summaryLine = "";
-            if (ch.summary && String(ch.summary).trim()) {
-              const raw = String(ch.summary).trim();
-              const short = raw.length > 96 ? raw.slice(0, 93) + "\u2026" : raw;
-              summaryLine =
-                '<p class="community-challenge-summary-hint" style="font-size:0.7rem;margin:0.2rem 0 0;line-height:1.35;color:rgba(226,232,240,0.88);text-shadow:0 1px 4px rgba(0,0,0,0.65)">' +
-                escapeHtml(short) +
-                "</p>";
-            }
-            btn.innerHTML =
-              '<div class="community-thread-card-hero" role="presentation">' +
-              '<div class="community-thread-card-scrim" aria-hidden="true"></div>' +
-              '<div class="community-thread-card-badges">' +
-              badge +
-              "</div>" +
-              '<div class="community-thread-card-hero-inner">' +
-              '<div class="community-thread-ep-show">' +
-              showLine +
-              "</div>" +
-              '<div class="community-thread-ep-title" style="font-size:0.92rem;margin:0;line-height:1.3">' +
-              titleLine +
-              "</div>" +
-              '<p class="community-challenge-deadline-hint" style="font-size:0.72rem;margin:0.2rem 0 0;line-height:1.35;color:rgba(203,213,225,0.92);text-shadow:0 1px 4px rgba(0,0,0,0.65)">' +
-              deadlineHint +
-              "</p>" +
-              summaryLine +
-              '<div class="community-thread-footer" style="margin-top:0.35rem;flex-wrap:wrap">' +
-              '<span class="community-thread-footer-stat">\u{1F465} ' +
-              escapeHtml(joinedStat) +
-              "</span>" +
-              progressStat +
-              '<span style="margin-left:auto"><span class="community-thread-card-join">' +
-              escapeHtml(ctaLabel) +
-              "</span></span>" +
-              "</div>" +
-              "</div></div>";
-
-            applyCommunityThreadHeroArt(btn.querySelector(".community-thread-card-hero"), sid, null);
-            btn.addEventListener("click", () => openCommunityChallengeDetail(ch.id));
-            li.appendChild(btn);
-            li.style.opacity = "0";
-            li.style.transform = "translateX(20px)";
-            listEl.appendChild(li);
-          }
-          listEl.querySelectorAll("li").forEach((item, i) => {
-            setTimeout(() => {
-              item.style.transition = "opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1)";
-              item.style.opacity = "1";
-              item.style.transform = "translateX(0)";
-            }, i * 80);
-          });
-        } catch (e) {
-          if (errEl) {
-            errEl.textContent = e.message || "Could not load challenges";
-            errEl.style.display = "block";
-          }
-        } finally {
-          if (loadEl) loadEl.hidden = true;
-        }
-      }
-
-      let communityChallengeDetailId = null;
-      async function openCommunityChallengeDetail(challengeId) {
-        communityChallengeDetailId = challengeId;
-        const modal = document.getElementById("communityChallengeDetailModal");
-        const body = document.getElementById("communityChallengeDetailBody");
-        const titleEl = document.getElementById("communityChallengeDetailTitle");
-        const errEl = document.getElementById("communityChallengeDetailErr");
-        const joinRow = document.getElementById("communityChallengeJoinRow");
-        const joinCb = document.getElementById("communityChallengeJoinCb");
-        const guestHint = document.getElementById("communityChallengeGuestHint");
-        if (!modal || !body) return;
-        if (errEl) {
-          errEl.style.display = "none";
-          errEl.textContent = "";
-        }
-        modal.hidden = false;
-        modal.setAttribute("aria-hidden", "false");
-        body.innerHTML = "<p class=\"muted\">Fetching…</p>";
-        if (titleEl) titleEl.textContent = "Challenge";
-        const reg = accountIsRegistered(sessionMeSnapshot);
-        const canSocial = reg && hasFullSocialUiAccess(sessionMeSnapshot);
-        if (joinRow) joinRow.style.display = canSocial ? "inline-flex" : "none";
-        if (guestHint) {
-          if (canSocial) {
-            guestHint.hidden = true;
-          } else {
-            guestHint.hidden = false;
-            guestHint.textContent = reg ? UNLOCK_SOCIAL_UX_MESSAGE : "Sign in to join.";
-          }
-        }
-        try {
-          const data = await api("/api/community/challenges/" + encodeURIComponent(challengeId));
-          const ch = data.challenge;
-          const lb = data.leaderboard || [];
-          if (titleEl) titleEl.textContent = ch.title || "Challenge";
-          body.innerHTML = "";
-          const meta = document.createElement("p");
-          meta.className = "community-challenge-detail-meta";
-          meta.innerHTML =
-            "Finish <strong>" +
-            escapeHtml(ch.targetShowName) +
-            "</strong> before <strong>" +
-            escapeHtml(ch.deadlineEpisodeLabel) +
-            "</strong> of <strong>" +
-            escapeHtml(ch.deadlineShowName) +
-            "</strong> airs (<strong>" +
-            escapeHtml(String(ch.deadlineAirdate).slice(0, 10)) +
-            "</strong>). Progress = episodes marked watched on Tasks, with air dates on or before that day.";
-          body.appendChild(meta);
-          if (ch.summary && String(ch.summary).trim()) {
-            const sum = document.createElement("p");
-            sum.className = "muted";
-            sum.style.fontSize = "0.86rem";
-            sum.textContent = String(ch.summary).trim();
-            body.appendChild(sum);
-          }
-          const tbl = document.createElement("table");
-          tbl.className = "community-challenge-leaderboard";
-          tbl.innerHTML =
-            "<thead><tr><th>#</th><th>Member</th><th>Progress</th><th>Episodes</th></tr></thead><tbody></tbody>";
-          const tb = tbl.querySelector("tbody");
-          let rank = 0;
-          for (const row of lb) {
-            rank += 1;
-            const tr = document.createElement("tr");
-            tr.innerHTML =
-              "<td>" +
-              rank +
-              "</td><td>" +
-              escapeHtml(row.handle) +
-              "</td><td><strong>" +
-              row.percent +
-              "%</strong></td><td>" +
-              row.completed +
-              " / " +
-              row.eligible +
-              "</td>";
-            tb.appendChild(tr);
-          }
-          if (lb.length === 0) {
-            const tr = document.createElement("tr");
-            tr.innerHTML = "<td colspan=\"4\" class=\"muted\">No one has joined yet.</td>";
-            tb.appendChild(tr);
-          }
-          body.appendChild(tbl);
-          if (joinCb) {
-            joinCb.disabled = !ch.active;
-            joinCb.checked = !!ch.joined;
-            joinCb.onchange = async () => {
-              if (!communityChallengeDetailId) return;
-              try {
-                if (joinCb.checked) {
-                  await api("/api/community/challenges/" + encodeURIComponent(communityChallengeDetailId) + "/join", {
-                    method: "POST",
-                  });
-                  showToast("You’re in!");
-                } else {
-                  await api("/api/community/challenges/" + encodeURIComponent(communityChallengeDetailId) + "/join", {
-                    method: "DELETE",
-                  });
-                  showToast("Left challenge");
-                }
-                await loadCommunityChallenges();
-                await openCommunityChallengeDetail(communityChallengeDetailId);
-              } catch (e) {
-                joinCb.checked = !joinCb.checked;
-                if (errEl) {
-                  errEl.textContent = e.message || "Could not update";
-                  errEl.style.display = "block";
-                }
-              }
-            };
-          }
-        } catch (e) {
-          body.innerHTML = "";
-          if (errEl) {
-            errEl.textContent = e.message || "Could not load challenge";
-            errEl.style.display = "block";
-          }
-        }
-      }
-
-      function closeCommunityChallengeDetailModal() {
-        const modal = document.getElementById("communityChallengeDetailModal");
-        if (modal) {
-          modal.hidden = true;
-          modal.setAttribute("aria-hidden", "true");
-        }
-        communityChallengeDetailId = null;
-      }
-
-      let chCreateTarget = null;
-      let chCreateDeadlineShow = null;
-
-      async function searchShowsForChallenge(q) {
-        const qs = new URLSearchParams();
-        qs.set("title", q);
-        qs.set("fast", "1");
-        qs.set("limit", "12");
-        const { shows } = await api("/api/shows/search?" + qs.toString());
-        return shows || [];
-      }
-
-      function openCommunityChallengeCreateModal() {
-        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an account (profile icon → Your profile) to create a challenge.");
-          return;
-        }
-        if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
-          showUnlockSocialToast();
-          return;
-        }
-        const view = document.getElementById("communityChallengeCreateView");
-        const listView = document.getElementById("communityListView");
-        const threadView = document.getElementById("communityThreadView");
-        if (!view) return;
-        chCreateTarget = null;
-        chCreateDeadlineShow = null;
-        const tp = document.getElementById("challengeCreateTargetPicked");
-        const dp = document.getElementById("challengeCreateDeadlinePicked");
-        const ep = document.getElementById("challengeCreateDeadlineEp");
-        const tit = document.getElementById("challengeCreateTitle");
-        const sum = document.getElementById("challengeCreateSummary");
-        const ts = document.getElementById("challengeCreateTargetSearch");
-        const ds = document.getElementById("challengeCreateDeadlineSearch");
-        if (tp) tp.textContent = "None selected";
-        if (dp) dp.textContent = "None selected";
-        if (ep) {
-          ep.innerHTML = "<option value=\"\">Select a show first\u2026</option>";
-          ep.disabled = true;
-        }
-        if (tit) tit.value = "";
-        if (sum) sum.value = "";
-        if (ts) ts.value = "";
-        if (ds) ds.value = "";
-        const err = document.getElementById("challengeCreateErr");
-        if (err) {
-          err.style.display = "none";
-          err.textContent = "";
-        }
-        if (listView) listView.classList.add("hidden");
-        if (threadView) threadView.classList.add("hidden");
-        view.classList.remove("hidden");
-        const fab = document.getElementById("communityNewThreadBtn");
-        if (fab) fab.style.display = "none";
-      }
-
-      function closeCommunityChallengeCreateModal() {
-        const view = document.getElementById("communityChallengeCreateView");
-        const listView = document.getElementById("communityListView");
-        if (view) view.classList.add("hidden");
-        if (listView) listView.classList.remove("hidden");
-        const fab = document.getElementById("communityNewThreadBtn");
-        if (fab) fab.style.display = "";
-      }
-
-      async function loadDeadlineEpisodesForChallenge(showId) {
-        const sel = document.getElementById("challengeCreateDeadlineEp");
-        if (!sel) return;
-        sel.innerHTML = "<option value=\"\">Fetching…</option>";
-        sel.disabled = true;
-        try {
-          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Los_Angeles";
-          const data = await api("/api/shows/" + encodeURIComponent(String(showId)) + "/details?timezone=" + encodeURIComponent(tz));
-          const seasons = data.seasons || [];
-          sel.innerHTML = "<option value=\"\">Choose episode…</option>";
-          for (const s of seasons) {
-            for (const e of s.episodes || []) {
-              if (e.airdate == null || !String(e.airdate).trim()) continue;
-              const opt = document.createElement("option");
-              opt.value = String(e.id);
-              opt.textContent = "S" + s.season + "E" + e.number + " — " + (e.name || "Episode") + " · " + String(e.airdate).slice(0, 10);
-              sel.appendChild(opt);
-            }
-          }
-          sel.disabled = sel.options.length <= 1;
-        } catch {
-          sel.innerHTML = "<option value=\"\">Could not load episodes</option>";
-          sel.disabled = true;
-        }
+        void loadCommunityThreads().then(() => {
+          scheduleCommunityListSecondary();
+        });
       }
 
       /* ── Community breaking news (horizontal card rail) ── */
@@ -16330,20 +16196,127 @@
         };
       }
 
-      async function loadCommunityHeadlines() {
+      function applyCommunityHeadlinesState(state, opts) {
         const wrap = document.getElementById("communityHeadlinesWrap");
         const rail = document.getElementById("communityHeadlinesRail");
         const errEl = document.getElementById("communityHeadlinesErr");
+        const emptyEl = document.getElementById("communityHeadlinesEmpty");
+        if (!wrap) return;
+        const o = opts || {};
+        wrap.dataset.headlinesState = state;
+
+        if (state === "inactive") {
+          wrap.hidden = true;
+          wrap.setAttribute("aria-hidden", "true");
+          wrap.removeAttribute("aria-busy");
+          if (rail) {
+            rail.innerHTML = "";
+            rail.removeAttribute("aria-busy");
+            rail.hidden = false;
+          }
+          if (errEl) {
+            errEl.textContent = "";
+            errEl.hidden = true;
+            errEl.classList.remove("err");
+          }
+          if (emptyEl) {
+            emptyEl.textContent = "";
+            emptyEl.hidden = true;
+          }
+          teardownCommunityHeadlinesAutoScroll();
+          return;
+        }
+
+        wrap.hidden = false;
+        wrap.setAttribute("aria-hidden", "false");
+
+        if (state === "loading") {
+          wrap.setAttribute("aria-busy", "true");
+          if (errEl) {
+            errEl.textContent = "";
+            errEl.hidden = true;
+            errEl.classList.remove("err");
+          }
+          if (emptyEl) {
+            emptyEl.textContent = "";
+            emptyEl.hidden = true;
+          }
+          if (rail) {
+            rail.hidden = false;
+            rail.setAttribute("aria-busy", "true");
+          }
+          return;
+        }
+
+        wrap.removeAttribute("aria-busy");
+
+        if (state === "error") {
+          const msg = o.message || "Couldn’t load stories. Try again in a moment.";
+          if (errEl) {
+            errEl.textContent = msg;
+            errEl.hidden = false;
+            errEl.classList.add("err");
+          }
+          if (emptyEl) {
+            emptyEl.textContent = "";
+            emptyEl.hidden = true;
+          }
+          if (rail) {
+            rail.innerHTML = "";
+            rail.hidden = true;
+            rail.removeAttribute("aria-busy");
+          }
+          teardownCommunityHeadlinesAutoScroll();
+          return;
+        }
+
+        if (state === "empty") {
+          const line =
+            o.message ||
+            "No stories in the feed right now. New picks will appear when there’s news worth sharing.";
+          if (emptyEl) {
+            emptyEl.textContent = line;
+            emptyEl.hidden = false;
+          }
+          if (errEl) {
+            errEl.textContent = "";
+            errEl.hidden = true;
+            errEl.classList.remove("err");
+          }
+          if (rail) {
+            rail.innerHTML = "";
+            rail.hidden = true;
+            rail.removeAttribute("aria-busy");
+          }
+          teardownCommunityHeadlinesAutoScroll();
+          return;
+        }
+
+        if (state === "active") {
+          if (errEl) {
+            errEl.textContent = "";
+            errEl.hidden = true;
+            errEl.classList.remove("err");
+          }
+          if (emptyEl) {
+            emptyEl.textContent = "";
+            emptyEl.hidden = true;
+          }
+          if (rail) {
+            rail.hidden = false;
+            rail.removeAttribute("aria-busy");
+          }
+        }
+      }
+
+      async function loadCommunityHeadlines() {
+        const wrap = document.getElementById("communityHeadlinesWrap");
+        const rail = document.getElementById("communityHeadlinesRail");
         if (!wrap || !rail) return;
         teardownCommunityHeadlinesAutoScroll();
         const paintId = ++communityHeadlinesPaintId;
-        if (errEl) {
-          errEl.hidden = true;
-          errEl.textContent = "";
-        }
-        wrap.hidden = false;
+        applyCommunityHeadlinesState("loading");
         rail.innerHTML = "";
-        rail.setAttribute("aria-busy", "true");
         for (let s = 0; s < 2; s++) {
           const sk = document.createElement("li");
           sk.className = "community-headline-skeleton-li";
@@ -16372,10 +16345,8 @@
             return out;
           }
           const items = filterTickerBreakingFresh(data.items || []);
-          rail.removeAttribute("aria-busy");
           if (!items.length) {
-            wrap.hidden = true;
-            rail.innerHTML = "";
+            applyCommunityHeadlinesState("empty");
             return;
           }
           const headlineRows = [];
@@ -16386,12 +16357,12 @@
             headlineRows.push({ it, publishedLabel });
           }
           if (!headlineRows.length) {
-            wrap.hidden = true;
-            rail.innerHTML = "";
+            applyCommunityHeadlinesState("empty");
             return;
           }
           const posterUrls = await Promise.all(headlineRows.map((r) => fetchTvmazeShowImageUrl(r.it.tvmazeShowId)));
           if (paintId !== communityHeadlinesPaintId) return;
+          applyCommunityHeadlinesState("active");
 
           rail.innerHTML = "";
           for (let i = 0; i < headlineRows.length; i++) {
@@ -16478,13 +16449,7 @@
           }, staggerMs);
         } catch (e) {
           if (paintId !== communityHeadlinesPaintId) return;
-          rail.removeAttribute("aria-busy");
-          wrap.hidden = true;
-          rail.innerHTML = "";
-          if (errEl) {
-            errEl.textContent = "Could not load breaking news.";
-            errEl.hidden = false;
-          }
+          applyCommunityHeadlinesState("error", { message: e.message || "Couldn’t load stories." });
         }
       }
 
@@ -16765,13 +16730,12 @@
         const generalEl = document.getElementById("communityGeneralList");
         const generalHeading = document.getElementById("communityGeneralHeading");
         const errEl = document.getElementById("communityThreadsErr");
-        const loadEl = document.getElementById("communityThreadsLoading");
         if (!listEl) return;
         if (errEl) {
           errEl.style.display = "none";
           errEl.textContent = "";
         }
-        if (loadEl) loadEl.hidden = false;
+        renderCommunityThreadListsSkeleton();
         try {
           const data = await api("/api/community/threads");
           const threads = data.threads || [];
@@ -16786,6 +16750,7 @@
           }
 
           // ── Episode threads → horizontal carousel ──
+          listEl.removeAttribute("aria-busy");
           listEl.innerHTML = "";
           for (const th of episodeThreads) {
             const li = document.createElement("li");
@@ -16890,12 +16855,16 @@
 
           applyCommunityFilter();
         } catch (e) {
+          if (listEl) {
+            listEl.innerHTML = "";
+            listEl.removeAttribute("aria-busy");
+          }
+          if (generalEl) generalEl.innerHTML = "";
+          if (generalHeading) generalHeading.hidden = true;
           if (errEl) {
             errEl.textContent = e.message || "Could not load threads";
             errEl.style.display = "block";
           }
-        } finally {
-          if (loadEl) loadEl.hidden = true;
         }
       }
 
@@ -16922,10 +16891,8 @@
         }
         const lv = document.getElementById("communityListView");
         const tv = document.getElementById("communityThreadView");
-        const ccv = document.getElementById("communityChallengeCreateView");
         if (lv) lv.classList.add("hidden");
         if (tv) tv.classList.remove("hidden");
-        if (ccv) ccv.classList.add("hidden");
         const sortSel = document.getElementById("communitySortSelect");
         if (sortSel) sortSel.value = communityState.sort;
         cancelCommunityReply();
@@ -16957,6 +16924,8 @@
           unlockHint.hidden = !(reg && !canPost);
           unlockHint.textContent = reg && !canPost ? UNLOCK_SOCIAL_UX_MESSAGE : "";
         }
+        const formatDetails = document.getElementById("communityComposerFormatDetails");
+        if (formatDetails) formatDetails.hidden = !canPost;
         document.getElementById("communityFormatBar").hidden = !canPost;
         document.getElementById("communityPostSubmitBtn").disabled = !canPost;
         document.getElementById("communityComposer").contentEditable = canPost ? "true" : "false";
@@ -17010,22 +16979,54 @@
       let communityReplyToPostId = null;
       let communityReplyToUsername = null;
 
+      /** A reply row / parentPostId is only valid for a real target id (avoids “Replying to” with junk state). */
+      function isValidCommunityReplyParentPostId(v) {
+        if (v == null) return false;
+        if (typeof v === "boolean") return false;
+        if (typeof v === "number") return Number.isFinite(v) && v > 0;
+        const s = String(v).trim();
+        if (!s) return false;
+        if (s === "undefined" || s === "null" || s === "NaN") return false;
+        const n = Number(s);
+        if (s === String(n) && Number.isFinite(n) && n > 0) return true;
+        return s.length > 0;
+      }
+
       function syncCommunityReplyIndicatorUi() {
         const indicator = document.getElementById("communityReplyIndicator");
-        if (!indicator) return;
-        const active = communityReplyToPostId != null && String(communityReplyToPostId).length > 0;
-        if (!active) {
+        const cancelEl = document.getElementById("communityReplyCancelBtn");
+        if (!isValidCommunityReplyParentPostId(communityReplyToPostId)) {
           communityReplyToPostId = null;
           communityReplyToUsername = null;
-          const nameEl = document.getElementById("communityReplyToName");
-          const prevEl = document.getElementById("communityReplyPreview");
+        }
+        if (!indicator) {
+          if (cancelEl) cancelEl.setAttribute("hidden", "");
+          return;
+        }
+        const active = isValidCommunityReplyParentPostId(communityReplyToPostId);
+        const nameEl = document.getElementById("communityReplyToName");
+        const prevEl = document.getElementById("communityReplyPreview");
+        if (!active) {
           if (nameEl) nameEl.textContent = "";
           if (prevEl) {
             prevEl.textContent = "";
             prevEl.hidden = true;
           }
+        } else if (nameEl) {
+          const t = (nameEl.textContent || "").trim();
+          if (!t && communityReplyToUsername) nameEl.textContent = "@" + String(communityReplyToUsername).trim();
+          if (!(nameEl.textContent || "").trim()) nameEl.textContent = "this post";
         }
-        indicator.hidden = !active;
+        if (active) {
+          indicator.removeAttribute("hidden");
+        } else {
+          indicator.setAttribute("hidden", "");
+        }
+        if (cancelEl) {
+          if (active) cancelEl.removeAttribute("hidden");
+          else cancelEl.setAttribute("hidden", "");
+        }
+        indicator.setAttribute("aria-hidden", active ? "false" : "true");
       }
 
       function communityReplyPreviewFromPost(p) {
@@ -17039,7 +17040,7 @@
 
       function handleCommunityReplyClick(p) {
         if (!accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an account (profile \u2192 Your profile) to reply.");
+          showToast("Create an account with your email (Profile \u2192 Create account) to reply.");
           return;
         }
         if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
@@ -17047,6 +17048,7 @@
           return;
         }
         if (!p || !p.id) return;
+        if (!isValidCommunityReplyParentPostId(p.id)) return;
         const displayName = p.authorHandle && String(p.authorHandle).trim();
         const un = p.authorUsername && String(p.authorUsername).trim();
         const replyTitle = displayName || (un ? "@" + un : "this post");
@@ -17235,7 +17237,9 @@
         const liveRail = document.querySelector(".community-live-rail");
         const sortCtrl = document.querySelector(".community-thread-controls");
         const mainRow = document.getElementById("communityThreadMainRow");
+        const threadExtras = document.getElementById("communityThreadExtras");
         if (mainRow) mainRow.style.display = isDiscussion || isChat ? "" : "none";
+        if (threadExtras) threadExtras.style.display = isDiscussion ? "" : "none";
 
         if (composerWrap) composerWrap.style.display = isDiscussion ? "" : "none";
         if (feedEl) feedEl.style.display = isDiscussion ? "" : "none";
@@ -17271,7 +17275,6 @@
         if (showId == null || communityState.episodeId === undefined) return;
         const feed = document.getElementById("communityPostFeed");
         const errEl = document.getElementById("communityPostsErr");
-        const loadEl = document.getElementById("communityPostsLoading");
         const titleEl = document.getElementById("communityThreadTitle");
         const subtitleEl = document.getElementById("communityThreadSubtitle");
         const bgEl = document.getElementById("communityShowHeroBg");
@@ -17283,7 +17286,9 @@
           errEl.style.display = "none";
           errEl.textContent = "";
         }
-        if (loadEl) loadEl.hidden = false;
+        if (feed) {
+          renderCommunityPostFeedSkeleton(feed);
+        }
         try {
           const epId =
             communityState.episodeId === null ? "general" : String(communityState.episodeId);
@@ -17408,6 +17413,7 @@
             }
           }
           feed.innerHTML = "";
+          feed.removeAttribute("aria-busy");
           const viewerBingeLater =
             data.viewerCatchUp && data.viewerCatchUp.subscriptionId && data.viewerCatchUp.bingeLater === true;
           for (const p of posts) {
@@ -17449,12 +17455,15 @@
         } catch (e) {
           communityThreadLiveAirNight = false;
           applyCommunityLiveAirNightChrome();
+          if (feed) {
+            feed.innerHTML = "";
+            feed.removeAttribute("aria-busy");
+          }
           if (errEl) {
             errEl.textContent = e.message || "Could not load posts";
             errEl.style.display = "block";
           }
         } finally {
-          if (loadEl) loadEl.hidden = true;
           syncCommunityReplyIndicatorUi();
         }
       }
@@ -18544,7 +18553,7 @@
               dmBtn.hidden = true;
               dmHint.hidden = false;
               dmHint.textContent =
-                "Create an account (profile icon → Your profile) to send direct messages.";
+                "Create an account with your email (Profile menu → Create account) to send direct messages.";
             } else if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
               dmBtn.hidden = true;
               dmHint.hidden = false;
@@ -18635,7 +18644,7 @@
 
       function openCommunityNewModal() {
         if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an account (profile icon → Your profile) to start a discussion.");
+          showToast("Create an account with your email (Profile menu → Create account) to start a discussion.");
           return;
         }
         if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
@@ -18786,9 +18795,7 @@
             if (
               addedFrom === "search" ||
               addedFrom === "recommended" ||
-              addedFrom === "trending" ||
-              addedFrom === "starter_pack" ||
-              addedFrom === "onboarding"
+              addedFrom === "trending"
             ) {
               body.addedFrom = addedFrom;
             }
@@ -18821,7 +18828,7 @@
           void loadUser(uid);
           void refreshSessionMeFromServer();
           loadRecommended(uid);
-          loadTrendingShows(uid);
+          loadTrendingShowsDeferred(uid);
           subBtn.textContent = addedFrom === "trending" ? "Added" : "Subscribed";
           card.style.opacity = "0.55";
           showToast("Subscribed");
@@ -19174,14 +19181,6 @@
         if (input) input.focus();
       }
 
-      async function offerOnboardingAfterAuth(me) {
-        if (!me || !me.id) return;
-        await new Promise((r) => requestAnimationFrame(r));
-        if (shouldAutoShowOnboardingSetup(me)) {
-          openOnboardingSetupModal(me);
-        }
-      }
-
       function closeAppSettingsModal() {
         const el = document.getElementById("appSettingsModal");
         if (el) el.classList.remove("open");
@@ -19424,10 +19423,7 @@
           closeCommunityNewModal();
           closeCommunityEditModal();
           closeCommunityAdminMoveModal();
-          closeCommunityChallengeDetailModal();
-          const ccv = document.getElementById("communityChallengeCreateView");
-          const inChallengeCreate = ccv && !ccv.classList.contains("hidden");
-          if (communityState.view === "thread" || inChallengeCreate) {
+          if (communityState.view === "thread") {
             openCommunityListView();
           }
           scrollMainScrollToTop();
@@ -19470,7 +19466,75 @@
         }
       }
 
-      const shellLazyMounted = { community: false, messages: false };
+      const shellLazyMounted = { community: false, messages: false, shows: false, guide: false, tasks: false };
+
+      function wireFoldTogglesIn(root) {
+        const el = root && root.querySelectorAll ? root : document;
+        el.querySelectorAll("button.fold-toggle").forEach((btn) => {
+          if (btn.dataset.aaFoldWired === "1") return;
+          btn.dataset.aaFoldWired = "1";
+          syncFoldFromToggle(btn);
+          btn.addEventListener("click", () => {
+            const open = btn.getAttribute("aria-expanded") === "true";
+            btn.setAttribute("aria-expanded", open ? "false" : "true");
+            syncFoldFromToggle(btn);
+          });
+        });
+      }
+
+      function initShowsShellAfterMount() {
+        wireFoldTogglesIn(document.getElementById("tab-shows"));
+        const cta = document.getElementById("subsEmptyCta");
+        if (cta && cta.dataset.aaEmptyCtaWired !== "1") {
+          cta.dataset.aaEmptyCtaWired = "1";
+          cta.addEventListener("click", () => setTab("add"));
+        }
+        const uid = resolveUserId();
+        if (uid) setupPersonFollowSearch(uid);
+      }
+
+      function initGuideShellAfterMount() {
+        if (initGuideShellAfterMount._navWired) return;
+        initGuideShellAfterMount._navWired = true;
+        document.getElementById("weekGuidePrev")?.addEventListener("click", () => {
+          const id = resolveUserId();
+          if (!id) return;
+          if (!weekGuideWeekStart) return;
+          weekGuideWeekStart = calendarDatePlusDaysClient(weekGuideWeekStart, -7);
+          void loadWeekGuide(id);
+        });
+        document.getElementById("weekGuideNext")?.addEventListener("click", () => {
+          const id = resolveUserId();
+          if (!id) return;
+          if (!weekGuideWeekStart) return;
+          weekGuideWeekStart = calendarDatePlusDaysClient(weekGuideWeekStart, 7);
+          void loadWeekGuide(id);
+        });
+        document.getElementById("weekGuideToday")?.addEventListener("click", () => {
+          const id = resolveUserId();
+          if (!id) return;
+          weekGuideWeekStart = null;
+          void loadWeekGuide(id);
+        });
+      }
+
+      function initTasksShellAfterMount() {
+        const panel = document.getElementById("tab-tasks");
+        wireFoldTogglesIn(panel);
+        setupPostWatchReviewModalWiring();
+        const dismiss = document.getElementById("contextualTipTasksDismiss");
+        if (dismiss && dismiss.dataset.aaCtxWired !== "1") {
+          dismiss.dataset.aaCtxWired = "1";
+          dismiss.addEventListener("click", () => {
+            const uid = resolveUserId();
+            if (uid) dismissContextualTip(uid, "tasks");
+            const active = document.querySelector(".tab-panel.active");
+            const tabName =
+              active && active.id && active.id.startsWith("tab-") ? active.id.slice(4) : "add";
+            updateContextualTipsVisibility(tabName);
+          });
+        }
+      }
 
       function mountShellLazyCommunity() {
         if (shellLazyMounted.community) return;
@@ -19492,9 +19556,42 @@
         initMessagesShellAfterMount();
       }
 
+      function mountShellLazyShows() {
+        if (shellLazyMounted.shows) return;
+        const tpl = document.getElementById("tpl-shell-tab-shows");
+        const panel = document.getElementById("tab-shows");
+        if (!tpl || !panel) return;
+        panel.appendChild(tpl.content.cloneNode(true));
+        shellLazyMounted.shows = true;
+        initShowsShellAfterMount();
+      }
+
+      function mountShellLazyGuide() {
+        if (shellLazyMounted.guide) return;
+        const tpl = document.getElementById("tpl-shell-tab-guide");
+        const panel = document.getElementById("tab-guide");
+        if (!tpl || !panel) return;
+        panel.appendChild(tpl.content.cloneNode(true));
+        shellLazyMounted.guide = true;
+        initGuideShellAfterMount();
+      }
+
+      function mountShellLazyTasks() {
+        if (shellLazyMounted.tasks) return;
+        const tpl = document.getElementById("tpl-shell-tab-tasks");
+        const panel = document.getElementById("tab-tasks");
+        if (!tpl || !panel) return;
+        panel.appendChild(tpl.content.cloneNode(true));
+        shellLazyMounted.tasks = true;
+        initTasksShellAfterMount();
+      }
+
       function ensureShellLazyTabMounted(name) {
         if (name === "community") mountShellLazyCommunity();
         else if (name === "messages") mountShellLazyMessages();
+        else if (name === "shows") mountShellLazyShows();
+        else if (name === "guide") mountShellLazyGuide();
+        else if (name === "tasks") mountShellLazyTasks();
       }
 
       function wireDeferredCommunityTabPanel() {
@@ -19540,7 +19637,7 @@
             } else if (epVal) {
               postBody.tvmazeEpisodeId = Number(epVal);
             }
-            if (communityReplyToPostId) {
+            if (isValidCommunityReplyParentPostId(communityReplyToPostId)) {
               postBody.parentPostId = communityReplyToPostId;
             }
             await api("/api/community/posts", {
@@ -19717,11 +19814,19 @@
         if (name === "add") {
           renderRecentChips();
           const id = resolveUserId();
-          if (id) loadTrendingShows(id);
+          if (id) loadTrendingShowsDeferred(id);
         }
         if (name === "tasks") {
           const id = resolveUserId();
           if (id) loadTasks(id);
+        }
+        if (name === "shows") {
+          const id = resolveUserId();
+          if (id) {
+            void loadSubs(id);
+            void loadPersonFollows(id);
+            setupPersonFollowSearch(id);
+          }
         }
         if (name === "guide") {
           const id = resolveUserId();
@@ -19729,10 +19834,9 @@
         }
         if (name === "community") {
           if (communityState.view === "list") {
-            loadCommunityThreads();
-            void loadCommunityHeadlines();
-            void loadLiveRoomsSummary();
-            startLiveRoomsRefresh();
+            void loadCommunityThreads().then(() => {
+              scheduleCommunityListSecondary();
+            });
           } else if (communityState.showId != null) {
             loadCommunityThreadPosts();
             updateCommunityThreadUi();
@@ -19864,9 +19968,6 @@
         setTab(tab);
       });
 
-      document.querySelectorAll("[data-close-challenge-detail]").forEach((el) => {
-        el.addEventListener("click", () => closeCommunityChallengeDetailModal());
-      });
       document.getElementById("communityLiveRailSendBtn")?.addEventListener("click", () => sendCommunityThreadLiveChat());
       document.getElementById("communityLiveRailInput")?.addEventListener("input", () => {
         const inp = document.getElementById("communityLiveRailInput");
@@ -20746,39 +20847,7 @@
         tickHeader();
       })();
 
-      const subsEmptyCta = document.getElementById("subsEmptyCta");
-      if (subsEmptyCta) {
-        subsEmptyCta.addEventListener("click", () => setTab("add"));
-        document.getElementById("weekGuidePrev")?.addEventListener("click", () => {
-          const id = resolveUserId();
-          if (!id) return;
-          if (!weekGuideWeekStart) return;
-          weekGuideWeekStart = calendarDatePlusDaysClient(weekGuideWeekStart, -7);
-          void loadWeekGuide(id);
-        });
-        document.getElementById("weekGuideNext")?.addEventListener("click", () => {
-          const id = resolveUserId();
-          if (!id) return;
-          if (!weekGuideWeekStart) return;
-          weekGuideWeekStart = calendarDatePlusDaysClient(weekGuideWeekStart, 7);
-          void loadWeekGuide(id);
-        });
-        document.getElementById("weekGuideToday")?.addEventListener("click", () => {
-          const id = resolveUserId();
-          if (!id) return;
-          weekGuideWeekStart = null;
-          void loadWeekGuide(id);
-        });
-      }
-
-      document.querySelectorAll("button.fold-toggle").forEach((btn) => {
-        syncFoldFromToggle(btn);
-        btn.addEventListener("click", () => {
-          const open = btn.getAttribute("aria-expanded") === "true";
-          btn.setAttribute("aria-expanded", open ? "false" : "true");
-          syncFoldFromToggle(btn);
-        });
-      });
+      wireFoldTogglesIn(document);
 
       document.getElementById("foldRecommendedBtn")?.addEventListener("click", () => {
         requestAnimationFrame(() => {
@@ -20807,24 +20876,28 @@
         updateOnboardingMissionStrip(sessionMeSnapshot);
       });
 
+      /**
+       * Real app account: not a device guest. Prefer server `accountState`; legacy fallback uses `authProvider`.
+       * Sign-in email + password, Google, or local legacy (username-only) all count as “signed in” vs guest.
+       */
       function accountIsRegistered(me) {
-        return !!(me && me.authProvider && me.authProvider !== "guest");
+        if (!me || !me.id) return false;
+        if (me.accountState) return me.accountState !== "guest";
+        return !!(me.authProvider && me.authProvider !== "guest");
       }
 
       /**
-       * Registered = {@link accountIsRegistered}(me). Guests: Create account + Search username only
-       * (no Your profile / Sign out). Signed-in users with username/password: full profile menu.
+       * Profile header menu: two mutually exclusive groups ({@link #headerProfileMenuGuest} vs {@link #headerProfileMenuSignedIn}).
+       * Guest: Create account + Search. Real account: Your profile, Search, Sign out.
        */
       function syncHeaderProfileDropdown(me) {
-        const createBtn = document.getElementById("headerMenuCreateAccount");
-        const profileBtn = document.getElementById("headerMenuYourProfile");
+        const guestGroup = document.getElementById("headerProfileMenuGuest");
+        const signedInGroup = document.getElementById("headerProfileMenuSignedIn");
         const searchBtn = document.getElementById("headerMenuSearchUsername");
-        const signOutBtn = document.getElementById("headerMenuSignOut");
-        if (!createBtn || !profileBtn || !searchBtn || !signOutBtn) return;
-        const registered = !!(me && me.id && accountIsRegistered(me));
-        createBtn.hidden = registered;
-        profileBtn.hidden = !registered;
-        signOutBtn.hidden = !registered;
+        if (!guestGroup || !signedInGroup || !searchBtn) return;
+        const reg = accountIsRegistered(me);
+        guestGroup.hidden = reg;
+        signedInGroup.hidden = !reg;
         searchBtn.hidden = false;
       }
 
@@ -20855,9 +20928,19 @@
         await loadSubs(userId);
         await loadPersonFollows(userId);
         setupPersonFollowSearch(userId);
-        loadTrendingShows(userId);
+        loadTrendingShowsDeferred(userId);
         const fr = document.getElementById("foldRecommendedBtn");
-        if (fr && fr.getAttribute("aria-expanded") === "true") loadRecommended(userId);
+        if (fr && fr.getAttribute("aria-expanded") === "true") {
+          if (typeof requestIdleCallback === "function") {
+            requestIdleCallback(() => {
+              void loadRecommended(userId);
+            }, { timeout: 2500 });
+          } else {
+            setTimeout(() => {
+              void loadRecommended(userId);
+            }, 400);
+          }
+        }
         if (getActiveTabName() === "tasks") await loadTasks(userId);
         updateContextualTipsVisibility(getActiveTabName());
       }
@@ -20936,19 +21019,17 @@
         await loadSubs(userId);
         await loadPersonFollows(userId);
         setupPersonFollowSearch(userId);
-        loadTrendingShows(userId);
+        loadTrendingShowsDeferred(userId);
         renderRecentChips();
         if (getActiveTabName() === "tasks") void loadTasks(userId);
         updateContextualTipsVisibility("add");
 
-        let deepLinked = false;
         try {
           const cq = new URLSearchParams(window.location.search);
           const cshow = cq.get("communityShow");
           const cep = cq.get("communityEpisode");
           const cpost = cq.get("communityPostId");
           if (cshow && /^\d+$/.test(cshow)) {
-            deepLinked = true;
             setTab("community");
             openCommunityThread(Number(cshow), "", undefined, {
               episodeId: cep && /^\d+$/.test(cep) ? Number(cep) : null,
@@ -20973,10 +21054,6 @@
           }
         } catch {
           /* ignore */
-        }
-
-        if (!deepLinked && me && me.id && accountIsRegistered(me) && shouldAutoShowOnboardingSetup(me)) {
-          requestAnimationFrame(() => openOnboardingSetupModal(me));
         }
 
         try {
@@ -21300,7 +21377,7 @@
           closeAccountPromptModal();
           try {
             const meGuest = await api("/api/users/me");
-            await offerOnboardingAfterAuth(meGuest);
+            applyMeToUI(meGuest);
           } catch {
             /* ignore */
           }
@@ -21379,7 +21456,6 @@
             await refreshAllForUserId(meNow.id, meNow);
             closeAccountPromptModal();
             showToast("Account created");
-            await offerOnboardingAfterAuth(meNow);
           } catch (e) {
             setAccountPromptErr(e.message || "Register failed");
           }
@@ -21408,7 +21484,6 @@
             closeAccountPromptModal();
             showToast("Signed in");
             maybePromptLegacyEmailUpgrade(meNow);
-            await offerOnboardingAfterAuth(meNow);
           } catch (e) {
             setAccountPromptErr(e.message || "Sign in failed");
           }
@@ -21573,32 +21648,6 @@
           if (e.target.id === "showModal") closeShowModal();
         });
 
-        document.getElementById("onboardingSetupClose")?.addEventListener("click", () => {
-          const uid = resolveUserId();
-          if (uid) void skipOnboardingSetup(uid);
-          else closeOnboardingSetupModal();
-        });
-        document.getElementById("onboardingSetupSkipBtn")?.addEventListener("click", () => {
-          const uid = resolveUserId();
-          if (uid) void skipOnboardingSetup(uid);
-        });
-        document.getElementById("onboardingSetupSaveBtn")?.addEventListener("click", () => {
-          const uid = resolveUserId();
-          if (uid) void saveOnboardingSetupAndContinue(uid);
-        });
-        document.getElementById("onboardingSetupModal")?.addEventListener("click", (e) => {
-          if (e.target.id === "onboardingSetupModal") {
-            const uid = resolveUserId();
-            if (uid) void skipOnboardingSetup(uid);
-            else closeOnboardingSetupModal();
-          }
-        });
-        document.getElementById("tvWatcherUnlockClose")?.addEventListener("click", () => closeTvWatcherUnlockModal());
-        document.getElementById("tvWatcherUnlockOk")?.addEventListener("click", () => {
-          closeTvWatcherUnlockModal();
-          setTab("guide");
-        });
-
         function wireContextualTipDismiss(tipId, elId) {
           document.getElementById(elId)?.addEventListener("click", () => {
             const uid = resolveUserId();
@@ -21609,7 +21658,6 @@
             updateContextualTipsVisibility(tabName);
           });
         }
-        wireContextualTipDismiss("tasks", "contextualTipTasksDismiss");
 
         document.addEventListener("keydown", (e) => {
           if (e.key !== "Escape") return;
@@ -21619,18 +21667,6 @@
             return;
           }
           closeHeaderMenus();
-          const osm = document.getElementById("onboardingSetupModal");
-          if (osm && osm.classList.contains("open")) {
-            const uid = resolveUserId();
-            if (uid) void skipOnboardingSetup(uid);
-            else closeOnboardingSetupModal();
-            return;
-          }
-          const twu = document.getElementById("tvWatcherUnlockModal");
-          if (twu && twu.classList.contains("open")) {
-            closeTvWatcherUnlockModal();
-            return;
-          }
           const asm = document.getElementById("appSettingsModal");
           if (asm && asm.classList.contains("open")) {
             closeAppSettingsModal();
@@ -21854,7 +21890,6 @@
             const me = await api("/api/users/me");
             await refreshAllForUserId(me.id, me);
             showToast("Account created");
-            await offerOnboardingAfterAuth(me);
           } catch (e) {
             accountErr.textContent = e.message || "Register failed";
             accountErr.classList.add("err");
@@ -21885,7 +21920,6 @@
             await refreshAllForUserId(me.id, me);
             showToast("Signed in");
             maybePromptLegacyEmailUpgrade(me);
-            await offerOnboardingAfterAuth(me);
           } catch (e) {
             accountErr.textContent = e.message || "Sign in failed";
             accountErr.classList.add("err");
@@ -21912,7 +21946,7 @@
           }
           await loadUser(id);
           await loadSubs(id);
-          loadTrendingShows(id);
+          loadTrendingShowsDeferred(id);
           const rListOut = document.getElementById("recommendedList");
           if (rListOut) rListOut.innerHTML = "";
           if (getActiveTabName() === "tasks") await loadTasks(id);
