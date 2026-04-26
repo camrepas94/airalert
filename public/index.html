@@ -4901,6 +4901,8 @@
         display: flex;
         flex-direction: column;
         gap: 0.7rem;
+        /* Scroll past last cards so the fixed FAB does not cover thread titles */
+        padding-bottom: max(0.75rem, calc(4.35rem + env(safe-area-inset-bottom)));
       }
       /* ── Breaking news rail: compact hero cards (image-led, scroll-snap, auto-scroll) */
       .community-headlines-rail-wrap {
@@ -5166,220 +5168,6 @@
       }
       .community-live-episode-join:hover {
         background: rgba(0, 230, 118, 0.22);
-      }
-      /* ── Live Rooms Hub Module — progressive prominence ── */
-      .community-live-rooms-hub {
-        margin: 0;
-        border-radius: 12px;
-        border: 1px solid rgba(130, 200, 255, 0.12);
-        background: linear-gradient(165deg, rgba(8, 14, 28, 0.6), rgba(4, 8, 18, 0.7));
-        overflow: hidden;
-        transition: border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
-      }
-      .community-live-rooms-hub-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem 0.65rem;
-        padding: 0.5rem 0.75rem;
-        flex-wrap: nowrap;
-      }
-      .community-live-rooms-hub-head-leading {
-        display: flex;
-        align-items: center;
-        gap: 0.45rem;
-        min-width: 0;
-        flex: 1 1 auto;
-      }
-      .community-live-rooms-hub-icon {
-        font-size: 0.55rem;
-        color: rgba(130, 200, 255, 0.35);
-        flex-shrink: 0;
-        transition: color 0.4s ease, text-shadow 0.4s ease, transform 0.4s ease;
-      }
-      .community-live-rooms-hub-title {
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: rgba(226, 232, 240, 0.7);
-        flex-shrink: 0;
-        transition: color 0.3s ease;
-      }
-      .community-live-rooms-hub-count {
-        font-size: 0.65rem;
-        font-weight: 650;
-        color: rgba(148, 163, 184, 0.88);
-        min-width: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .community-live-rooms-hub-count:empty {
-        display: none;
-      }
-      .community-live-rooms-hub-count:not(:empty) {
-        margin-left: 0.15rem;
-        padding: 0.14rem 0.5rem;
-        border-radius: 999px;
-        border: 1px solid rgba(130, 200, 255, 0.14);
-        background: rgba(0, 0, 0, 0.22);
-      }
-      .community-live-rooms-hub[data-state="early"] .community-live-rooms-hub-count:not(:empty),
-      .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-count:not(:empty) {
-        border-color: rgba(0, 230, 118, 0.22);
-        background: rgba(0, 230, 118, 0.08);
-        color: rgba(187, 247, 208, 0.92);
-      }
-      .community-live-rooms-action {
-        flex-shrink: 0;
-        min-height: 34px;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        border: 1px solid rgba(34, 211, 238, 0.28);
-        background: rgba(34, 211, 238, 0.1);
-        color: #cffafe;
-        font-size: 0.74rem;
-        font-weight: 750;
-        letter-spacing: 0.01em;
-        cursor: pointer;
-        box-shadow: none;
-      }
-      .community-live-rooms-action:hover {
-        background: rgba(34, 211, 238, 0.18);
-        border-color: rgba(34, 211, 238, 0.42);
-      }
-      .community-live-rooms-hub[data-state="early"] .community-live-rooms-action,
-      .community-live-rooms-hub[data-state="active"] .community-live-rooms-action {
-        border-color: rgba(0, 230, 118, 0.36);
-        background: rgba(0, 230, 118, 0.12);
-        color: #bbf7d0;
-      }
-      .community-live-rooms-hub[data-state="early"] .community-live-rooms-action:hover,
-      .community-live-rooms-hub[data-state="active"] .community-live-rooms-action:hover {
-        background: rgba(0, 230, 118, 0.2);
-      }
-      .community-live-rooms-hub-body {
-        padding: 0 0.75rem 0.5rem;
-      }
-      .community-live-rooms-hub-empty {
-        margin: 0;
-        font-size: 0.78rem;
-        line-height: 1.45;
-        color: var(--muted);
-      }
-      .community-live-rooms-hub-list {
-        list-style: none;
-        margin: 0;
-        padding: 0 0.75rem 0.55rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
-      }
-      .community-live-rooms-hub-list[hidden] { display: none !important; }
-      .community-live-rooms-hub-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.4rem 0.55rem;
-        border-radius: 9px;
-        border: 1px solid rgba(130, 200, 255, 0.1);
-        background: rgba(0, 0, 0, 0.2);
-        cursor: pointer;
-        font: inherit;
-        color: inherit;
-        width: 100%;
-        text-align: left;
-        transition: background 0.15s ease, border-color 0.15s ease;
-      }
-      .community-live-rooms-hub-item:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(130, 200, 255, 0.2);
-      }
-      .community-live-rooms-hub-item-info {
-        flex: 1;
-        min-width: 0;
-      }
-      .community-live-rooms-hub-item-show {
-        display: block;
-        font-size: 0.8rem;
-        font-weight: 650;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .community-live-rooms-hub-item-meta {
-        display: block;
-        font-size: 0.68rem;
-        color: var(--muted);
-      }
-      .community-live-rooms-hub-item-vc {
-        flex-shrink: 0;
-        font-size: 0.68rem;
-        font-weight: 700;
-        padding: 0.15rem 0.4rem;
-        border-radius: 999px;
-        background: rgba(34, 211, 238, 0.1);
-        border: 1px solid rgba(34, 211, 238, 0.2);
-        color: #7dd3fc;
-      }
-      /* Dormant state: compact, subtle */
-      .community-live-rooms-hub[data-state="dormant"] {
-        border-color: rgba(130, 200, 255, 0.07);
-        background: linear-gradient(165deg, rgba(6, 10, 22, 0.5), rgba(4, 8, 16, 0.62));
-        box-shadow: none;
-      }
-      .community-live-rooms-hub[data-state="dormant"] .community-live-rooms-hub-head {
-        padding: 0.38rem 0.65rem;
-      }
-      .community-live-rooms-hub[data-state="dormant"] .community-live-rooms-hub-body {
-        padding: 0 0.65rem 0.38rem;
-      }
-      .community-live-rooms-hub[data-state="dormant"] .community-live-rooms-hub-title {
-        color: rgba(203, 213, 225, 0.55);
-        letter-spacing: 0.07em;
-      }
-      .community-live-rooms-hub[data-state="dormant"] .community-live-rooms-hub-icon {
-        transform: scale(0.92);
-        opacity: 0.85;
-      }
-      /* Early-activity state: visible secondary */
-      .community-live-rooms-hub[data-state="early"] {
-        border-color: rgba(0, 230, 118, 0.22);
-        background: linear-gradient(165deg, rgba(0, 230, 118, 0.05), rgba(4, 8, 18, 0.72));
-        box-shadow: 0 0 18px rgba(0, 230, 118, 0.06);
-      }
-      .community-live-rooms-hub[data-state="early"] .community-live-rooms-hub-icon {
-        color: #4ade80;
-      }
-      .community-live-rooms-hub[data-state="early"] .community-live-rooms-hub-title {
-        color: rgba(226, 232, 240, 0.88);
-      }
-      /* Active-traffic state: elevated, event-like */
-      .community-live-rooms-hub[data-state="active"] {
-        border-color: rgba(0, 230, 118, 0.38);
-        background: linear-gradient(135deg, rgba(0, 230, 118, 0.1), rgba(8, 14, 28, 0.62));
-        box-shadow: 0 0 28px rgba(0, 230, 118, 0.14), 0 4px 22px rgba(0, 0, 0, 0.22);
-      }
-      .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-icon {
-        color: #4ade80;
-        text-shadow: 0 0 10px rgba(74, 222, 128, 0.55);
-        animation: community-live-hub-pulse 2.2s ease-in-out infinite;
-      }
-      .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-title {
-        color: #bbf7d0;
-      }
-      .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-head {
-        padding: 0.52rem 0.75rem;
-      }
-      .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-item-vc {
-        background: rgba(0, 230, 118, 0.15);
-        border-color: rgba(0, 230, 118, 0.3);
-        color: #69f0ae;
-      }
-      @keyframes community-live-hub-pulse {
-        0%, 100% { opacity: 0.6; }
-        50% { opacity: 1; }
       }
       .community-subsection-heading--primary {
         font-size: 0.78rem;
@@ -6097,11 +5885,18 @@
       #tab-messages.active .dm-fab-plus {
         display: flex;
       }
+      /**
+       * Community + FAB: fixed to the viewport bottom-right (above tab rail), neon ring from .app-fab.
+       * Shown only on the thread list landing — hidden inside a show thread where composer + Chat are primary.
+       */
       #tab-community.active .community-fab-plus {
         display: flex;
+        position: fixed;
+        z-index: 38;
+        bottom: calc(max(1.1rem, env(safe-area-inset-bottom)) + 3.5rem);
+        right: max(1.1rem, env(safe-area-inset-right));
       }
-      /** List landing: primary “start / join” lives in Live Rooms header — hide duplicate fixed FAB. */
-      #tab-community.active #communityListView:not(.hidden) ~ .community-fab-plus {
+      #tab-community.active #communityThreadView:not(.hidden) ~ .community-fab-plus {
         display: none !important;
       }
       .app-fab-menu {
@@ -9014,10 +8809,6 @@
           margin-left: auto;
           margin-right: auto;
         }
-        /* Desktop: Live Rooms hub sits within the main flow, compact when dormant */
-        .community-live-rooms-hub[data-state="dormant"] {
-          max-width: 26rem;
-        }
         .community-thread-list > li,
         .community-general-list > li {
           flex: unset;
@@ -9065,8 +8856,7 @@
       }
 
       /**
-       * Desktop UX — Inbox split pane. Community keeps a single curated landing
-       * sequence: Breaking News, Live Rooms, Discussions.
+       * Desktop UX — Inbox split pane. Community landing sequence: Breaking News, then Discussions.
        */
       @media (min-width: 900px) {
         #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread {
@@ -9891,24 +9681,6 @@
               <p class="community-headlines-err msg" id="communityHeadlinesErr" role="alert" hidden></p>
               <p class="community-headlines-empty muted" id="communityHeadlinesEmpty" hidden></p>
               <ul class="community-headlines-rail" id="communityHeadlinesRail" role="list" aria-label="Breaking news"></ul>
-            </div>
-
-            <!-- Live Rooms hub module — progressive prominence based on activity -->
-            <div class="community-live-rooms-hub" id="communityLiveRoomsHub" data-state="dormant" aria-label="Live Rooms">
-              <div class="community-live-rooms-hub-head">
-                <div class="community-live-rooms-hub-head-leading">
-                  <span class="community-live-rooms-hub-icon" aria-hidden="true">●</span>
-                  <span class="community-live-rooms-hub-title">Live Rooms</span>
-                  <span class="community-live-rooms-hub-count" id="communityLiveRoomsHubCount" role="status"></span>
-                </div>
-                <button type="button" class="community-live-rooms-action" id="communityLiveRoomsActionBtn">Start</button>
-              </div>
-              <div class="community-live-rooms-hub-body" id="communityLiveRoomsHubBody">
-                <p class="community-live-rooms-hub-empty" id="communityLiveRoomsHubEmpty">
-                  No one’s live right now. Use <strong>Start</strong> above to open a show thread and go live from there.
-                </p>
-              </div>
-              <ul class="community-live-rooms-hub-list" id="communityLiveRoomsHubList" role="list" hidden></ul>
             </div>
 
             <h3 class="community-subsection-heading community-subsection-heading--primary">Discussions</h3>
@@ -12060,8 +11832,6 @@
       function scheduleCommunityListSecondary() {
         deferAfterIdle(() => {
           void loadCommunityHeadlines();
-          void loadLiveRoomsSummary();
-          startLiveRoomsRefresh();
         }, 2200);
       }
 
@@ -17315,125 +17085,6 @@
         }
       }
 
-      async function loadLiveRoomsSummary() {
-        const hub = document.getElementById("communityLiveRoomsHub");
-        const body = document.getElementById("communityLiveRoomsHubBody");
-        const emptyEl = document.getElementById("communityLiveRoomsHubEmpty");
-        const listEl = document.getElementById("communityLiveRoomsHubList");
-        const countEl = document.getElementById("communityLiveRoomsHubCount");
-        const actionBtn = document.getElementById("communityLiveRoomsActionBtn");
-        if (!hub) return;
-        function setLiveRoomsAction(label, ariaLabel, onClick) {
-          if (!actionBtn) return;
-          actionBtn.textContent = label;
-          actionBtn.setAttribute("aria-label", ariaLabel);
-          actionBtn.onclick = onClick;
-        }
-        setLiveRoomsAction("Start", "Start a Live Room from a show discussion", () => openCommunityNewModal());
-        try {
-          const data = await api("/api/community/live-rooms/summary");
-          const total = data.totalViewers || 0;
-          const rooms = data.rooms || [];
-
-          let state = "dormant";
-          if (total >= 5) state = "active";
-          else if (total >= 1) state = "early";
-
-          hub.dataset.state = state;
-
-          if (countEl) {
-            if (state === "dormant" || (rooms.length === 0 && total === 0)) {
-              countEl.textContent = "";
-            } else {
-              const bits = [];
-              if (rooms.length > 0) {
-                bits.push(rooms.length + (rooms.length === 1 ? " room" : " rooms"));
-              }
-              if (total > 0) {
-                bits.push(total + (total === 1 ? " watching" : " watching"));
-              }
-              countEl.textContent = bits.join(" · ");
-            }
-          }
-
-          if (state === "dormant") {
-            if (emptyEl) emptyEl.hidden = false;
-            if (body) body.hidden = false;
-            if (listEl) listEl.hidden = true;
-            setLiveRoomsAction("Start", "Start a Live Room from a show discussion", () => openCommunityNewModal());
-            return;
-          }
-
-          const primaryRoom = rooms[0] || null;
-          setLiveRoomsAction(
-            "Join",
-            primaryRoom && primaryRoom.showName
-              ? "Join live room for " + String(primaryRoom.showName)
-              : "Join an active Live Room",
-            () => {
-              if (!primaryRoom) {
-                openCommunityNewModal();
-                return;
-              }
-              const epDeep = primaryRoom.tvmazeEpisodeId != null ? { episodeId: primaryRoom.tvmazeEpisodeId } : null;
-              openCommunityThread(primaryRoom.showId, primaryRoom.showName, null, epDeep);
-            },
-          );
-          if (emptyEl) emptyEl.hidden = true;
-          if (body) body.hidden = true;
-          if (listEl) {
-            listEl.hidden = false;
-            listEl.innerHTML = "";
-            for (const r of rooms) {
-              const li = document.createElement("li");
-              const btn = document.createElement("button");
-              btn.type = "button";
-              btn.className = "community-live-rooms-hub-item";
-              const showLabel = escapeHtml(r.showName || "Show");
-              const epLabel = r.episodeLabel ? " · " + escapeHtml(r.episodeLabel) : "";
-              let metaText = r.viewerCount + " fan" + (r.viewerCount !== 1 ? "s" : "") + " chatting";
-              if (r.liveAirNight) metaText = "Live now · " + metaText;
-              if (state === "active" && r.viewerCount >= 5) {
-                metaText = r.viewerCount + " fans chatting about this episode";
-              }
-              btn.innerHTML =
-                '<div class="community-live-rooms-hub-item-info">' +
-                '<span class="community-live-rooms-hub-item-show">' + showLabel + epLabel + '</span>' +
-                '<span class="community-live-rooms-hub-item-meta">' + escapeHtml(metaText) + '</span>' +
-                '</div>' +
-                '<span class="community-live-rooms-hub-item-vc">' + r.viewerCount + '</span>';
-              btn.onclick = () => {
-                const epDeep = r.tvmazeEpisodeId != null ? { episodeId: r.tvmazeEpisodeId } : null;
-                openCommunityThread(r.showId, r.showName, null, epDeep);
-              };
-              li.appendChild(btn);
-              listEl.appendChild(li);
-            }
-          }
-        } catch {
-          hub.dataset.state = "dormant";
-          if (emptyEl) {
-            emptyEl.hidden = false;
-            emptyEl.innerHTML =
-              "No one’s live right now. Use <strong>Start</strong> above to open a show thread and go live from there.";
-          }
-          if (body) body.hidden = false;
-          if (listEl) listEl.hidden = true;
-          setLiveRoomsAction("Start", "Start a Live Room from a show discussion", () => openCommunityNewModal());
-        }
-      }
-
-      let liveRoomsRefreshTimer = null;
-      function startLiveRoomsRefresh() {
-        stopLiveRoomsRefresh();
-        liveRoomsRefreshTimer = setInterval(() => {
-          if (communityState.view === "list") void loadLiveRoomsSummary();
-        }, 30000);
-      }
-      function stopLiveRoomsRefresh() {
-        if (liveRoomsRefreshTimer) { clearInterval(liveRoomsRefreshTimer); liveRoomsRefreshTimer = null; }
-      }
-
       function applyCommunityFilter() {
         const trendingCards = document.querySelectorAll("#communityThreadList > li");
         const generalCards = document.querySelectorAll("#communityGeneralList > li");
@@ -17718,7 +17369,6 @@
 
       async function openCommunityThread(showId, showNameFallback, postCountHint, episodeDeepLink) {
         hideUsernameSearchDropdown();
-        stopLiveRoomsRefresh();
         communityState.view = "thread";
         communityState.showId = showId;
         communityState.showNameFallback = showNameFallback || "";
@@ -20542,8 +20192,6 @@
 
       function wireDeferredCommunityTabPanel() {
         document.getElementById("communityBackBtn")?.addEventListener("click", () => openCommunityListView());
-        const liveRoomsAction = document.getElementById("communityLiveRoomsActionBtn");
-        if (liveRoomsAction) liveRoomsAction.onclick = () => openCommunityNewModal();
         document.getElementById("communitySortSelect")?.addEventListener("change", (e) => {
           communityState.sort = e.target.value === "oldest" ? "oldest" : "newest";
           loadCommunityThreadPosts();
@@ -20863,7 +20511,6 @@
         }
         if (prevName === "community" && name !== "community") {
           disconnectCommunityThreadLiveWs();
-          stopLiveRoomsRefresh();
         }
         if (name === "messages") {
           if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && hasFullSocialUiAccess(sessionMeSnapshot)) {
