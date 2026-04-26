@@ -137,14 +137,6 @@
       * {
         box-sizing: border-box;
       }
-      /**
-       * Ensure hidden nodes never intercept taps (some engines still hit-test oddly with
-       * `hidden` + author `display` overrides). `display:none` is the safe default.
-       */
-      [hidden] {
-        display: none !important;
-        pointer-events: none !important;
-      }
       /** Root: void color only — full galaxy stack is on .galaxy-photo-base + layers */
       html {
         height: 100%;
@@ -9186,9 +9178,111 @@
           min-height: min(86dvh, 50rem);
         }
       }
+      .aa-boot-error-shell {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 2147483000;
+        align-items: center;
+        justify-content: center;
+        padding: max(1.25rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1.25rem, env(safe-area-inset-bottom))
+          max(1rem, env(safe-area-inset-left));
+        background: #050510;
+        color: #f4f7fc;
+        font-family: var(--font);
+        text-align: center;
+      }
+      .aa-boot-error-shell:not([hidden]) {
+        display: flex;
+      }
+      .aa-boot-error-inner {
+        max-width: 22rem;
+        padding: 1.25rem 1.35rem;
+        border-radius: 16px;
+        border: 1px solid rgba(248, 113, 113, 0.45);
+        background: rgba(18, 10, 22, 0.96);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55);
+      }
+      .aa-boot-error-title {
+        margin: 0 0 0.65rem;
+        font-size: 1.05rem;
+        font-weight: 750;
+        color: #fecaca;
+      }
+      .aa-boot-error-msg {
+        margin: 0 0 0.75rem;
+        font-size: 0.88rem;
+        line-height: 1.45;
+        word-break: break-word;
+        color: #e8eefc;
+      }
+      .aa-boot-error-hint {
+        margin: 0 0 1rem;
+        font-size: 0.8rem;
+        line-height: 1.4;
+        color: #94a3b8;
+      }
+      .aa-boot-error-retry {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(91, 156, 255, 0.4));
+        color: #0b1020;
+      }
     </style>
   </head>
   <body>
+    <script>
+      (function () {
+        try {
+          if (new URLSearchParams(window.location.search).get("clear_sw") === "1" && "serviceWorker" in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+              regs.forEach(function (r) {
+                void r.unregister();
+              });
+            });
+            try {
+              var u = new URL(window.location.href);
+              u.searchParams.delete("clear_sw");
+              history.replaceState({}, "", u.pathname + (u.searchParams.toString() ? "?" + u.searchParams.toString() : "") + u.hash);
+            } catch (_) {}
+          }
+        } catch (_) {}
+        function aaBootLogEarly(detail) {
+          try {
+            window.__AIRALERT_LAST_ERROR__ = String(
+              (detail && (detail.stack || detail.message)) || detail || "",
+            );
+          } catch (_) {}
+        }
+        window.addEventListener("error", function (ev) {
+          try {
+            console.error("[AirAlert] window.error", ev.error || ev.message, ev);
+          } catch (_) {}
+          aaBootLogEarly(ev.error || ev.message);
+        });
+        window.addEventListener("unhandledrejection", function (ev) {
+          try {
+            console.error("[AirAlert] unhandledrejection", ev.reason);
+          } catch (_) {}
+          aaBootLogEarly(ev.reason);
+        });
+      })();
+    </script>
+    <div id="aaBootErrorShell" class="aa-boot-error-shell" hidden aria-hidden="true" role="alert">
+      <div class="aa-boot-error-inner">
+        <h1 class="aa-boot-error-title">AirAlert couldn’t start</h1>
+        <p class="aa-boot-error-msg" data-aa-boot-msg></p>
+        <p class="aa-boot-error-hint">
+          Try <strong>Reload</strong>. On iPhone: Settings → Safari → Advanced → Website Data → remove this site, or use a non-private tab if storage is blocked.
+        </p>
+        <button type="button" class="aa-boot-error-retry" id="aaBootErrorRetry" onclick="location.reload()">Reload</button>
+      </div>
+    </div>
     <div class="galaxy-photo-base" aria-hidden="true"></div>
     <div class="cosmic-field" aria-hidden="true"></div>
     <div class="bg-mesh-mid" aria-hidden="true"></div>
@@ -10962,6 +11056,37 @@
     <script>
       const LS_USER = "airalert_user_id";
       const LS_GUEST_PROMPT = "airalert_guest_prompt_dismissed";
+      /** iOS Private mode / ITP can throw on localStorage — never let that abort boot. */
+      function safeLocalStorageSet(key, val) {
+        try {
+          localStorage.setItem(key, String(val));
+        } catch (e) {
+          console.warn("[AirAlert] localStorage.setItem failed", key, e);
+        }
+      }
+      function safeLocalStorageGet(key) {
+        try {
+          return localStorage.getItem(key);
+        } catch (e) {
+          console.warn("[AirAlert] localStorage.getItem failed", key, e);
+          return null;
+        }
+      }
+      function safeLocalStorageRemove(key) {
+        try {
+          localStorage.removeItem(key);
+        } catch (e) {
+          console.warn("[AirAlert] localStorage.removeItem failed", key, e);
+        }
+      }
+      /** Set `?debug_boot=1` or `window.__AIRALERT_DEBUG_BOOT = true` for phase logs (Railway / Safari debugging). */
+      function bootCheckpoint(phase) {
+        try {
+          if (window.__AIRALERT_DEBUG_BOOT || new URLSearchParams(window.location.search).get("debug_boot") === "1") {
+            console.info("[AirAlert boot]", phase, Math.round(performance.now()) + "ms");
+          }
+        } catch (_) {}
+      }
       /** Set when user opens reset flow from email `#airalert_pwreset=…` until password saved or modal closed. */
       let pendingPasswordResetToken = null;
       /** Per-user last-seen activity inbox time (ms), vs GET /activity-notifications only (human/social rows). */
@@ -10971,10 +11096,14 @@
         return "airalert_onboarding_strip_dismissed_v1_" + userId;
       }
       function isOnboardingStripDismissed(userId) {
-        return Boolean(userId && localStorage.getItem(onboardingStripDismissedKey(userId)) === "1");
+        try {
+          return Boolean(userId && safeLocalStorageGet(onboardingStripDismissedKey(userId)) === "1");
+        } catch {
+          return false;
+        }
       }
       function setOnboardingStripDismissed(userId) {
-        if (userId) localStorage.setItem(onboardingStripDismissedKey(userId), "1");
+        if (userId) safeLocalStorageSet(onboardingStripDismissedKey(userId), "1");
       }
 
       /** Keep in sync with {@link ACTIVATION_MIN_SUBSCRIBED_SHOWS} in src/userRole.ts */
@@ -11001,13 +11130,9 @@
       /** After sign-in without account email: gentle nudge toward Profile → Account (throttled). */
       function maybePromptLegacyEmailUpgrade(me) {
         if (!me || me.needsEmailUpgrade !== true) return;
-        try {
-          const last = Number(localStorage.getItem(LS_EMAIL_UPGRADE_HINT_MS) || "0");
-          if (Date.now() - last < EMAIL_UPGRADE_HINT_COOLDOWN_MS) return;
-          localStorage.setItem(LS_EMAIL_UPGRADE_HINT_MS, String(Date.now()));
-        } catch {
-          /* ignore */
-        }
+        const last = Number(safeLocalStorageGet(LS_EMAIL_UPGRADE_HINT_MS) || "0");
+        if (Date.now() - last < EMAIL_UPGRADE_HINT_COOLDOWN_MS) return;
+        safeLocalStorageSet(LS_EMAIL_UPGRADE_HINT_MS, String(Date.now()));
         showToast(
           "Add an email in Your profile → Account so this sign-in can be recovered. Your public @username stays the same.",
         );
@@ -11056,10 +11181,14 @@
         return "airalert_ctx_tip_v1_" + tipId + "_" + userId;
       }
       function isContextualTipDismissed(userId, tipId) {
-        return Boolean(userId && localStorage.getItem(contextualTipKey(userId, tipId)) === "1");
+        try {
+          return Boolean(userId && safeLocalStorageGet(contextualTipKey(userId, tipId)) === "1");
+        } catch {
+          return false;
+        }
       }
       function dismissContextualTip(userId, tipId) {
-        if (userId) localStorage.setItem(contextualTipKey(userId, tipId), "1");
+        if (userId) safeLocalStorageSet(contextualTipKey(userId, tipId), "1");
       }
       function updateContextualTipsVisibility(activeTab) {
         const uid = resolveUserId();
@@ -11149,10 +11278,10 @@
 
       function analyticsAnonymousId() {
         try {
-          let id = localStorage.getItem(ANALYTICS_ANON_ID_KEY);
+          let id = safeLocalStorageGet(ANALYTICS_ANON_ID_KEY);
           if (!id) {
             id = crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "-" + Math.random().toString(16).slice(2);
-            localStorage.setItem(ANALYTICS_ANON_ID_KEY, id);
+            safeLocalStorageSet(ANALYTICS_ANON_ID_KEY, id);
           }
           return id;
         } catch {
@@ -11244,7 +11373,7 @@
       }
 
       window.addEventListener("pagehide", () => flushAnalyticsEvents());
-      if (navigator.serviceWorker) {
+      if ("serviceWorker" in navigator && navigator.serviceWorker) {
         navigator.serviceWorker.addEventListener("message", (event) => {
           const data = event && event.data;
           if (!data || data.type !== "airalert.analytics") return;
@@ -11267,7 +11396,7 @@
         try {
           const me = await api("/api/users/me");
           if (me && me.id) {
-            localStorage.setItem(LS_USER, me.id);
+            safeLocalStorageSet(LS_USER, me.id);
             return me.id;
           }
         } catch (e) {
@@ -11283,7 +11412,7 @@
           method: "POST",
           body: JSON.stringify({ timezone: tz }),
         });
-        localStorage.setItem(LS_USER, u.id);
+        safeLocalStorageSet(LS_USER, u.id);
         return u.id;
       }
 
@@ -12563,7 +12692,7 @@
         } catch {
           /* still drop local id */
         }
-        localStorage.removeItem(LS_USER);
+        safeLocalStorageRemove(LS_USER);
         appUserId = null;
         const id = await ensureUser();
         appUserId = id;
@@ -15628,7 +15757,7 @@
 
       function loadRecentSearches() {
         try {
-          const raw = localStorage.getItem(LS_RECENT_SEARCHES);
+          const raw = safeLocalStorageGet(LS_RECENT_SEARCHES);
           const a = raw ? JSON.parse(raw) : [];
           if (!Array.isArray(a)) return [];
           return a
@@ -15640,7 +15769,7 @@
       }
 
       function saveRecentSearches(list) {
-        localStorage.setItem(LS_RECENT_SEARCHES, JSON.stringify(list.slice(0, MAX_RECENT_SEARCHES)));
+        safeLocalStorageSet(LS_RECENT_SEARCHES, JSON.stringify(list.slice(0, MAX_RECENT_SEARCHES)));
       }
 
       function recordRecentSearch(query) {
@@ -17175,9 +17304,12 @@
           if (!liveShow) { banner.hidden = true; return; }
           banner.hidden = false;
           document.getElementById("communityLiveEpisodeTitle").textContent = liveShow.title;
-          document.getElementById("communityLiveEpisodeJoinBtn").onclick = () => {
-            openCommunityShowThread(liveShow.showId, liveShow.showName);
-          };
+          const liveJoinBtn = document.getElementById("communityLiveEpisodeJoinBtn");
+          if (liveJoinBtn) {
+            liveJoinBtn.onclick = () => {
+              openCommunityShowThread(liveShow.showId, liveShow.showName);
+            };
+          }
         } catch {
           banner.hidden = true;
         }
@@ -19534,7 +19666,7 @@
       }
 
       function resolveUserId() {
-        return appUserId || localStorage.getItem(LS_USER);
+        return appUserId || safeLocalStorageGet(LS_USER);
       }
 
       function appendSearchResultCard(box, s, userId, err, addedFrom) {
@@ -19870,9 +20002,13 @@
           linkP.style.display = "none";
           linkP.innerHTML = "";
         }
-        const saved = localStorage.getItem(LS_SEARCH_PAGE_SIZE);
+        let saved = null;
+        try {
+          saved = localStorage.getItem(LS_SEARCH_PAGE_SIZE);
+        } catch (_) {}
         if (saved === "10" || saved === "50" || saved === "100") {
-          document.getElementById("searchPageSize").value = saved;
+          const psEl = document.getElementById("searchPageSize");
+          if (psEl) psEl.value = saved;
         }
         searchResultState.page = 1;
         renderSearchPage(userId);
@@ -20083,17 +20219,17 @@
       /** First-time baseline: set ack just before newest row so the latest real row can still read as unread once. */
       function maybeBootstrapHeaderActivityAck(userId, rows) {
         const key = headerActivityAckKey(userId);
-        if (localStorage.getItem(key) != null) return;
+        if (safeLocalStorageGet(key) != null) return;
         if (!rows || !rows.length) {
-          localStorage.setItem(key, String(Date.now()));
+          safeLocalStorageSet(key, String(Date.now()));
           return;
         }
         const maxMs = maxActivityCreatedMs(rows);
-        localStorage.setItem(key, String(Math.max(0, maxMs - 1)));
+        safeLocalStorageSet(key, String(Math.max(0, maxMs - 1)));
       }
 
       function getHeaderActivityAckMs(userId) {
-        const raw = localStorage.getItem(headerActivityAckKey(userId));
+        const raw = safeLocalStorageGet(headerActivityAckKey(userId));
         if (raw == null) return null;
         const n = Number(raw);
         return Number.isFinite(n) ? n : null;
@@ -20113,7 +20249,7 @@
         if (!userId) return;
         const key = headerActivityAckKey(userId);
         const maxMs = rows && rows.length ? maxActivityCreatedMs(rows) : 0;
-        localStorage.setItem(key, String(maxMs > 0 ? maxMs : Date.now()));
+        safeLocalStorageSet(key, String(maxMs > 0 ? maxMs : Date.now()));
       }
 
       function formatActivityKindLabel(kind) {
@@ -21451,13 +21587,13 @@
         if (!id) return;
         void startDirectMessageToUser(id, lab);
       });
-      document.getElementById("communityEditFormatBar").addEventListener("click", (e) => {
+      document.getElementById("communityEditFormatBar")?.addEventListener("click", (e) => {
         const t = e.target.closest(".community-fmt-btn");
         if (!t) return;
         const cmd = t.getAttribute("data-edit-cmd");
         if (cmd) execCommunityFormat(cmd, document.getElementById("communityEditBody"));
       });
-      document.getElementById("communityModalSearch").addEventListener("input", () => {
+      document.getElementById("communityModalSearch")?.addEventListener("input", () => {
         const inp = document.getElementById("communityModalSearch");
         const box = document.getElementById("communityModalResults");
         const q = inp.value.trim();
@@ -21543,7 +21679,7 @@
           }
         }, 320);
       });
-      document.getElementById("communityEditSaveBtn").addEventListener("click", async () => {
+      document.getElementById("communityEditSaveBtn")?.addEventListener("click", async () => {
         const id = communityState.editingPostId;
         if (!id) return;
         const bodyEl = document.getElementById("communityEditBody");
@@ -21581,7 +21717,7 @@
           }
         }
       });
-      document.getElementById("communityEditModal").addEventListener("click", async (e) => {
+      document.getElementById("communityEditModal")?.addEventListener("click", async (e) => {
         const btn = e.target && e.target.closest && e.target.closest("[data-aa-em-apply]");
         if (!btn) return;
         const id = communityState.editingPostId;
@@ -21615,17 +21751,17 @@
         }
       });
 
-      document.getElementById("searchTitle").addEventListener("input", () => {
+      document.getElementById("searchTitle")?.addEventListener("input", () => {
         syncSearchClearBtn();
         const uid = resolveUserId();
         if (uid) scheduleLiveSearch(uid);
       });
 
-      document.getElementById("searchClearBtn").addEventListener("click", () => {
+      document.getElementById("searchClearBtn")?.addEventListener("click", () => {
         clearSearchFieldAndResults();
       });
 
-      document.getElementById("searchTitle").addEventListener("keydown", (e) => {
+      document.getElementById("searchTitle")?.addEventListener("keydown", (e) => {
         if (e.key !== "Enter") return;
         e.preventDefault();
         const uid = resolveUserId();
@@ -21634,14 +21770,15 @@
         performSearch(uid);
       });
 
-      document.getElementById("searchNetworkFilter").addEventListener("change", () => {
+      document.getElementById("searchNetworkFilter")?.addEventListener("change", () => {
         const uid = resolveUserId();
         searchResultState.page = 1;
         if (uid) renderSearchPage(uid);
       });
 
-      document.getElementById("searchPageSize").addEventListener("change", () => {
-        localStorage.setItem(LS_SEARCH_PAGE_SIZE, document.getElementById("searchPageSize").value);
+      document.getElementById("searchPageSize")?.addEventListener("change", () => {
+        const ps = document.getElementById("searchPageSize");
+        if (ps) safeLocalStorageSet(LS_SEARCH_PAGE_SIZE, ps.value);
         searchResultState.page = 1;
         const uid = resolveUserId();
         if (uid) renderSearchPage(uid);
@@ -21690,7 +21827,7 @@
         });
       });
 
-      document.getElementById("recommendedRefreshBtn").addEventListener("click", () => {
+      document.getElementById("recommendedRefreshBtn")?.addEventListener("click", () => {
         const uid = resolveUserId();
         if (uid) loadRecommended(uid);
       });
@@ -21805,7 +21942,7 @@
       async function refreshAllForUserId(userId, me) {
         if (me) applyMeToUI(me);
         appUserId = userId;
-        localStorage.setItem(LS_USER, userId);
+        safeLocalStorageSet(LS_USER, userId);
         if (me) applyLoadedUserToSettings(me);
         else await loadUser(userId);
         await loadSubs(userId, { skipSessionRefresh: true });
@@ -21887,11 +22024,44 @@
         })();
       });
 
+      function reportAirAlertBootFailure(err) {
+        const detail = err;
+        try {
+          console.error("[AirAlert] boot failure", detail);
+        } catch (_) {}
+        try {
+          window.__AIRALERT_BOOT_ERROR__ = String(
+            (detail && (detail.stack || detail.message)) || detail || "Startup failed",
+          );
+        } catch (_) {}
+        try {
+          const shell = document.getElementById("aaBootErrorShell");
+          if (shell) {
+            shell.hidden = false;
+            shell.setAttribute("aria-hidden", "false");
+            const m = shell.querySelector("[data-aa-boot-msg]");
+            if (m) {
+              m.textContent =
+                detail && detail.message
+                  ? String(detail.message)
+                  : typeof detail === "string"
+                    ? detail
+                    : detail != null
+                      ? String(detail)
+                      : "The app hit an error while starting.";
+            }
+          }
+        } catch (_) {}
+      }
+
       (async function init() {
+        try {
+        bootCheckpoint("start");
         syncHeaderProfileDropdown(null);
         removeAdminUiFromDom();
         await initGoogleAuthUi();
         const userId = await ensureUser();
+        bootCheckpoint("after_ensureUser");
         appUserId = userId;
         startAppPresenceClient();
         let me = null;
@@ -21907,6 +22077,7 @@
         if (me) applyLoadedUserToSettings(me);
         else await loadUser(userId);
         await loadSubs(userId, { skipSessionRefresh: true });
+        bootCheckpoint("after_loadSubs");
         deferAfterIdle(() => {
           void loadPersonFollows(userId);
           setupPersonFollowSearch(userId);
@@ -22352,18 +22523,18 @@
           }
         });
 
-        document.getElementById("accountPromptCreate").addEventListener("click", () => {
+        document.getElementById("accountPromptCreate")?.addEventListener("click", () => {
           setAccountPromptErr("");
           showAccountPromptStep("register");
-          document.getElementById("apRegEmail").focus();
+          document.getElementById("apRegEmail")?.focus();
         });
-        document.getElementById("accountPromptSignIn").addEventListener("click", () => {
+        document.getElementById("accountPromptSignIn")?.addEventListener("click", () => {
           setAccountPromptErr("");
           showAccountPromptStep("login");
-          document.getElementById("apLoginEmail").focus();
+          document.getElementById("apLoginEmail")?.focus();
         });
-        document.getElementById("accountPromptGuest").addEventListener("click", async () => {
-          localStorage.setItem(LS_GUEST_PROMPT, "1");
+        document.getElementById("accountPromptGuest")?.addEventListener("click", async () => {
+          safeLocalStorageSet(LS_GUEST_PROMPT, "1");
           closeAccountPromptModal();
           try {
             const meGuest = await api("/api/users/me");
@@ -22372,8 +22543,8 @@
             /* ignore */
           }
         });
-        document.getElementById("apRegBack").addEventListener("click", () => showAccountPromptStep("intro"));
-        document.getElementById("apLoginBack").addEventListener("click", () => showAccountPromptStep("intro"));
+        document.getElementById("apRegBack")?.addEventListener("click", () => showAccountPromptStep("intro"));
+        document.getElementById("apLoginBack")?.addEventListener("click", () => showAccountPromptStep("intro"));
 
         document.getElementById("googleUsernameModal")?.addEventListener("click", (e) => {
           if (e.target && e.target.id === "googleUsernameModal") closeGoogleUsernameModal();
@@ -22408,7 +22579,7 @@
           }
         });
 
-        document.getElementById("apRegSubmit").addEventListener("click", async () => {
+        document.getElementById("apRegSubmit")?.addEventListener("click", async () => {
           setAccountPromptErr("");
           const emailRaw = document.getElementById("apRegEmail").value;
           const emErr = clientValidateSignupEmail(emailRaw);
@@ -22456,7 +22627,7 @@
           }
         });
 
-        document.getElementById("apLoginSubmit").addEventListener("click", async () => {
+        document.getElementById("apLoginSubmit")?.addEventListener("click", async () => {
           setAccountPromptErr("");
           const idVal = document.getElementById("apLoginEmail").value.trim();
           const pw = document.getElementById("apLoginPassword").value;
@@ -22485,10 +22656,10 @@
           }
         });
 
-        document.getElementById("saveProfile").onclick = () => {
+        document.getElementById("saveProfile")?.addEventListener("click", () => {
           const uid = resolveUserId();
           if (uid) saveProfile(uid);
-        };
+        });
         document.getElementById("savePushPrefsBtn")?.addEventListener("click", () => {
           const uid = resolveUserId();
           if (uid) savePushPrefs(uid);
@@ -22497,12 +22668,12 @@
           const uid = resolveUserId();
           if (uid) void saveProfileAll(uid);
         };
-        document.getElementById("saveProfileAllBtn").addEventListener("click", runSaveProfileAll);
+        document.getElementById("saveProfileAllBtn")?.addEventListener("click", runSaveProfileAll);
         document.getElementById("saveProfileHeaderBtn")?.addEventListener("click", runSaveProfileAll);
-        document.getElementById("profileAvatarBtn").addEventListener("click", () => {
-          document.getElementById("profileAvatarInput").click();
+        document.getElementById("profileAvatarBtn")?.addEventListener("click", () => {
+          document.getElementById("profileAvatarInput")?.click();
         });
-        document.getElementById("profileAvatarImg").addEventListener("click", (e) => {
+        document.getElementById("profileAvatarImg")?.addEventListener("click", (e) => {
           const img = e.currentTarget;
           if (img.hidden || !img.getAttribute("src")) return;
           e.stopPropagation();
@@ -22517,7 +22688,7 @@
         document.querySelectorAll("[data-close-profile-photo-lightbox]").forEach((el) => {
           el.addEventListener("click", () => closeProfilePhotoLightbox());
         });
-        document.getElementById("profileAvatarInput").addEventListener("change", async (e) => {
+        document.getElementById("profileAvatarInput")?.addEventListener("change", async (e) => {
           const input = e.target;
           const f = input.files && input.files[0];
           input.value = "";
@@ -22535,7 +22706,7 @@
             showToast(err.message || "Could not read image");
           }
         });
-        document.getElementById("removeAvatarBtn").addEventListener("click", () => {
+        document.getElementById("removeAvatarBtn")?.addEventListener("click", () => {
           profileAvatarPending = null;
           profileAvatarDirty = true;
           const img = document.getElementById("profileAvatarImg");
@@ -22613,36 +22784,42 @@
             }
           }
         });
-        document.getElementById("enablePushBtn").onclick = () => {
+        document.getElementById("enablePushBtn")?.addEventListener("click", () => {
           const uid = resolveUserId();
           if (uid) registerWebPush(uid);
-        };
+        });
 
-        document.getElementById("testPushBtn").onclick = async () => {
+        document.getElementById("testPushBtn")?.addEventListener("click", async () => {
           const uid = resolveUserId();
           const pushMsg = document.getElementById("pushMsg");
           if (!uid) return;
-          pushMsg.textContent = "";
-          pushMsg.classList.remove("err");
+          if (pushMsg) {
+            pushMsg.textContent = "";
+            pushMsg.classList.remove("err");
+          }
           try {
             const out = await api("/api/users/" + encodeURIComponent(uid) + "/test-push", {
               method: "POST",
               body: JSON.stringify({}),
             });
-            if (out.sent) {
-              pushMsg.textContent = "Test sent — you should see a banner on this device.";
-            } else {
-              pushMsg.textContent = out.message || "Turn on push above first, then try again.";
+            if (pushMsg) {
+              if (out.sent) {
+                pushMsg.textContent = "Test sent — you should see a banner on this device.";
+              } else {
+                pushMsg.textContent = out.message || "Turn on push above first, then try again.";
+              }
             }
           } catch (e) {
             const msg = e && e.message ? String(e.message) : "Could not send test.";
-            pushMsg.textContent = msg;
-            pushMsg.classList.add("err");
+            if (pushMsg) {
+              pushMsg.textContent = msg;
+              pushMsg.classList.add("err");
+            }
           }
-        };
+        });
 
-        document.getElementById("modalClose").onclick = () => closeShowModal();
-        document.getElementById("showModal").addEventListener("click", (e) => {
+        document.getElementById("modalClose")?.addEventListener("click", () => closeShowModal());
+        document.getElementById("showModal")?.addEventListener("click", (e) => {
           if (e.target.id === "showModal") closeShowModal();
         });
 
@@ -22848,7 +23025,7 @@
           }
         }
 
-        document.getElementById("regBtn").addEventListener("click", async () => {
+        document.getElementById("regBtn")?.addEventListener("click", async () => {
           clearAccountErr();
           const emailRaw = document.getElementById("regEmail").value;
           const emErr = clientValidateSignupEmail(emailRaw);
@@ -22894,7 +23071,7 @@
           }
         });
 
-        document.getElementById("loginBtn").addEventListener("click", async () => {
+        document.getElementById("loginBtn")?.addEventListener("click", async () => {
           clearAccountErr();
           const idVal = document.getElementById("loginEmail").value.trim();
           const pw = document.getElementById("loginPassword").value;
@@ -22924,15 +23101,15 @@
           }
         });
 
-        document.getElementById("signOutAccountBtn").addEventListener("click", async () => {
+        document.getElementById("signOutAccountBtn")?.addEventListener("click", async () => {
           clearAccountErr();
-          localStorage.removeItem(LS_GUEST_PROMPT);
+          safeLocalStorageRemove(LS_GUEST_PROMPT);
           try {
             await api("/api/auth/logout", { method: "POST" });
           } catch {
             /* ignore */
           }
-          localStorage.removeItem(LS_USER);
+          safeLocalStorageRemove(LS_USER);
           appUserId = null;
           const id = await ensureUser();
           appUserId = id;
@@ -22966,8 +23143,8 @@
           if (typed !== "DELETE") return;
           try {
             await api("/api/users/me", { method: "DELETE" });
-            localStorage.removeItem(LS_USER);
-            localStorage.removeItem(LS_GUEST_PROMPT);
+            safeLocalStorageRemove(LS_USER);
+            safeLocalStorageRemove(LS_GUEST_PROMPT);
             appUserId = null;
             const id = await ensureUser();
             appUserId = id;
@@ -23077,7 +23254,17 @@
           });
         }
 
-      })();
+        bootCheckpoint("complete");
+        try {
+          window.__AIRALERT_APP_READY__ = true;
+        } catch (_) {}
+
+        } catch (bootFatal) {
+          reportAirAlertBootFailure(bootFatal);
+        }
+      })().catch((e) => {
+        reportAirAlertBootFailure(e);
+      });
     </script>
   </body>
 </html>
