@@ -4096,6 +4096,7 @@ app.get("/api/users/me", async (request, reply) => {
     needsUsername,
     needsEmailUpgrade,
     accountState,
+    isGuestAccount: accountState === "guest",
     watchSummary: getWatchSummaryCounts(sid),
   } as Record<string, unknown>;
   if (typeof payload.emailVerified === "number") payload.emailVerified = payload.emailVerified !== 0;

@@ -1194,9 +1194,9 @@
       }
       .dm-inbox-layout {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         align-items: stretch;
-        gap: 0.65rem;
+        gap: 0.45rem;
         flex: 1 1 auto;
         min-height: 0;
         width: 100%;
@@ -1253,6 +1253,52 @@
         height: 1.35rem;
         flex-shrink: 0;
         opacity: 0.95;
+      }
+      /** Inbox hub: Direct messages first, Groups second (replaces mixed “all” rail). */
+      .dm-inbox-hub-tabs {
+        display: flex;
+        flex-direction: row;
+        gap: 0.35rem;
+        margin: 0 0 0.35rem;
+        padding: 0.2rem;
+        border-radius: 12px;
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        background: rgba(4, 8, 20, 0.42);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        flex-shrink: 0;
+      }
+      .dm-inbox-hub-tab {
+        flex: 1 1 0;
+        min-height: 44px;
+        padding: 0.35rem 0.5rem;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: rgba(168, 190, 224, 0.88);
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        line-height: 1.25;
+        cursor: pointer;
+        touch-action: manipulation;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease, background 0.18s ease;
+      }
+      .dm-inbox-hub-tab:hover:not(:disabled) {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(165, 215, 255, 0.2);
+      }
+      .dm-inbox-hub-tab--active {
+        border-color: rgba(34, 211, 238, 0.42);
+        color: var(--neon-cyan);
+        background: rgba(34, 211, 238, 0.1);
+        box-shadow: 0 0 18px -6px rgba(34, 211, 238, 0.45), inset 0 0 0 1px rgba(34, 211, 238, 0.1);
+      }
+      .dm-inbox-hub-scroll--tabbed .dm-inbox-section-head {
+        display: none;
+      }
+      #tab-messages #dmFabMenu {
+        display: none !important;
       }
       .dm-inbox-main {
         flex: 1;
@@ -1532,7 +1578,7 @@
       .dm-inbox-thread-list {
         display: flex;
         flex-direction: column;
-        gap: 0.45rem;
+        gap: 0.5rem;
         flex: 1 1 auto;
         min-height: 0;
         max-height: none;
@@ -1545,7 +1591,7 @@
         gap: 0.5rem;
         width: 100%;
         text-align: left;
-        padding: 0.5rem 0.6rem;
+        padding: 0.55rem 0.7rem;
         border-radius: 12px;
         border: 2px solid transparent;
         background: linear-gradient(rgba(6, 10, 24, 0.52), rgba(4, 8, 20, 0.66)) padding-box,
@@ -5114,13 +5160,23 @@
       .community-live-rooms-hub-head {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        justify-content: space-between;
+        gap: 0.5rem 0.65rem;
         padding: 0.5rem 0.75rem;
+        flex-wrap: nowrap;
+      }
+      .community-live-rooms-hub-head-leading {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        min-width: 0;
+        flex: 1 1 auto;
       }
       .community-live-rooms-hub-icon {
         font-size: 0.55rem;
         color: rgba(130, 200, 255, 0.35);
-        transition: color 0.4s ease, text-shadow 0.4s ease;
+        flex-shrink: 0;
+        transition: color 0.4s ease, text-shadow 0.4s ease, transform 0.4s ease;
       }
       .community-live-rooms-hub-title {
         font-size: 0.72rem;
@@ -5128,23 +5184,43 @@
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: rgba(226, 232, 240, 0.7);
+        flex-shrink: 0;
         transition: color 0.3s ease;
       }
       .community-live-rooms-hub-count {
-        font-size: 0.68rem;
-        font-weight: 600;
-        color: var(--muted);
+        font-size: 0.65rem;
+        font-weight: 650;
+        color: rgba(148, 163, 184, 0.88);
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .community-live-rooms-hub-count:empty {
+        display: none;
+      }
+      .community-live-rooms-hub-count:not(:empty) {
+        margin-left: 0.15rem;
+        padding: 0.14rem 0.5rem;
+        border-radius: 999px;
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        background: rgba(0, 0, 0, 0.22);
+      }
+      .community-live-rooms-hub[data-state="early"] .community-live-rooms-hub-count:not(:empty),
+      .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-count:not(:empty) {
+        border-color: rgba(0, 230, 118, 0.22);
+        background: rgba(0, 230, 118, 0.08);
+        color: rgba(187, 247, 208, 0.92);
       }
       .community-live-rooms-action {
-        margin-left: auto;
         flex-shrink: 0;
-        min-height: 30px;
-        padding: 0.32rem 0.72rem;
+        min-height: 34px;
+        padding: 0.35rem 0.8rem;
         border-radius: 999px;
         border: 1px solid rgba(34, 211, 238, 0.28);
         background: rgba(34, 211, 238, 0.1);
         color: #cffafe;
-        font-size: 0.72rem;
+        font-size: 0.74rem;
         font-weight: 750;
         letter-spacing: 0.01em;
         cursor: pointer;
@@ -5230,40 +5306,52 @@
       }
       /* Dormant state: compact, subtle */
       .community-live-rooms-hub[data-state="dormant"] {
-        border-color: rgba(130, 200, 255, 0.08);
+        border-color: rgba(130, 200, 255, 0.07);
+        background: linear-gradient(165deg, rgba(6, 10, 22, 0.5), rgba(4, 8, 16, 0.62));
+        box-shadow: none;
       }
       .community-live-rooms-hub[data-state="dormant"] .community-live-rooms-hub-head {
-        padding: 0.4rem 0.75rem;
+        padding: 0.38rem 0.65rem;
       }
       .community-live-rooms-hub[data-state="dormant"] .community-live-rooms-hub-body {
-        padding: 0 0.75rem 0.4rem;
+        padding: 0 0.65rem 0.38rem;
+      }
+      .community-live-rooms-hub[data-state="dormant"] .community-live-rooms-hub-title {
+        color: rgba(203, 213, 225, 0.55);
+        letter-spacing: 0.07em;
+      }
+      .community-live-rooms-hub[data-state="dormant"] .community-live-rooms-hub-icon {
+        transform: scale(0.92);
+        opacity: 0.85;
       }
       /* Early-activity state: visible secondary */
       .community-live-rooms-hub[data-state="early"] {
-        border-color: rgba(0, 230, 118, 0.2);
-        background: linear-gradient(165deg, rgba(0, 230, 118, 0.03), rgba(4, 8, 18, 0.7));
+        border-color: rgba(0, 230, 118, 0.22);
+        background: linear-gradient(165deg, rgba(0, 230, 118, 0.05), rgba(4, 8, 18, 0.72));
+        box-shadow: 0 0 18px rgba(0, 230, 118, 0.06);
       }
       .community-live-rooms-hub[data-state="early"] .community-live-rooms-hub-icon {
         color: #4ade80;
       }
       .community-live-rooms-hub[data-state="early"] .community-live-rooms-hub-title {
-        color: rgba(226, 232, 240, 0.85);
+        color: rgba(226, 232, 240, 0.88);
       }
       /* Active-traffic state: elevated, event-like */
       .community-live-rooms-hub[data-state="active"] {
-        border-color: rgba(0, 230, 118, 0.35);
-        background: linear-gradient(135deg, rgba(0, 230, 118, 0.08), rgba(8, 14, 28, 0.65));
-        box-shadow: 0 0 24px rgba(0, 230, 118, 0.12), 0 4px 20px rgba(0, 0, 0, 0.2);
+        border-color: rgba(0, 230, 118, 0.38);
+        background: linear-gradient(135deg, rgba(0, 230, 118, 0.1), rgba(8, 14, 28, 0.62));
+        box-shadow: 0 0 28px rgba(0, 230, 118, 0.14), 0 4px 22px rgba(0, 0, 0, 0.22);
       }
       .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-icon {
         color: #4ade80;
-        text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+        text-shadow: 0 0 10px rgba(74, 222, 128, 0.55);
+        animation: community-live-hub-pulse 2.2s ease-in-out infinite;
       }
       .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-title {
-        color: #a7f3d0;
+        color: #bbf7d0;
       }
       .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-head {
-        padding: 0.55rem 0.75rem;
+        padding: 0.52rem 0.75rem;
       }
       .community-live-rooms-hub[data-state="active"] .community-live-rooms-hub-item-vc {
         background: rgba(0, 230, 118, 0.15);
@@ -5461,8 +5549,8 @@
         gap: 0.35rem;
         font-size: 0.7rem;
         color: rgba(79, 195, 247, 0.75);
-        margin: 0.15rem 0 0.35rem;
-        padding: 0.2rem 0.35rem;
+        margin: 0 0 0.45rem;
+        padding: 0.28rem 0.45rem;
         border-radius: 8px;
         background: rgba(34, 99, 180, 0.12);
         border: 1px solid rgba(100, 160, 255, 0.15);
@@ -5993,6 +6081,10 @@
       #tab-community.active .community-fab-plus {
         display: flex;
       }
+      /** List landing: primary “start / join” lives in Live Rooms header — hide duplicate fixed FAB. */
+      #tab-community.active #communityListView:not(.hidden) ~ .community-fab-plus {
+        display: none !important;
+      }
       .app-fab-menu {
         position: fixed;
         z-index: 34;
@@ -6432,19 +6524,19 @@
       .community-show-composer-shell {
         position: relative;
         z-index: 3;
-        margin: 0.85rem 0 0;
+        margin: 0.55rem 0 0;
         padding: 0;
       }
       .community-show-composer-shell .community-composer-wrap {
         margin: 0;
         border-top: none;
-        padding: 0.85rem 0.95rem 1rem;
+        padding: 0.65rem 0.85rem 0.85rem;
         border-radius: 14px;
-        border: 1px solid rgba(130, 200, 255, 0.2);
-        background: rgba(6, 12, 24, 0.88);
+        border: 1px solid rgba(130, 200, 255, 0.16);
+        background: rgba(6, 12, 24, 0.82);
         -webkit-backdrop-filter: blur(18px) saturate(1.1);
         backdrop-filter: blur(18px) saturate(1.1);
-        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(34, 211, 238, 0.06) inset;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(34, 211, 238, 0.05) inset;
       }
       .community-thread-controls {
         display: none !important;
@@ -6470,8 +6562,8 @@
       .community-post-feed {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
-        margin-bottom: 0.5rem;
+        gap: 0.62rem;
+        margin-bottom: 0.4rem;
         contain: layout;
       }
       .community-post-skeleton {
@@ -7450,10 +7542,10 @@
         font-size: 0.82rem !important;
       }
       .community-composer {
-        min-height: 4.75rem;
+        min-height: 3.5rem;
         max-height: 14rem;
         overflow-y: auto;
-        padding: 0.65rem 0.75rem;
+        padding: 0.55rem 0.65rem;
         border-radius: 12px;
         border: 1px solid var(--border);
         background: rgba(0, 0, 0, 0.4);
@@ -7475,8 +7567,8 @@
         margin: 0.65rem 0;
       }
       .community-composer-meta--slim {
-        gap: 0.5rem;
-        margin: 0.4rem 0;
+        gap: 0.45rem;
+        margin: 0.28rem 0 0.35rem;
       }
       .community-composer-ep-chip {
         font-size: 0.72rem;
@@ -8283,6 +8375,35 @@
       .profile-edit-modal-head.utility-modal-head {
         align-items: flex-start;
       }
+      .profile-edit-modal-head-actions {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        gap: 0.45rem;
+      }
+      .profile-edit-save-header {
+        min-height: 40px;
+        padding: 0.45rem 0.95rem;
+        font-size: 0.88rem;
+        font-weight: 750;
+        letter-spacing: 0.02em;
+        border-radius: 11px;
+        border: 1px solid rgba(34, 211, 238, 0.45);
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(124, 156, 255, 0.2));
+        color: rgba(230, 250, 255, 0.98);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+      }
+      .profile-edit-save-header:hover {
+        border-color: rgba(94, 234, 212, 0.65);
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.32), rgba(124, 156, 255, 0.28));
+      }
+      @media (min-width: 720px) {
+        .profile-edit-save-header {
+          min-height: 42px;
+          padding: 0.5rem 1.1rem;
+          font-size: 0.9rem;
+        }
+      }
       .profile-edit-modal-title {
         margin: 0;
         font-size: 1.12rem;
@@ -8296,8 +8417,8 @@
         filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.35)) drop-shadow(0 0 28px rgba(167, 139, 250, 0.2));
       }
       .profile-edit-scroll.modal-body-scroll {
-        padding: 0.65rem 0.85rem 1rem;
-        padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+        padding: 0.8rem 0.9rem 1.1rem;
+        padding-bottom: calc(0.65rem + env(safe-area-inset-bottom, 0px));
         font-size: 0.92rem;
         overflow-x: hidden;
         overscroll-behavior: contain;
@@ -8305,27 +8426,37 @@
       .profile-edit-stack {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.1rem;
+      }
+      @media (min-width: 860px) {
+        .profile-edit-stack {
+          gap: 1.25rem;
+        }
       }
       .profile-edit-main-grid,
       .profile-edit-profile-column,
       .profile-edit-account-column {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.05rem;
       }
       @media (min-width: 860px) {
         .profile-edit-main-grid {
           display: grid;
-          grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
-          gap: 1rem 1.25rem;
+          grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
+          gap: 1.15rem 1.35rem;
           align-items: start;
+        }
+        .profile-edit-main-grid,
+        .profile-edit-profile-column,
+        .profile-edit-account-column {
+          gap: 1.15rem;
         }
       }
       .profile-edit-card {
         box-sizing: border-box;
         border-radius: 14px;
-        padding: 0.95rem 1rem 1.05rem;
+        padding: 1rem 1.05rem 1.12rem;
         background: rgba(8, 12, 28, 0.58);
         border: 1px solid rgba(130, 200, 255, 0.22);
         box-shadow: 0 4px 28px rgba(0, 0, 0, 0.28);
@@ -8433,8 +8564,8 @@
         z-index: 2;
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
-        padding: 0.7rem 0.85rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+        gap: 0.45rem;
+        padding: 0.8rem 0.9rem calc(0.85rem + env(safe-area-inset-bottom, 0px));
         border-top: 1px solid rgba(130, 200, 255, 0.28);
         background: linear-gradient(180deg, rgba(6, 10, 22, 0.88) 0%, rgba(10, 14, 28, 0.97) 100%);
         box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55);
@@ -8445,6 +8576,14 @@
         text-align: center;
         line-height: 1.35;
         opacity: 0.88;
+      }
+      .profile-edit-field-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .profile-edit-field-stack + .profile-edit-subsection {
+        margin-top: 1.25rem;
       }
       .profile-edit-subsection {
         margin-top: 1.15rem;
@@ -8463,21 +8602,73 @@
         color: rgba(186, 230, 255, 0.78);
       }
       .profile-edit-session-band {
-        margin-top: 0.2rem;
+        margin-top: 0.15rem;
       }
       @media (min-width: 860px) {
         .profile-edit-session-band {
-          max-width: 34rem;
-          margin-left: auto;
+          margin-top: 0.35rem;
         }
       }
-      .profile-edit-destructive-actions {
-        margin-top: 0.5rem;
-        padding-top: 0.75rem;
-        border-top: 1px solid rgba(248, 113, 113, 0.2);
-        display: flex;
-        flex-direction: column;
-        gap: 0.45rem;
+      .profile-edit-session-lead {
+        margin-bottom: 0.95rem !important;
+      }
+      .profile-edit-session-block {
+        padding: 0.85rem 0.9rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.2);
+      }
+      .profile-edit-session-block + .profile-edit-session-block {
+        margin-top: 0.85rem;
+      }
+      .profile-edit-session-block--signout {
+        border-color: rgba(248, 180, 140, 0.25);
+      }
+      .profile-edit-session-block--danger {
+        border-color: rgba(248, 113, 113, 0.38);
+        background: rgba(24, 6, 12, 0.35);
+      }
+      .profile-edit-session-block-title {
+        margin: 0 0 0.35rem;
+        font-size: 0.72rem;
+        font-weight: 750;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: rgba(255, 220, 200, 0.9);
+      }
+      .profile-edit-session-block-title--danger {
+        color: rgba(255, 180, 190, 0.98);
+      }
+      .profile-edit-session-block-lead {
+        margin: 0.45rem 0 0;
+        font-size: 0.8rem;
+        line-height: 1.45;
+      }
+      .profile-edit-session-block-lead--tight {
+        margin-top: 0.35rem;
+      }
+      .profile-edit-session-block--signout .profile-session-signout-btn {
+        margin-top: 0.65rem;
+      }
+      .profile-edit-session-block--danger .danger {
+        margin-top: 0.75rem;
+        width: 100%;
+        min-height: 46px;
+      }
+      .profile-edit-account-help {
+        margin-top: 1.1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .profile-edit-account-help-lead {
+        margin: 0 0 0.55rem;
+        font-size: 0.8rem;
+        line-height: 1.45;
+      }
+      .profile-edit-account-help-foot {
+        margin: 0.5rem 0 0;
+        font-size: 0.78rem;
+        line-height: 1.4;
       }
       h3.profile-account-block-title {
         margin: 0 0 0.4rem;
@@ -8509,19 +8700,20 @@
       @media (max-width: 719px) {
         .profile-edit-scroll {
           font-size: 0.9rem;
-          padding-left: 0.7rem;
-          padding-right: 0.7rem;
+          padding: 0.75rem 0.8rem 1rem;
+          padding-left: 0.78rem;
+          padding-right: 0.78rem;
         }
         .profile-edit-card {
-          padding: 0.82rem 0.78rem 0.92rem;
+          padding: 0.9rem 0.85rem 1rem;
         }
         .profile-edit-main-grid,
         .profile-edit-profile-column,
         .profile-edit-account-column {
-          gap: 0.9rem;
+          gap: 1rem;
         }
         .profile-account-subcard {
-          padding: 0.68rem;
+          padding: 0.72rem;
         }
       }
       .profile-edit-save-primary {
@@ -9012,10 +9204,10 @@
                 type="button"
                 class="header-icon-btn"
                 id="headerProfileBtn"
-                aria-label="Profile menu"
+                aria-label="Account menu"
                 aria-expanded="false"
                 aria-haspopup="true"
-                title="Profile"
+                title="Account"
               >
                 <svg
                   class="header-icon-svg"
@@ -9033,7 +9225,7 @@
                   />
                 </svg>
               </button>
-              <div class="header-dropdown" id="headerProfileDropdown" hidden role="menu" aria-label="Profile">
+              <div class="header-dropdown" id="headerProfileDropdown" hidden role="menu" aria-label="Account">
                 <div id="headerProfileMenuItems" role="group" aria-label="Account actions"></div>
               </div>
             </div>
@@ -9252,7 +9444,7 @@
                   Add 3 shows to personalize your app and unlock <strong>Community</strong> + <strong>Inbox</strong>.
                 </p>
                 <p class="onboarding-mission-strip__sub muted" id="onboardingMissionGuestNote" hidden style="margin-top: 0.35rem">
-                  Create an email account from the profile menu (top right) to save your list across devices.
+                  Create an account (Account menu, top right → Create account) to sync your list across devices.
                 </p>
               </div>
               <button type="button" class="onboarding-mission-strip__cta" id="onboardingMissionAddShowsBtn">
@@ -9569,13 +9761,17 @@
             <!-- Live Rooms hub module — progressive prominence based on activity -->
             <div class="community-live-rooms-hub" id="communityLiveRoomsHub" data-state="dormant" aria-label="Live Rooms">
               <div class="community-live-rooms-hub-head">
-                <span class="community-live-rooms-hub-icon" aria-hidden="true">●</span>
-                <span class="community-live-rooms-hub-title">Live Rooms</span>
-                <span class="community-live-rooms-hub-count" id="communityLiveRoomsHubCount"></span>
+                <div class="community-live-rooms-hub-head-leading">
+                  <span class="community-live-rooms-hub-icon" aria-hidden="true">●</span>
+                  <span class="community-live-rooms-hub-title">Live Rooms</span>
+                  <span class="community-live-rooms-hub-count" id="communityLiveRoomsHubCount" role="status"></span>
+                </div>
                 <button type="button" class="community-live-rooms-action" id="communityLiveRoomsActionBtn">Start</button>
               </div>
               <div class="community-live-rooms-hub-body" id="communityLiveRoomsHubBody">
-                <p class="community-live-rooms-hub-empty" id="communityLiveRoomsHubEmpty">No rooms live right now. Start one from a show discussion.</p>
+                <p class="community-live-rooms-hub-empty" id="communityLiveRoomsHubEmpty">
+                  No one’s live right now. Use <strong>Start</strong> above to open a show thread and go live from there.
+                </p>
               </div>
               <ul class="community-live-rooms-hub-list" id="communityLiveRoomsHubList" role="list" hidden></ul>
             </div>
@@ -9663,7 +9859,7 @@
                 <div class="community-composer-wrap" id="communityComposerWrap">
               <p class="muted community-post-as" id="communityPostAsLine" hidden>Post as <strong id="communityPostAsName">—</strong></p>
               <p class="muted community-guest-hint" id="communityGuestHint" hidden>
-                <a href="#" id="communityGoProfileLink">Create an email account</a> (Profile menu → Create account) to post and subscribe to threads.
+                <a href="#" id="communityGoProfileLink">Create an account</a> (Account menu, top right → Create account) to post and subscribe to threads.
               </p>
               <p class="muted community-guest-hint" id="communityUnlockHint" hidden></p>
               <div class="community-composer-meta community-composer-meta--slim" id="communityComposerEpisodeRow">
@@ -9690,6 +9886,13 @@
                   <button type="button" class="secondary community-fmt-btn" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
                 </div>
               </details>
+              <div id="communityReplyIndicator" class="community-post-reply-indicator" hidden aria-hidden="true">
+                <div class="community-reply-indicator-main">
+                  <span id="communityReplyLine"></span>
+                  <span class="community-reply-preview" id="communityReplyPreview" hidden></span>
+                </div>
+                <button type="button" class="community-reply-cancel-btn" id="communityReplyCancelBtn" aria-label="Clear reply">✕</button>
+              </div>
               <div
                 class="community-composer"
                 id="communityComposer"
@@ -9698,13 +9901,6 @@
                 role="textbox"
                 aria-multiline="true"
               ></div>
-              <div id="communityReplyIndicator" class="community-post-reply-indicator" hidden aria-hidden="true">
-                <div class="community-reply-indicator-main">
-                  <span id="communityReplyLine"></span>
-                  <span class="community-reply-preview" id="communityReplyPreview" hidden></span>
-                </div>
-                <button type="button" class="community-reply-cancel-btn" id="communityReplyCancelBtn" hidden aria-label="Clear reply">✕</button>
-              </div>
               <button type="button" id="communityPostSubmitBtn">Post</button>
               <p class="muted msg" id="communityComposerMsg" style="margin-top: 0.5rem"></p>
                 </div>
@@ -9888,7 +10084,7 @@
               Direct message
             </button>
             <p class="muted" id="communityMemberProfileDmHint" hidden style="margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.4">
-              Create an email account (Profile menu → Create account) to send direct messages.
+              Create an account (Account menu, top right → Create account) to send direct messages.
             </p>
             <p class="err" id="communityMemberProfileErr" style="display: none; margin-top: 0.5rem"></p>
           </div>
@@ -9923,7 +10119,7 @@
             Find members by username. Open a profile to follow, view compatibility, or send a direct message.
           </p>
           <p id="usernameSearchGuestHint" class="community-find-friend-guest-hint" hidden>
-            Create an email account (Profile menu → Create account) to search members.
+            Member search needs an email-backed account. Use Account menu (top right) → Create account, then try again.
           </p>
           <div class="community-find-friend username-search-modal-inner" id="usernameSearchWrap" aria-label="Search members">
             <div class="community-find-friend-field">
@@ -9954,54 +10150,32 @@
           <div class="dm-inbox-panel">
             <div id="dmInboxListView">
               <div class="dm-inbox-layout">
-                <nav class="dm-inbox-rail" aria-label="Inbox sections">
-                  <button
-                    type="button"
-                    class="dm-inbox-rail-btn dm-inbox-rail-btn--active"
-                    data-dm-rail="all"
-                    aria-pressed="true"
-                    title="All"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                      <rect x="3.5" y="3.5" width="7" height="7" rx="1.2" />
-                      <rect x="13.5" y="3.5" width="7" height="7" rx="1.2" />
-                      <rect x="3.5" y="13.5" width="7" height="7" rx="1.2" />
-                      <rect x="13.5" y="13.5" width="7" height="7" rx="1.2" />
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
-                    class="dm-inbox-rail-btn"
-                    data-dm-rail="groups"
-                    aria-pressed="false"
-                    title="Groups"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                      <circle cx="9" cy="8" r="3" />
-                      <circle cx="17" cy="9" r="2.5" />
-                      <path
-                        d="M4.5 18.2c.4-2.5 2.6-4.2 5.1-4.2 1.5 0 2.8.6 3.7 1.6M14.2 16c1.6.4 2.8 1.7 3.2 3.3"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
-                    class="dm-inbox-rail-btn"
-                    data-dm-rail="dms"
-                    aria-pressed="false"
-                    title="Direct messages"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                      <path
-                        d="M5 5.5h14a1 1 0 011 1v8.5a1 1 0 01-1 1h-5.2L9.5 19.5V16H5a1 1 0 01-1-1v-9a1 1 0 011-1z"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </button>
-                </nav>
                 <div class="dm-inbox-main">
                   <h2 id="dmInboxTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Inbox</h2>
+                  <div class="dm-inbox-hub-tabs" role="tablist" aria-label="Inbox">
+                    <button
+                      type="button"
+                      role="tab"
+                      class="dm-inbox-hub-tab dm-inbox-hub-tab--active"
+                      data-dm-rail="dms"
+                      id="dmInboxTabDms"
+                      aria-selected="true"
+                      aria-controls="dmInboxSectionDms"
+                    >
+                      Direct messages
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      class="dm-inbox-hub-tab"
+                      data-dm-rail="groups"
+                      id="dmInboxTabGroups"
+                      aria-selected="false"
+                      aria-controls="dmInboxSectionGroups"
+                    >
+                      Groups
+                    </button>
+                  </div>
                   <div id="dmComposeView" class="dm-compose-view" hidden>
                     <div class="dm-compose-search-wrap">
                       <label for="dmComposeSearchInput" class="visually-hidden">Search users</label>
@@ -10010,17 +10184,7 @@
                     <div id="dmComposeResults" class="dm-compose-results"></div>
                     <p class="muted dm-compose-hint" id="dmComposeHint">Type a name to find someone and start a conversation.</p>
                   </div>
-                  <div class="dm-inbox-hub-scroll" id="dmInboxHubScroll">
-                    <section id="dmInboxSectionGroups" class="dm-inbox-section" aria-label="Group chats">
-                      <div class="dm-inbox-section-head">
-                        <span class="dm-inbox-section-label">Groups</span>
-                        <span class="dm-inbox-section-hint">Multi-member</span>
-                      </div>
-                      <div id="dmInboxGroupList" class="dm-inbox-thread-list"></div>
-                      <p class="muted" id="dmInboxGroupEmpty" hidden style="margin: 0; font-size: 0.84rem; line-height: 1.45">
-                        No group chats yet. Tap <strong>+</strong> and choose <strong>Create Group</strong>.
-                      </p>
-                    </section>
+                  <div class="dm-inbox-hub-scroll dm-inbox-hub-scroll--tabbed" id="dmInboxHubScroll">
                     <section id="dmInboxSectionDms" class="dm-inbox-section" aria-labelledby="dmInboxDmsSectionLabel">
                       <div class="dm-inbox-section-head">
                         <span class="dm-inbox-section-label" id="dmInboxDmsSectionLabel">Direct messages</span>
@@ -10029,6 +10193,16 @@
                       <div id="dmInboxThreadList" class="dm-inbox-thread-list"></div>
                       <p class="muted" id="dmInboxEmpty" hidden style="margin: 0; font-size: 0.84rem; line-height: 1.45">
                         No conversations yet. Open someone’s profile from Community and tap <strong>Direct message</strong>.
+                      </p>
+                    </section>
+                    <section id="dmInboxSectionGroups" class="dm-inbox-section" aria-label="Group chats">
+                      <div class="dm-inbox-section-head">
+                        <span class="dm-inbox-section-label">Groups</span>
+                        <span class="dm-inbox-section-hint">Multi-member</span>
+                      </div>
+                      <div id="dmInboxGroupList" class="dm-inbox-thread-list"></div>
+                      <p class="muted" id="dmInboxGroupEmpty" hidden style="margin: 0; font-size: 0.84rem; line-height: 1.45">
+                        No group chats yet. Tap <strong>+</strong> to create a group.
                       </p>
                     </section>
                   </div>
@@ -10170,8 +10344,8 @@
         <h3 id="accountPromptHeading">Save your shows &amp; tasks</h3>
         <div id="accountPromptStepIntro">
           <p class="account-prompt-lead">
-            Create an account with your <strong>email</strong> so your subscriptions and watchlist sync when you sign in elsewhere.
-            Your <strong>username</strong> is only your public @handle. Or continue as a <strong>guest</strong> — your list stays on this browser only.
+            A real account uses your <strong>email</strong> (and password, or Google where shown) so your subscriptions and watchlist sync when you sign in elsewhere.
+            You’ll choose a public <strong>@username</strong> for Community and messages — it is not your sign-in email. Or stay a <strong>guest</strong>: your list stays on this browser only.
           </p>
           <div class="account-prompt-actions">
             <button type="button" id="accountPromptCreate">Create account</button>
@@ -10429,8 +10603,8 @@
                 <a class="secondary" href="/support.html" target="_blank" rel="noopener">Support</a>
               </div>
               <ul class="support-note-list">
-                <li>Account deletion is available from Profile → Session for signed-in accounts.</li>
-                <li>Beta testers can send structured feedback from Profile → Help &amp; legal.</li>
+                <li>Account deletion is under Your profile → Session (open Account menu, top right, then Your profile).</li>
+                <li>Beta testers can send feedback from Your profile → Account → Help &amp; legal.</li>
               </ul>
             </section>
           </div>
@@ -10450,7 +10624,12 @@
           <div class="utility-modal-head-text">
             <h2 id="profileEditModalHeading" class="profile-edit-modal-title">Edit profile</h2>
           </div>
-          <button type="button" class="modal-close secondary" id="appProfileClose" aria-label="Close profile">×</button>
+          <div class="profile-edit-modal-head-actions">
+            <button type="button" class="profile-edit-save-header" id="saveProfileHeaderBtn" aria-label="Save profile changes">
+              Save
+            </button>
+            <button type="button" class="modal-close secondary" id="appProfileClose" aria-label="Close profile">×</button>
+          </div>
         </div>
         <div class="profile-edit-modal-shell">
           <div class="modal-body-scroll profile-edit-scroll" id="appProfileModalBody">
@@ -10459,7 +10638,7 @@
                 <div class="profile-edit-profile-column">
                 <section class="profile-edit-card profile-edit-card--basics" aria-labelledby="profileBasicsHeading">
                   <h2 id="profileBasicsHeading" class="profile-edit-card-title">Profile basics</h2>
-                  <p class="profile-edit-card-lead muted">Photo, name, username, and public bio shown across the app.</p>
+                  <p class="profile-edit-card-lead muted">Photo, display name, and username — what people see on your profile and in messages.</p>
                   <div class="profile-identity">
                   <div class="profile-identity-inner">
                     <div class="profile-avatar-wrap">
@@ -10487,34 +10666,36 @@
                     </div>
                   </div>
                   </div>
-                  <div class="profile-edit-subsection profile-edit-subsection--bio">
-                    <h3 class="profile-edit-subsection-title">Bio</h3>
-                    <label for="profileAboutMe">About you</label>
-                    <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="A few words about you…"></textarea>
-                  </div>
                   <p class="muted msg profile-card-msg" id="profileInfoMsg"></p>
                 </section>
 
-                <section class="profile-edit-card profile-edit-card--about" aria-labelledby="profileAboutCardHeading">
-                  <h2 id="profileAboutCardHeading" class="profile-edit-card-title">Profile details</h2>
-                  <p class="profile-edit-card-lead muted">Optional details for your account. Clear a field and save to remove it.</p>
-                  <div class="profile-form-row profile-form-row--split">
-                    <div>
-                      <label for="profileAge">Age</label>
-                      <input id="profileAge" type="number" min="1" max="120" placeholder="—" inputmode="numeric" />
-                    </div>
-                    <div>
-                      <label for="profileSex">Sex</label>
-                      <select id="profileSex" aria-label="Sex">
-                        <option value="">Prefer not to say</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
+                <section class="profile-edit-card profile-edit-card--about profile-edit-card--about-you" aria-labelledby="profileAboutCardHeading">
+                  <h2 id="profileAboutCardHeading" class="profile-edit-card-title">About you</h2>
+                  <p class="profile-edit-card-lead muted">Bio and optional details. Clear a field and save to remove it.</p>
+                  <div class="profile-edit-field-stack">
+                    <label for="profileAboutMe">Bio</label>
+                    <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="A few words about you…"></textarea>
                   </div>
-                  <label for="profileFavoriteShow">Favorite show</label>
-                  <input id="profileFavoriteShow" type="text" maxlength="200" placeholder="e.g. The Bear, Doctor Who…" autocomplete="off" />
+                  <div class="profile-edit-subsection profile-edit-subsection--optional">
+                    <h3 class="profile-edit-subsection-title">Optional details</h3>
+                    <div class="profile-form-row profile-form-row--split">
+                      <div>
+                        <label for="profileAge">Age</label>
+                        <input id="profileAge" type="number" min="1" max="120" placeholder="—" inputmode="numeric" />
+                      </div>
+                      <div>
+                        <label for="profileSex">Sex</label>
+                        <select id="profileSex" aria-label="Sex">
+                          <option value="">Prefer not to say</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                    <label for="profileFavoriteShow">Favorite show</label>
+                    <input id="profileFavoriteShow" type="text" maxlength="200" placeholder="e.g. The Bear, Doctor Who…" autocomplete="off" />
+                  </div>
                   <p class="muted msg profile-card-msg" id="profileAboutMsg"></p>
                 </section>
 
@@ -10543,9 +10724,12 @@
               <div class="profile-edit-account-column">
               <section class="profile-edit-card profile-edit-card--account" aria-labelledby="profileAccountHeading">
                 <h2 id="profileAccountHeading" class="profile-edit-card-title">Account</h2>
-                <p class="profile-edit-card-lead muted">
-                  Your <strong>email</strong> is your account identity. Your <strong>@username</strong> is public for Community and messages.
-                  <strong>Guest</strong> mode stays on this browser only.
+                <p class="profile-edit-card-lead muted" id="accountLeadGuest">
+                  You’re browsing as a <strong>guest</strong> on this device only. To save your list across devices and use Community, messages, and member search, create an
+                  <strong>email-backed account</strong> (your <strong>email</strong> is how you sign in). When you do, you’ll pick a public <strong>@username</strong> for Community and DMs — it is not your sign-in email.
+                </p>
+                <p class="profile-edit-card-lead muted" id="accountLeadRegistered" hidden>
+                  You’re signed in to a real account: your <strong>email</strong> (or Google link) is your sign-in identity. Your <strong>@username</strong> is your public handle for Community and messages — separate from email.
                 </p>
                 <div id="accountGuest">
                   <div class="profile-account-subcard profile-account-subcard--signin">
@@ -10609,7 +10793,7 @@
                     Account signed in as <strong id="accountUsernameLabel"></strong>
                   </p>
                   <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">
-                    Use <strong>Sign out</strong> in the profile menu or in Session below to end this session on this device.
+                    Use <strong>Sign out</strong> in the Account menu (top right) or in Session below to end this session on this device.
                   </p>
                   <div id="accountEmailVerifyBanner" class="account-email-verify" hidden>
                     <h3 class="profile-account-block-title" style="margin-top: 0.35rem">Verify your email</h3>
@@ -10661,27 +10845,26 @@
                   </div>
                 </div>
                 <p class="msg err profile-card-msg" id="accountErr"></p>
-              </section>
-              </div>
-              </div>
-
-              <section class="profile-edit-card profile-edit-card--account" aria-labelledby="profileHelpLegalHeading">
-                <h2 id="profileHelpLegalHeading" class="profile-edit-card-title">Help &amp; legal</h2>
-                <p class="profile-edit-card-lead muted">
-                  Privacy, terms, support, and beta feedback links for account help and store-review readiness.
-                </p>
-                <div class="store-readiness-link-grid" aria-label="Profile help and legal links">
-                  <a class="secondary" href="/privacy.html" target="_blank" rel="noopener">Privacy</a>
-                  <a class="secondary" href="/terms.html" target="_blank" rel="noopener">Terms</a>
-                  <a class="secondary" href="/support.html" target="_blank" rel="noopener">Support</a>
+                <div class="profile-edit-account-help" aria-labelledby="profileHelpLegalHeading">
+                  <h3 id="profileHelpLegalHeading" class="profile-account-block-title">Help &amp; legal</h3>
+                  <p class="muted profile-edit-account-help-lead">
+                    Privacy, terms, support, and beta feedback for account help and store-review readiness.
+                  </p>
+                  <div class="store-readiness-link-grid" aria-label="Profile help and legal links">
+                    <a class="secondary" href="/privacy.html" target="_blank" rel="noopener">Privacy</a>
+                    <a class="secondary" href="/terms.html" target="_blank" rel="noopener">Terms</a>
+                    <a class="secondary" href="/support.html" target="_blank" rel="noopener">Support</a>
+                  </div>
+                  <button type="button" class="secondary profile-account-primary-btn" id="profileBetaFeedbackBtn" style="margin-top: 0.65rem">
+                    Send beta feedback
+                  </button>
+                  <p class="muted profile-edit-account-help-foot">
+                    Use this for confusing screens, broken flows, or private beta issues.
+                  </p>
                 </div>
-                <button type="button" class="secondary profile-account-primary-btn" id="profileBetaFeedbackBtn" style="margin-top: 0.65rem">
-                  Send beta feedback
-                </button>
-                <p class="muted profile-edit-card-lead" style="margin: 0.45rem 0 0">
-                  Use this for confusing screens, broken flows, or private beta issues.
-                </p>
               </section>
+              </div>
+              </div>
 
               <section
                 id="profileSignOutSection"
@@ -10689,25 +10872,32 @@
                 hidden
                 aria-labelledby="profileSessionHeading"
               >
-                <h2 id="profileSessionHeading" class="profile-edit-card-title">Session</h2>
-                <p class="profile-edit-card-lead muted">
-                  Sign out ends your logged-in session on this browser. You’ll get a fresh guest list unless you sign in again.
+                <h2 id="profileSessionHeading" class="profile-edit-card-title">Session &amp; destructive actions</h2>
+                <p class="profile-edit-card-lead muted profile-edit-session-lead">
+                  These actions affect your sign-in or remove data — separate from profile fields above. Use <strong>Save profile</strong> at the bottom (or <strong>Save</strong> in the header) to persist display name, photo, bio, and optional details.
                 </p>
-                <div class="profile-edit-destructive-actions" role="group" aria-label="End session on this device">
+                <div class="profile-edit-session-block profile-edit-session-block--signout" role="group" aria-labelledby="profileSessionSignOutLabel">
+                  <h3 id="profileSessionSignOutLabel" class="profile-edit-session-block-title">End session on this device</h3>
+                  <p class="muted profile-edit-session-block-lead">
+                    Sign out ends this signed-in session in this browser. You’ll continue as a <strong>guest</strong> here until you sign in again.
+                  </p>
                   <button type="button" class="secondary profile-session-signout-btn" id="signOutAccountBtn">Sign out</button>
                 </div>
-                <div id="profileAccountDeletionSection" class="profile-edit-destructive-actions" role="group" aria-label="Delete account" hidden>
-                  <button type="button" class="danger" id="deleteAccountBtn">Delete account</button>
-                  <p class="muted profile-edit-card-lead" style="margin: 0.45rem 0 0">
+                <div id="profileAccountDeletionSection" class="profile-edit-session-block profile-edit-session-block--danger" role="group" aria-labelledby="profileDeleteAccountLabel" hidden>
+                  <h3 id="profileDeleteAccountLabel" class="profile-edit-session-block-title profile-edit-session-block-title--danger">Delete account</h3>
+                  <p class="muted profile-edit-session-block-lead profile-edit-session-block-lead--tight">
                     Permanently removes your AirAlert account, watch list, tasks, Community content, messages, and push subscriptions.
                   </p>
+                  <button type="button" class="danger" id="deleteAccountBtn">Delete account</button>
                 </div>
               </section>
             </div>
           </div>
         <div class="profile-edit-sticky" role="region" aria-label="Save profile changes">
           <button type="button" class="profile-edit-save-primary" id="saveProfileAllBtn">Save profile</button>
-          <p class="muted profile-edit-sticky-hint" id="profileStickyHint">Saves display name, photo, bio, and profile fields.</p>
+          <p class="muted profile-edit-sticky-hint" id="profileStickyHint">
+            Saves profile basics, bio, and optional details — same as <strong>Save</strong> in the header.
+          </p>
         </div>
       </div>
     </div>
@@ -10778,7 +10968,7 @@
           /* ignore */
         }
         showToast(
-          "Add an email under Profile → Account so this sign-in can be recovered. Your public username stays your @handle.",
+          "Add an email in Your profile → Account so this sign-in can be recovered. Your public @username stays the same.",
         );
       }
 
@@ -12379,8 +12569,10 @@
       let dmInboxActiveThreadId = null;
       let dmInboxActiveGroupId = null;
       let dmThreadPeerReadAt = null;
-      /** Slack-style rail: all | groups | dms */
-      let dmInboxRailFilter = "all";
+      /** Inbox hub tab: dms (default) | groups */
+      let dmInboxRailFilter = "dms";
+      /** True while the “new message” user search strip is open in the inbox list. */
+      let dmInboxComposePickerOpen = false;
       let dmTypingStopTimer = null;
       let dmPeerTypingHideTimer = null;
       let dmTypingTrueLastSent = 0;
@@ -13120,8 +13312,21 @@
         setTab("community");
       }
 
+      function syncDmInboxComposeFab() {
+        const fab = document.getElementById("dmComposeBtn");
+        if (!fab) return;
+        if (dmInboxRailFilter === "groups") {
+          fab.title = "Create group";
+          fab.setAttribute("aria-label", "Create group");
+        } else {
+          fab.title = "New message";
+          fab.setAttribute("aria-label", "New message");
+        }
+      }
+
       function applyDmInboxRailFilter() {
-        if (dmInboxRailFilter === "channels") dmInboxRailFilter = "all";
+        if (dmInboxRailFilter === "channels" || dmInboxRailFilter === "all") dmInboxRailFilter = "dms";
+        if (dmInboxRailFilter !== "groups" && dmInboxRailFilter !== "dms") dmInboxRailFilter = "dms";
         const gr = document.getElementById("dmInboxSectionGroups");
         const dm = document.getElementById("dmInboxSectionDms");
         if (!gr || !dm) return;
@@ -13129,22 +13334,20 @@
         const show = (el, on) => {
           el.hidden = !on;
         };
-        if (f === "all") {
-          show(gr, true);
-          show(dm, true);
-        } else if (f === "groups") {
+        if (f === "groups") {
           show(gr, true);
           show(dm, false);
-        } else if (f === "dms") {
+        } else {
           show(gr, false);
           show(dm, true);
         }
-        document.querySelectorAll("[data-dm-rail]").forEach((btn) => {
+        document.querySelectorAll("#tab-messages .dm-inbox-hub-tab[data-dm-rail]").forEach((btn) => {
           const rail = btn.getAttribute("data-dm-rail");
           const on = rail === f;
-          btn.classList.toggle("dm-inbox-rail-btn--active", on);
-          btn.setAttribute("aria-pressed", on ? "true" : "false");
+          btn.classList.toggle("dm-inbox-hub-tab--active", on);
+          btn.setAttribute("aria-selected", on ? "true" : "false");
         });
+        syncDmInboxComposeFab();
       }
 
       async function renderDmInboxHub() {
@@ -13169,6 +13372,7 @@
       }
 
       function closeDmComposeView() {
+        dmInboxComposePickerOpen = false;
         const cv = document.getElementById("dmComposeView");
         const btn = document.getElementById("dmComposeBtn");
         const hub = document.getElementById("dmInboxHubScroll");
@@ -13182,8 +13386,9 @@
 
       async function openDmInboxModal(opts) {
         closeHeaderMenus();
-        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an email account (Profile menu → Create account) to use messages.");
+        const inboxAk = accountKind(sessionMeSnapshot);
+        if (inboxAk !== "registered") {
+          if (inboxAk !== "unknown") showToast(guestNeedAccountToast("to use Messages"));
           return;
         }
         if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
@@ -13217,7 +13422,7 @@
           const label = titleLabel || (await resolveDmThreadTitle(threadId));
           await openDmThreadView(threadId, label);
         } else {
-          dmInboxRailFilter = "all";
+          dmInboxRailFilter = "dms";
           await renderDmInboxHub();
         }
         syncDmInboxSplitLayout();
@@ -13518,11 +13723,11 @@
           const groups = data.groups || [];
           const dmPresenceEntries = [];
           if (empty) {
-            const showDmEmpty = threads.length === 0 && (dmInboxRailFilter === "all" || dmInboxRailFilter === "dms");
+            const showDmEmpty = threads.length === 0 && dmInboxRailFilter === "dms";
             empty.hidden = !showDmEmpty;
           }
           if (groupEmpty) {
-            const showGrpEmpty = groups.length === 0 && (dmInboxRailFilter === "all" || dmInboxRailFilter === "groups");
+            const showGrpEmpty = groups.length === 0 && dmInboxRailFilter === "groups";
             groupEmpty.hidden = !showGrpEmpty;
           }
           if (groupHost) {
@@ -13810,6 +14015,8 @@
         closeDmGroupSettingsModal();
         closeDmComposeView();
         resetDmChatHeaderPresenceUi();
+        dmInboxRailFilter = "dms";
+        applyDmInboxRailFilter();
         dmInboxActiveGroupId = null;
         dmInboxActiveThreadId = threadId;
         dmThreadPeerReadAt = null;
@@ -13893,6 +14100,8 @@
         closeDmGroupSettingsModal();
         closeDmComposeView();
         resetDmChatHeaderPresenceUi();
+        dmInboxRailFilter = "groups";
+        applyDmInboxRailFilter();
         dmInboxActiveThreadId = null;
         dmInboxActiveGroupId = groupId;
         dmThreadPeerReadAt = null;
@@ -14000,8 +14209,9 @@
       }
 
       async function startDirectMessageToUser(otherUserId, otherLabel) {
-        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an email account (Profile menu → Create account) to send messages.");
+        const dmAk = accountKind(sessionMeSnapshot);
+        if (dmAk !== "registered") {
+          if (dmAk !== "unknown") showToast(guestNeedAccountToast("to send messages"));
           return;
         }
         if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
@@ -14220,6 +14430,13 @@
         const deleteSec = document.getElementById("profileAccountDeletionSection");
         if (deleteSec) {
           deleteSec.hidden = !(accountIsRegistered(me) && !userIsDbAdmin(me));
+        }
+        const leadGuest = document.getElementById("accountLeadGuest");
+        const leadReg = document.getElementById("accountLeadRegistered");
+        if (leadGuest && leadReg) {
+          const reg = Boolean(me && accountIsRegistered(me));
+          leadGuest.hidden = reg;
+          leadReg.hidden = !reg;
         }
         const guest = document.getElementById("accountGuest");
         const signed = document.getElementById("accountSignedIn");
@@ -16118,15 +16335,16 @@
       function syncUsernameSearchChrome() {
         const inp = document.getElementById("usernameSearchInput");
         const hint = document.getElementById("usernameSearchGuestHint");
-        const reg = accountIsRegistered(sessionMeSnapshot);
+        const kind = accountKind(sessionMeSnapshot);
+        const canSearch = kind === "registered";
         if (inp) {
-          inp.disabled = !reg;
-          if (!reg) {
+          inp.disabled = !canSearch;
+          if (!canSearch) {
             inp.value = "";
             hideUsernameSearchDropdown();
           }
         }
-        if (hint) hint.hidden = reg;
+        if (hint) hint.hidden = canSearch || kind === "unknown";
       }
 
       function openUsernameSearchModal() {
@@ -16951,10 +17169,17 @@
           hub.dataset.state = state;
 
           if (countEl) {
-            if (total === 0) {
+            if (state === "dormant" || (rooms.length === 0 && total === 0)) {
               countEl.textContent = "";
             } else {
-              countEl.textContent = total + " fan" + (total !== 1 ? "s" : "") + " live";
+              const bits = [];
+              if (rooms.length > 0) {
+                bits.push(rooms.length + (rooms.length === 1 ? " room" : " rooms"));
+              }
+              if (total > 0) {
+                bits.push(total + (total === 1 ? " watching" : " watching"));
+              }
+              countEl.textContent = bits.join(" · ");
             }
           }
 
@@ -17014,7 +17239,11 @@
           }
         } catch {
           hub.dataset.state = "dormant";
-          if (emptyEl) { emptyEl.hidden = false; emptyEl.textContent = "No rooms live right now. Start one from a show discussion."; }
+          if (emptyEl) {
+            emptyEl.hidden = false;
+            emptyEl.innerHTML =
+              "No one’s live right now. Use <strong>Start</strong> above to open a show thread and go live from there.";
+          }
           if (body) body.hidden = false;
           if (listEl) listEl.hidden = true;
           setLiveRoomsAction("Start", "Start a Live Room from a show discussion", () => openCommunityNewModal());
@@ -17386,6 +17615,7 @@
 
         const epChip = document.getElementById("communityComposerEpChip");
         const epSel = document.getElementById("communityEpisodeSelect");
+        const epRow = document.getElementById("communityComposerEpisodeRow");
         const inEpisode = typeof communityState.episodeId === "number";
         if (inEpisode) {
           if (epChip) {
@@ -17402,6 +17632,7 @@
           if (epChip) epChip.hidden = true;
           if (epSel) epSel.hidden = false;
         }
+        if (epRow) epRow.hidden = !canPost;
         syncCommunityReplyIndicatorUi();
       }
 
@@ -17447,28 +17678,46 @@
         return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s);
       }
 
-      function hasActiveCommunityReplyTarget() {
-        return (
-          isValidCommunityReplyParentPostId(communityReplyToPostId) &&
-          Boolean(
-            (communityReplyTargetLabel && String(communityReplyTargetLabel).trim()) ||
-              (communityReplyTargetPreview && String(communityReplyTargetPreview).trim()) ||
-              (communityReplyToUsername && String(communityReplyToUsername).trim()),
-          )
-        );
+      function communityReplyDisplayContext() {
+        const label = communityReplyTargetLabel != null ? String(communityReplyTargetLabel).trim() : "";
+        const preview = communityReplyTargetPreview != null ? String(communityReplyTargetPreview).trim() : "";
+        const un = communityReplyToUsername != null ? String(communityReplyToUsername).trim() : "";
+        return { label, preview, un };
       }
 
-      function syncCommunityReplyIndicatorUi() {
-        const indicator = document.getElementById("communityReplyIndicator");
-        const cancelEl = document.getElementById("communityReplyCancelBtn");
-        if (!hasActiveCommunityReplyTarget()) {
+      function hasActiveCommunityReplyTarget() {
+        if (!isValidCommunityReplyParentPostId(communityReplyToPostId)) return false;
+        const { label, preview, un } = communityReplyDisplayContext();
+        return Boolean(label || preview || un);
+      }
+
+      /** Drop orphan reply ids so the reply strip never shows with an empty “Replying to”. */
+      function normalizeCommunityReplyState() {
+        if (!isValidCommunityReplyParentPostId(communityReplyToPostId)) {
+          communityReplyToPostId = null;
+          communityReplyToUsername = null;
+          communityReplyTargetLabel = null;
+          communityReplyTargetPreview = null;
+          return;
+        }
+        const { label, preview, un } = communityReplyDisplayContext();
+        if (!label && !preview && !un) {
           communityReplyToPostId = null;
           communityReplyToUsername = null;
           communityReplyTargetLabel = null;
           communityReplyTargetPreview = null;
         }
+      }
+
+      function syncCommunityReplyIndicatorUi() {
+        normalizeCommunityReplyState();
+        const indicator = document.getElementById("communityReplyIndicator");
+        const cancelEl = document.getElementById("communityReplyCancelBtn");
         if (!indicator) {
-          if (cancelEl) cancelEl.setAttribute("hidden", "");
+          if (cancelEl) {
+            cancelEl.hidden = true;
+            cancelEl.setAttribute("hidden", "");
+          }
           return;
         }
         const active = hasActiveCommunityReplyTarget();
@@ -17481,13 +17730,10 @@
             prevEl.hidden = true;
           }
         } else {
-          const label =
-            (communityReplyTargetLabel && String(communityReplyTargetLabel).trim()) ||
-            (communityReplyToUsername && "@" + String(communityReplyToUsername).trim()) ||
-            "this post";
-          if (lineEl) lineEl.textContent = "Replying to " + label;
+          const { label, preview, un } = communityReplyDisplayContext();
+          const line = label || (un ? "@" + un : "") || "this post";
+          if (lineEl) lineEl.textContent = "Replying to " + line;
           if (prevEl) {
-            const preview = communityReplyTargetPreview && String(communityReplyTargetPreview).trim();
             if (preview) {
               prevEl.textContent = "\u201C" + preview + "\u201D";
               prevEl.hidden = false;
@@ -17497,12 +17743,14 @@
             }
           }
         }
+        indicator.hidden = !active;
         if (active) {
           indicator.removeAttribute("hidden");
         } else {
           indicator.setAttribute("hidden", "");
         }
         if (cancelEl) {
+          cancelEl.hidden = !active;
           if (active) cancelEl.removeAttribute("hidden");
           else cancelEl.setAttribute("hidden", "");
         }
@@ -17519,8 +17767,9 @@
       }
 
       function handleCommunityReplyClick(p) {
-        if (!accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an email account (Profile \u2192 Create account) to reply.");
+        const replyAk = accountKind(sessionMeSnapshot);
+        if (replyAk !== "registered") {
+          if (replyAk !== "unknown") showToast(guestNeedAccountToast("to reply here"));
           return;
         }
         if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
@@ -19026,11 +19275,13 @@
             if (userId === selfId) {
               dmBtn.hidden = true;
               dmHint.hidden = true;
-            } else if (!accountIsRegistered(sessionMeSnapshot)) {
+            } else if (accountKind(sessionMeSnapshot) === "guest") {
               dmBtn.hidden = true;
               dmHint.hidden = false;
-              dmHint.textContent =
-                "Create an email account (Profile menu → Create account) to send direct messages.";
+              dmHint.textContent = guestNeedAccountToast("to send direct messages");
+            } else if (accountKind(sessionMeSnapshot) === "unknown") {
+              dmBtn.hidden = true;
+              dmHint.hidden = true;
             } else if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
               dmBtn.hidden = true;
               dmHint.hidden = false;
@@ -19145,8 +19396,9 @@
       }
 
       function openCommunityNewModal() {
-        if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
-          showToast("Create an email account (Profile menu → Create account) to start a discussion.");
+        const discAk = accountKind(sessionMeSnapshot);
+        if (discAk !== "registered") {
+          if (discAk !== "unknown") showToast(guestNeedAccountToast("to start a discussion"));
           return;
         }
         if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
@@ -20337,10 +20589,11 @@
       }
 
       function initMessagesShellAfterMount() {
-        document.querySelectorAll("#tab-messages [data-dm-rail]").forEach((btn) => {
+        document.querySelectorAll("#tab-messages .dm-inbox-hub-tab[data-dm-rail]").forEach((btn) => {
           btn.addEventListener("click", () => {
             const f = btn.getAttribute("data-dm-rail");
-            if (f !== "all" && f !== "groups" && f !== "dms") return;
+            if (f !== "groups" && f !== "dms") return;
+            closeDmComposeView();
             dmInboxRailFilter = f;
             applyDmInboxRailFilter();
             const empty = document.getElementById("dmInboxEmpty");
@@ -20348,10 +20601,10 @@
             const gEmpty = document.getElementById("dmInboxGroupEmpty");
             const gHost = document.getElementById("dmInboxGroupList");
             if (empty && host && host.childElementCount === 0) {
-              empty.hidden = !(dmInboxRailFilter === "all" || dmInboxRailFilter === "dms");
+              empty.hidden = dmInboxRailFilter !== "dms";
             }
             if (gEmpty && gHost && gHost.childElementCount === 0) {
-              gEmpty.hidden = !(dmInboxRailFilter === "all" || dmInboxRailFilter === "groups");
+              gEmpty.hidden = dmInboxRailFilter !== "groups";
             }
           });
         });
@@ -20359,6 +20612,7 @@
         initDmGroupSettingsModal();
         initDmCompose();
         wireDmInboxSendAndInput();
+        syncDmInboxComposeFab();
       }
 
       function getActiveTabName() {
@@ -21043,35 +21297,21 @@
         if (!fabBtn) return;
         let searchTimer = null;
         let searchGen = 0;
-        let fabMenuOpen = false;
-        let composeOpen = false;
-
         function closeFabMenu() {
-          fabMenuOpen = false;
           if (fabMenu) fabMenu.classList.remove("visible");
           fabBtn.classList.remove("open");
         }
         function closeComposeView() {
-          composeOpen = false;
+          dmInboxComposePickerOpen = false;
           if (composeView) composeView.hidden = true;
           if (hubScroll) hubScroll.style.display = "";
           if (searchInput) searchInput.value = "";
           if (resultsEl) resultsEl.innerHTML = "";
         }
-        function toggleFabMenu() {
-          if (composeOpen) {
-            closeComposeView();
-            closeFabMenu();
-            return;
-          }
-          fabMenuOpen = !fabMenuOpen;
-          if (fabMenu) fabMenu.classList.toggle("visible", fabMenuOpen);
-          fabBtn.classList.toggle("open", fabMenuOpen);
-        }
         function openComposeForNewMessage() {
           closeFabMenu();
           if (!composeView || !searchInput) return;
-          composeOpen = true;
+          dmInboxComposePickerOpen = true;
           composeView.hidden = false;
           if (hubScroll) hubScroll.style.display = "none";
           if (searchInput) searchInput.value = "";
@@ -21080,7 +21320,19 @@
           setTimeout(() => searchInput.focus(), 60);
         }
 
-        fabBtn.addEventListener("click", toggleFabMenu);
+        fabBtn.addEventListener("click", () => {
+          if (dmInboxComposePickerOpen) {
+            closeComposeView();
+            closeFabMenu();
+            return;
+          }
+          closeFabMenu();
+          if (dmInboxRailFilter === "groups") {
+            openDmCreateGroupModal();
+            return;
+          }
+          openComposeForNewMessage();
+        });
 
         if (newMsgBtn) {
           newMsgBtn.addEventListener("click", openComposeForNewMessage);
@@ -21091,13 +21343,6 @@
             openDmCreateGroupModal();
           });
         }
-
-        // Close menu on outside click
-        document.addEventListener("click", (e) => {
-          if (fabMenuOpen && fabMenu && !fabMenu.contains(e.target) && !fabBtn.contains(e.target)) {
-            closeFabMenu();
-          }
-        });
 
         if (searchInput) {
           searchInput.addEventListener("input", () => {
@@ -21420,8 +21665,8 @@
       });
 
       /**
-       * Guest vs real account. Prefer server `accountState`; fallback supports alternate `/me`
-       * payload shapes (`isGuestAccount`, then `authProvider`) without mixing the two menus.
+       * Guest vs real account (email/Google-backed). Prefer server `accountState`; then `isGuestAccount`;
+       * then `authProvider`. Returns `unknown` only when we truly cannot classify — header menu stays empty.
        */
       function accountKind(me) {
         if (!me || !me.id) return "unknown";
@@ -21469,7 +21714,12 @@
         const items = HEADER_PROFILE_MENU_BY_KIND[kind] || [];
         menu.innerHTML = "";
         menu.dataset.accountKind = kind;
-        if (dropdown) dropdown.setAttribute("aria-label", kind === "registered" ? "Profile" : kind === "guest" ? "Guest profile" : "Profile loading");
+        if (dropdown) {
+          dropdown.setAttribute(
+            "aria-label",
+            kind === "registered" ? "Account" : kind === "guest" ? "Account (guest)" : "Account (loading)",
+          );
+        }
         if (btn) {
           btn.disabled = kind === "unknown";
           btn.setAttribute("aria-disabled", kind === "unknown" ? "true" : "false");
@@ -21488,6 +21738,11 @@
       }
 
       const UNLOCK_SOCIAL_UX_MESSAGE = "Add 3 shows to unlock this feature.";
+
+      /** Toast line: email-backed account + where to start (Account menu, not mixed guest/signed-in chrome). */
+      function guestNeedAccountToast(verb) {
+        return "Create an account (Account menu, top right → Create account) " + verb + ".";
+      }
 
       /** Matches server {@link hasFullSocialAccess}: registered + 3+ shows (or admin). */
       function hasFullSocialUiAccess(me) {
@@ -22197,10 +22452,12 @@
           const uid = resolveUserId();
           if (uid) savePushPrefs(uid);
         });
-        document.getElementById("saveProfileAllBtn").addEventListener("click", () => {
+        const runSaveProfileAll = () => {
           const uid = resolveUserId();
           if (uid) void saveProfileAll(uid);
-        });
+        };
+        document.getElementById("saveProfileAllBtn").addEventListener("click", runSaveProfileAll);
+        document.getElementById("saveProfileHeaderBtn").addEventListener("click", runSaveProfileAll);
         document.getElementById("profileAvatarBtn").addEventListener("click", () => {
           document.getElementById("profileAvatarInput").click();
         });
