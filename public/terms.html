@@ -4,44 +4,83 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="robots" content="noindex" />
-    <title>AirAlert Terms</title>
+    <title>AirAlert — Terms of Use</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/legal/legal-doc-prose.css" />
     <style>
-      :root { color-scheme: dark; --bg:#050508; --card:#101525; --text:#eef2ff; --muted:#94a3b8; --accent:#22d3ee; --border:rgba(148,163,184,.22); font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; }
-      body { margin:0; min-height:100vh; background:radial-gradient(circle at top left, rgba(232,121,249,.12), transparent 34%), var(--bg); color:var(--text); line-height:1.6; padding:2rem 1rem; }
-      main { width:min(100%, 48rem); margin:0 auto; background:rgba(16,21,37,.86); border:1px solid var(--border); border-radius:18px; padding:1.25rem; }
-      h1 { margin:0 0 .4rem; letter-spacing:-.03em; }
-      h2 { margin:1.2rem 0 .35rem; font-size:1rem; color:#dbeafe; }
-      p, li { color:var(--muted); }
-      a { color:var(--accent); }
-      .top { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:center; margin-bottom:1rem; }
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(ellipse 120% 80% at 50% 0%, rgba(232, 121, 249, 0.1), transparent 55%), #050508;
+        color: #e8f0ff;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      .legal-standalone-top {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 1.25rem 1.15rem 0.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+      .legal-standalone-top h1 {
+        margin: 0;
+        font-size: clamp(1.35rem, 1.1rem + 1vw, 1.75rem);
+        font-weight: 750;
+        letter-spacing: 0.02em;
+      }
+      .legal-standalone-top a {
+        color: #7dd3fc;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.92rem;
+      }
+      .legal-standalone-top a:hover {
+        text-decoration: underline;
+      }
+      main {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 0 1.15rem 2.5rem;
+        padding-bottom: calc(2.5rem + env(safe-area-inset-bottom));
+      }
+      .legal-doc-standalone {
+        padding-top: 0.25rem;
+      }
     </style>
   </head>
   <body>
-    <main>
-      <div class="top">
-        <div>
-          <h1>AirAlert Terms</h1>
-          <p>Private beta placeholder. Last updated: April 2026.</p>
-        </div>
-        <a href="/">Open AirAlert</a>
-      </div>
-      <p>
-        These beta terms summarize expected product behavior for testers. Replace this placeholder with reviewed legal terms before public store submission.
-      </p>
-      <h2>Beta Use</h2>
-      <p>AirAlert is currently a beta product. Features, notifications, community tools, and availability may change during testing.</p>
-      <h2>Accounts And Community</h2>
-      <ul>
-        <li>Email identifies a registered account; public usernames are visible in Community and messages.</li>
-        <li>Users are responsible for content they post, review, rate, or send.</li>
-        <li>AirAlert may remove content or restrict accounts to protect testers and the Community.</li>
-      </ul>
-      <h2>Notifications</h2>
-      <p>Push notifications depend on device/browser support and user preferences. Delivery is not guaranteed.</p>
-      <h2>Account Deletion</h2>
-      <p>Signed-in users can delete their account from Profile → Session. Admin accounts must remove admin access before using in-app deletion.</p>
-      <h2>Support</h2>
-      <p>For help and beta issue reporting, visit <a href="/support.html">AirAlert Support</a>.</p>
+    <header class="legal-standalone-top">
+      <h1>Terms of Use</h1>
+      <a href="/">← AirAlert</a>
+    </header>
+    <main class="legal-doc-scroll legal-doc-standalone" id="legalStandaloneRoot">
+      <p class="muted legal-doc-loading">Loading…</p>
     </main>
+    <script>
+      (function () {
+        var root = document.getElementById("legalStandaloneRoot");
+        if (!root) return;
+        fetch("/legal/terms-body.html", { credentials: "same-origin" })
+          .then(function (r) {
+            if (!r.ok) throw new Error("load failed");
+            return r.text();
+          })
+          .then(function (html) {
+            root.innerHTML = html;
+          })
+          .catch(function () {
+            root.innerHTML =
+              '<p class="msg err">Could not load the terms. Check your connection and try again, or open the app from the home link above.</p>';
+          });
+      })();
+    </script>
   </body>
 </html>

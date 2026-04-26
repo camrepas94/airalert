@@ -4,47 +4,83 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="robots" content="noindex" />
-    <title>AirAlert Privacy Policy</title>
+    <title>AirAlert — Privacy Policy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/legal/legal-doc-prose.css" />
     <style>
-      :root { color-scheme: dark; --bg:#050508; --card:#101525; --text:#eef2ff; --muted:#94a3b8; --accent:#22d3ee; --border:rgba(148,163,184,.22); font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; }
-      body { margin:0; min-height:100vh; background:radial-gradient(circle at top right, rgba(34,211,238,.13), transparent 34%), var(--bg); color:var(--text); line-height:1.6; padding:2rem 1rem; }
-      main { width:min(100%, 48rem); margin:0 auto; background:rgba(16,21,37,.86); border:1px solid var(--border); border-radius:18px; padding:1.25rem; }
-      h1 { margin:0 0 .4rem; letter-spacing:-.03em; }
-      h2 { margin:1.2rem 0 .35rem; font-size:1rem; color:#dbeafe; }
-      p, li { color:var(--muted); }
-      a { color:var(--accent); }
-      .top { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:center; margin-bottom:1rem; }
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(ellipse 120% 80% at 50% 0%, rgba(34, 211, 238, 0.12), transparent 55%), #050508;
+        color: #e8f0ff;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      .legal-standalone-top {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 1.25rem 1.15rem 0.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+      .legal-standalone-top h1 {
+        margin: 0;
+        font-size: clamp(1.35rem, 1.1rem + 1vw, 1.75rem);
+        font-weight: 750;
+        letter-spacing: 0.02em;
+      }
+      .legal-standalone-top a {
+        color: #7dd3fc;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.92rem;
+      }
+      .legal-standalone-top a:hover {
+        text-decoration: underline;
+      }
+      main {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 0 1.15rem 2.5rem;
+        padding-bottom: calc(2.5rem + env(safe-area-inset-bottom));
+      }
+      .legal-doc-standalone {
+        padding-top: 0.25rem;
+      }
     </style>
   </head>
   <body>
-    <main>
-      <div class="top">
-        <div>
-          <h1>AirAlert Privacy Policy</h1>
-          <p>Private beta placeholder. Last updated: April 2026.</p>
-        </div>
-        <a href="/">Open AirAlert</a>
-      </div>
-      <p>
-        This page is the in-app privacy entry point for App Store / Play Store readiness. It should be replaced with a hosted legal policy before public submission.
-      </p>
-      <h2>Data AirAlert Uses</h2>
-      <ul>
-        <li>Account details such as email, public username, display name, profile photo, and optional profile fields.</li>
-        <li>Show subscriptions, watch tasks, ratings, reviews, Community posts, direct messages, blocks, and moderation reports.</li>
-        <li>Notification preferences, web push subscription data, device/session information, and operational logs.</li>
-        <li>Beta feedback, waitlist submissions, and product analytics used to debug critical flows and improve the beta.</li>
-      </ul>
-      <h2>How Data Is Used</h2>
-      <p>
-        AirAlert uses this data to provide TV reminders, account recovery, watch tasks, Community features, moderation, notifications, beta support, and product reliability monitoring.
-      </p>
-      <h2>Controls</h2>
-      <p>
-        You can update profile details and notification preferences in the app. Signed-in users can delete their account from Profile → Session. Beta testers can submit feedback from Profile → Help &amp; legal.
-      </p>
-      <h2>Support</h2>
-      <p>For current support options, see <a href="/support.html">AirAlert Support</a>.</p>
+    <header class="legal-standalone-top">
+      <h1>Privacy Policy</h1>
+      <a href="/">← AirAlert</a>
+    </header>
+    <main class="legal-doc-scroll legal-doc-standalone" id="legalStandaloneRoot">
+      <p class="muted legal-doc-loading">Loading…</p>
     </main>
+    <script>
+      (function () {
+        var root = document.getElementById("legalStandaloneRoot");
+        if (!root) return;
+        fetch("/legal/privacy-body.html", { credentials: "same-origin" })
+          .then(function (r) {
+            if (!r.ok) throw new Error("load failed");
+            return r.text();
+          })
+          .then(function (html) {
+            root.innerHTML = html;
+          })
+          .catch(function () {
+            root.innerHTML =
+              '<p class="msg err">Could not load the policy. Check your connection and try again, or open the app from the home link above.</p>';
+          });
+      })();
+    </script>
   </body>
 </html>

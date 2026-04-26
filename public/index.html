@@ -18,6 +18,7 @@
     <link rel="icon" href="/app-icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/app-icon.svg" />
     <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" href="/legal/legal-doc-prose.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -4137,6 +4138,22 @@
         background-clip: text;
         color: transparent;
         filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.35)) drop-shadow(0 0 28px rgba(167, 139, 250, 0.2));
+      }
+      /* Privacy / Terms in-app reader (above Settings & Profile modals) */
+      #legalDocumentModal.modal-backdrop.utility-modal-backdrop {
+        z-index: 58;
+      }
+      .legal-doc-modal.utility-modal-panel {
+        max-width: min(42rem, calc(100vw - 1.25rem));
+        max-height: min(88vh, 780px);
+      }
+      .legal-doc-scroll#legalDocumentBody {
+        padding: 1rem 1.15rem 1.4rem;
+        padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+        font-size: unset;
+        line-height: unset;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
       }
       @media (min-width: 560px) {
         .modal-backdrop {
@@ -10531,8 +10548,8 @@
                 Store-review essentials in one place: privacy details, beta support, terms, and account deletion guidance.
               </p>
               <div class="store-readiness-link-grid" aria-label="Help and legal links">
-                <a class="secondary" href="/privacy.html" target="_blank" rel="noopener">Privacy</a>
-                <a class="secondary" href="/terms.html" target="_blank" rel="noopener">Terms</a>
+                <button type="button" class="secondary" data-legal-doc="privacy">Privacy</button>
+                <button type="button" class="secondary" data-legal-doc="terms">Terms</button>
                 <a class="secondary" href="/support.html" target="_blank" rel="noopener">Support</a>
               </div>
               <ul class="support-note-list">
@@ -10784,8 +10801,8 @@
                     Privacy, terms, support, and beta feedback for account help and store-review readiness.
                   </p>
                   <div class="store-readiness-link-grid" aria-label="Profile help and legal links">
-                    <a class="secondary" href="/privacy.html" target="_blank" rel="noopener">Privacy</a>
-                    <a class="secondary" href="/terms.html" target="_blank" rel="noopener">Terms</a>
+                    <button type="button" class="secondary" data-legal-doc="privacy">Privacy</button>
+                    <button type="button" class="secondary" data-legal-doc="terms">Terms</button>
                     <a class="secondary" href="/support.html" target="_blank" rel="noopener">Support</a>
                   </div>
                   <button type="button" class="secondary profile-account-primary-btn" id="profileBetaFeedbackBtn" style="margin-top: 0.65rem">
@@ -10834,6 +10851,25 @@
         </div>
       </div>
     </div>
+    </div>
+
+    <div
+      class="modal-backdrop utility-modal-backdrop"
+      id="legalDocumentModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="legalDocumentHeading"
+      aria-busy="false"
+    >
+      <div class="modal-panel utility-modal-panel legal-doc-modal">
+        <div class="utility-modal-head">
+          <h3 id="legalDocumentHeading">Legal</h3>
+          <button type="button" class="modal-close secondary" id="legalDocumentClose" aria-label="Close">×</button>
+        </div>
+        <div class="modal-body-scroll legal-doc-scroll" id="legalDocumentBody">
+          <p class="muted legal-doc-loading">Loading…</p>
+        </div>
+      </div>
     </div>
 
     <div class="modal-backdrop" id="showModal" role="dialog" aria-modal="true" aria-labelledby="modalShowTitle">
@@ -19814,9 +19850,53 @@
         if (el) el.classList.remove("open");
       }
 
+      const legalDocumentHtmlCache = { privacy: null, terms: null };
+      function closeLegalDocumentModal() {
+        const el = document.getElementById("legalDocumentModal");
+        if (el) {
+          el.classList.remove("open");
+          el.setAttribute("aria-busy", "false");
+        }
+      }
+      async function openLegalDocument(kind) {
+        if (kind !== "privacy" && kind !== "terms") return;
+        closeHeaderMenus();
+        const modal = document.getElementById("legalDocumentModal");
+        const title = document.getElementById("legalDocumentHeading");
+        const body = document.getElementById("legalDocumentBody");
+        if (!modal || !title || !body) return;
+        title.textContent = kind === "privacy" ? "Privacy Policy" : "Terms of Use";
+        body.innerHTML = '<p class="muted legal-doc-loading">Loading…</p>';
+        modal.setAttribute("aria-busy", "true");
+        modal.classList.add("open");
+        try {
+          if (!legalDocumentHtmlCache[kind]) {
+            const path = kind === "privacy" ? "/legal/privacy-body.html" : "/legal/terms-body.html";
+            const res = await fetch(path, { credentials: "same-origin", cache: "force-cache" });
+            if (!res.ok) throw new Error("fetch failed");
+            legalDocumentHtmlCache[kind] = await res.text();
+          }
+          body.innerHTML = legalDocumentHtmlCache[kind];
+        } catch (err) {
+          console.error("[AirAlert] legal document load failed", kind, err);
+          const fallbackUrl = kind === "privacy" ? "/privacy.html" : "/terms.html";
+          const fallbackLabel = kind === "privacy" ? "Privacy policy (new tab)" : "Terms of use (new tab)";
+          body.innerHTML =
+            '<p class="msg err">Could not load this document. Try again, or open the full page in a new tab: ' +
+            '<a href="' +
+            fallbackUrl +
+            '" target="_blank" rel="noopener">' +
+            fallbackLabel +
+            "</a>.</p>";
+        }
+        modal.setAttribute("aria-busy", "false");
+        body.scrollTop = 0;
+      }
+
       /** @param {"refresh" | "reminders" | "push" | undefined} which */
       function openAppSettingsModal(which) {
         closeHeaderMenus();
+        closeLegalDocumentModal();
         closeAppProfileModal();
         const el = document.getElementById("appSettingsModal");
         if (el) el.classList.add("open");
@@ -19838,6 +19918,7 @@
 
       async function openAppProfileModal() {
         closeHeaderMenus();
+        closeLegalDocumentModal();
         closeAppSettingsModal();
         closeUsernameSearchModal();
         const el = document.getElementById("appProfileModal");
@@ -22515,6 +22596,11 @@
             return;
           }
           closeHeaderMenus();
+          const legalM = document.getElementById("legalDocumentModal");
+          if (legalM && legalM.classList.contains("open")) {
+            closeLegalDocumentModal();
+            return;
+          }
           const asm = document.getElementById("appSettingsModal");
           if (asm && asm.classList.contains("open")) {
             closeAppSettingsModal();
@@ -22688,6 +22774,18 @@
         document.getElementById("appProfileClose")?.addEventListener("click", () => closeAppProfileModal());
         document.getElementById("appProfileModal")?.addEventListener("click", (e) => {
           if (e.target.id === "appProfileModal") closeAppProfileModal();
+        });
+        document.getElementById("legalDocumentClose")?.addEventListener("click", () => closeLegalDocumentModal());
+        document.getElementById("legalDocumentModal")?.addEventListener("click", (e) => {
+          if (e.target.id === "legalDocumentModal") closeLegalDocumentModal();
+        });
+        document.addEventListener("click", (e) => {
+          const t = e.target && e.target.closest && e.target.closest("[data-legal-doc]");
+          if (!t) return;
+          const kind = t.getAttribute("data-legal-doc");
+          if (kind !== "privacy" && kind !== "terms") return;
+          e.preventDefault();
+          void openLegalDocument(kind);
         });
 
         const accountErr = document.getElementById("accountErr");
