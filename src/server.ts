@@ -8206,6 +8206,18 @@ function readPublicHtml(name: string): string {
   return fs.readFileSync(path.join(publicDir, name), "utf8");
 }
 
+/** Serve a UTF-8 file from `public/` if it exists (used for legal fragments, standalone pages, CSS). */
+function sendPublicUtf8File(reply: FastifyReply, relativePath: string, contentType: string, cacheControl: string) {
+  const abs = path.join(publicDir, path.normalize(relativePath));
+  const rel = path.relative(publicDir, abs);
+  if (rel.startsWith("..") || path.isAbsolute(rel) || !fs.existsSync(abs) || !fs.statSync(abs).isFile()) {
+    reply.code(404);
+    return reply.type("text/plain; charset=utf-8").send("Not found");
+  }
+  reply.header("Cache-Control", cacheControl);
+  return reply.type(contentType + "; charset=utf-8").send(fs.readFileSync(abs, "utf8"));
+}
+
 function readTemplateHtml(name: string): string {
   return fs.readFileSync(path.join(templatesDir, name), "utf8");
 }
@@ -8279,6 +8291,26 @@ app.get("/galaxy-inspiration-bg.png", async (_req, reply) => {
   reply.header("Cache-Control", "public, max-age=86400");
   return reply.type("image/png").send(fs.readFileSync(p));
 });
+
+/** In-app legal reader + standalone pages (not served by a generic static middleware). */
+app.get("/legal/privacy-body.html", async (_req, reply) =>
+  sendPublicUtf8File(reply, "legal/privacy-body.html", "text/html", "public, max-age=300"),
+);
+app.get("/legal/terms-body.html", async (_req, reply) =>
+  sendPublicUtf8File(reply, "legal/terms-body.html", "text/html", "public, max-age=300"),
+);
+app.get("/legal/legal-doc-prose.css", async (_req, reply) =>
+  sendPublicUtf8File(reply, "legal/legal-doc-prose.css", "text/css", "public, max-age=300"),
+);
+app.get("/privacy.html", async (_req, reply) =>
+  sendPublicUtf8File(reply, "privacy.html", "text/html", "no-store, max-age=0"),
+);
+app.get("/terms.html", async (_req, reply) =>
+  sendPublicUtf8File(reply, "terms.html", "text/html", "no-store, max-age=0"),
+);
+app.get("/support.html", async (_req, reply) =>
+  sendPublicUtf8File(reply, "support.html", "text/html", "no-store, max-age=0"),
+);
 
 cron.schedule("5 * * * *", async () => {
   try {

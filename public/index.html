@@ -21625,10 +21625,14 @@
         guest: [
           { id: "headerMenuCreateAccount", action: "create-account", label: "Create account" },
           { id: "headerMenuSearchUsername", action: "search-username", label: "Search username" },
+          { id: "headerMenuPrivacy", action: "privacy-policy", label: "Privacy" },
+          { id: "headerMenuTerms", action: "terms-of-use", label: "Terms" },
         ],
         registered: [
           { id: "headerMenuYourProfile", action: "your-profile", label: "Your profile" },
           { id: "headerMenuSearchUsername", action: "search-username", label: "Search username" },
+          { id: "headerMenuPrivacy", action: "privacy-policy", label: "Privacy" },
+          { id: "headerMenuTerms", action: "terms-of-use", label: "Terms" },
           { id: "headerMenuSignOut", action: "sign-out", label: "Sign out" },
         ],
       };
@@ -22761,6 +22765,10 @@
             requestAnimationFrame(() => document.getElementById("apRegEmail")?.focus());
           } else if (action === "your-profile") {
             openAppProfileModal();
+          } else if (action === "privacy-policy") {
+            void openLegalDocument("privacy");
+          } else if (action === "terms-of-use") {
+            void openLegalDocument("terms");
           } else if (action === "search-username") {
             openUsernameSearchModal();
           } else if (action === "sign-out") {
