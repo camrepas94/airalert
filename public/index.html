@@ -11,7 +11,7 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#03051a" />
@@ -136,6 +136,14 @@
       }
       * {
         box-sizing: border-box;
+      }
+      /**
+       * Ensure hidden nodes never intercept taps (some engines still hit-test oddly with
+       * `hidden` + author `display` overrides). `display:none` is the safe default.
+       */
+      [hidden] {
+        display: none !important;
+        pointer-events: none !important;
       }
       /** Root: void color only — full galaxy stack is on .galaxy-photo-base + layers */
       html {
@@ -1049,7 +1057,6 @@
         touch-action: pan-y;
         padding-bottom: 3.5rem;
         -webkit-overflow-scrolling: touch;
-        touch-action: pan-y;
         position: relative;
         z-index: 0;
         isolation: isolate;
@@ -4796,6 +4803,12 @@
         backdrop-filter: blur(16px) saturate(1.2);
         z-index: 170;
       }
+      .header-dropdown[hidden],
+      .header-notifications-dropdown[hidden] {
+        display: none !important;
+        pointer-events: none !important;
+        visibility: hidden;
+      }
       .header-menu-item {
         display: block;
         width: 100%;
@@ -4849,6 +4862,20 @@
       }
       #mainScroll > .tab-panel.active {
         content-visibility: visible;
+      }
+      /**
+       * Narrow viewports (phones): Safari/WebKit often mishandles `content-visibility: auto` on
+       * sibling tab panels — blank regions, scroll jank, or taps “falling through” to an
+       * off-screen inactive panel. Prefer normal visibility; desktop keeps the optimization.
+       */
+      @media (max-width: 480px) {
+        #mainScroll > .tab-panel:not(.active),
+        #mainScroll > .tab-panel.active {
+          content-visibility: unset;
+        }
+        #mainScroll > .tab-panel:not(.active) {
+          contain-intrinsic-size: unset;
+        }
       }
       .tab-panel[data-shell-lazy-root]:not(.active) {
         min-height: 40vh;
@@ -8009,6 +8036,20 @@
       }
       .app-top.is-scrolled .tab-nav {
         margin-bottom: 0.65rem;
+      }
+      /**
+       * Mobile GPU: heavy full-width `backdrop-filter` on the chrome stack can hitch scrolling
+       * and delay first paint. Keep the same look with opaque gradients + light blur only ≤480px.
+       */
+      @media (max-width: 480px) {
+        .app-top {
+          -webkit-backdrop-filter: blur(10px) saturate(1.15);
+          backdrop-filter: blur(10px) saturate(1.15);
+        }
+        .tab-rail {
+          -webkit-backdrop-filter: blur(10px) saturate(1.15);
+          backdrop-filter: blur(10px) saturate(1.15);
+        }
       }
 
       @keyframes sk-shimmer {
@@ -22457,7 +22498,7 @@
           if (uid) void saveProfileAll(uid);
         };
         document.getElementById("saveProfileAllBtn").addEventListener("click", runSaveProfileAll);
-        document.getElementById("saveProfileHeaderBtn").addEventListener("click", runSaveProfileAll);
+        document.getElementById("saveProfileHeaderBtn")?.addEventListener("click", runSaveProfileAll);
         document.getElementById("profileAvatarBtn").addEventListener("click", () => {
           document.getElementById("profileAvatarInput").click();
         });
