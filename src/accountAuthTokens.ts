@@ -19,22 +19,44 @@ export function storeEmailVerificationToken(userId: string, tokenHash: string): 
   ).run(randomUUID(), userId, tokenHash);
 }
 
-/** Marks email verified and clears all verification rows for the user. Returns false if token missing or expired. */
-export function consumeEmailVerificationToken(rawToken: string): boolean {
+/** Outcome of handling a raw token from the verification link (does not include empty token — handle in route). */
+export type EmailVerificationTokenOutcome =
+  | "verified"
+  | "already_verified"
+  | "expired"
+  | "invalid";
+
+/**
+ * Marks email verified on first valid use; keeps the token row with `consumed_at` so repeat clicks can return
+ * `already_verified`. Invalidates by expiry or wrong token. Tokens are replaced when a new verification email is sent.
+ */
+export function consumeEmailVerificationToken(rawToken: string): EmailVerificationTokenOutcome {
   const tokenHash = hashOpaqueToken(rawToken);
   const row = db
     .prepare(
-      `SELECT user_id FROM email_verification_tokens
-       WHERE token_hash = ? AND datetime(expires_at) > datetime('now')`,
+      `SELECT user_id, consumed_at FROM email_verification_tokens WHERE token_hash = ?`,
     )
-    .get(tokenHash) as { user_id: string } | undefined;
-  if (!row) return false;
+    .get(tokenHash) as { user_id: string; consumed_at: string | null } | undefined;
+  if (!row) return "invalid";
+  if (row.consumed_at) {
+    const u = db
+      .prepare(`SELECT (email_verified != 0) AS ev FROM users WHERE id = ?`)
+      .get(row.user_id) as { ev: number } | undefined;
+    return u?.ev ? "already_verified" : "invalid";
+  }
+  const notExpired = db
+    .prepare(
+      `SELECT 1 FROM email_verification_tokens WHERE token_hash = ? AND datetime(expires_at) > datetime('now')`,
+    )
+    .get(tokenHash);
+  if (!notExpired) return "expired";
+  const uid = row.user_id;
   const txn = db.transaction(() => {
-    db.prepare(`UPDATE users SET email_verified = 1 WHERE id = ?`).run(row.user_id);
-    db.prepare(`DELETE FROM email_verification_tokens WHERE user_id = ?`).run(row.user_id);
+    db.prepare(`UPDATE users SET email_verified = 1 WHERE id = ?`).run(uid);
+    db.prepare(`UPDATE email_verification_tokens SET consumed_at = datetime('now') WHERE token_hash = ?`).run(tokenHash);
   });
   txn();
-  return true;
+  return "verified";
 }
 
 export function storePasswordResetToken(userId: string, tokenHash: string): void {

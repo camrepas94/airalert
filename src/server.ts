@@ -135,7 +135,7 @@ const GOOGLE_OAUTH_STATE_COOKIE = "airalert_google_oauth";
 const GOOGLE_OAUTH_STATE_MAX_AGE_SEC = 600;
 
 function publicAppBaseUrl(request: FastifyRequest): string {
-  const fixed = process.env.AIRALERT_PUBLIC_BASE_URL?.trim();
+  const fixed = process.env.APP_BASE_URL?.trim() || process.env.AIRALERT_PUBLIC_BASE_URL?.trim();
   if (fixed) return fixed.replace(/\/$/, "");
   const host = request.headers.host ?? `localhost:${PORT}`;
   const xf = String(request.headers["x-forwarded-proto"] ?? "")
@@ -206,6 +206,10 @@ async function sendVerificationEmailNow(
   }
   const mailStatus = transactionalMailStatus();
   if (!mailStatus.configured) {
+    request.log.warn(
+      { userId, mailProvider: mailStatus.provider, reason: mailStatus.reason },
+      "[auth] verification email not sent — outbound mail not configured",
+    );
     logEvent(request, {
       event: "auth.email_verification.send",
       feature: "auth",
@@ -223,11 +227,14 @@ async function sendVerificationEmailNow(
     };
   }
   const raw = newOpaqueToken();
-  storeEmailVerificationToken(userId, hashOpaqueToken(raw));
   const verifyUrl = `${publicAppBaseUrl(request)}/api/auth/email/verify?token=${encodeURIComponent(raw)}`;
   try {
     const sent = await createTransactionalMailer(request.log).sendVerificationEmail(email, verifyUrl);
     if (!sent.ok) {
+      request.log.warn(
+        { userId, mailProvider: mailStatus.provider, sendCode: sent.code },
+        "[auth] verification email send failed",
+      );
       logEvent(
         request,
         {
@@ -248,7 +255,9 @@ async function sendVerificationEmailNow(
         statusCode: sent.code === "not_configured" || sent.code === "adapter_missing" ? 503 : 500,
       };
     }
+    storeEmailVerificationToken(userId, hashOpaqueToken(raw));
   } catch (e) {
+    request.log.error({ userId, err: e }, "[auth] verification email send threw");
     logEvent(
       request,
       {
@@ -265,6 +274,7 @@ async function sendVerificationEmailNow(
     );
     return { ok: false, error: "Could not send verification email", statusCode: 500 };
   }
+  request.log.info({ userId, mailProvider: mailStatus.provider }, "[auth] verification email accepted by provider");
   logEvent(request, {
     event: "auth.email_verification.send",
     feature: "auth",
@@ -3678,6 +3688,7 @@ app.get("/api/auth/email/verify", async (request, reply) => {
   const raw = typeof q.token === "string" ? q.token.trim() : "";
   const base = publicAppBaseUrl(request);
   if (!raw) {
+    request.log.warn("[auth] email verification link missing token");
     logEvent(request, {
       event: "auth.email_verification.consume",
       feature: "auth",
@@ -3688,16 +3699,26 @@ app.get("/api/auth/email/verify", async (request, reply) => {
     });
     return reply.redirect(`${base}/?email_verify=0`, 302);
   }
-  const ok = consumeEmailVerificationToken(raw);
+  const outcome = consumeEmailVerificationToken(raw);
+  const verifyParam =
+    outcome === "verified"
+      ? "1"
+      : outcome === "already_verified"
+        ? "already"
+        : outcome === "expired"
+          ? "expired"
+          : "0";
+  const success = outcome === "verified" || outcome === "already_verified";
+  request.log.info({ outcome }, "[auth] email verification link handled");
   logEvent(request, {
     event: "auth.email_verification.consume",
     feature: "auth",
     action: "consume_email_verification_token",
-    status: ok ? "success" : "failure",
-    reason: ok ? undefined : "invalid_or_expired_token",
+    status: success ? "success" : "failure",
+    reason: outcome === "verified" ? undefined : outcome,
     statusCode: 302,
   });
-  return reply.redirect(`${base}/?email_verify=${ok ? "1" : "0"}`, 302);
+  return reply.redirect(`${base}/?email_verify=${verifyParam}`, 302);
 });
 
 /**
@@ -3776,7 +3797,6 @@ app.post("/api/auth/password-reset-request", async (request, reply) => {
     return generic;
   }
   const raw = newOpaqueToken();
-  storePasswordResetToken(row.id, hashOpaqueToken(raw));
   const resetUrl = `${publicAppBaseUrl(request)}/#airalert_pwreset=${encodeURIComponent(raw)}`;
   const sent = await createTransactionalMailer(request.log).sendPasswordResetEmail(emailNorm, resetUrl);
   if (!sent.ok) {
@@ -3798,6 +3818,7 @@ app.post("/api/auth/password-reset-request", async (request, reply) => {
     );
     return { error: "Could not send password reset email. Email delivery is not ready." };
   }
+  storePasswordResetToken(row.id, hashOpaqueToken(raw));
   logEvent(request, {
     event: "auth.password_reset.request",
     feature: "auth",

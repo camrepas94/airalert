@@ -21603,10 +21603,12 @@
           try {
             const u = new URL(window.location.href);
             const v = u.searchParams.get("email_verify");
-            if (v !== "0" && v !== "1") return;
+            if (v !== "0" && v !== "1" && v !== "already" && v !== "expired") return;
             u.searchParams.delete("email_verify");
             history.replaceState({}, "", u.pathname + (u.searchParams.toString() ? "?" + u.searchParams.toString() : "") + u.hash);
             if (v === "1") showToast("Your email is verified.");
+            else if (v === "already") showToast("Your email was already verified.");
+            else if (v === "expired") showToast("This verification link has expired. Request a new one from your account.");
             else showToast("Verification link is invalid or expired.");
             void refreshSessionMeFromServer();
           } catch {

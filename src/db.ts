@@ -331,6 +331,13 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_password_reset_user ON password_reset_tokens(user_id);
 `);
 
+const emailVerificationTokenColNames = new Set(
+  (db.prepare(`PRAGMA table_info(email_verification_tokens)`).all() as { name: string }[]).map((r) => r.name),
+);
+if (!emailVerificationTokenColNames.has("consumed_at")) {
+  db.exec(`ALTER TABLE email_verification_tokens ADD COLUMN consumed_at TEXT`);
+}
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS beta_waitlist (
     id TEXT PRIMARY KEY,
