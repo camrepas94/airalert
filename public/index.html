@@ -2635,6 +2635,59 @@
       .add-shows-hero-bar {
         margin-bottom: 0.75rem;
       }
+      .discover-hero {
+        position: relative;
+        text-align: center;
+        margin: 0 0 1rem;
+        padding: 0.35rem 0.25rem 0.1rem;
+        z-index: 1;
+      }
+      .discover-hero__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.32rem 0.85rem 0.32rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        font-weight: 850;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #d4f4ff;
+        border: 1px solid rgba(34, 211, 238, 0.42);
+        background: linear-gradient(125deg, rgba(34, 211, 238, 0.14), rgba(91, 156, 255, 0.09), rgba(232, 121, 249, 0.12));
+        box-shadow: 0 0 32px -8px rgba(34, 211, 238, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+        margin-bottom: 0.7rem;
+      }
+      .discover-hero__badge-icon {
+        width: 1.2rem;
+        height: 1.2rem;
+        flex-shrink: 0;
+      }
+      .discover-hero__title {
+        margin: 0 0 0.5rem;
+        font-size: clamp(1.38rem, 4.2vw, 1.72rem);
+        font-weight: 880;
+        letter-spacing: -0.025em;
+        line-height: 1.15;
+        background: linear-gradient(108deg, #f0fdff 0%, #93c5fd 38%, #c4b5fd 68%, #f9a8d4 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 28px rgba(91, 156, 255, 0.35));
+      }
+      .discover-hero__lead {
+        margin: 0 auto 0.42rem;
+        max-width: 38rem;
+        font-size: 0.93rem;
+        line-height: 1.52;
+        color: rgba(214, 228, 248, 0.97);
+      }
+      .discover-hero__hint {
+        margin: 0 auto;
+        max-width: 34rem;
+        font-size: 0.82rem;
+        line-height: 1.48;
+      }
       .add-shows-hero-bar .section-header-highlight.search-hero-unified {
         margin: 0;
         display: flex;
@@ -3462,7 +3515,8 @@
         display: none;
       }
       #tab-add section.trending-section.panel-rail-cyan,
-      #tab-add section.recommended-section.panel-rail-magenta {
+      #tab-add section.recommended-section.panel-rail-magenta,
+      #tab-add section.starter-picks-section.panel-rail-cyan {
         position: relative;
         isolation: isolate;
         overflow: hidden;
@@ -3478,7 +3532,8 @@
         border-right-color: transparent;
       }
       #tab-add section.trending-section.panel-rail-cyan::before,
-      #tab-add section.recommended-section.panel-rail-magenta::before {
+      #tab-add section.recommended-section.panel-rail-magenta::before,
+      #tab-add section.starter-picks-section.panel-rail-cyan::before {
         display: none;
       }
       .search-hero-head {
@@ -3728,6 +3783,94 @@
         color: var(--muted);
         margin-top: 0.85rem;
       }
+      .onboarding-mission-strip--embed {
+        margin-top: 0.15rem;
+        margin-bottom: 1rem;
+        padding: 0.92rem 1rem;
+        border-radius: 18px;
+        border: 1px solid rgba(167, 139, 250, 0.38);
+        background: linear-gradient(148deg, rgba(34, 211, 238, 0.1), rgba(91, 156, 255, 0.07), rgba(232, 121, 249, 0.12));
+        box-shadow: 0 0 44px -14px rgba(91, 156, 255, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+      }
+      .discovery-chips-block {
+        margin: 0.25rem 0 1rem;
+      }
+      .discovery-chips-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.35rem 0.85rem;
+        margin-bottom: 0.48rem;
+      }
+      .discovery-chips-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.11em;
+        font-weight: 850;
+        color: rgba(186, 230, 253, 0.98);
+      }
+      .discovery-chips-sub {
+        font-size: 0.78rem;
+      }
+      .discovery-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.48rem;
+      }
+      button.discovery-chip {
+        cursor: pointer;
+        border-radius: 999px;
+        padding: 0.42rem 0.72rem;
+        font-size: 0.82rem;
+        font-weight: 650;
+        letter-spacing: 0.02em;
+        font-family: inherit;
+        color: #eaf6ff;
+        border: 1px solid rgba(91, 156, 255, 0.42);
+        background: linear-gradient(165deg, rgba(34, 211, 238, 0.11), rgba(15, 18, 36, 0.65));
+        box-shadow: 0 0 24px -8px rgba(34, 211, 238, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        -webkit-tap-highlight-color: transparent;
+        min-height: 44px;
+      }
+      button.discovery-chip:hover {
+        transform: translateY(-1px);
+        border-color: rgba(34, 211, 238, 0.55);
+        box-shadow: 0 0 32px -6px rgba(34, 211, 238, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+      }
+      button.discovery-chip:active {
+        transform: translateY(0);
+      }
+      .starter-picks-section--cosmic {
+        margin-bottom: 1rem;
+      }
+      .starter-picks-head {
+        margin-bottom: 0.55rem;
+      }
+      .starter-picks-title.section-header-highlight {
+        margin-bottom: 0.28rem;
+      }
+      .starter-picks-sub {
+        margin: 0;
+        font-size: 0.84rem;
+        line-height: 1.45;
+      }
+      .starter-picks-scroll {
+        margin-top: 0.15rem;
+      }
+      .trending-section-head {
+        margin-bottom: 0.55rem;
+      }
+      .trending-section-head .section-header-highlight {
+        margin-bottom: 0.28rem;
+      }
+      .trending-section-sub {
+        margin: 0;
+        font-size: 0.84rem;
+        line-height: 1.48;
+        max-width: 40rem;
+      }
       .search-card {
         border: 1px solid rgba(130, 200, 255, 0.14);
         border-left: 2px solid rgba(91, 156, 255, 0.65);
@@ -3785,8 +3928,75 @@
         color: var(--accent);
         font-weight: 500;
       }
+      .search-card.search-card--rich {
+        padding: 0.95rem 1.05rem;
+        border-radius: 16px;
+        border-color: rgba(130, 200, 255, 0.2);
+      }
+      .search-card--rich .search-thumb,
+      .search-card--rich .search-thumb.placeholder {
+        width: 4.85rem;
+        height: 7.1rem;
+        border-radius: 11px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      }
+      .search-card-genres {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        margin: 0.12rem 0 0.32rem;
+      }
+      .search-card-genre-pill {
+        font-size: 0.64rem;
+        font-weight: 800;
+        padding: 0.1rem 0.4rem;
+        border-radius: 999px;
+        border: 1px solid rgba(91, 156, 255, 0.4);
+        color: rgba(199, 230, 255, 0.95);
+        background: rgba(91, 156, 255, 0.1);
+        text-transform: capitalize;
+      }
+      .search-card-hook {
+        font-size: 0.78rem;
+        line-height: 1.42;
+        color: rgba(168, 196, 230, 0.94);
+        margin: 0 0 0.38rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      @keyframes discover-card-pop {
+        0% {
+          transform: scale(1);
+        }
+        40% {
+          transform: scale(1.008);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .search-card.search-card--pulse {
+        animation: discover-card-pop 0.45s ease;
+      }
+      .search-card.search-card--added {
+        border-color: rgba(52, 211, 153, 0.5);
+        box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.2) inset, 0 8px 28px rgba(0, 0, 0, 0.32);
+      }
       .btn-subscribe-inline {
         margin-top: 0.15rem;
+      }
+      .btn-subscribe-inline--done {
+        background: linear-gradient(150deg, rgba(52, 211, 153, 0.4), rgba(16, 185, 129, 0.25)) !important;
+        border-color: rgba(52, 211, 153, 0.6) !important;
+        color: #ecfdf5 !important;
+        font-weight: 750 !important;
+      }
+      .search-card--rich .btn-subscribe-inline {
+        border-radius: 10px;
+        font-weight: 700;
+        padding: 0.5rem 0.65rem;
       }
       .show-link {
         background: none;
@@ -8974,30 +9184,33 @@
       <div class="main-scroll" id="mainScroll">
       <div id="tab-add" class="tab-panel active app-shell-surface" data-app-shell="add" role="tabpanel" aria-labelledby="tabBtnAdd">
         <section class="search-shell" aria-label="Search and subscribe">
-          <div class="add-shows-hero-bar">
-            <div class="section-header-highlight search-hero-unified" aria-labelledby="searchHeroHeading">
-              <div class="search-hero-head">
-                <svg class="search-hero-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <defs>
-                    <linearGradient id="searchIconGrad" x1="4" y1="4" x2="20" y2="20">
-                      <stop stop-color="#22d3ee" />
-                      <stop offset="0.55" stop-color="#5b9cff" />
-                      <stop offset="1" stop-color="#c084fc" />
-                    </linearGradient>
-                  </defs>
-                  <circle cx="11" cy="11" r="6.5" stroke="url(#searchIconGrad)" stroke-width="1.75" />
-                  <path d="M16 16l4 4" stroke="url(#searchIconGrad)" stroke-width="1.75" stroke-linecap="round" />
-                </svg>
-                <h2 class="search-hero-heading" id="searchHeroHeading">Find a show</h2>
-              </div>
+          <header class="discover-hero" aria-labelledby="discoverHeroTitle">
+            <div class="discover-hero__badge" aria-hidden="true">
+              <svg class="discover-hero__badge-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="discoverHeroGrad" x1="4" y1="4" x2="20" y2="20">
+                    <stop stop-color="#22d3ee" />
+                    <stop offset="0.55" stop-color="#5b9cff" />
+                    <stop offset="1" stop-color="#e879f9" />
+                  </linearGradient>
+                </defs>
+                <circle cx="11" cy="11" r="6.5" stroke="url(#discoverHeroGrad)" stroke-width="1.65" />
+                <path d="M16 16l4 4" stroke="url(#discoverHeroGrad)" stroke-width="1.65" stroke-linecap="round" />
+              </svg>
+              <span>Discover</span>
             </div>
-          </div>
-          <div id="onboardingMissionStrip" class="onboarding-mission-strip" hidden>
+            <h2 class="discover-hero__title" id="discoverHeroTitle">Find your next obsession</h2>
+            <p class="discover-hero__lead">
+              Search shows you love to personalize recommendations, tasks, and Community — the more you add, the smarter AirAlert gets.
+            </p>
+            <p class="discover-hero__hint muted">Try your comfort show, your current obsession, and one guilty pleasure.</p>
+          </header>
+          <div id="onboardingMissionStrip" class="onboarding-mission-strip onboarding-mission-strip--embed" hidden>
             <div class="onboarding-mission-strip__top">
               <div class="onboarding-mission-strip__copy">
-                <p class="onboarding-mission-strip__title">Add your first shows</p>
+                <p class="onboarding-mission-strip__title" id="onboardingMissionTitle">Your first mission: Add 3 shows</p>
                 <p class="onboarding-mission-strip__sub">
-                  Add 3 shows to personalize your app and unlock <strong>Community</strong> + <strong>Inbox</strong>.
+                  Unlock <strong>Community</strong> + <strong>Inbox</strong> — add three shows you actually care about.
                 </p>
                 <p class="onboarding-mission-strip__sub muted" id="onboardingMissionGuestNote" hidden style="margin-top: 0.35rem">
                   Create an account (Account menu, top right → Create account) to sync your list across devices.
@@ -9027,11 +9240,32 @@
             <div>
               <label for="searchTitle">Show title</label>
               <div class="search-input-wrap search-input-hero">
-                <input id="searchTitle" type="text" placeholder="Search shows by title…" autocomplete="off" />
+                <input id="searchTitle" type="text" placeholder="Search by title, network, or vibe…" autocomplete="off" />
                 <button type="button" class="search-clear-btn" id="searchClearBtn" hidden aria-label="Clear search">×</button>
               </div>
             </div>
           </div>
+          <div class="discovery-chips-block" id="discoveryChipsBlock">
+            <div class="discovery-chips-head">
+              <span class="discovery-chips-label">Explore</span>
+              <span class="discovery-chips-sub muted">Tap a vibe — instant picks</span>
+            </div>
+            <div class="discovery-chips" id="discoveryChips" role="list"></div>
+          </div>
+          <section
+            class="starter-picks-section panel-rail-cyan starter-picks-section--cosmic"
+            aria-labelledby="starterPicksHeading"
+            id="starterPicksSection"
+          >
+            <div class="starter-picks-head">
+              <h2 class="section-header-highlight starter-picks-title" id="starterPicksHeading">Popular on AirAlert</h2>
+              <p class="starter-picks-sub muted">Perfect starter picks — add in one tap</p>
+            </div>
+            <div class="trending-scroll-wrap starter-picks-scroll">
+              <div class="trending-scroll search-results" id="starterPicksList"></div>
+            </div>
+            <p class="msg err" id="starterPicksErr" hidden></p>
+          </section>
           <div id="recentChipsWrap" class="recent-chips-wrap" hidden>
             <p class="recent-chips-label muted">Recent searches</p>
             <div class="recent-chips" id="recentChips" role="list"></div>
@@ -9063,7 +9297,10 @@
         </section>
 
         <section class="trending-section panel-rail-cyan" aria-labelledby="trendingHeading">
-          <h2 id="trendingHeading" class="section-header-highlight">Trending shows</h2>
+          <div class="trending-section-head">
+            <h2 id="trendingHeading" class="section-header-highlight">Trending fan favorites</h2>
+            <p class="trending-section-sub muted">Shows people are adding right now — matched to your taste when you subscribe.</p>
+          </div>
           <p class="search-loading" id="trendingLoading" hidden aria-hidden="true">Trending</p>
           <p class="msg err" id="trendingErr"></p>
           <div class="trending-scroll-wrap">
@@ -10544,6 +10781,11 @@
         if (guestNote) guestNote.hidden = !show || accountIsRegistered(me);
         if (!show) return;
         const n = Math.min(ACTIVATION_MIN_SHOWS, Math.max(0, Number(me.subscribedShowCount) || 0));
+        const titleMission = document.getElementById("onboardingMissionTitle");
+        if (titleMission) {
+          titleMission.textContent =
+            n === 0 ? "Your first mission: Add 3 shows" : n < ACTIVATION_MIN_SHOWS ? "Keep building your watchlist" : titleMission.textContent;
+        }
         const pct = (n / ACTIVATION_MIN_SHOWS) * 100;
         fill.style.width = pct + "%";
         bar.setAttribute("aria-valuemax", String(ACTIVATION_MIN_SHOWS));
@@ -12061,6 +12303,8 @@
         await loadUser(id);
         await loadSubs(id);
         loadTrendingShowsDeferred(id);
+        wireDiscoveryChips(id);
+        loadStarterPicksDeferred(id);
         const rList = document.getElementById("recommendedList");
         if (rList) rList.innerHTML = "";
         if (getActiveTabName() === "tasks") await loadTasks(id);
@@ -15174,6 +15418,7 @@
       let activeSearchRequestId = 0;
       let recommendedLoadRequestId = 0;
       let trendingLoadRequestId = 0;
+      let starterPicksLoadRequestId = 0;
       let appUserId = null;
       /** `null` = load current week from server; otherwise YYYY-MM-DD Sunday for `/week-guide`. */
       let weekGuideWeekStart = null;
@@ -18906,12 +19151,136 @@
         return appUserId || safeLocalStorageGet(LS_USER);
       }
 
+      function showAddedActivationToast(countAfter) {
+        const n = Math.min(ACTIVATION_MIN_SHOWS, Math.max(0, Number(countAfter) || 0));
+        const left = Math.max(0, ACTIVATION_MIN_SHOWS - n);
+        if (n >= ACTIVATION_MIN_SHOWS) {
+          showToast("You’re in — Community & Inbox unlocked. Keep exploring!");
+        } else if (left === 1) {
+          showToast("Great pick — 1 more to unlock the full experience.");
+        } else {
+          showToast("Added — " + left + " more to go.");
+        }
+      }
+
+      const DISCOVERY_CHIPS = [
+        { label: "Reality TV", q: "reality competition" },
+        { label: "Drama", q: "drama" },
+        { label: "Comedy", q: "comedy" },
+        { label: "Crime", q: "crime thriller" },
+        { label: "Dating Shows", q: "dating reality" },
+        { label: "Competition", q: "competition reality" },
+        { label: "Sci-Fi", q: "science-fiction" },
+        { label: "Trending Now", q: "limited series 2024" },
+      ];
+
+      function wireDiscoveryChips(userId) {
+        const wrap = document.getElementById("discoveryChips");
+        if (!wrap || wrap.dataset.wired === "1") return;
+        wrap.dataset.wired = "1";
+        wrap.innerHTML = "";
+        for (const c of DISCOVERY_CHIPS) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "discovery-chip";
+          b.setAttribute("role", "listitem");
+          b.textContent = c.label;
+          b.addEventListener("click", () => {
+            const inp = document.getElementById("searchTitle");
+            if (inp) inp.value = c.q;
+            syncSearchClearBtn();
+            trackAnalyticsEvent(
+              "discover.chip_click",
+              { queryLen: c.q.length },
+              { sourceScreen: "add", targetType: "discover_chip", targetId: c.label },
+            );
+            const uid = userId || resolveUserId();
+            if (uid) void performSearch(uid);
+          });
+          wrap.appendChild(b);
+        }
+      }
+
+      async function loadStarterPicksRow(userId) {
+        const box = document.getElementById("starterPicksList");
+        const errEl = document.getElementById("starterPicksErr");
+        if (!box || !errEl) return;
+        const reqId = ++starterPicksLoadRequestId;
+        errEl.textContent = "";
+        errEl.hidden = true;
+        errEl.classList.remove("err");
+        renderSearchSkeleton(box, 4);
+        const STARTER_PICK_QUERIES = [
+          "The Bear",
+          "Succession",
+          "Abbott Elementary",
+          "Wednesday",
+          "The White Lotus",
+          "Severance",
+        ];
+        try {
+          const settled = await Promise.allSettled(
+            STARTER_PICK_QUERIES.map((term) => {
+              const qs = new URLSearchParams();
+              qs.set("title", term);
+              qs.set("q", term);
+              qs.set("excludeUserId", userId);
+              qs.set("limit", "8");
+              qs.set("fast", "1");
+              return api("/api/shows/search?" + qs.toString());
+            }),
+          );
+          if (reqId !== starterPicksLoadRequestId) return;
+          const seen = new Set();
+          const merged = [];
+          for (const r of settled) {
+            if (r.status !== "fulfilled") continue;
+            const shows = r.value.shows || [];
+            for (const s of shows) {
+              if (seen.has(s.id)) continue;
+              seen.add(s.id);
+              merged.push(s);
+              if (merged.length >= 10) break;
+            }
+            if (merged.length >= 10) break;
+          }
+          box.innerHTML = "";
+          if (!merged.length) {
+            errEl.textContent = "Couldn’t load starter picks — try search or a chip above.";
+            errEl.hidden = false;
+            errEl.classList.add("err");
+            return;
+          }
+          for (const s of merged) {
+            appendSearchResultCard(box, s, userId, errEl, "starter_pack");
+          }
+        } catch (e) {
+          if (reqId !== starterPicksLoadRequestId) return;
+          box.innerHTML = "";
+          errEl.textContent = e.message || "Could not load starter picks.";
+          errEl.hidden = false;
+          errEl.classList.add("err");
+        }
+      }
+
+      function loadStarterPicksDeferred(userId) {
+        if (userId == null) return;
+        deferAfterIdle(() => {
+          void loadStarterPicksRow(userId);
+        }, 600);
+      }
+
       function appendSearchResultCard(box, s, userId, err, addedFrom) {
+        const useTrendingStack = addedFrom === "trending" || addedFrom === "starter_pack";
+        const richSearch = addedFrom === "search";
         const card = document.createElement("div");
-        card.className = "search-card" + (addedFrom === "trending" ? " search-card--trending" : "");
+        card.className =
+          "search-card" +
+          (useTrendingStack ? " search-card--trending" : "") +
+          (richSearch ? " search-card--rich" : "");
         const inner = document.createElement("div");
         inner.className = "search-card-inner";
-        if (addedFrom === "trending") {
+        if (useTrendingStack) {
           inner.classList.add("trending-card-stack");
         }
 
@@ -18938,13 +19307,32 @@
         titleRow.textContent = s.name;
         main.appendChild(titleRow);
 
+        if (richSearch && Array.isArray(s.genres) && s.genres.length) {
+          const genres = document.createElement("div");
+          genres.className = "search-card-genres";
+          for (const g of s.genres.slice(0, 3)) {
+            const pill = document.createElement("span");
+            pill.className = "search-card-genre-pill";
+            pill.textContent = g;
+            genres.appendChild(pill);
+          }
+          main.appendChild(genres);
+        }
+
+        if (richSearch && s.summary && String(s.summary).trim()) {
+          const hook = document.createElement("p");
+          hook.className = "search-card-hook";
+          hook.textContent = String(s.summary).trim();
+          main.appendChild(hook);
+        }
+
         const meta = document.createElement("div");
         meta.className = "search-card-meta";
         const parts = [];
         if (s.network) parts.push(s.network);
         if (s.premiered) parts.push(String(s.premiered).slice(0, 4));
         if (s.lastAiredDate) parts.push("Last aired " + s.lastAiredDate);
-        if (addedFrom !== "trending" && s.matchScore != null && Number(s.matchScore) > 1) {
+        if (!useTrendingStack && s.matchScore != null && Number(s.matchScore) > 1) {
           parts.push("Suggested ×" + s.matchScore);
         }
         meta.textContent = parts.length ? parts.join(" · ") : "Network / year unknown";
@@ -18953,15 +19341,17 @@
         const subBtn = document.createElement("button");
         subBtn.type = "button";
         subBtn.className = "btn-subscribe-inline";
-        subBtn.textContent = addedFrom === "trending" ? "+ Add show" : "Subscribe";
+        subBtn.textContent = useTrendingStack ? "+ Add show" : "Add show";
         subBtn.addEventListener("click", async () => {
           subBtn.disabled = true;
+          const subsBefore = Number(sessionMeSnapshot && sessionMeSnapshot.subscribedShowCount) || 0;
           const postSub = (uid) => {
             const body = { tvmazeShowId: s.id };
             if (
               addedFrom === "search" ||
               addedFrom === "recommended" ||
-              addedFrom === "trending"
+              addedFrom === "trending" ||
+              addedFrom === "starter_pack"
             ) {
               body.addedFrom = addedFrom;
             }
@@ -19000,20 +19390,26 @@
           }
           await loadSubs(uid);
           void loadUser(uid);
+          let meAfterAdd = null;
           try {
-            const meAfterAdd = await api("/api/users/me");
+            meAfterAdd = await api("/api/users/me");
             applyMeToUI(meAfterAdd);
           } catch {
             void refreshSessionMeFromServer();
           }
+          const subsAfter = meAfterAdd != null ? Number(meAfterAdd.subscribedShowCount) || 0 : subsBefore + 1;
+          if (subsAfter > subsBefore) {
+            showAddedActivationToast(subsAfter);
+          }
           loadRecommended(uid);
           loadTrendingShowsDeferred(uid);
-          subBtn.textContent = addedFrom === "trending" ? "Added" : "Subscribed";
-          card.style.opacity = "0.55";
-          showToast("Subscribed");
+          if (addedFrom === "starter_pack") void loadStarterPicksRow(uid);
+          subBtn.textContent = useTrendingStack ? "Added" : "Added";
+          subBtn.classList.add("btn-subscribe-inline--done");
+          card.classList.add("search-card--added", "search-card--pulse");
         });
 
-        if (addedFrom === "trending") {
+        if (useTrendingStack) {
           inner.appendChild(subBtn);
           inner.appendChild(main);
         } else {
@@ -21218,6 +21614,8 @@
           setupPersonFollowSearch(userId);
         }, 2400);
         loadTrendingShowsDeferred(userId);
+        wireDiscoveryChips(userId);
+        loadStarterPicksDeferred(userId);
         const fr = document.getElementById("foldRecommendedBtn");
         if (fr && fr.getAttribute("aria-expanded") === "true") {
           if (typeof requestIdleCallback === "function") {
@@ -21350,6 +21748,8 @@
           setupPersonFollowSearch(userId);
         }, 2400);
         loadTrendingShowsDeferred(userId);
+        wireDiscoveryChips(userId);
+        loadStarterPicksDeferred(userId);
         renderRecentChips();
         if (getActiveTabName() === "tasks") void loadTasks(userId);
         updateContextualTipsVisibility("add");

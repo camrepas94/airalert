@@ -11,6 +11,8 @@ export type TvmazeShowSearch = {
     network?: { name: string } | null;
     webChannel?: { name: string } | null;
     image?: { medium?: string; original?: string } | null;
+    genres?: string[];
+    summary?: string | null;
   };
 };
 

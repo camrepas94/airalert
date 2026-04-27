@@ -4487,6 +4487,16 @@ app.patch("/api/users/:id", async (request, reply) => {
   return out;
 });
 
+function tvmazeSearchSummaryPlain(summary: string | null | undefined): string | null {
+  if (!summary) return null;
+  const t = String(summary)
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!t) return null;
+  return t.length > 140 ? t.slice(0, 137) + "…" : t;
+}
+
 app.get("/api/shows/search", async (request, reply) => {
   const q = (request.query as { q?: string }).q?.trim() ?? "";
   const title = (request.query as { title?: string }).title?.trim() ?? "";
@@ -4538,16 +4548,26 @@ app.get("/api/shows/search", async (request, reply) => {
     premiered: string | null;
     image: string | null;
     lastAiredDate: string | null;
+    genres: string[];
+    summary: string | null;
   };
 
-  const shows: ShowHit[] = trimmedCandidates.map((r) => ({
-    id: r.show.id,
-    name: r.show.name,
-    network: r.show.network?.name ?? r.show.webChannel?.name ?? null,
-    premiered: r.show.premiered ?? null,
-    image: r.show.image?.medium ?? null,
-    lastAiredDate: lastAiredById.get(r.show.id) ?? null,
-  }));
+  const shows: ShowHit[] = trimmedCandidates.map((r) => {
+    const rawGenres = r.show.genres;
+    const genres = Array.isArray(rawGenres)
+      ? rawGenres.map((x) => String(x)).filter((x) => x.length > 0).slice(0, 6)
+      : [];
+    return {
+      id: r.show.id,
+      name: r.show.name,
+      network: r.show.network?.name ?? r.show.webChannel?.name ?? null,
+      premiered: r.show.premiered ?? null,
+      image: r.show.image?.medium ?? null,
+      lastAiredDate: lastAiredById.get(r.show.id) ?? null,
+      genres,
+      summary: tvmazeSearchSummaryPlain(r.show.summary ?? null),
+    };
+  });
 
   shows.sort((a, b) => {
     if (a.lastAiredDate && b.lastAiredDate) return b.lastAiredDate.localeCompare(a.lastAiredDate);
