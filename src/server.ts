@@ -6431,7 +6431,6 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   if (!assertFullSocialAccess(reply, uid)) return;
-  if (!assertRateLimit(reply, `review:${uid}`, 6, 10 * 60 * 1000, "Too many reviews. Try again later.")) return;
   const body = (request.body ?? {}) as {
     tvmazeShowId?: number;
     tvmazeEpisodeId?: number;
@@ -6494,6 +6493,31 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
       tvmazeEpisodeId: ep,
     });
     return { error: "Provide a rating and/or a written review" };
+  }
+
+  /** Same-episode: stop accidental double-submit / UI retry bursts; distinct episodes use separate keys. */
+  if (
+    !assertRateLimit(
+      reply,
+      `post_watch_review_ep:${uid}:${showId}:${ep}`,
+      8,
+      60 * 1000,
+      "Please wait a moment before submitting again for this episode.",
+    )
+  ) {
+    return;
+  }
+  /** Session catch-up: many different episodes in one sitting is normal; old global `review:${uid}` (6/10m) blocked that. */
+  if (
+    !assertRateLimit(
+      reply,
+      `post_watch_review:${uid}`,
+      120,
+      10 * 60 * 1000,
+      "Too many episode submissions. Try again in a few minutes.",
+    )
+  ) {
+    return;
   }
 
   if (!episodeHasAiredUtc(showId, ep)) {

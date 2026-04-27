@@ -127,8 +127,8 @@
           0 0 52px -6px rgba(34, 211, 238, 0.28),
           0 0 72px -10px rgba(168, 85, 247, 0.2),
           0 0 56px -8px rgba(236, 72, 153, 0.14);
-        /** Responsive shell: mobile-first; widened on large screens */
-        --layout-max: 640px;
+        /** App shell: canonical max width on all viewports (centered app surface in the browser) */
+        --layout-max: min(40rem, calc(100vw - 1.25rem));
         --layout-pad-x: 1.1rem;
         --layout-readable: 42rem;
         --bp-md: 768px;
@@ -1027,16 +1027,6 @@
       @media (min-width: 768px) {
         :root {
           --layout-pad-x: 1.35rem;
-        }
-      }
-      @media (min-width: 900px) {
-        :root {
-          --layout-max: min(1100px, calc(100vw - 2.5rem));
-        }
-      }
-      @media (min-width: 1200px) {
-        :root {
-          --layout-max: min(1240px, calc(100vw - 3rem));
         }
       }
       .main-scroll {
@@ -2894,48 +2884,6 @@
       }
       .how-to-steps strong {
         color: var(--text);
-      }
-      /* One-time section tips (not full-screen) */
-      .contextual-tip {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.55rem;
-        margin: 0 0 0.85rem;
-        padding: 0.55rem 0.65rem 0.55rem 0.75rem;
-        border-radius: 10px;
-        font-size: 0.82rem;
-        line-height: 1.45;
-        color: rgba(226, 232, 240, 0.92);
-        background: rgba(34, 211, 238, 0.06);
-        border: 1px solid rgba(130, 200, 255, 0.16);
-        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
-      }
-      .contextual-tip-text {
-        margin: 0;
-        flex: 1;
-        min-width: 0;
-      }
-      .contextual-tip-dismiss {
-        flex-shrink: 0;
-        width: 2rem;
-        height: 2rem;
-        margin: -0.2rem -0.15rem -0.2rem 0;
-        padding: 0;
-        border: none;
-        border-radius: 8px;
-        background: transparent;
-        color: rgba(180, 210, 255, 0.75);
-        font-size: 1.35rem;
-        line-height: 1;
-        cursor: pointer;
-      }
-      .contextual-tip-dismiss:hover {
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.06);
-      }
-      .contextual-tip-dismiss:focus-visible {
-        outline: 2px solid rgba(34, 211, 238, 0.65);
-        outline-offset: 2px;
       }
       section.profile-identity {
         border-left-color: var(--neon-cyan);
@@ -8222,16 +8170,6 @@
         max-width: min(520px, calc(100vw - 1rem));
         max-height: min(92vh, 900px);
       }
-      @media (min-width: 820px) {
-        .profile-edit-modal.utility-modal-panel {
-          max-width: min(920px, calc(100vw - 1.5rem));
-        }
-      }
-      @media (min-width: 1120px) {
-        .profile-edit-modal.utility-modal-panel {
-          max-width: min(1040px, calc(100vw - 2rem));
-        }
-      }
       .profile-edit-modal-shell {
         display: flex;
         flex-direction: column;
@@ -8247,29 +8185,6 @@
         flex-shrink: 0;
         align-items: center;
         gap: 0.45rem;
-      }
-      .profile-edit-save-header {
-        min-height: 40px;
-        padding: 0.45rem 0.95rem;
-        font-size: 0.88rem;
-        font-weight: 750;
-        letter-spacing: 0.02em;
-        border-radius: 11px;
-        border: 1px solid rgba(34, 211, 238, 0.45);
-        background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(124, 156, 255, 0.2));
-        color: rgba(230, 250, 255, 0.98);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
-      }
-      .profile-edit-save-header:hover {
-        border-color: rgba(94, 234, 212, 0.65);
-        background: linear-gradient(135deg, rgba(34, 211, 238, 0.32), rgba(124, 156, 255, 0.28));
-      }
-      @media (min-width: 720px) {
-        .profile-edit-save-header {
-          min-height: 42px;
-          padding: 0.5rem 1.1rem;
-          font-size: 0.9rem;
-        }
       }
       .profile-edit-modal-title {
         margin: 0;
@@ -8295,30 +8210,12 @@
         flex-direction: column;
         gap: 1.1rem;
       }
-      @media (min-width: 860px) {
-        .profile-edit-stack {
-          gap: 1.25rem;
-        }
-      }
       .profile-edit-main-grid,
       .profile-edit-profile-column,
       .profile-edit-account-column {
         display: flex;
         flex-direction: column;
         gap: 1.05rem;
-      }
-      @media (min-width: 860px) {
-        .profile-edit-main-grid {
-          display: grid;
-          grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
-          gap: 1.15rem 1.35rem;
-          align-items: start;
-        }
-        .profile-edit-main-grid,
-        .profile-edit-profile-column,
-        .profile-edit-account-column {
-          gap: 1.15rem;
-        }
       }
       .profile-edit-card {
         box-sizing: border-box;
@@ -8431,18 +8328,12 @@
         z-index: 2;
         display: flex;
         flex-direction: column;
-        gap: 0.45rem;
+        align-items: stretch;
+        gap: 0;
         padding: 0.8rem 0.9rem calc(0.85rem + env(safe-area-inset-bottom, 0px));
         border-top: 1px solid rgba(130, 200, 255, 0.28);
         background: linear-gradient(180deg, rgba(6, 10, 22, 0.88) 0%, rgba(10, 14, 28, 0.97) 100%);
         box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55);
-      }
-      .profile-edit-sticky-hint {
-        margin: 0;
-        font-size: 0.76rem;
-        text-align: center;
-        line-height: 1.35;
-        opacity: 0.88;
       }
       .profile-edit-field-stack {
         display: flex;
@@ -8522,21 +8413,6 @@
         width: 100%;
         min-height: 46px;
       }
-      .profile-edit-account-help {
-        margin-top: 1.1rem;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .profile-edit-account-help-lead {
-        margin: 0 0 0.55rem;
-        font-size: 0.8rem;
-        line-height: 1.45;
-      }
-      .profile-edit-account-help-foot {
-        margin: 0.5rem 0 0;
-        font-size: 0.78rem;
-        line-height: 1.4;
-      }
       h3.profile-account-block-title {
         margin: 0 0 0.4rem;
         font-size: 0.7rem;
@@ -8595,18 +8471,13 @@
         .profile-edit-sticky {
           flex-direction: row;
           align-items: center;
-          justify-content: space-between;
-          gap: 1rem;
+          justify-content: center;
           padding-left: 1.15rem;
           padding-right: 1.15rem;
         }
         .profile-edit-save-primary {
           width: auto;
           min-width: 12rem;
-          order: 2;
-        }
-        .profile-edit-sticky-hint {
-          text-align: left;
         }
       }
       .profile-remove-photo-btn {
@@ -8730,282 +8601,10 @@
         min-height: 46px;
         border-color: rgba(248, 113, 113, 0.42) !important;
       }
-      @media (min-width: 520px) {
-        .profile-edit-card--account .account-change-pw .profile-account-grid {
-          grid-template-columns: 1fr 1fr 1fr;
-        }
-      }
       .profile-edit-scroll #regBtn,
       .profile-edit-scroll #loginBtn {
         width: 100%;
         min-height: 48px;
-      }
-      @media (min-width: 520px) {
-        .profile-edit-scroll #regBtn,
-        .profile-edit-scroll #loginBtn {
-          width: auto;
-        }
-      }
-
-      /* ═══ Desktop / large-screen layout (mobile-first base unchanged) ═══ */
-      @media (min-width: 900px) {
-        .tab-nav {
-          margin: 0.2rem 0 0.65rem;
-        }
-        .tab-rail {
-          padding: 0.48rem 0.55rem;
-          gap: 0.35rem;
-          border-radius: 20px;
-        }
-        .tab-btn {
-          padding: 0.58rem 0.45rem;
-          font-size: 0.82rem;
-          letter-spacing: 0.035em;
-          border-radius: 13px;
-        }
-        .app-top-brand-row {
-          margin-bottom: 0.45rem;
-        }
-        /** Add Shows: search full width; trending | recommended two columns */
-        #tab-add {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 0.85rem 1.25rem;
-          align-items: start;
-        }
-        #tab-add > .search-shell {
-          grid-column: 1 / -1;
-        }
-        #tab-add > .trending-section {
-          grid-column: 1;
-          margin: 0;
-        }
-        #tab-add > .recommended-section {
-          grid-column: 2;
-          margin: 0;
-        }
-        /** My List: subscriptions | people side by side */
-        #tab-shows {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 0.85rem 1.25rem;
-          align-items: start;
-        }
-        #tab-shows > section {
-          margin: 0;
-          min-width: 0;
-        }
-        /** Tasks: open list (left) | watched & not-watching folds (right) */
-        #tab-tasks > section.panel-rail-magenta {
-          display: grid;
-          grid-template-columns: 1.15fr 0.85fr;
-          gap: 0.65rem 1.25rem;
-          align-items: start;
-        }
-        #tab-tasks > section.panel-rail-magenta > h2 {
-          grid-column: 1 / -1;
-          margin-top: 0;
-        }
-        #tab-tasks > section.panel-rail-magenta > .tasks-stats-section {
-          grid-column: 1 / -1;
-        }
-        #tab-tasks > section.panel-rail-magenta > #tasksList {
-          grid-column: 1;
-          grid-row: 3;
-        }
-        #tab-tasks > section.panel-rail-magenta > .tasks-open-empty#tasksOpenEmpty {
-          grid-column: 1;
-          grid-row: 4;
-        }
-        #tab-tasks > section.panel-rail-magenta > #tasksEmpty {
-          grid-column: 1 / -1;
-          grid-row: 5;
-        }
-        #tab-tasks > section.panel-rail-magenta > #tasksCompletedFoldWrap {
-          grid-column: 2;
-          grid-row: 3;
-          align-self: start;
-          width: 100%;
-        }
-        #tab-tasks > section.panel-rail-magenta > #tasksSkippedFoldWrap {
-          grid-column: 2;
-          grid-row: 4;
-          align-self: start;
-          width: 100%;
-        }
-        /** Community hub: thread cards in a stable grid (no horizontal carousel) */
-        .community-thread-list,
-        .community-general-list {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 0.85rem;
-          overflow-x: visible;
-          padding-bottom: 0.65rem;
-        }
-        /* Desktop Community: max readable width, centered */
-        #communityListView {
-          max-width: 72rem;
-          margin-left: auto;
-          margin-right: auto;
-        }
-        .community-thread-list > li,
-        .community-general-list > li {
-          flex: unset;
-          min-width: 0;
-          max-width: none;
-        }
-        .community-headlines-rail > li,
-        .community-headline-skeleton-li {
-          flex: 0 0 clamp(200px, 22vw, 260px);
-          min-width: 200px;
-          max-width: 280px;
-        }
-        /** My week: full seven-day row without horizontal scroll */
-        .week-guide-grid {
-          overflow-x: visible;
-          grid-template-columns: repeat(7, minmax(0, 1fr));
-          scroll-snap-type: none;
-        }
-        .week-guide-day {
-          scroll-snap-align: unset;
-        }
-        .week-guide-head {
-          flex-wrap: nowrap;
-          gap: 1rem;
-          justify-content: space-between;
-        }
-        /** Search toolbar: denser horizontal layout */
-        .search-post-toolbar {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          align-items: end;
-          gap: 0.65rem 1rem;
-        }
-        .search-post-toolbar .search-pagination {
-          grid-column: 1 / -1;
-          justify-self: start;
-        }
-      }
-
-      @media (min-width: 1280px) {
-        .community-thread-list,
-        .community-general-list {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-      }
-
-      /**
-       * Desktop UX — Inbox split pane. Community landing sequence: Breaking News, then Discussions.
-       */
-      @media (min-width: 900px) {
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread {
-          display: grid;
-          grid-template-columns: minmax(280px, 38%) minmax(0, 1fr);
-          grid-template-rows: minmax(0, 1fr);
-          align-items: stretch;
-          gap: 0 1rem;
-          min-height: min(82dvh, 46rem);
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxListView {
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-          border-right: 1px solid rgba(130, 200, 255, 0.16);
-          padding-right: 0.65rem;
-          margin-right: 0.1rem;
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxListView .dm-inbox-layout {
-          flex: 1;
-          min-height: 0;
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread .dm-inbox-main {
-          min-height: 0;
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxHubScroll {
-          flex: 1;
-          min-height: 0;
-          max-height: min(70dvh, 40rem);
-          overflow-y: auto;
-          overscroll-behavior: contain;
-          padding-right: 0.15rem;
-          scrollbar-width: thin;
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxThreadView {
-          min-height: 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxThreadView[hidden] {
-          display: none !important;
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxThreadView:not([hidden]) {
-          display: flex;
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread .dm-inbox-back {
-          display: none;
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxDmHeaderBlock,
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxThreadTitleDm,
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxGroupTitleBtn {
-          max-width: min(44rem, 100%);
-          margin-left: auto;
-          margin-right: auto;
-          width: 100%;
-          box-sizing: border-box;
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxMessages {
-          flex: 1 1 auto;
-          min-height: 10rem;
-          max-height: none;
-          width: 100%;
-          max-width: min(44rem, 100%);
-          margin-left: auto;
-          margin-right: auto;
-          padding: 0.55rem 0.75rem 0.65rem;
-          box-sizing: border-box;
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxThreadView .dm-inbox-compose {
-          flex-shrink: 0;
-          margin-top: auto;
-          width: 100%;
-          max-width: min(44rem, 100%);
-          margin-left: auto;
-          margin-right: auto;
-          box-sizing: border-box;
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread #dmInboxTypingRow {
-          max-width: min(44rem, 100%);
-          margin-left: auto;
-          margin-right: auto;
-          width: 100%;
-          box-sizing: border-box;
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread .dm-inbox-msg-wrap {
-          max-width: min(32rem, 92%);
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread .dm-inbox-msg-wrap.is-me {
-          max-width: min(32rem, 92%);
-        }
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread .dm-inbox-group-msg {
-          max-width: min(40rem, 100%);
-        }
-        .profile-edit-modal.utility-modal-panel {
-          max-width: min(1040px, calc(100vw - 2rem));
-        }
-      }
-      @media (min-width: 1024px) {
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread {
-          grid-template-columns: minmax(300px, 36%) minmax(0, 1fr);
-          min-height: min(84dvh, 48rem);
-          gap: 0 1.15rem;
-        }
-      }
-      @media (min-width: 1280px) {
-        #tab-messages .dm-inbox-panel.dm-inbox-panel--split-thread {
-          grid-template-columns: minmax(320px, 34%) minmax(0, 1fr);
-          min-height: min(86dvh, 50rem);
-        }
       }
       .aa-boot-error-shell {
         display: none;
@@ -9134,8 +8733,8 @@
                 class="header-icon-btn"
                 id="headerSettingsBtn"
                 aria-label="Settings"
-                aria-expanded="false"
-                aria-haspopup="true"
+                aria-haspopup="dialog"
+                aria-controls="appSettingsModal"
                 title="Settings"
               >
                 <svg
@@ -9155,13 +8754,6 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </button>
-              <div class="header-dropdown" id="headerSettingsDropdown" hidden role="menu" aria-label="Settings">
-                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuRefresh">Refresh data</button>
-                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuReminders">
-                  Timezone
-                </button>
-                <button type="button" class="header-menu-item" role="menuitem" id="headerMenuPush">Push notifications</button>
-              </div>
             </div>
             <div class="header-menu-wrap">
               <button
@@ -9600,15 +9192,6 @@
       </template>
       <template id="tpl-shell-tab-tasks">
         <div class="app-shell-mounted" data-app-shell-mounted="tasks">
-        <div
-          class="contextual-tip"
-          id="contextualTipTasks"
-          role="status"
-          hidden
-        >
-          <p class="contextual-tip-text">Mark episodes watched and rate them.</p>
-          <button type="button" class="contextual-tip-dismiss" id="contextualTipTasksDismiss" aria-label="Dismiss tip">×</button>
-        </div>
         <section class="panel-rail-magenta" aria-label="Watch checklist">
           <h2 class="section-header-highlight">Watch checklist</h2>
           <div class="tasks-stats-section" id="tasksStatsSection" aria-live="polite">
@@ -10542,7 +10125,7 @@
                 <p class="muted msg" id="pushMsg" style="width: 100%"></p>
               </div>
             </section>
-            <section class="settings-surface" aria-labelledby="settingsHelpHeading">
+            <section id="settingsHelpSection" class="settings-surface" aria-labelledby="settingsHelpHeading">
               <h4 id="settingsHelpHeading" class="settings-surface-h section-header-highlight header-cyan">Help, privacy &amp; legal</h4>
               <p class="settings-surface-lead muted">
                 Store-review essentials in one place: privacy details, beta support, terms, and account deletion guidance.
@@ -10552,9 +10135,12 @@
                 <button type="button" class="secondary" data-legal-doc="terms">Terms</button>
                 <a class="secondary" href="/support.html" target="_blank" rel="noopener">Support</a>
               </div>
+              <button type="button" class="secondary" id="settingsBetaFeedbackBtn" style="margin-top: 0.65rem; width: 100%">
+                Send beta feedback
+              </button>
               <ul class="support-note-list">
-                <li>Account deletion is under Your profile → Session (open Account menu, top right, then Your profile).</li>
-                <li>Beta testers can send feedback from Your profile → Account → Help &amp; legal.</li>
+                <li>Account deletion: Account menu (top right) → Your profile → Session &amp; destructive actions.</li>
+                <li>Beta feedback: use <strong>Send beta feedback</strong> above.</li>
               </ul>
             </section>
           </div>
@@ -10575,9 +10161,6 @@
             <h2 id="profileEditModalHeading" class="profile-edit-modal-title">Edit profile</h2>
           </div>
           <div class="profile-edit-modal-head-actions">
-            <button type="button" class="profile-edit-save-header" id="saveProfileHeaderBtn" aria-label="Save profile changes">
-              Save
-            </button>
             <button type="button" class="modal-close secondary" id="appProfileClose" aria-label="Close profile">×</button>
           </div>
         </div>
@@ -10588,7 +10171,7 @@
                 <div class="profile-edit-profile-column">
                 <section class="profile-edit-card profile-edit-card--basics" aria-labelledby="profileBasicsHeading">
                   <h2 id="profileBasicsHeading" class="profile-edit-card-title">Profile basics</h2>
-                  <p class="profile-edit-card-lead muted">Photo, display name, and username — what people see on your profile and in messages.</p>
+                  <p class="profile-edit-card-lead muted">Photo, display name, and public username.</p>
                   <div class="profile-identity">
                   <div class="profile-identity-inner">
                     <div class="profile-avatar-wrap">
@@ -10597,7 +10180,7 @@
                         <img id="profileAvatarImg" alt="" width="88" height="88" hidden decoding="async" />
                         <span id="profileAvatarPlaceholder" class="profile-avatar-placeholder" aria-hidden="true">+</span>
                       </button>
-                      <p class="muted profile-avatar-hint">Tap the circle to upload or change. When a photo is shown, tap it to view larger.</p>
+                      <p class="muted profile-avatar-hint">Tap to add or change. With a photo, tap to enlarge.</p>
                     </div>
                     <div class="profile-identity-fields">
                       <label for="displayName">Display name</label>
@@ -10621,7 +10204,7 @@
 
                 <section class="profile-edit-card profile-edit-card--about profile-edit-card--about-you" aria-labelledby="profileAboutCardHeading">
                   <h2 id="profileAboutCardHeading" class="profile-edit-card-title">About you</h2>
-                  <p class="profile-edit-card-lead muted">Bio and optional details. Clear a field and save to remove it.</p>
+                  <p class="profile-edit-card-lead muted">Bio and optional details — clear a field and save to remove.</p>
                   <div class="profile-edit-field-stack">
                     <label for="profileAboutMe">Bio</label>
                     <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="A few words about you…"></textarea>
@@ -10656,9 +10239,7 @@
                     aria-labelledby="profileShareCardHeading"
                   >
                     <h2 id="profileShareCardHeading" class="profile-edit-card-title">Preferences &amp; sharing</h2>
-                    <p class="profile-edit-card-lead muted" style="margin-top: 0">
-                      Square PNG for Instagram, X, or anywhere — your episode and show totals, AirAlert-branded.
-                    </p>
+                    <p class="profile-edit-card-lead muted" style="margin-top: 0">Square share card with your stats (PNG).</p>
                     <p class="profile-share-preview-wrap" id="profileSharePreviewWrap" hidden>
                       <canvas id="profileShareCanvas" width="1080" height="1080" class="profile-share-canvas"></canvas>
                     </p>
@@ -10675,11 +10256,10 @@
               <section class="profile-edit-card profile-edit-card--account" aria-labelledby="profileAccountHeading">
                 <h2 id="profileAccountHeading" class="profile-edit-card-title">Account</h2>
                 <p class="profile-edit-card-lead muted" id="accountLeadGuest">
-                  You’re browsing as a <strong>guest</strong> on this device only. To save your list across devices and use Community, messages, and member search, create an
-                  <strong>email-backed account</strong> (your <strong>email</strong> is how you sign in). When you do, you’ll pick a public <strong>@username</strong> for Community and DMs — it is not your sign-in email.
+                  Guest on this device only. Create an <strong>email-backed account</strong> to sync your list and use Community, messages, and search. You’ll pick a public <strong>@username</strong> (not your sign-in email).
                 </p>
                 <p class="profile-edit-card-lead muted" id="accountLeadRegistered" hidden>
-                  You’re signed in to a real account: your <strong>email</strong> (or Google link) is your sign-in identity. Your <strong>@username</strong> is your public handle for Community and messages — separate from email.
+                  Signed in with <strong>email</strong> or Google. Your <strong>@username</strong> is your public handle for Community and messages.
                 </p>
                 <div id="accountGuest">
                   <div class="profile-account-subcard profile-account-subcard--signin">
@@ -10742,14 +10322,10 @@
                   <p class="profile-account-signed-lead">
                     Account signed in as <strong id="accountUsernameLabel"></strong>
                   </p>
-                  <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">
-                    Use <strong>Sign out</strong> in the Account menu (top right) or in Session below to end this session on this device.
-                  </p>
+                  <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">Use <strong>Sign out</strong> below to end this session on this device.</p>
                   <div id="accountEmailVerifyBanner" class="account-email-verify" hidden>
                     <h3 class="profile-account-block-title" style="margin-top: 0.35rem">Verify your email</h3>
-                    <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">
-                      Your account email is not verified yet. AirAlert will send a verification link when outbound email is configured.
-                    </p>
+                    <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">We’ll email a verification link when outbound mail is enabled.</p>
                     <button type="button" class="secondary profile-account-primary-btn" id="acctResendVerifyBtn">
                       Send verification email
                     </button>
@@ -10758,9 +10334,7 @@
                   <div class="profile-account-subcard profile-account-subcard--security">
                   <div id="accountEmailUpgrade" class="account-email-upgrade" hidden>
                     <h3 class="profile-account-block-title" style="margin-top: 0.35rem">Add an account email</h3>
-                    <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">
-                      Add an email so this account has a recoverable sign-in identity. Your public username stays your @handle.
-                    </p>
+                    <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">Add a recoverable sign-in email. Your @username stays your public handle.</p>
                     <div class="profile-account-grid profile-account-pw-grid">
                       <div>
                         <label for="acctUpgradeEmail">Email</label>
@@ -10795,23 +10369,6 @@
                   </div>
                 </div>
                 <p class="msg err profile-card-msg" id="accountErr"></p>
-                <div class="profile-edit-account-help" aria-labelledby="profileHelpLegalHeading">
-                  <h3 id="profileHelpLegalHeading" class="profile-account-block-title">Help &amp; legal</h3>
-                  <p class="muted profile-edit-account-help-lead">
-                    Privacy, terms, support, and beta feedback for account help and store-review readiness.
-                  </p>
-                  <div class="store-readiness-link-grid" aria-label="Profile help and legal links">
-                    <button type="button" class="secondary" data-legal-doc="privacy">Privacy</button>
-                    <button type="button" class="secondary" data-legal-doc="terms">Terms</button>
-                    <a class="secondary" href="/support.html" target="_blank" rel="noopener">Support</a>
-                  </div>
-                  <button type="button" class="secondary profile-account-primary-btn" id="profileBetaFeedbackBtn" style="margin-top: 0.65rem">
-                    Send beta feedback
-                  </button>
-                  <p class="muted profile-edit-account-help-foot">
-                    Use this for confusing screens, broken flows, or private beta issues.
-                  </p>
-                </div>
               </section>
               </div>
               </div>
@@ -10824,7 +10381,7 @@
               >
                 <h2 id="profileSessionHeading" class="profile-edit-card-title">Session &amp; destructive actions</h2>
                 <p class="profile-edit-card-lead muted profile-edit-session-lead">
-                  These actions affect your sign-in or remove data — separate from profile fields above. Use <strong>Save profile</strong> at the bottom (or <strong>Save</strong> in the header) to persist display name, photo, bio, and optional details.
+                  Sign-in and data removal — separate from profile fields. Tap <strong>Save profile</strong> at the bottom to keep name, photo, bio, and optional details.
                 </p>
                 <div class="profile-edit-session-block profile-edit-session-block--signout" role="group" aria-labelledby="profileSessionSignOutLabel">
                   <h3 id="profileSessionSignOutLabel" class="profile-edit-session-block-title">End session on this device</h3>
@@ -10845,9 +10402,6 @@
           </div>
         <div class="profile-edit-sticky" role="region" aria-label="Save profile changes">
           <button type="button" class="profile-edit-save-primary" id="saveProfileAllBtn">Save profile</button>
-          <p class="muted profile-edit-sticky-hint" id="profileStickyHint">
-            Saves profile basics, bio, and optional details — same as <strong>Save</strong> in the header.
-          </p>
         </div>
       </div>
     </div>
@@ -11010,32 +10564,8 @@
         }
       }
 
-      /** One-time section tips; per user + tip id (local device). */
-      function contextualTipKey(userId, tipId) {
-        return "airalert_ctx_tip_v1_" + tipId + "_" + userId;
-      }
-      function isContextualTipDismissed(userId, tipId) {
-        try {
-          return Boolean(userId && safeLocalStorageGet(contextualTipKey(userId, tipId)) === "1");
-        } catch {
-          return false;
-        }
-      }
-      function dismissContextualTip(userId, tipId) {
-        if (userId) safeLocalStorageSet(contextualTipKey(userId, tipId), "1");
-      }
-      function updateContextualTipsVisibility(activeTab) {
-        const uid = resolveUserId();
-        const tips = [
-          { id: "contextualTipTasks", tipId: "tasks", tab: "tasks" },
-        ];
-        for (const t of tips) {
-          const el = document.getElementById(t.id);
-          if (!el) continue;
-          const dismissed = !uid || isContextualTipDismissed(uid, t.tipId);
-          const skip = typeof t.skip === "function" ? t.skip() : false;
-          el.hidden = dismissed || skip || activeTab !== t.tab;
-        }
+      function updateContextualTipsVisibility(_activeTab) {
+        /* Tasks contextual strip removed — no in-tab tips to sync. */
       }
       function apiOrigin() {
         if (window.location.protocol === "file:") {
@@ -12647,22 +12177,17 @@
         return Boolean(p && p.classList.contains("active"));
       }
 
-      function dmInboxSplitMq() {
-        return typeof window !== "undefined" && window.matchMedia("(min-width: 900px)").matches;
-      }
-
+      /** Inbox always uses stacked list ↔ thread (same as mobile); no desktop split pane. */
       function syncDmInboxSplitLayout() {
         const panel = document.querySelector("#tab-messages .dm-inbox-panel");
         const tv = document.getElementById("dmInboxThreadView");
         const list = document.getElementById("dmInboxListView");
         if (!panel || !tv || !list) return;
-        const split = dmInboxSplitMq();
-        if (split && !tv.hidden) {
-          panel.classList.add("dm-inbox-panel--split-thread");
-          list.hidden = false;
+        panel.classList.remove("dm-inbox-panel--split-thread");
+        if (!tv.hidden) {
+          list.hidden = true;
         } else {
-          panel.classList.remove("dm-inbox-panel--split-thread");
-          if (!tv.hidden && !split) list.hidden = true;
+          list.hidden = false;
         }
       }
 
@@ -14042,7 +13567,7 @@
         if (avatarHost) avatarHost.innerHTML = "";
         if (titleDm) titleDm.textContent = titleLabel || "Chat";
         if (host) host.classList.remove("dm-inbox-messages--group");
-        if (list) list.hidden = !dmInboxSplitMq();
+        if (list) list.hidden = true;
         if (tv) tv.hidden = false;
         syncDmInboxSplitLayout();
         syncDmInboxActiveRowHighlight();
@@ -14127,7 +13652,7 @@
         if (host) {
           host.classList.add("dm-inbox-messages--group");
         }
-        if (list) list.hidden = !dmInboxSplitMq();
+        if (list) list.hidden = true;
         if (tv) tv.hidden = false;
         syncDmInboxSplitLayout();
         syncDmInboxActiveRowHighlight();
@@ -19893,13 +19418,15 @@
         body.scrollTop = 0;
       }
 
-      /** @param {"refresh" | "reminders" | "push" | undefined} which */
+      /** @param {"refresh" | "reminders" | "push" | "legal" | undefined} which */
       function openAppSettingsModal(which) {
         closeHeaderMenus();
         closeLegalDocumentModal();
         closeAppProfileModal();
         const el = document.getElementById("appSettingsModal");
         if (el) el.classList.add("open");
+        const body = document.getElementById("appSettingsModalBody");
+        if (body) body.scrollTop = 0;
         const scrollId =
           which === "refresh"
             ? "settingsRefreshSection"
@@ -19907,7 +19434,9 @@
               ? "settingsRemindersSection"
               : which === "push"
                 ? "settingsPushSection"
-                : null;
+                : which === "legal"
+                  ? "settingsHelpSection"
+                  : null;
         if (scrollId) {
           requestAnimationFrame(() => {
             const target = document.getElementById(scrollId);
@@ -19938,16 +19467,12 @@
       }
 
       function closeHeaderMenus() {
-        const sd = document.getElementById("headerSettingsDropdown");
         const pd = document.getElementById("headerProfileDropdown");
         const nd = document.getElementById("headerNotificationsDropdown");
-        const sb = document.getElementById("headerSettingsBtn");
         const pb = document.getElementById("headerProfileBtn");
         const nb = document.getElementById("headerNotificationsBtn");
-        if (sd) sd.hidden = true;
         if (pd) pd.hidden = true;
         if (nd) nd.hidden = true;
-        if (sb) sb.setAttribute("aria-expanded", "false");
         if (pb) pb.setAttribute("aria-expanded", "false");
         if (nb) nb.setAttribute("aria-expanded", "false");
       }
@@ -20225,18 +19750,6 @@
         const panel = document.getElementById("tab-tasks");
         wireFoldTogglesIn(panel);
         setupPostWatchReviewModalWiring();
-        const dismiss = document.getElementById("contextualTipTasksDismiss");
-        if (dismiss && dismiss.dataset.aaCtxWired !== "1") {
-          dismiss.dataset.aaCtxWired = "1";
-          dismiss.addEventListener("click", () => {
-            const uid = resolveUserId();
-            if (uid) dismissContextualTip(uid, "tasks");
-            const active = document.querySelector(".tab-panel.active");
-            const tabName =
-              active && active.id && active.id.startsWith("tab-") ? active.id.slice(4) : "add";
-            updateContextualTipsVisibility(tabName);
-          });
-        }
       }
 
       function mountShellLazyCommunity() {
@@ -21625,14 +21138,10 @@
         guest: [
           { id: "headerMenuCreateAccount", action: "create-account", label: "Create account" },
           { id: "headerMenuSearchUsername", action: "search-username", label: "Search username" },
-          { id: "headerMenuPrivacy", action: "privacy-policy", label: "Privacy" },
-          { id: "headerMenuTerms", action: "terms-of-use", label: "Terms" },
         ],
         registered: [
           { id: "headerMenuYourProfile", action: "your-profile", label: "Your profile" },
           { id: "headerMenuSearchUsername", action: "search-username", label: "Search username" },
-          { id: "headerMenuPrivacy", action: "privacy-policy", label: "Privacy" },
-          { id: "headerMenuTerms", action: "terms-of-use", label: "Terms" },
           { id: "headerMenuSignOut", action: "sign-out", label: "Sign out" },
         ],
       };
@@ -22427,7 +21936,6 @@
           if (uid) void saveProfileAll(uid);
         };
         document.getElementById("saveProfileAllBtn")?.addEventListener("click", runSaveProfileAll);
-        document.getElementById("saveProfileHeaderBtn")?.addEventListener("click", runSaveProfileAll);
         document.getElementById("profileAvatarBtn")?.addEventListener("click", () => {
           document.getElementById("profileAvatarInput")?.click();
         });
@@ -22581,17 +22089,6 @@
           if (e.target.id === "showModal") closeShowModal();
         });
 
-        function wireContextualTipDismiss(tipId, elId) {
-          document.getElementById(elId)?.addEventListener("click", () => {
-            const uid = resolveUserId();
-            if (uid) dismissContextualTip(uid, tipId);
-            const active = document.querySelector(".tab-panel.active");
-            const tabName =
-              active && active.id && active.id.startsWith("tab-") ? active.id.slice(4) : "add";
-            updateContextualTipsVisibility(tabName);
-          });
-        }
-
         document.addEventListener("keydown", (e) => {
           if (e.key !== "Escape") return;
           const plb = document.getElementById("profilePhotoLightbox");
@@ -22676,20 +22173,8 @@
 
         document.getElementById("headerSettingsBtn")?.addEventListener("click", (e) => {
           e.stopPropagation();
-          closeAppProfileModal();
           closeUsernameSearchModal({ skipFocusRestore: true });
-          const d = document.getElementById("headerSettingsDropdown");
-          const pd = document.getElementById("headerProfileDropdown");
-          const nd = document.getElementById("headerNotificationsDropdown");
-          const wasOpen = d && !d.hidden;
-          if (pd) pd.hidden = true;
-          if (nd) nd.hidden = true;
-          document.getElementById("headerProfileBtn")?.setAttribute("aria-expanded", "false");
-          document.getElementById("headerNotificationsBtn")?.setAttribute("aria-expanded", "false");
-          if (d) {
-            d.hidden = wasOpen;
-            document.getElementById("headerSettingsBtn")?.setAttribute("aria-expanded", d.hidden ? "false" : "true");
-          }
+          openAppSettingsModal(undefined);
         });
         document.getElementById("headerProfileBtn")?.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -22700,12 +22185,9 @@
           closeAppSettingsModal();
           closeUsernameSearchModal({ skipFocusRestore: true });
           const d = document.getElementById("headerProfileDropdown");
-          const sd = document.getElementById("headerSettingsDropdown");
           const nd = document.getElementById("headerNotificationsDropdown");
           const wasOpen = d && !d.hidden;
-          if (sd) sd.hidden = true;
           if (nd) nd.hidden = true;
-          document.getElementById("headerSettingsBtn")?.setAttribute("aria-expanded", "false");
           document.getElementById("headerNotificationsBtn")?.setAttribute("aria-expanded", "false");
           if (d) {
             d.hidden = wasOpen;
@@ -22718,12 +22200,9 @@
           closeAppProfileModal();
           closeUsernameSearchModal({ skipFocusRestore: true });
           const d = document.getElementById("headerNotificationsDropdown");
-          const sd = document.getElementById("headerSettingsDropdown");
           const pd = document.getElementById("headerProfileDropdown");
           const wasOpen = d && !d.hidden;
-          if (sd) sd.hidden = true;
           if (pd) pd.hidden = true;
-          document.getElementById("headerSettingsBtn")?.setAttribute("aria-expanded", "false");
           document.getElementById("headerProfileBtn")?.setAttribute("aria-expanded", "false");
           if (d) {
             d.hidden = wasOpen;
@@ -22737,22 +22216,6 @@
           closeHeaderMenus();
         });
 
-        document.getElementById("headerMenuRefresh")?.addEventListener("click", (e) => {
-          e.stopPropagation();
-          closeHeaderMenus();
-          openAppSettingsModal("refresh");
-          void runRefreshEpisodeJob();
-        });
-        document.getElementById("headerMenuReminders")?.addEventListener("click", (e) => {
-          e.stopPropagation();
-          closeHeaderMenus();
-          openAppSettingsModal("reminders");
-        });
-        document.getElementById("headerMenuPush")?.addEventListener("click", (e) => {
-          e.stopPropagation();
-          closeHeaderMenus();
-          openAppSettingsModal("push");
-        });
         document.getElementById("headerProfileDropdown")?.addEventListener("click", (e) => {
           const btn = e.target && e.target.closest && e.target.closest("[data-profile-menu-action]");
           if (!btn) return;
@@ -22765,10 +22228,6 @@
             requestAnimationFrame(() => document.getElementById("apRegEmail")?.focus());
           } else if (action === "your-profile") {
             openAppProfileModal();
-          } else if (action === "privacy-policy") {
-            void openLegalDocument("privacy");
-          } else if (action === "terms-of-use") {
-            void openLegalDocument("terms");
           } else if (action === "search-username") {
             openUsernameSearchModal();
           } else if (action === "sign-out") {
@@ -22907,9 +22366,9 @@
           showToast("Signed out");
         });
 
-        document.getElementById("profileBetaFeedbackBtn")?.addEventListener("click", async () => {
+        document.getElementById("settingsBetaFeedbackBtn")?.addEventListener("click", async () => {
           try {
-            const sent = await promptForBetaFeedback("profile_help_legal");
+            const sent = await promptForBetaFeedback("settings_help_legal");
             if (sent) showToast("Feedback sent");
           } catch (e) {
             showToast(e.message || "Could not send feedback");
