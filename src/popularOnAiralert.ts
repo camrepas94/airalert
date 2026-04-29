@@ -2,28 +2,39 @@
  * "Popular on AirAlert" — internal shelf only. Candidates are shows that at least
  * one user has in `show_subscriptions`. No external popularity APIs.
  *
- * Ranking (higher score first):
- *   score = adderCount * W_ADD + ratingBonus
- *   ratingBonus = 0  if ratingN < MIN_RATING_N
- *                 (avgRating - 1) * log2(1 + ratingN) * W_R   otherwise
+ * Ranking (descending — best first):
  *
- * - adderCount: rows in show_subscriptions per tvmaze_show_id (one per user+show; equals
- *   number of users who added the show).
- * - avgRating, ratingN: from community_episode_ratings (1–5 star episode ratings) aggregated per show.
+ * 1. **Rated vs unrated** — Any show with at least one `community_episode_ratings` row ranks
+ *    above shows with zero ratings. Add-count alone cannot push an unrated show above a rated one.
  *
- * W_ADD = 1000, W_R = 42, MIN_RATING_N = 3
- *   → adoption dominates: +1 user is +1000, while a strong rating signal adds at most on the
- *     order of 4 * log2(1+N) * 42 (e.g. ~400–900 for healthy N), so broad adoption beats
- *     a single perfect rating unless weights were equal (they are not).
+ * 2. **Primary (among rated)** — Bayesian-smoothed mean rating (IMDb-style):
+ *        R_b = (n × R + m × C) / (n + m)
+ *    where R = observed average (1–5), n = rating count for the show,
+ *    C = global mean across all AirAlert episode ratings, m = prior strength (pulls low-n
+ *    shows toward C so one 5★ cannot dominate a show with many strong ratings).
+ *
+ * 3. **Secondary** — `adderCount` (distinct users with the show on My List), then stable `id`.
+ *
+ * 4. **Unrated shows** — Sorted only by `adderCount` (they appear after all rated shows).
  */
 import { db } from "./db.js";
 import { fetchShow, fetchPreviousEpisodeAirdates } from "./tvmaze.js";
 
-export const POPULAR_ON_AIRALERT_WEIGHTS = {
-  W_ADD: 1000,
-  W_R: 42,
-  MIN_RATING_N: 3,
+export const POPULAR_ON_AIRALERT_CONFIG = {
+  /**
+   * Prior strength `m` in R_b = (n×R + m×C)/(n+m). Larger = stronger shrink toward global
+   * mean for small sample sizes (reduces single-rating outliers).
+   */
+  BAYESIAN_PRIOR_M: 14,
+  /** When there are no ratings in the DB yet, use this as global prior mean C (1–5 scale). */
+  FALLBACK_GLOBAL_MEAN: 3,
 } as const;
+
+export type PopularOnAiralertWeights = typeof POPULAR_ON_AIRALERT_CONFIG & {
+  /** Observed global mean from `community_episode_ratings` when available. */
+  globalMeanRating: number;
+  globalRatingCount: number;
+};
 
 function plainSummaryHtml(s: string | null | undefined): string | null {
   if (!s) return null;
@@ -35,16 +46,19 @@ function plainSummaryHtml(s: string | null | undefined): string | null {
   return t.length > 140 ? t.slice(0, 137) + "…" : t;
 }
 
-export function popularOnAiralertScore(adderCount: number, avgRating: number | null, ratingN: number): number {
-  const { W_ADD, W_R, MIN_RATING_N } = POPULAR_ON_AIRALERT_WEIGHTS;
-  let score = adderCount * W_ADD;
-  if (ratingN >= MIN_RATING_N && avgRating != null) {
-    const ar = Number(avgRating);
-    if (Number.isFinite(ar)) {
-      score += (ar - 1) * Math.log2(1 + ratingN) * W_R;
-    }
-  }
-  return score;
+/** Bayesian average on 1–5 scale; requires n >= 1 and finite avg. */
+export function bayesianSmoothedRating(
+  avgRating: number,
+  ratingN: number,
+  globalMean: number,
+  priorM: number,
+): number {
+  const n = Math.max(0, Math.floor(ratingN));
+  const m = Math.max(0.001, priorM);
+  if (n < 1) return globalMean;
+  const r = Number(avgRating);
+  if (!Number.isFinite(r)) return globalMean;
+  return (n * r + m * globalMean) / (n + m);
 }
 
 export type PopularOnAiralertShow = {
@@ -59,8 +73,33 @@ export type PopularOnAiralertShow = {
   adderCount: number;
   airalertAvgRating: number | null;
   airalertRatingCount: number;
-  popularScore: number;
+  /** Bayesian-smoothed AirAlert rating (1–5); null when there are no episode ratings. */
+  popularScore: number | null;
 };
+
+type ScoredRow = {
+  id: number;
+  adder_count: number;
+  avg: number | null;
+  ratingN: number;
+  bayesian: number | null;
+};
+
+function comparePopularRows(a: ScoredRow, b: ScoredRow): number {
+  const aRated = a.ratingN >= 1 && a.bayesian != null;
+  const bRated = b.ratingN >= 1 && b.bayesian != null;
+  if (aRated !== bRated) return aRated ? -1 : 1;
+  if (aRated && bRated) {
+    const br = (b.bayesian ?? 0) - (a.bayesian ?? 0);
+    if (Math.abs(br) > 1e-9) return br;
+    const ac = b.adder_count - a.adder_count;
+    if (ac !== 0) return ac;
+    return a.id - b.id;
+  }
+  const ac = b.adder_count - a.adder_count;
+  if (ac !== 0) return ac;
+  return a.id - b.id;
+}
 
 /**
  * @param opts.excludeUserId — omit shows this user already subscribes to (discovery shelf).
@@ -71,10 +110,11 @@ export async function computePopularOnAiralert(opts: {
 }): Promise<{
   shows: PopularOnAiralertShow[];
   shelfState: "ok" | "early" | "empty";
-  weights: typeof POPULAR_ON_AIRALERT_WEIGHTS;
+  weights: PopularOnAiralertWeights;
 }> {
   const { excludeUserId, limit } = opts;
   const cap = Math.min(100, Math.max(1, limit));
+  const { BAYESIAN_PRIOR_M, FALLBACK_GLOBAL_MEAN } = POPULAR_ON_AIRALERT_CONFIG;
 
   const adderRows = db
     .prepare(
@@ -85,11 +125,25 @@ export async function computePopularOnAiralert(opts: {
     .all() as { id: number; adder_count: number }[];
 
   if (adderRows.length === 0) {
-    return { shows: [], shelfState: "empty", weights: POPULAR_ON_AIRALERT_WEIGHTS };
+    const weights: PopularOnAiralertWeights = {
+      ...POPULAR_ON_AIRALERT_CONFIG,
+      globalMeanRating: FALLBACK_GLOBAL_MEAN,
+      globalRatingCount: 0,
+    };
+    return { shows: [], shelfState: "empty", weights };
   }
 
   const distinctShowCount = adderRows.length;
   const shelfState: "ok" | "early" = distinctShowCount >= 6 ? "ok" : "early";
+
+  const globalRow = db
+    .prepare(`SELECT AVG(rating) AS g_avg, COUNT(*) AS g_n FROM community_episode_ratings`)
+    .get() as { g_avg: number | null; g_n: number } | undefined;
+  const globalN = Math.max(0, Math.floor(Number(globalRow?.g_n ?? 0)));
+  const globalMean =
+    globalN > 0 && globalRow?.g_avg != null && Number.isFinite(Number(globalRow.g_avg))
+      ? Number(globalRow.g_avg)
+      : FALLBACK_GLOBAL_MEAN;
 
   const ratingRows = db
     .prepare(
@@ -117,8 +171,7 @@ export async function computePopularOnAiralert(opts: {
     }
   }
 
-  type Row = { id: number; adder_count: number; popularScore: number; avg: number | null; ratingN: number };
-  const scored: Row[] = [];
+  const scored: ScoredRow[] = [];
   for (const r of adderRows) {
     const id = Number(r.id);
     if (!Number.isInteger(id) || id < 1) continue;
@@ -126,28 +179,30 @@ export async function computePopularOnAiralert(opts: {
     const rt = ratingByShow.get(id);
     const avg = rt != null ? rt.avg : null;
     const ratingN = rt != null ? rt.n : 0;
-    const popularScore = popularOnAiralertScore(adderCount, avg, ratingN);
-    scored.push({ id, adder_count: adderCount, popularScore, avg, ratingN });
+    let bayesian: number | null = null;
+    if (ratingN >= 1 && avg != null && Number.isFinite(avg)) {
+      bayesian = bayesianSmoothedRating(avg, ratingN, globalMean, BAYESIAN_PRIOR_M);
+    }
+    scored.push({ id, adder_count: adderCount, avg, ratingN, bayesian });
   }
 
-  scored.sort((a, b) => {
-    if (b.popularScore !== a.popularScore) return b.popularScore - a.popularScore;
-    if (b.adder_count !== a.adder_count) return b.adder_count - a.adder_count;
-    const ab = a.avg != null ? a.avg : 0;
-    const bb = b.avg != null ? b.avg : 0;
-    if (bb !== ab) return bb - ab;
-    return a.id - b.id;
-  });
+  scored.sort(comparePopularRows);
 
-  const candidates: Row[] = [];
+  const candidates: ScoredRow[] = [];
   for (const s of scored) {
     if (excluded.has(s.id)) continue;
     candidates.push(s);
     if (candidates.length >= cap) break;
   }
 
+  const weights: PopularOnAiralertWeights = {
+    ...POPULAR_ON_AIRALERT_CONFIG,
+    globalMeanRating: Math.round(globalMean * 10000) / 10000,
+    globalRatingCount: globalN,
+  };
+
   if (candidates.length === 0) {
-    return { shows: [], shelfState, weights: POPULAR_ON_AIRALERT_WEIGHTS };
+    return { shows: [], shelfState, weights };
   }
 
   const top = candidates;
@@ -191,7 +246,12 @@ export async function computePopularOnAiralert(opts: {
 
       if (!name) name = "Show " + id;
 
-      const avgR = row.avg != null && Number.isFinite(row.avg) ? Math.round(row.avg * 100) / 100 : null;
+      const avgR =
+        row.avg != null && Number.isFinite(row.avg) ? Math.round(row.avg * 100) / 100 : null;
+      const ps =
+        row.bayesian != null && Number.isFinite(row.bayesian)
+          ? Math.round(row.bayesian * 10000) / 10000
+          : null;
 
       return {
         id,
@@ -205,13 +265,11 @@ export async function computePopularOnAiralert(opts: {
         adderCount: row.adder_count,
         airalertAvgRating: avgR,
         airalertRatingCount: row.ratingN,
-        popularScore: Math.round(row.popularScore * 100) / 100,
+        popularScore: ps,
       };
     }),
   );
 
   const shows: PopularOnAiralertShow[] = fetched;
-
-  shows.sort((a, b) => b.popularScore - a.popularScore);
-  return { shows, shelfState, weights: POPULAR_ON_AIRALERT_WEIGHTS };
+  return { shows, shelfState, weights };
 }

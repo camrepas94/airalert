@@ -292,21 +292,27 @@ export function buildUserTasteProfile(details: ShowDetail[], userId: string): Us
 
 const W = {
   GENRE_OVERLAP:         50,
-  GENRE_DISTINCT:        18,
-  ENGAGED_GENRE_BOOST:   12,
+  GENRE_DISTINCT:        22,
+  ENGAGED_GENRE_BOOST:   14,
   NETWORK_MATCH_MULTI:   30,
   NETWORK_MATCH_SINGLE:  14,
   TYPE_MATCH:            28,
-  CATALOG_FIT:           12,
-  SEARCH_HIT:             3,
-  COLLAB_SCALE:          26,
-  COLLAB_MAX:           100,
-  RUNNING_BONUS:          8,
-  IN_DEV_BONUS:           3,
-  ANTI_GENRE_PENALTY:   -40,
-  CHILDREN_PENALTY:     -60,
-  NO_OVERLAP_PENALTY:     0.05,
-  MIN_RECOMMEND_SCORE:   20,
+  CATALOG_FIT:           10,
+  SEARCH_HIT:             2,
+  COLLAB_SCALE:          22,
+  COLLAB_MAX:            92,
+  RUNNING_BONUS:          6,
+  IN_DEV_BONUS:           2,
+  ANTI_GENRE_PENALTY:   -48,
+  CHILDREN_PENALTY:     -72,
+  /** Collab-only / search-only matches without genres — crush ghost recommendations */
+  NO_OVERLAP_PENALTY:     0.035,
+  /** Recommended row — fewer, higher-quality picks */
+  MIN_RECOMMEND_SCORE:   46,
+  POPULARITY_LEAK_PENALTY: -55,
+  TYPE_MISMATCH_SCRIPTED_VS_REALITY: -88,
+  TYPE_MISMATCH_SOFT: -38,
+  SINGLE_WEAK_GENRE_MULT: 0.72,
 } as const;
 
 const TW = {
@@ -336,6 +342,144 @@ function userWatchesChildrens(profile: UserTasteProfile): boolean {
   return false;
 }
 
+/** How strongly user's subscriptions imply Scripted vs Reality vs other (TVMaze `type`). */
+function typeDistribution(profile: UserTasteProfile): {
+  scripted: number;
+  reality: number;
+  total: number;
+  scriptedShare: number;
+  realityShare: number;
+} {
+  let scripted = 0;
+  let reality = 0;
+  let total = 0;
+  for (const [k, v] of profile.typeWeights) {
+    total += v;
+    if (k === "scripted") scripted += v;
+    if (k === "reality") reality += v;
+  }
+  const safe = Math.max(total, 1);
+  return {
+    scripted,
+    reality,
+    total,
+    scriptedShare: scripted / safe,
+    realityShare: reality / safe,
+  };
+}
+
+/**
+ * Penalize scripted↔reality mismatch when the user's list is strongly skewed one way.
+ * Requires multiple overlapping genres before we allow a cross-format pick.
+ */
+function scriptedRealityMismatchPenalty(
+  profile: UserTasteProfile,
+  candidateType: string,
+  distinctGenreMatches: number,
+  genreOverlap: number,
+): number {
+  const t = candidateType.trim().toLowerCase();
+  if (t !== "scripted" && t !== "reality") return 0;
+  const { scriptedShare, realityShare, total } = typeDistribution(profile);
+  if (total < 3) return 0;
+
+  const strongGenreBridge = distinctGenreMatches >= 2 || genreOverlap >= 4;
+
+  // Mostly scripted subscriptions → Reality candidates need strong genre proof
+  if (
+    t === "reality" &&
+    scriptedShare >= 0.62 &&
+    realityShare <= 0.12 &&
+    !strongGenreBridge
+  ) {
+    return W.TYPE_MISMATCH_SCRIPTED_VS_REALITY;
+  }
+  // Mostly reality → scripted picks without overlap are often wrong-fit
+  if (
+    t === "scripted" &&
+    realityShare >= 0.52 &&
+    scriptedShare <= 0.22 &&
+    distinctGenreMatches < 2 &&
+    genreOverlap < 3
+  ) {
+    return W.TYPE_MISMATCH_SOFT;
+  }
+  return 0;
+}
+
+/** Collab should not float unrelated titles when genre overlap is absent. */
+function collaborativeTasteFactor(
+  collabRaw: number,
+  distinctGenreMatches: number,
+  genreOverlap: number,
+  typeBonus: number,
+): number {
+  if (collabRaw < 1) return 1;
+  if (distinctGenreMatches >= 2 || genreOverlap >= 3.5) return 1;
+  if (distinctGenreMatches === 1 && (typeBonus > 0 || genreOverlap >= 1.8)) return 0.92;
+  if (distinctGenreMatches === 0 && genreOverlap === 0) return 0.22;
+  if (distinctGenreMatches === 1) return 0.58;
+  return 0.78;
+}
+
+/** Catalog/search popularity without any weighted genre overlap — usually junk fits. */
+function popularityWithoutTastePenalty(
+  catalogFit: number,
+  searchHits: number,
+  distinctGenreMatches: number,
+  genreOverlap: number,
+): number {
+  if (distinctGenreMatches > 0 || genreOverlap > 0.01) return 0;
+  const leak = catalogFit * 9 + searchHits * 14;
+  if (leak < 8) return 0;
+  return Math.min(72, leak + 18);
+}
+
+function computeTasteConfidence(
+  profile: UserTasteProfile,
+  distinctGenreMatches: number,
+  genreOverlap: number,
+  networkBonus: number,
+  typeBonus: number,
+): number {
+  const gw = [...profile.genreWeights.values()].reduce((a, b) => a + b, 0) || 1;
+  const overlapNorm = Math.min(1, genreOverlap / Math.max(2.5, gw * 0.38));
+  let c = distinctGenreMatches * 19 + overlapNorm * 44;
+  if (networkBonus > 0) c += 10;
+  if (typeBonus > 0) c += 12;
+  return Math.min(100, Math.round(c * 10) / 10);
+}
+
+export type QualityGateResult = { ok: boolean; reason: string };
+
+/** Minimum belief before a title is shown in Recommended (not Trending). */
+export function passesRecommendedQualityGate(
+  d: DebugScoreInfo,
+  aiSummarySimilarity: number,
+  finalScoreAfterAi: number,
+): QualityGateResult {
+  const g = d.distinctGenreMatches;
+  const go = d.genreOverlap;
+  const strongGenres = g >= 2 || go >= 4;
+  const moderateGenres = g >= 1 && (go >= 2 || d.networkBonus > 0);
+  const strongAI = aiSummarySimilarity >= 0.072;
+  const decentAI = aiSummarySimilarity >= 0.048;
+  const collabPlusTaste =
+    d.collabBonus > 38 && g >= 1 && (go >= 1.2 || d.typeBonus > 0 || d.networkBonus > 0);
+  const bridgeNetType = d.networkBonus > 0 && d.typeBonus > 0 && g >= 1;
+
+  if (strongGenres) return { ok: true, reason: "strong_genre_overlap" };
+  if (bridgeNetType && go >= 1) return { ok: true, reason: "network+type+genre" };
+  if (moderateGenres && decentAI) return { ok: true, reason: "genre+summary" };
+  if (strongAI && g >= 1) return { ok: true, reason: "summary+taste" };
+  if (aiSummarySimilarity >= 0.095 && g >= 1) return { ok: true, reason: "strong_summary" };
+  if (collabPlusTaste) return { ok: true, reason: "social+taste_aligned" };
+  if (d.tasteConfidence >= 62 && g >= 1 && go >= 2) return { ok: true, reason: "taste_confidence" };
+  if (finalScoreAfterAi >= 118 && g >= 1) return { ok: true, reason: "high_composite_score" };
+
+  return { ok: false, reason: "insufficient_taste_alignment" };
+}
+
 /** Count how many of a show's genres are in the user's anti-genre set. */
 function antiGenreCount(genres: string[], profile: UserTasteProfile): number {
   let c = 0;
@@ -356,12 +500,16 @@ export type DebugScoreInfo = {
   catalogFit: number;
   searchHits: number;
   collabBonus: number;
+  collabTasteFactor: number;
   runningBonus: number;
   antiGenrePenalty: number;
   childrenPenalty: number;
+  typeMismatchPenalty: number;
+  popularityLeakPenalty: number;
   noOverlapPenalty: boolean;
   rawScore: number;
   finalScore: number;
+  tasteConfidence: number;
   matchedGenres: string[];
   matchedNetwork: string | null;
   matchedType: string | null;
@@ -370,6 +518,8 @@ export type DebugScoreInfo = {
   aiRelevanceScore?: number;
   aiThemeKeywords?: string[];
   aiWeakMatch?: boolean;
+  qualityGateReason?: string;
+  filteredOut?: boolean;
 };
 
 // ─── Collaborative filtering ─────────────────────────────────────────────────
@@ -590,7 +740,15 @@ function scoreRecommendedCandidate(
   const matchedType = typeCount > 0 ? typeKey : null;
 
   const runningBonus = d.status === "Running" ? W.RUNNING_BONUS : d.status === "In Development" ? W.IN_DEV_BONUS : 0;
-  const collabBonus = Math.min(W.COLLAB_MAX, Math.sqrt(collabRaw + 0.15) * W.COLLAB_SCALE);
+
+  const collabTasteFactor = collaborativeTasteFactor(
+    collabRaw,
+    distinctGenreMatches,
+    genreOverlap,
+    typeBonus,
+  );
+  let collabBonus =
+    Math.min(W.COLLAB_MAX, Math.sqrt(collabRaw + 0.15) * W.COLLAB_SCALE) * collabTasteFactor;
 
   let antiGenrePenalty = 0;
   const badCount = antiGenreCount(d.genres ?? [], profile);
@@ -601,6 +759,23 @@ function scoreRecommendedCandidate(
   let childrenPenalty = 0;
   if (hasChildrenGenre(d.genres ?? []) && !userWatchesChildrens(profile)) {
     childrenPenalty = W.CHILDREN_PENALTY;
+  }
+
+  const typeMismatchPenalty = scriptedRealityMismatchPenalty(
+    profile,
+    typeKey,
+    distinctGenreMatches,
+    genreOverlap,
+  );
+
+  let popularityLeakPenalty = popularityWithoutTastePenalty(
+    catalogFit,
+    searchHits,
+    distinctGenreMatches,
+    genreOverlap,
+  );
+  if (popularityLeakPenalty !== 0) {
+    popularityLeakPenalty = -Math.min(72, popularityLeakPenalty);
   }
 
   let rawScore =
@@ -614,7 +789,9 @@ function scoreRecommendedCandidate(
     networkBonus +
     runningBonus +
     antiGenrePenalty +
-    childrenPenalty;
+    childrenPenalty +
+    typeMismatchPenalty +
+    popularityLeakPenalty;
 
   let noOverlapPenalty = false;
   if (
@@ -627,6 +804,24 @@ function scoreRecommendedCandidate(
     rawScore *= W.NO_OVERLAP_PENALTY;
     noOverlapPenalty = true;
   }
+
+  /** Single overlapping genre with a broad catalog genre ("Drama") — dampen unless overlap mass is real */
+  const genreMass = [...profile.genreWeights.values()].reduce((a, b) => a + b, 0);
+  if (
+    profile.totalShows >= 5 &&
+    distinctGenreMatches === 1 &&
+    genreOverlap < Math.min(2.8, genreMass * 0.09)
+  ) {
+    rawScore *= W.SINGLE_WEAK_GENRE_MULT;
+  }
+
+  const tasteConfidence = computeTasteConfidence(
+    profile,
+    distinctGenreMatches,
+    genreOverlap,
+    networkBonus,
+    typeBonus,
+  );
 
   const finalScore = rawScore;
 
@@ -641,12 +836,16 @@ function scoreRecommendedCandidate(
       catalogFit,
       searchHits,
       collabBonus,
+      collabTasteFactor,
       runningBonus,
       antiGenrePenalty,
       childrenPenalty,
+      typeMismatchPenalty,
+      popularityLeakPenalty,
       noOverlapPenalty,
       rawScore,
       finalScore,
+      tasteConfidence,
       matchedGenres,
       matchedNetwork,
       matchedType,
@@ -668,6 +867,7 @@ function scoreRecommendedCandidate(
 export async function computeRecommendedShows(
   userId: string,
   subscribedShowIds: number[],
+  opts?: { debug?: boolean },
 ): Promise<{
   shows: RecommendedShowHit[];
   queriesUsed: string[];
@@ -859,11 +1059,15 @@ export async function computeRecommendedShows(
 
   type Row = Agg & { matchScore: number; _debug?: DebugScoreInfo };
   const enriched: Row[] = [];
+  const debugRecommended = opts?.debug === true;
+
+  /** Taste-confidence gate needs real subscription signals; onboarding-only lists use score threshold only. */
+  const applyQualityGate = subscribedShowIds.length >= 1;
 
   for (let i = 0; i < ordered.length; i += 6) {
     const chunk = ordered.slice(i, i + 6);
     const part = await Promise.all(
-      chunk.map(async (c): Promise<Row> => {
+      chunk.map(async (c): Promise<Row | null> => {
         try {
           const d = await fetchShow(c.id);
           const { matchScore, debug } = scoreRecommendedCandidate(
@@ -880,8 +1084,63 @@ export async function computeRecommendedShows(
           const aiResult = computeAIScore(d.summary, candidateGenres, aiProfile, "recommended");
 
           let finalScore = matchScore + aiResult.aiRelevanceScore;
-          if (aiResult.weakMatch && matchScore < 80) {
+          if (aiResult.weakMatch && matchScore < 88) {
             finalScore *= AI_WEIGHTS.REC_WEAK_MULT;
+          }
+
+          let qualityGateReason = "skipped_gate";
+          if (applyQualityGate) {
+            const gate = passesRecommendedQualityGate(debug, aiResult.summarySimilarity, finalScore);
+            qualityGateReason = gate.reason;
+            if (!gate.ok) {
+              if (debugRecommended) {
+                return {
+                  ...c,
+                  matchScore: finalScore,
+                  _debug: {
+                    ...debug,
+                    finalScore,
+                    aiSummarySimilarity: aiResult.summarySimilarity,
+                    aiRatingGenreBoost: aiResult.ratingGenreBoost,
+                    aiRelevanceScore: aiResult.aiRelevanceScore,
+                    aiThemeKeywords: aiResult.themeKeywordsMatched,
+                    aiWeakMatch: aiResult.weakMatch,
+                    qualityGateReason,
+                    filteredOut: true,
+                  },
+                  name: d.name ?? c.name,
+                  network: (d.network?.name ?? d.webChannel?.name ?? "").trim() || c.network,
+                  premiered: d.premiered ?? c.premiered,
+                  image: d.image?.medium ?? c.image,
+                };
+              }
+              return null;
+            }
+          }
+
+          if (finalScore < W.MIN_RECOMMEND_SCORE) {
+            if (debugRecommended) {
+              return {
+                ...c,
+                matchScore: finalScore,
+                _debug: {
+                  ...debug,
+                  finalScore,
+                  aiSummarySimilarity: aiResult.summarySimilarity,
+                  aiRatingGenreBoost: aiResult.ratingGenreBoost,
+                  aiRelevanceScore: aiResult.aiRelevanceScore,
+                  aiThemeKeywords: aiResult.themeKeywordsMatched,
+                  aiWeakMatch: aiResult.weakMatch,
+                  qualityGateReason: `below_min_score(${W.MIN_RECOMMEND_SCORE})`,
+                  filteredOut: true,
+                },
+                name: d.name ?? c.name,
+                network: (d.network?.name ?? d.webChannel?.name ?? "").trim() || c.network,
+                premiered: d.premiered ?? c.premiered,
+                image: d.image?.medium ?? c.image,
+              };
+            }
+            return null;
           }
 
           return {
@@ -895,6 +1154,8 @@ export async function computeRecommendedShows(
               aiRelevanceScore: aiResult.aiRelevanceScore,
               aiThemeKeywords: aiResult.themeKeywordsMatched,
               aiWeakMatch: aiResult.weakMatch,
+              qualityGateReason,
+              filteredOut: false,
             },
             name: d.name ?? c.name,
             network: (d.network?.name ?? d.webChannel?.name ?? "").trim() || c.network,
@@ -910,25 +1171,30 @@ export async function computeRecommendedShows(
         }
       }),
     );
-    enriched.push(...part);
+    for (const row of part) {
+      if (row != null) enriched.push(row);
+    }
   }
 
-  const filtered = enriched.filter((e) => e.matchScore >= W.MIN_RECOMMEND_SCORE);
+  const filtered = enriched.filter((e) => e.matchScore >= W.MIN_RECOMMEND_SCORE && !e._debug?.filteredOut);
   filtered.sort((a, b) => b.matchScore - a.matchScore || a.name.localeCompare(b.name));
-  const top = filtered.slice(0, 22);
+  const top = filtered.slice(0, 18);
 
   const lastAiredById = await fetchPreviousEpisodeAirdates(top.map((s) => s.id));
 
-  const shows: RecommendedShowHit[] = top.map((s) => ({
-    id: s.id,
-    name: s.name,
-    network: s.network,
-    premiered: s.premiered,
-    image: s.image,
-    lastAiredDate: lastAiredById.get(s.id) ?? null,
-    matchScore: s.matchScore,
-    _debug: s._debug,
-  }));
+  let shows: RecommendedShowHit[] = top.map((s) => {
+    const hit: RecommendedShowHit = {
+      id: s.id,
+      name: s.name,
+      network: s.network,
+      premiered: s.premiered,
+      image: s.image,
+      lastAiredDate: lastAiredById.get(s.id) ?? null,
+      matchScore: s.matchScore,
+    };
+    if (debugRecommended && s._debug) hit._debug = s._debug;
+    return hit;
+  });
 
   shows.sort((a, b) => {
     if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
@@ -938,7 +1204,9 @@ export async function computeRecommendedShows(
     return a.name.localeCompare(b.name);
   });
 
-  return { shows: shows.slice(0, 14), queriesUsed };
+  shows = shows.slice(0, 10);
+
+  return { shows, queriesUsed };
 }
 
 // ─── Trending shows ──────────────────────────────────────────────────────────
@@ -1024,6 +1292,12 @@ export async function computeTrendingShows(
         score += (p.typeWeights.get(typeKey) ?? 0) * TW.TYPE_MATCH_BONUS;
       }
 
+      const distinctGenreHits = genres.filter((g) => (p.genreWeights.get(g) ?? 0) > 0).length;
+      const typeMis = scriptedRealityMismatchPenalty(p, typeKey, distinctGenreHits, genreFit);
+      if (typeMis < 0) {
+        score += typeMis * 0.42;
+      }
+
       if (hasChildrenGenre(show.genres ?? []) && !userWatchesChildrens(p)) {
         score *= TW.CHILDREN_PENALTY;
       }
@@ -1036,6 +1310,12 @@ export async function computeTrendingShows(
       if (aiProfile) {
         const aiResult = computeAIScore(null, genres, aiProfile, "trending");
         score += aiResult.aiRelevanceScore;
+      }
+
+      // Timely/social lean — but not a free pass for cold genre fit on rich profiles
+      if (subscribedShowIds.length >= 5 && genreFit === 0 && badCount === 0) {
+        const typed = typeKey && (p.typeWeights.get(typeKey) ?? 0) >= 1;
+        if (!typed) score *= 0.44;
       }
     }
 

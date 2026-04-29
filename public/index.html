@@ -1126,6 +1126,63 @@
         justify-content: flex-end;
         align-items: center;
         gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .header-auth-chrome[hidden] {
+        display: none !important;
+      }
+      .header-auth-chrome {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex-shrink: 1;
+        min-width: 0;
+      }
+      .header-auth-btn {
+        appearance: none;
+        margin: 0;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 650;
+        letter-spacing: 0.03em;
+        padding: 0.38rem 0.72rem;
+        cursor: pointer;
+        white-space: nowrap;
+        line-height: 1.2;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(8, 12, 28, 0.55);
+        color: rgba(226, 232, 240, 0.96);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+      }
+      .header-auth-btn:focus-visible {
+        outline: 2px solid rgba(34, 211, 238, 0.65);
+        outline-offset: 2px;
+      }
+      .header-auth-btn--login {
+        border-color: rgba(34, 211, 238, 0.38);
+        box-shadow: 0 0 18px rgba(34, 211, 238, 0.12);
+      }
+      .header-auth-btn--login:hover {
+        border-color: rgba(34, 211, 238, 0.55);
+        box-shadow: 0 0 22px rgba(34, 211, 238, 0.22);
+      }
+      .header-auth-btn--signup {
+        border-color: rgba(167, 139, 250, 0.42);
+        background: linear-gradient(125deg, rgba(34, 211, 238, 0.14), rgba(168, 85, 247, 0.18));
+        box-shadow: 0 0 18px rgba(168, 85, 247, 0.14);
+      }
+      .header-auth-btn--signup:hover {
+        border-color: rgba(192, 132, 252, 0.55);
+        box-shadow: 0 0 26px rgba(168, 85, 247, 0.26);
+      }
+      @media (max-width: 420px) {
+        .header-auth-btn {
+          font-size: 0.72rem;
+          padding: 0.34rem 0.55rem;
+          letter-spacing: 0.02em;
+        }
       }
       .header-inbox-wrap {
         position: relative;
@@ -4184,16 +4241,17 @@
       .starter-picks-scroll {
         margin-top: 0.15rem;
       }
-      .trending-section-head {
-        margin-bottom: 0.55rem;
+      .trending-fold-head {
+        margin-bottom: 0.3rem;
       }
-      .trending-section-head .section-header-highlight {
-        margin-bottom: 0.28rem;
+      .trending-fold-head .fold-toggle {
+        width: 100%;
+        margin-bottom: 0;
       }
-      .trending-section-sub {
-        margin: 0;
-        font-size: 0.84rem;
-        line-height: 1.48;
+      .trending-fold-teaser {
+        margin: 0 0 0.55rem;
+        font-size: 0.8rem;
+        line-height: 1.45;
         max-width: 40rem;
       }
       .search-card {
@@ -4596,6 +4654,41 @@
         flex: 1 1 auto;
         min-width: 0;
         width: auto;
+      }
+      .account-prompt-login-oauth-row {
+        margin: 0 0 0.15rem;
+      }
+      .account-prompt-login-oauth-row[hidden] {
+        display: none !important;
+      }
+      .account-prompt-google-primary {
+        width: 100%;
+        margin: 0;
+      }
+      .account-prompt-auth-divider {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin: 0.85rem 0 0.95rem;
+        list-style: none;
+      }
+      .account-prompt-auth-divider::before,
+      .account-prompt-auth-divider::after {
+        content: "";
+        flex: 1 1 auto;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.35), transparent);
+      }
+      .account-prompt-auth-divider span {
+        flex-shrink: 0;
+        font-size: 0.7rem;
+        font-weight: 650;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(148, 163, 184, 0.95);
+      }
+      .account-prompt-login-email-lead {
+        margin: 0 0 0.75rem !important;
       }
       @keyframes utility-modal-pop-in {
         from {
@@ -5278,6 +5371,53 @@
         flex-direction: column;
         gap: 0.2rem;
       }
+      .header-activity-item-wrap {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        gap: 0.35rem;
+        width: 100%;
+        min-width: 0;
+      }
+      .header-activity-item-wrap > button.header-activity-main {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      button.header-activity-dismiss {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.65rem;
+        min-height: 2.75rem;
+        margin: 0;
+        padding: 0;
+        border-radius: 8px;
+        border: 1px solid rgba(34, 211, 238, 0.32);
+        background: rgba(34, 211, 238, 0.06);
+        color: rgba(165, 243, 252, 0.92);
+        font-size: 1.05rem;
+        font-weight: 600;
+        line-height: 1;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      button.header-activity-dismiss:hover {
+        background: rgba(34, 211, 238, 0.11);
+        border-color: rgba(34, 211, 238, 0.45);
+      }
+      button.header-activity-dismiss:focus-visible {
+        outline: 2px solid rgba(34, 211, 238, 0.55);
+        outline-offset: 1px;
+      }
+      button.header-activity-dismiss:active {
+        background: rgba(34, 211, 238, 0.16);
+      }
+      button.header-activity-dismiss:disabled {
+        opacity: 0.55;
+        cursor: wait;
+      }
       .header-notification-row {
         padding: 0.45rem 0.5rem;
         border-radius: 8px;
@@ -5309,6 +5449,9 @@
         font-size: 0.8rem;
         line-height: 1.35;
         -webkit-tap-highlight-color: transparent;
+      }
+      button.header-notification-row.header-activity-row.header-activity-main {
+        width: auto;
       }
       button.header-notification-row.header-activity-row:hover {
         background: rgba(255, 255, 255, 0.07);
@@ -8795,10 +8938,10 @@
         filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.35)) drop-shadow(0 0 28px rgba(167, 139, 250, 0.2));
       }
       .profile-edit-scroll.modal-body-scroll {
-        padding: 0.75rem 0.85rem 1.25rem;
-        /* Room below last card for sticky save bar (taller when note + wrapped button on narrow widths) */
-        padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
-        scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+        padding: 0.48rem 0.58rem 0.72rem;
+        /* Room below last card for sticky save bar */
+        padding-bottom: calc(4.85rem + env(safe-area-inset-bottom, 0px));
+        scroll-padding-bottom: calc(4.85rem + env(safe-area-inset-bottom, 0px));
         font-size: 0.92rem;
         overflow-x: hidden;
         overscroll-behavior: contain;
@@ -8806,13 +8949,13 @@
       .profile-edit-stack {
         display: flex;
         flex-direction: column;
-        gap: 1.05rem;
-        max-width: 42rem;
+        gap: 0.48rem;
+        max-width: 40rem;
         margin: 0 auto;
       }
       .profile-edit-block-label,
       h2.profile-edit-block-label {
-        margin: 0 0 1.05rem;
+        margin: 0 0 0.48rem;
         font-size: 0.72rem;
         font-weight: 750;
         letter-spacing: 0.2em;
@@ -8824,8 +8967,8 @@
         box-sizing: border-box;
         position: relative;
         overflow: hidden;
-        border-radius: 20px;
-        padding: 1.35rem 1.25rem 1.4rem;
+        border-radius: 14px;
+        padding: 0.72rem 0.78rem 0.82rem;
         background: rgba(15, 18, 36, 0.88);
         border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
@@ -8861,69 +9004,98 @@
       }
       .profile-edit-shows-lead,
       .profile-edit-genres-lead {
-        margin: -0.35rem 0 0.85rem;
-        font-size: 0.82rem;
-        line-height: 1.45;
+        margin: -0.15rem 0 0.55rem;
+        font-size: 0.78rem;
+        line-height: 1.4;
       }
-      .profile-edit-shows-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.75rem;
-        margin-top: 0.75rem;
-      }
-      @media (max-width: 520px) {
-        .profile-edit-shows-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-      .profile-edit-show-slot {
-        border: 1px dashed rgba(255, 255, 255, 0.12);
-        border-radius: 14px;
-        padding: 0.85rem 0.65rem;
-        text-align: center;
-        min-height: 6.25rem;
+      .profile-spotlight-slots {
         display: flex;
         flex-direction: column;
+        gap: 0.4rem;
+        margin-top: 0.15rem;
+      }
+      .profile-spotlight-row {
+        display: grid;
+        grid-template-columns: 1.65rem 1fr 2.85rem;
+        gap: 0.35rem 0.45rem;
         align-items: center;
-        justify-content: center;
-        gap: 0.35rem;
-        background: rgba(0, 0, 0, 0.2);
       }
-      .profile-edit-show-slot--filled {
-        border-style: solid;
-        border-color: rgba(34, 211, 238, 0.22);
-        background: rgba(34, 211, 238, 0.06);
+      @media (max-width: 380px) {
+        .profile-spotlight-row {
+          grid-template-columns: 1.5rem 1fr;
+          grid-template-rows: auto auto;
+        }
+        .profile-spotlight-row .profile-spotlight-ct {
+          grid-column: 2 / -1;
+          justify-self: end;
+        }
       }
-      .profile-edit-show-slot--ghost {
-        opacity: 0.55;
-        pointer-events: none;
-      }
-      .profile-edit-show-poster {
-        font-size: 1.35rem;
-        line-height: 1;
-      }
-      .profile-edit-show-slot-name {
-        font-size: 0.78rem;
-        font-weight: 700;
-        line-height: 1.25;
-        word-break: break-word;
-        max-width: 100%;
-      }
-      .profile-edit-show-slot-rank {
-        font-size: 0.65rem;
+      .profile-spotlight-rank {
+        font-size: 0.68rem;
         font-weight: 750;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
+        color: rgba(167, 139, 250, 0.95);
+        text-align: center;
+      }
+      .profile-edit-scroll .profile-spotlight-input[type="text"] {
+        min-height: 42px;
+        padding: 0.45rem 0.65rem;
+        font-size: 0.88rem;
+        border-radius: 10px;
+      }
+      .profile-spotlight-ct {
+        font-size: 0.68rem;
         color: rgba(148, 163, 184, 0.95);
+        font-variant-numeric: tabular-nums;
+        text-align: right;
       }
-      .profile-edit-show-plus {
-        font-size: 1.35rem;
-        color: rgba(100, 116, 139, 0.9);
+      .profile-edit-disclosure {
+        border: none;
+        padding: 0;
+        margin: 0;
       }
-      .profile-edit-show-ghost-label {
+      .profile-edit-disclosure > summary {
+        list-style: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.65rem;
+        padding: 0.15rem 0 0.35rem;
+        user-select: none;
+      }
+      .profile-edit-disclosure > summary::-webkit-details-marker {
+        display: none;
+      }
+      .profile-edit-disclosure-summary-main {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.15rem;
+        min-width: 0;
+      }
+      .profile-edit-block-label--summary {
+        margin-bottom: 0 !important;
+      }
+      .profile-edit-disclosure-teaser {
         font-size: 0.72rem;
-        font-weight: 600;
+        line-height: 1.35;
+      }
+      .profile-edit-disclosure-chev {
+        flex-shrink: 0;
+        font-size: 0.75rem;
         color: rgba(148, 163, 184, 0.85);
+        transition: transform 0.2s ease;
+      }
+      .profile-edit-disclosure[open] > summary .profile-edit-disclosure-chev {
+        transform: rotate(-180deg);
+      }
+      .profile-edit-disclosure-panel {
+        padding-top: 0.35rem;
+      }
+      .profile-edit-disclosure--session > summary {
+        align-items: flex-start;
       }
       .profile-edit-genres-wrap {
         display: flex;
@@ -9046,42 +9218,8 @@
         line-height: 1.45;
       }
       .profile-edit-avatar-hint-inline {
-        margin: 0.5rem 0 0;
-        font-size: 0.78rem;
-      }
-      .profile-edit-field--spotlight {
-        margin-top: 0;
-      }
-      .profile-edit-field--spotlight .profile-edit-status-hint {
-        margin-top: 0.5rem;
-      }
-      .profile-edit-status-bar {
-        display: flex;
-        align-items: center;
-        gap: 0.65rem;
-        margin-top: 0.4rem;
-        padding: 0.5rem 0.95rem;
-        border-radius: 999px;
-        background: rgba(0, 0, 0, 0.32);
-        border: 1px solid rgba(167, 139, 250, 0.24);
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
-      }
-      .profile-edit-status-bar:focus-within {
-        border-color: rgba(34, 211, 238, 0.42);
-        box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.08);
-      }
-      .profile-edit-status-icon {
-        flex-shrink: 0;
-        font-size: 1.05rem;
-        line-height: 1;
-        opacity: 0.9;
-      }
-      .profile-edit-status-count {
-        flex-shrink: 0;
-        font-size: 0.74rem;
-        line-height: 1.2;
-        color: rgba(148, 163, 184, 0.95);
-        font-variant-numeric: tabular-nums;
+        margin: 0.35rem 0 0;
+        font-size: 0.76rem;
       }
       .profile-share-card-intro {
         margin: -0.15rem 0 0.9rem;
@@ -9326,13 +9464,13 @@
       @media (max-width: 719px) {
         .profile-edit-scroll {
           font-size: 0.9rem;
-          padding: 0.72rem 0.78rem 1rem;
+          padding: 0.62rem 0.68rem 0.82rem;
           /* Must exceed sticky bar height (esp. two-row layout ≤520px with “Editing @…” + Save) */
-          padding-bottom: calc(9.25rem + env(safe-area-inset-bottom, 0px));
-          scroll-padding-bottom: calc(9.25rem + env(safe-area-inset-bottom, 0px));
+          padding-bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px));
+          scroll-padding-bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px));
         }
         .profile-edit-card {
-          padding: 1.1rem 1rem 1.15rem;
+          padding: 0.92rem 0.88rem 0.98rem;
         }
         .profile-account-subcard {
           padding: 0.72rem;
@@ -9381,8 +9519,8 @@
         font-size: 16px;
       }
       .profile-edit-scroll textarea {
-        min-height: 7rem;
-        line-height: 1.5;
+        min-height: 5.25rem;
+        line-height: 1.45;
       }
       .profile-edit-scroll label {
         font-size: 0.82rem;
@@ -9397,23 +9535,6 @@
         .profile-edit-scroll select {
           font-size: 0.95rem;
         }
-      }
-      .profile-edit-scroll .profile-edit-status-bar input[type="text"] {
-        min-height: 0;
-        height: auto;
-        padding: 0.3rem 0;
-        border: none;
-        border-radius: 0;
-        background: transparent;
-        box-shadow: none;
-        font-size: 0.93rem;
-        flex: 1 1 auto;
-        min-width: 0;
-      }
-      .profile-edit-scroll .profile-edit-status-bar input[type="text"]:focus {
-        outline: none;
-        border: none;
-        box-shadow: none;
       }
       .profile-edit-scroll .profile-readonly-value {
         word-break: break-word;
@@ -9477,7 +9598,8 @@
         margin-top: 0.5rem;
         padding-bottom: 0.25rem;
       }
-      /* Keep destructive actions reachable above sticky save bar when scrolling / focus */
+      /* Keep Session / destructive blocks reachable above sticky save bar when scrolling */
+      #profileSignOutSection:not([hidden]) #profileSessionDetails,
       #profileAccountDeletionSection:not([hidden]) {
         scroll-margin-bottom: calc(8rem + env(safe-area-inset-bottom, 0px));
       }
@@ -9628,6 +9750,14 @@
             <img class="brand-logo" src="/logo.svg" width="240" height="41" alt="AirAlert" />
           </h1>
           <div class="app-top-header-actions">
+            <div class="header-auth-chrome" id="headerAuthChrome" hidden aria-hidden="true">
+              <button type="button" class="header-auth-btn header-auth-btn--login" id="headerLogInBtn">
+                Log in
+              </button>
+              <button type="button" class="header-auth-btn header-auth-btn--signup" id="headerCreateAccountBtn">
+                Create account
+              </button>
+            </div>
             <div class="header-menu-wrap">
               <button
                 type="button"
@@ -9993,14 +10123,27 @@
         </section>
 
         <section class="trending-section panel-rail-cyan" aria-labelledby="trendingHeading">
-          <div class="trending-section-head">
-            <h2 id="trendingHeading" class="section-header-highlight"><span class="app-section-heading">Trending fan favorites</span></h2>
-            <p class="trending-section-sub muted">Shows people are adding right now — matched to your taste when you subscribe.</p>
+          <div class="trending-fold-head">
+            <button
+              type="button"
+              class="fold-toggle fold-toggle-cyan"
+              id="foldTrendingBtn"
+              aria-expanded="false"
+              aria-controls="foldTrendingBody"
+            >
+              <span class="fold-title" id="trendingHeading"><span class="app-section-heading">Trending fan favorites</span></span>
+              <span class="fold-chev" aria-hidden="true">▼</span>
+            </button>
           </div>
-          <p class="search-loading" id="trendingLoading" hidden aria-hidden="true">Trending</p>
-          <p class="msg err" id="trendingErr"></p>
-          <div class="trending-scroll-wrap">
-            <div class="trending-scroll search-results" id="trendingList"></div>
+          <p class="trending-fold-teaser muted">
+            Popular picks from shows people are adding — expand to browse and add to your list.
+          </p>
+          <div class="fold-body" id="foldTrendingBody" hidden>
+            <p class="search-loading" id="trendingLoading" hidden aria-hidden="true">Trending</p>
+            <p class="msg err" id="trendingErr"></p>
+            <div class="trending-scroll-wrap">
+              <div class="trending-scroll search-results" id="trendingList"></div>
+            </div>
           </div>
         </section>
 
@@ -10843,7 +10986,22 @@
           </button>
         </div>
         <div id="accountPromptStepLogin" hidden>
-          <p class="account-prompt-lead">Sign in with your account email and password. Your public username also works as a sign-in shortcut.</p>
+          <div id="accountPromptLoginOAuthRow" class="account-prompt-login-oauth-row" hidden>
+            <button
+              type="button"
+              class="secondary google-oauth-start-btn account-prompt-google-primary"
+              data-google-login
+              hidden
+            >
+              Continue with Google
+            </button>
+            <p class="account-prompt-auth-divider" role="presentation">
+              <span>or</span>
+            </p>
+          </div>
+          <p class="account-prompt-lead account-prompt-login-email-lead">
+            Sign in with your account email and password. Your public username also works as a sign-in shortcut.
+          </p>
           <label for="apLoginEmail">Email or public username</label>
           <input
             id="apLoginEmail"
@@ -10863,9 +11021,6 @@
             <button type="button" id="apLoginSubmit">Sign in</button>
             <button type="button" class="secondary" id="apLoginBack">Back</button>
           </div>
-          <button type="button" class="secondary google-oauth-start-btn" data-google-login hidden style="width: 100%; margin-top: 0.5rem">
-            Continue with Google
-          </button>
         </div>
         <p class="msg err" id="accountPromptErr" style="display: none; margin-top: 0.65rem"></p>
       </div>
@@ -11141,7 +11296,7 @@
                 <h2 id="profileAboutCardHeading" class="profile-edit-block-label">About you</h2>
                 <div class="profile-edit-field">
                   <label for="profileAboutMe">Bio</label>
-                  <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="Tell the community something about you…"></textarea>
+                  <textarea id="profileAboutMe" rows="4" maxlength="2000" placeholder="Tell the community something about you…"></textarea>
                 </div>
                 <div class="profile-edit-subsection profile-edit-subsection--optional">
                   <h3 class="profile-edit-subsection-title">Optional</h3>
@@ -11164,43 +11319,54 @@
                 <p class="muted msg profile-card-msg" id="profileAboutMsg"></p>
               </section>
 
-              <!-- 3. Top shows — spotlight field + reference-style slots (single persisted pick) -->
+              <!-- 3. Top show spotlight — three persisted slots -->
               <section class="profile-edit-card profile-edit-card--shows" aria-labelledby="profileShowsHeading">
-                <h2 id="profileShowsHeading" class="profile-edit-block-label">Top shows</h2>
-                <p class="profile-edit-card-lead muted profile-edit-shows-lead">Spotlight pick — shown on your public profile.</p>
-                <div class="profile-edit-field profile-edit-field--spotlight">
-                  <label for="profileFavoriteShow">Spotlight</label>
-                  <div class="profile-edit-status-bar">
-                    <span class="profile-edit-status-icon" aria-hidden="true">📺</span>
+                <h2 id="profileShowsHeading" class="profile-edit-block-label">Top show spotlight</h2>
+                <p class="profile-edit-card-lead muted profile-edit-shows-lead">Up to three picks — shown on your public profile.</p>
+                <div class="profile-spotlight-slots">
+                  <div class="profile-spotlight-row">
+                    <span class="profile-spotlight-rank" aria-hidden="true">#1</span>
                     <input
-                      id="profileFavoriteShow"
+                      id="profileFavoriteShow1"
+                      class="profile-spotlight-input"
                       type="text"
                       maxlength="200"
-                      placeholder="Currently watching…"
+                      placeholder="Add a show…"
                       autocomplete="off"
-                      aria-describedby="profileFavoriteShowHint"
+                      aria-label="Top spotlight show 1"
                     />
-                    <span class="profile-edit-status-count" id="profileFavoriteShowCount" aria-live="polite">0/200</span>
+                    <span class="profile-spotlight-ct" id="profileFavoriteShowCount1" aria-live="polite">0/200</span>
                   </div>
-                  <p id="profileFavoriteShowHint" class="muted profile-edit-micro-hint profile-edit-status-hint">
-                    Your headline show — one pick today; more slots may open later.
-                  </p>
+                  <div class="profile-spotlight-row">
+                    <span class="profile-spotlight-rank" aria-hidden="true">#2</span>
+                    <input
+                      id="profileFavoriteShow2"
+                      class="profile-spotlight-input"
+                      type="text"
+                      maxlength="200"
+                      placeholder="Add another show…"
+                      autocomplete="off"
+                      aria-label="Top spotlight show 2"
+                    />
+                    <span class="profile-spotlight-ct" id="profileFavoriteShowCount2" aria-live="polite">0/200</span>
+                  </div>
+                  <div class="profile-spotlight-row">
+                    <span class="profile-spotlight-rank" aria-hidden="true">#3</span>
+                    <input
+                      id="profileFavoriteShow3"
+                      class="profile-spotlight-input"
+                      type="text"
+                      maxlength="200"
+                      placeholder="Add another show…"
+                      autocomplete="off"
+                      aria-label="Top spotlight show 3"
+                    />
+                    <span class="profile-spotlight-ct" id="profileFavoriteShowCount3" aria-live="polite">0/200</span>
+                  </div>
                 </div>
-                <div class="profile-edit-shows-grid" aria-hidden="true">
-                  <div class="profile-edit-show-slot" id="profileEditShowSlot1">
-                    <div class="profile-edit-show-poster" aria-hidden="true">📺</div>
-                    <div class="profile-edit-show-slot-name" id="profileEditShowSpotlightPreview">—</div>
-                    <div class="profile-edit-show-slot-rank">#1 Spotlight</div>
-                  </div>
-                  <div class="profile-edit-show-slot profile-edit-show-slot--ghost">
-                    <span class="profile-edit-show-plus" aria-hidden="true">+</span>
-                    <span class="profile-edit-show-ghost-label">Reserved</span>
-                  </div>
-                  <div class="profile-edit-show-slot profile-edit-show-slot--ghost">
-                    <span class="profile-edit-show-plus" aria-hidden="true">+</span>
-                    <span class="profile-edit-show-ghost-label">Reserved</span>
-                  </div>
-                </div>
+                <p id="profileFavoriteShowsHint" class="muted profile-edit-micro-hint profile-edit-spotlight-hint">
+                  Each line saves independently — leave blank to clear a slot.
+                </p>
               </section>
 
               <!-- 4. Top genres — read-only chips from subscriptions (reference-style density) -->
@@ -11235,102 +11401,112 @@
 
               <!-- 6. Account -->
               <section class="profile-edit-card profile-edit-card--account" aria-labelledby="profileAccountHeading">
-                <h2 id="profileAccountHeading" class="profile-edit-block-label">Account</h2>
-                <p class="profile-edit-card-lead muted profile-account-lead" id="accountLeadGuest">
-                  Guest · create an account for sync, Community, and messages.
-                </p>
-                <p class="profile-edit-card-lead muted profile-account-lead" id="accountLeadRegistered" hidden>Signed in</p>
-                <div id="accountGuest">
-                  <div class="profile-account-subcard profile-account-subcard--signin profile-account-subcard--compact">
-                    <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn" data-google-login hidden>
-                      Continue with Google
-                    </button>
-                    <div class="profile-account-grid profile-account-grid--register profile-account-register-block">
-                      <div>
-                        <label for="regEmail">Email</label>
-                        <input id="regEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" />
-                      </div>
-                      <div>
-                        <label for="regUsername">Username</label>
-                        <input id="regUsername" type="text" autocomplete="username" maxlength="32" placeholder="Public @handle" />
-                      </div>
-                      <div>
-                        <label for="regPassword">Password</label>
-                        <input id="regPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
-                      </div>
-                      <div>
-                        <label for="regPassword2">Confirm password</label>
-                        <input id="regPassword2" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
-                      </div>
-                    </div>
-                    <button type="button" class="profile-account-primary-btn" id="regBtn">Create account</button>
-                    <p class="muted profile-account-divider-label">Already have an account?</p>
-                    <div class="profile-account-login-row">
-                      <div>
-                        <label for="loginEmail">Email or username</label>
-                        <input id="loginEmail" type="text" autocomplete="username" inputmode="email" placeholder="you@example.com or @handle" />
-                      </div>
-                      <div>
-                        <label for="loginPassword">Password</label>
-                        <input id="loginPassword" type="password" autocomplete="current-password" />
-                      </div>
-                    </div>
-                    <p class="profile-account-forgot-row">
-                      <button type="button" class="secondary profile-account-forgot-btn" id="profileForgotPwBtn">Forgot password?</button>
+                <details id="profileAccountDetails" class="profile-edit-disclosure">
+                  <summary>
+                    <span class="profile-edit-disclosure-summary-main">
+                      <h2 id="profileAccountHeading" class="profile-edit-block-label profile-edit-block-label--summary">Account</h2>
+                      <span class="muted profile-edit-disclosure-teaser" id="profileAccountTeaser">Sign in or create an account</span>
+                    </span>
+                    <span class="profile-edit-disclosure-chev" aria-hidden="true">▼</span>
+                  </summary>
+                  <div class="profile-edit-disclosure-panel">
+                    <p class="profile-edit-card-lead muted profile-account-lead" id="accountLeadGuest">
+                      Guest · create an account for sync, Community, and messages.
                     </p>
-                    <button type="button" class="secondary profile-account-primary-btn" id="loginBtn">Sign in</button>
-                    <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn profile-account-google-second" data-google-login hidden>
-                      Continue with Google
-                    </button>
-                  </div>
-                </div>
-                <div id="accountSignedIn" hidden>
-                  <div class="profile-account-subcard profile-account-subcard--signin">
-                    <p class="profile-account-signed-lead">Signed in as <strong id="accountUsernameLabel"></strong></p>
-                    <div id="accountEmailVerifyBanner" class="account-email-verify" hidden>
-                      <h3 class="profile-account-block-title">Verify email</h3>
-                      <p class="muted profile-edit-card-lead profile-account-tight-lead">We’ll send a link when outbound mail is enabled.</p>
-                      <button type="button" class="secondary profile-account-primary-btn" id="acctResendVerifyBtn">Send verification email</button>
-                    </div>
-                  </div>
-                  <div class="profile-account-subcard profile-account-subcard--security">
-                    <div id="accountEmailUpgrade" class="account-email-upgrade" hidden>
-                      <h3 class="profile-account-block-title">Add sign-in email</h3>
-                      <p class="muted profile-edit-card-lead profile-account-tight-lead">Recoverable email · @username stays public.</p>
-                      <div class="profile-account-grid profile-account-pw-grid">
-                        <div>
-                          <label for="acctUpgradeEmail">Email</label>
-                          <input id="acctUpgradeEmail" type="email" autocomplete="email" />
+                    <p class="profile-edit-card-lead muted profile-account-lead" id="accountLeadRegistered" hidden>Signed in</p>
+                    <div id="accountGuest">
+                      <div class="profile-account-subcard profile-account-subcard--signin profile-account-subcard--compact">
+                        <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn" data-google-login hidden>
+                          Continue with Google
+                        </button>
+                        <div class="profile-account-grid profile-account-grid--register profile-account-register-block">
+                          <div>
+                            <label for="regEmail">Email</label>
+                            <input id="regEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" />
+                          </div>
+                          <div>
+                            <label for="regUsername">Username</label>
+                            <input id="regUsername" type="text" autocomplete="username" maxlength="32" placeholder="Public @handle" />
+                          </div>
+                          <div>
+                            <label for="regPassword">Password</label>
+                            <input id="regPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
+                          </div>
+                          <div>
+                            <label for="regPassword2">Confirm password</label>
+                            <input id="regPassword2" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
+                          </div>
                         </div>
-                        <div>
-                          <label for="acctUpgradeCurPw">Current password</label>
-                          <input id="acctUpgradeCurPw" type="password" autocomplete="current-password" />
+                        <button type="button" class="profile-account-primary-btn" id="regBtn">Create account</button>
+                        <p class="muted profile-account-divider-label">Already have an account?</p>
+                        <div class="profile-account-login-row">
+                          <div>
+                            <label for="loginEmail">Email or username</label>
+                            <input id="loginEmail" type="text" autocomplete="username" inputmode="email" placeholder="you@example.com or @handle" />
+                          </div>
+                          <div>
+                            <label for="loginPassword">Password</label>
+                            <input id="loginPassword" type="password" autocomplete="current-password" />
+                          </div>
+                        </div>
+                        <p class="profile-account-forgot-row">
+                          <button type="button" class="secondary profile-account-forgot-btn" id="profileForgotPwBtn">Forgot password?</button>
+                        </p>
+                        <button type="button" class="secondary profile-account-primary-btn" id="loginBtn">Sign in</button>
+                        <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn profile-account-google-second" data-google-login hidden>
+                          Continue with Google
+                        </button>
+                      </div>
+                    </div>
+                    <div id="accountSignedIn" hidden>
+                      <div class="profile-account-subcard profile-account-subcard--signin">
+                        <p class="profile-account-signed-lead">Signed in as <strong id="accountUsernameLabel"></strong></p>
+                        <div id="accountEmailVerifyBanner" class="account-email-verify" hidden>
+                          <h3 class="profile-account-block-title">Verify email</h3>
+                          <p class="muted profile-edit-card-lead profile-account-tight-lead">We’ll send a link when outbound mail is enabled.</p>
+                          <button type="button" class="secondary profile-account-primary-btn" id="acctResendVerifyBtn">Send verification email</button>
                         </div>
                       </div>
-                      <button type="button" class="secondary profile-account-primary-btn" id="acctSaveEmailBtn">Save email</button>
-                      <p class="msg err profile-card-msg" id="acctUpgradeEmailErr" hidden></p>
-                    </div>
-                    <div id="accountChangePassword" class="account-change-pw" hidden>
-                      <h3 class="profile-account-block-title">Change password</h3>
-                      <div class="profile-account-grid profile-account-pw-grid">
-                        <div>
-                          <label for="acctCurPw">Current password</label>
-                          <input id="acctCurPw" type="password" autocomplete="current-password" />
+                      <div class="profile-account-subcard profile-account-subcard--security">
+                        <div id="accountEmailUpgrade" class="account-email-upgrade" hidden>
+                          <h3 class="profile-account-block-title">Add sign-in email</h3>
+                          <p class="muted profile-edit-card-lead profile-account-tight-lead">Recoverable email · @username stays public.</p>
+                          <div class="profile-account-grid profile-account-pw-grid">
+                            <div>
+                              <label for="acctUpgradeEmail">Email</label>
+                              <input id="acctUpgradeEmail" type="email" autocomplete="email" />
+                            </div>
+                            <div>
+                              <label for="acctUpgradeCurPw">Current password</label>
+                              <input id="acctUpgradeCurPw" type="password" autocomplete="current-password" />
+                            </div>
+                          </div>
+                          <button type="button" class="secondary profile-account-primary-btn" id="acctSaveEmailBtn">Save email</button>
+                          <p class="msg err profile-card-msg" id="acctUpgradeEmailErr" hidden></p>
                         </div>
-                        <div>
-                          <label for="acctNewPw">New password</label>
-                          <input id="acctNewPw" type="password" autocomplete="new-password" minlength="8" />
-                        </div>
-                        <div>
-                          <label for="acctNewPw2">Confirm new</label>
-                          <input id="acctNewPw2" type="password" autocomplete="new-password" minlength="8" />
+                        <div id="accountChangePassword" class="account-change-pw" hidden>
+                          <h3 class="profile-account-block-title">Change password</h3>
+                          <div class="profile-account-grid profile-account-pw-grid">
+                            <div>
+                              <label for="acctCurPw">Current password</label>
+                              <input id="acctCurPw" type="password" autocomplete="current-password" />
+                            </div>
+                            <div>
+                              <label for="acctNewPw">New password</label>
+                              <input id="acctNewPw" type="password" autocomplete="new-password" minlength="8" />
+                            </div>
+                            <div>
+                              <label for="acctNewPw2">Confirm new</label>
+                              <input id="acctNewPw2" type="password" autocomplete="new-password" minlength="8" />
+                            </div>
+                          </div>
+                          <button type="button" class="secondary profile-account-primary-btn" id="acctUpdatePwBtn">Update password</button>
                         </div>
                       </div>
-                      <button type="button" class="secondary profile-account-primary-btn" id="acctUpdatePwBtn">Update password</button>
                     </div>
+                    <p class="msg err profile-card-msg" id="accountErr"></p>
                   </div>
-                </div>
-                <p class="msg err profile-card-msg" id="accountErr"></p>
+                </details>
               </section>
 
               <!-- 7. Session & destructive -->
@@ -11340,25 +11516,37 @@
                 hidden
                 aria-labelledby="profileSessionHeading"
               >
-                <h2 id="profileSessionHeading" class="profile-edit-block-label">Session &amp; destructive actions</h2>
-                <div class="profile-edit-session-block profile-edit-session-block--signout" role="group" aria-labelledby="profileSessionSignOutLabel">
-                  <h3 id="profileSessionSignOutLabel" class="profile-edit-session-block-title">Sign out</h3>
-                  <p class="muted profile-edit-session-block-lead">Ends this session on this device.</p>
-                  <button type="button" class="secondary profile-session-signout-btn" id="signOutAccountBtn">Sign out</button>
-                </div>
-                <div
-                  id="profileAccountDeletionSection"
-                  class="profile-edit-session-block profile-edit-session-block--danger"
-                  role="group"
-                  aria-labelledby="profileDeleteAccountLabel"
-                  hidden
-                >
-                  <h3 id="profileDeleteAccountLabel" class="profile-edit-session-block-title profile-edit-session-block-title--danger">Delete account</h3>
-                  <p class="muted profile-edit-session-block-lead profile-edit-session-block-lead--tight">
-                    Permanently removes your account, watch list, Community content, and messages.
-                  </p>
-                  <button type="button" class="danger" id="deleteAccountBtn">Delete account</button>
-                </div>
+                <details id="profileSessionDetails" class="profile-edit-disclosure profile-edit-disclosure--session">
+                  <summary>
+                    <span class="profile-edit-disclosure-summary-main">
+                      <h2 id="profileSessionHeading" class="profile-edit-block-label profile-edit-block-label--summary">
+                        Session &amp; destructive actions
+                      </h2>
+                      <span class="muted profile-edit-disclosure-teaser" id="profileSessionTeaser">Sign out · delete account</span>
+                    </span>
+                    <span class="profile-edit-disclosure-chev" aria-hidden="true">▼</span>
+                  </summary>
+                  <div class="profile-edit-disclosure-panel">
+                    <div class="profile-edit-session-block profile-edit-session-block--signout" role="group" aria-labelledby="profileSessionSignOutLabel">
+                      <h3 id="profileSessionSignOutLabel" class="profile-edit-session-block-title">Sign out</h3>
+                      <p class="muted profile-edit-session-block-lead">Ends this session on this device.</p>
+                      <button type="button" class="secondary profile-session-signout-btn" id="signOutAccountBtn">Sign out</button>
+                    </div>
+                    <div
+                      id="profileAccountDeletionSection"
+                      class="profile-edit-session-block profile-edit-session-block--danger"
+                      role="group"
+                      aria-labelledby="profileDeleteAccountLabel"
+                      hidden
+                    >
+                      <h3 id="profileDeleteAccountLabel" class="profile-edit-session-block-title profile-edit-session-block-title--danger">Delete account</h3>
+                      <p class="muted profile-edit-session-block-lead profile-edit-session-block-lead--tight">
+                        Permanently removes your account, watch list, Community content, and messages.
+                      </p>
+                      <button type="button" class="danger" id="deleteAccountBtn">Delete account</button>
+                    </div>
+                  </div>
+                </details>
               </section>
             </div>
           </div>
@@ -11848,24 +12036,18 @@
         preview.textContent = dnv || uname || "Your profile";
       }
 
-      /** Spotlight show field — keeps “n/200” in sync with `#profileFavoriteShow`. */
-      function syncProfileFavoriteShowCounter() {
-        const fs = document.getElementById("profileFavoriteShow");
-        const cnt = document.getElementById("profileFavoriteShowCount");
-        if (!fs || !cnt) return;
-        cnt.textContent = fs.value.length + "/200";
-        syncProfileShowSpotlightPreview();
-      }
-
-      /** Decorative slot preview — mirrors `#profileFavoriteShow` (reference show-slot look). */
-      function syncProfileShowSpotlightPreview() {
-        const inp = document.getElementById("profileFavoriteShow");
-        const prev = document.getElementById("profileEditShowSpotlightPreview");
-        const slot = document.getElementById("profileEditShowSlot1");
-        if (!inp || !prev || !slot) return;
-        const t = inp.value.trim();
-        prev.textContent = t || "—";
-        slot.classList.toggle("profile-edit-show-slot--filled", Boolean(t));
+      /** Top show spotlight — keeps character counts in sync for all three slots. */
+      function syncProfileSpotlightCounters() {
+        const slots = [
+          ["profileFavoriteShow1", "profileFavoriteShowCount1"],
+          ["profileFavoriteShow2", "profileFavoriteShowCount2"],
+          ["profileFavoriteShow3", "profileFavoriteShowCount3"],
+        ];
+        for (const [inpId, cntId] of slots) {
+          const fs = document.getElementById(inpId);
+          const cnt = document.getElementById(cntId);
+          if (fs && cnt) cnt.textContent = fs.value.length + "/200";
+        }
       }
 
       /** Read-only genre chips from subscription-derived taste (`GET /api/community/users/:id/profile`). */
@@ -11939,9 +12121,13 @@
         if (ag) ag.value = u && u.age != null && u.age !== "" ? String(u.age) : "";
         const sx = document.getElementById("profileSex");
         if (sx) sx.value = (u && u.sex) || "";
-        const fs = document.getElementById("profileFavoriteShow");
-        if (fs) fs.value = (u && u.favoriteShow) || "";
-        syncProfileFavoriteShowCounter();
+        const fs1 = document.getElementById("profileFavoriteShow1");
+        if (fs1) fs1.value = (u && u.favoriteShow) || "";
+        const fs2 = document.getElementById("profileFavoriteShow2");
+        if (fs2) fs2.value = (u && u.favoriteShow2) || "";
+        const fs3 = document.getElementById("profileFavoriteShow3");
+        if (fs3) fs3.value = (u && u.favoriteShow3) || "";
+        syncProfileSpotlightCounters();
         if (u && u.watchSummary && typeof u.watchSummary === "object") {
           profileWatchSummary = {
             episodesCompleted: Number(u.watchSummary.episodesCompleted) || 0,
@@ -12081,11 +12267,16 @@
           aboutMsg.classList.remove("err");
         }
         const ageRaw = document.getElementById("profileAge").value.trim();
+        const fs1 = document.getElementById("profileFavoriteShow1");
+        const fs2 = document.getElementById("profileFavoriteShow2");
+        const fs3 = document.getElementById("profileFavoriteShow3");
         const body = {
           displayName: document.getElementById("displayName").value.trim(),
           aboutMe: document.getElementById("profileAboutMe").value,
           sex: document.getElementById("profileSex").value || null,
-          favoriteShow: document.getElementById("profileFavoriteShow").value.trim() || null,
+          favoriteShow: fs1 && fs1.value.trim() ? fs1.value.trim() : null,
+          favoriteShow2: fs2 && fs2.value.trim() ? fs2.value.trim() : null,
+          favoriteShow3: fs3 && fs3.value.trim() ? fs3.value.trim() : null,
         };
         if (ageRaw === "") {
           body.age = null;
@@ -15093,6 +15284,29 @@
         });
       }
 
+      function syncProfileEditDisclosures(me) {
+        const acc = document.getElementById("profileAccountDetails");
+        const teaser = document.getElementById("profileAccountTeaser");
+        if (acc) {
+          const guest = !me || !accountIsRegistered(me);
+          acc.open = guest;
+          if (teaser) {
+            if (guest) teaser.textContent = "Sign in or create an account";
+            else {
+              const em = me && me.email && String(me.email).trim();
+              const un = me && me.username && String(me.username).trim();
+              teaser.textContent = em
+                ? "Signed in · " + em
+                : un
+                  ? "Signed in · @" + un
+                  : "Signed in · email & password";
+            }
+          }
+        }
+        const sess = document.getElementById("profileSessionDetails");
+        if (sess) sess.open = false;
+      }
+
       function applyMeToUI(me) {
         adminUiEpoch++;
         const epoch = adminUiEpoch;
@@ -15116,7 +15330,8 @@
         }
         const deleteSec = document.getElementById("profileAccountDeletionSection");
         if (deleteSec) {
-          deleteSec.hidden = !(accountIsRegistered(me) && !userIsDbAdmin(me));
+          /** Show for every signed-in registered account. Server rejects admin self-delete; hiding here hid the control from admins entirely. */
+          deleteSec.hidden = !accountIsRegistered(me);
         }
         const leadGuest = document.getElementById("accountLeadGuest");
         const leadReg = document.getElementById("accountLeadRegistered");
@@ -15159,7 +15374,9 @@
         void ensureAdminUiLoaded(me, epoch);
         updateOnboardingMissionStrip(me);
         syncHeaderProfileDropdown(me);
+        syncHeaderAuthChrome(me);
         void refreshHeaderNotificationsUnreadFromServer();
+        syncProfileEditDisclosures(me);
       }
 
       function adminPillClass(from) {
@@ -15217,6 +15434,30 @@
       function formatAdminLastActivity(iso) {
         const t = formatAdminDisplayTime(iso);
         return t == null ? "\u2014" : t;
+      }
+
+      /** Scroll/open QA beta feedback card after async admin overview paint (deep links + Activity tap). */
+      async function highlightAdminBetaFeedbackCardWhenReady(feedbackId, timeoutMs) {
+        const maxMs = typeof timeoutMs === "number" ? timeoutMs : 10000;
+        const sel =
+          '[data-admin-beta-feedback-id="' + CSS.escape(String(feedbackId)) + '"]';
+        const t0 = Date.now();
+        while (Date.now() - t0 < maxMs) {
+          const el = document.querySelector(sel);
+          if (el) {
+            try {
+              el.open = true;
+            } catch {
+              /* ignore */
+            }
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            el.classList.add("community-post-highlight");
+            setTimeout(() => el.classList.remove("community-post-highlight"), 3200);
+            return true;
+          }
+          await new Promise((r) => setTimeout(r, 100));
+        }
+        return false;
       }
 
       async function loadAdminOverview() {
@@ -15695,6 +15936,9 @@
                 for (const f of openFeedback) {
                   const card = document.createElement("details");
                   card.className = "admin-account-item";
+                  if (f.id != null && String(f.id).trim()) {
+                    card.setAttribute("data-admin-beta-feedback-id", String(f.id).trim());
+                  }
                   const sum = document.createElement("summary");
                   sum.innerHTML =
                     "<div class=\"admin-account-summary-row\"><span class=\"admin-account-name\">" +
@@ -19807,10 +20051,12 @@
 
           const rowFav = document.createElement("div");
           rowFav.className = "profile-readonly-row";
-          const fav =
-            d.favoriteShow != null && String(d.favoriteShow).trim() ? String(d.favoriteShow).trim() : "—";
+          const favParts = [d.favoriteShow, d.favoriteShow2, d.favoriteShow3]
+            .map((x) => (x != null && String(x).trim() ? String(x).trim() : ""))
+            .filter(Boolean);
+          const fav = favParts.length ? favParts.join(" · ") : "—";
           rowFav.innerHTML =
-            "<span class=\"profile-readonly-label\">Favorite show</span><span class=\"profile-readonly-value\">" +
+            "<span class=\"profile-readonly-label\">Favorite shows</span><span class=\"profile-readonly-value\">" +
             escapeHtml(fav) +
             "</span>";
           inner.appendChild(rowFav);
@@ -20151,7 +20397,7 @@
             } else if (shelfState === "empty") {
               subEl.textContent = "When people start adding shows, favorites appear here";
             } else {
-              subEl.textContent = "What AirAlert users add & rate — tap to add";
+              subEl.textContent = "Top-rated by AirAlert users — adoption breaks ties · tap to add";
             }
           }
           box.innerHTML = "";
@@ -20952,6 +21198,7 @@
         if (kind === "community_mention") return "Mention";
         if (kind === "community_reply") return "Reply";
         if (kind === "group_chat_invite") return "Group";
+        if (kind === "beta_feedback_admin") return "Beta feedback";
         return "Activity";
       }
 
@@ -21016,10 +21263,12 @@
           }
           empty.hidden = true;
           for (const n of rows) {
+            const wrap = document.createElement("div");
+            wrap.className = "header-activity-item-wrap";
+            wrap.setAttribute("role", "listitem");
             const row = document.createElement("button");
             row.type = "button";
-            row.className = "header-notification-row header-activity-row";
-            row.setAttribute("role", "listitem");
+            row.className = "header-notification-row header-activity-row header-activity-main";
             const title = n.title != null ? String(n.title) : "Activity";
             const summary = n.summary != null ? String(n.summary) : "";
             const when = n.createdAt != null ? String(n.createdAt) : "";
@@ -21037,9 +21286,62 @@
               (when ? '<div class="hn-meta">' + escapeHtml(when) + "</div>" : "");
             row.addEventListener("click", () => {
               closeHeaderMenus();
-              if (url) window.location.assign(url);
+              if (url) {
+                try {
+                  const abs = new URL(url, window.location.origin);
+                  const tab = abs.searchParams.get("tab");
+                  const bf = abs.searchParams.get("betaFeedback");
+                  if (
+                    tab === "admin" &&
+                    userIsDbAdmin(sessionMeSnapshot) &&
+                    document.getElementById("tab-admin")
+                  ) {
+                    setTab("admin");
+                    if (bf && /^[0-9a-f-]{36}$/i.test(String(bf))) {
+                      void highlightAdminBetaFeedbackCardWhenReady(String(bf));
+                    }
+                    return;
+                  }
+                } catch {
+                  /* fall through */
+                }
+                window.location.assign(url);
+              }
             });
-            list.appendChild(row);
+            const nid = n.id != null ? String(n.id).trim() : "";
+            const dismissBtn = document.createElement("button");
+            dismissBtn.type = "button";
+            dismissBtn.className = "header-activity-dismiss";
+            dismissBtn.setAttribute("aria-label", "Clear from Activity");
+            dismissBtn.title = "Clear from Activity";
+            dismissBtn.textContent = "\u2713";
+            dismissBtn.addEventListener("click", async (ev) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              if (!nid || dismissBtn.disabled) return;
+              dismissBtn.disabled = true;
+              try {
+                await api(
+                  "/api/users/" +
+                    encodeURIComponent(uid) +
+                    "/activity-notifications/" +
+                    encodeURIComponent(nid),
+                  { method: "DELETE" },
+                );
+                wrap.remove();
+                if (!list.querySelector(".header-activity-item-wrap")) {
+                  empty.hidden = false;
+                  empty.textContent = "No new activity yet";
+                }
+                await refreshHeaderNotificationsUnreadFromServer();
+              } catch (e) {
+                dismissBtn.disabled = false;
+                showToast(e && e.message ? String(e.message) : "Could not clear activity");
+              }
+            });
+            wrap.appendChild(row);
+            wrap.appendChild(dismissBtn);
+            list.appendChild(wrap);
           }
           acknowledgeHeaderActivities(uid, rows);
           updateHeaderNotificationsUnreadMarker(0);
@@ -22540,6 +22842,7 @@
 
       const HEADER_PROFILE_MENU_BY_KIND = {
         guest: [
+          { id: "headerMenuLogIn", action: "log-in", label: "Log in" },
           { id: "headerMenuCreateAccount", action: "create-account", label: "Create account" },
           { id: "headerMenuSearchUsername", action: "search-username", label: "Search username" },
         ],
@@ -22584,6 +22887,16 @@
           actionBtn.textContent = item.label;
           menu.appendChild(actionBtn);
         }
+      }
+
+      /** Guest-only: show top-level Log in + Create account (real accounts use profile icon menu only). */
+      function syncHeaderAuthChrome(me) {
+        const chrome = document.getElementById("headerAuthChrome");
+        if (!chrome) return;
+        const kind = accountKind(me);
+        const show = kind === "guest";
+        chrome.hidden = !show;
+        chrome.setAttribute("aria-hidden", show ? "false" : "true");
       }
 
       const UNLOCK_SOCIAL_UX_MESSAGE = "Add 3 shows to unlock this feature.";
@@ -22666,6 +22979,44 @@
         el.classList.add("open");
       }
 
+      /** Opens the standalone login step (same fields as profile modal / account prompt). */
+      function openAccountPromptLoginModal(opts) {
+        const entryPoint = (opts && opts.entryPoint) || "header";
+        closeHeaderMenus();
+        closeAppSettingsModal();
+        closeAppProfileModal();
+        closeUsernameSearchModal({ skipFocusRestore: true });
+        const el = document.getElementById("accountPromptModal");
+        if (!el) return;
+        trackAnalyticsEvent("account.login_flow_opened", { entryPoint }, {
+          sourceScreen: getActiveTabName(),
+          onceKey: entryPoint === "header" ? "login_hdr:" + getActiveTabName() : undefined,
+        });
+        setAccountPromptErr("");
+        showAccountPromptStep("login");
+        el.classList.add("open");
+        requestAnimationFrame(() => document.getElementById("apLoginEmail")?.focus());
+      }
+
+      /** Opens registration without the intro slide (used from header + menu). */
+      function openAccountPromptRegisterModal(opts) {
+        const entryPoint = (opts && opts.entryPoint) || "header";
+        closeHeaderMenus();
+        closeAppSettingsModal();
+        closeAppProfileModal();
+        closeUsernameSearchModal({ skipFocusRestore: true });
+        const el = document.getElementById("accountPromptModal");
+        if (!el) return;
+        trackAnalyticsEvent("account.create_flow_opened", { entryPoint }, {
+          sourceScreen: getActiveTabName(),
+          onceKey: entryPoint === "header" ? "create_hdr:" + getActiveTabName() : undefined,
+        });
+        setAccountPromptErr("");
+        showAccountPromptStep("register");
+        el.classList.add("open");
+        requestAnimationFrame(() => document.getElementById("apRegEmail")?.focus());
+      }
+
       function closeAccountPromptModal() {
         const el = document.getElementById("accountPromptModal");
         if (el) el.classList.remove("open");
@@ -22731,6 +23082,7 @@
         try {
         bootCheckpoint("start");
         syncHeaderProfileDropdown(null);
+        syncHeaderAuthChrome(null);
         removeAdminUiFromDom();
         await initGoogleAuthUi();
         const userId = await ensureUser();
@@ -22871,6 +23223,7 @@
           const u3 = new URL(window.location.href);
           const tabParam = u3.searchParams.get("tab");
           const taskEpisodeParam = u3.searchParams.get("taskEpisode");
+          const betaFbParam = u3.searchParams.get("betaFeedback");
           if (tabParam === "tasks") {
             setTab("tasks");
             await loadTasks(userId);
@@ -22894,17 +23247,24 @@
             u3.searchParams.delete("taskEpisode");
             const qs3 = u3.searchParams.toString();
             history.replaceState({}, "", u3.pathname + (qs3 ? "?" + qs3 : "") + u3.hash);
+          } else if (tabParam === "admin" && userIsDbAdmin(sessionMeSnapshot) && document.getElementById("tab-admin")) {
+            setTab("admin");
+            trackAnalyticsEvent("notification.deep_link_success", { destination: "admin_beta_feedback" }, {
+              sourceScreen: "notification",
+              targetType: "beta_feedback",
+              targetId: betaFbParam || "admin",
+              flushSoon: true,
+            });
+            if (betaFbParam && /^[0-9a-f-]{36}$/i.test(String(betaFbParam))) {
+              void highlightAdminBetaFeedbackCardWhenReady(String(betaFbParam));
+            }
+            u3.searchParams.delete("tab");
+            u3.searchParams.delete("betaFeedback");
+            const qsAd = u3.searchParams.toString();
+            history.replaceState({}, "", u3.pathname + (qsAd ? "?" + qsAd : "") + u3.hash);
           }
         } catch {
-          trackAnalyticsEvent("notification.deep_link_failure", {
-            destination: "tasks",
-            reason: "tasks_open_failed",
-          }, {
-            sourceScreen: "notification",
-            targetType: "tasks",
-            targetId: "tasks",
-            flushSoon: true,
-          });
+          /* ignore tab deep link errors */
         }
 
         setInterval(() => void refreshDmUnread(), 60000);
@@ -22948,10 +23308,14 @@
             document.querySelectorAll("[data-google-login]").forEach((el) => {
               el.hidden = !on;
             });
+            const loginOauthRow = document.getElementById("accountPromptLoginOAuthRow");
+            if (loginOauthRow) loginOauthRow.hidden = !on;
           } catch {
             document.querySelectorAll("[data-google-login]").forEach((el) => {
               el.hidden = true;
             });
+            const loginOauthRow = document.getElementById("accountPromptLoginOAuthRow");
+            if (loginOauthRow) loginOauthRow.hidden = true;
           }
           document.querySelectorAll(".google-oauth-start-btn").forEach((btn) => {
             btn.addEventListener("click", () => {
@@ -23356,7 +23720,9 @@
           const me = sessionMeSnapshot;
           syncProfileBasicsPreviewFromInputs(me || null);
         });
-        document.getElementById("profileFavoriteShow")?.addEventListener("input", syncProfileFavoriteShowCounter);
+        for (const id of ["profileFavoriteShow1", "profileFavoriteShow2", "profileFavoriteShow3"]) {
+          document.getElementById(id)?.addEventListener("input", syncProfileSpotlightCounters);
+        }
         document.getElementById("profileAvatarImg")?.addEventListener("click", (e) => {
           const img = e.currentTarget;
           if (img.hidden || !img.getAttribute("src")) return;
@@ -23555,6 +23921,14 @@
           closeUsernameSearchModal({ skipFocusRestore: true });
           openAppSettingsModal(undefined);
         });
+        document.getElementById("headerLogInBtn")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openAccountPromptLoginModal({ entryPoint: "header" });
+        });
+        document.getElementById("headerCreateAccountBtn")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openAccountPromptRegisterModal({ entryPoint: "header" });
+        });
         document.getElementById("headerProfileBtn")?.addEventListener("click", (e) => {
           e.stopPropagation();
           if (accountKind(sessionMeSnapshot) === "unknown") {
@@ -23602,9 +23976,9 @@
           const action = btn.getAttribute("data-profile-menu-action");
           closeHeaderMenus();
           if (action === "create-account") {
-            openAccountPromptModal();
-            showAccountPromptStep("register");
-            requestAnimationFrame(() => document.getElementById("apRegEmail")?.focus());
+            openAccountPromptRegisterModal({ entryPoint: "account_menu" });
+          } else if (action === "log-in") {
+            openAccountPromptLoginModal({ entryPoint: "account_menu" });
           } else if (action === "your-profile") {
             openAppProfileModal();
           } else if (action === "search-username") {

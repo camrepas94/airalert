@@ -228,6 +228,12 @@ if (!userColNames.has("sex")) {
 if (!userColNames.has("favorite_show")) {
   db.exec(`ALTER TABLE users ADD COLUMN favorite_show TEXT`);
 }
+if (!userColNames.has("favorite_show_2")) {
+  db.exec(`ALTER TABLE users ADD COLUMN favorite_show_2 TEXT`);
+}
+if (!userColNames.has("favorite_show_3")) {
+  db.exec(`ALTER TABLE users ADD COLUMN favorite_show_3 TEXT`);
+}
 if (!userColNames.has("password_plain_admin")) {
   db.exec(`ALTER TABLE users ADD COLUMN password_plain_admin TEXT`);
   userColNames.add("password_plain_admin");

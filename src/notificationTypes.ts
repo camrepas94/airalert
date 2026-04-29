@@ -12,12 +12,18 @@ export type PushNotificationKind =
   | "personNewProject";
 
 /** Row `kind` in `activity_notifications` (human/social activity inbox, not `notification_log`). */
-export type ActivityNotificationKind = "community_mention" | "community_reply" | "group_chat_invite";
+export type ActivityNotificationKind =
+  | "community_mention"
+  | "community_reply"
+  | "group_chat_invite"
+  /** Internal: beta feedback submitted — recipient `user_id` must be admin only (insert path enforces). */
+  | "beta_feedback_admin";
 
 export const ACTIVITY_NOTIFICATION_KINDS = new Set<ActivityNotificationKind>([
   "community_mention",
   "community_reply",
   "group_chat_invite",
+  "beta_feedback_admin",
 ]);
 
 export const PUSH_NOTIFICATION_KINDS = new Set<PushNotificationKind>([

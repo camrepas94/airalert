@@ -1702,6 +1702,70 @@ app.post("/api/moderation/reports", async (request, reply) => {
   return { ok: true, id };
 });
 
+/**
+ * After a successful beta feedback row insert: in-app Activity + web push for **database admins only**
+ * (`users.is_admin = 1`). Regular users never receive these rows.
+ */
+function notifyAdminsOfBetaFeedback(opts: {
+  feedbackId: string;
+  submitterUserId: string | null;
+  category: string;
+  severity: string;
+  flow: string | null;
+  screen: string | null;
+  message: string;
+}): void {
+  const admins = db.prepare(`SELECT id FROM users WHERE is_admin = 1`).all() as { id: string }[];
+  if (!admins.length) return;
+
+  let handle = "Someone";
+  if (opts.submitterUserId) {
+    const u = db
+      .prepare(`SELECT username, display_name FROM users WHERE id = ?`)
+      .get(opts.submitterUserId) as { username: string | null; display_name: string | null } | undefined;
+    if (u) {
+      const un = u.username && String(u.username).trim();
+      handle = un ? "@" + un : String(u.display_name || "").trim() || "Member";
+    }
+  }
+
+  const snippet = opts.message.replace(/\s+/g, " ").trim();
+  const snippetShort = snippet.slice(0, 140);
+  const pushBody =
+    snippet.length > 0
+      ? `${handle} — ${snippet.slice(0, 72)}${snippet.length > 72 ? "…" : ""}`
+      : `${handle} left feedback`;
+
+  const metaBits = [opts.category, opts.severity];
+  if (opts.screen) metaBits.push(opts.screen);
+  else if (opts.flow) metaBits.push(opts.flow);
+  const summaryLine =
+    metaBits.join(" · ") + (snippetShort ? ` — ${snippetShort.slice(0, 100)}${snippetShort.length > 100 ? "…" : ""}` : "");
+
+  const deepUrl = `/?tab=admin&betaFeedback=${encodeURIComponent(opts.feedbackId)}`;
+
+  for (const a of admins) {
+    insertActivityNotification({
+      recipientUserId: a.id,
+      kind: "beta_feedback_admin",
+      title: `Beta feedback from ${handle}`,
+      summary: summaryLine || null,
+      url: deepUrl,
+      actorUserId: opts.submitterUserId,
+      sourcePostId: null,
+    });
+    void sendWebPushToUser(
+      a.id,
+      {
+        title: "New beta feedback",
+        body: pushBody,
+        url: deepUrl,
+      },
+      undefined,
+    );
+  }
+}
+
 app.post("/api/beta-feedback", async (request, reply) => {
   const uid = sessionUserIdFromRequest(request);
   if (uid && !assertUserNotRestricted(reply, uid)) return;
@@ -1743,6 +1807,15 @@ app.post("/api/beta-feedback", async (request, reply) => {
     },
     uid ?? undefined,
   );
+  notifyAdminsOfBetaFeedback({
+    feedbackId: id,
+    submitterUserId: uid ?? null,
+    category,
+    severity,
+    flow,
+    screen,
+    message,
+  });
   reply.code(201);
   return { ok: true, id };
 });
@@ -4098,7 +4171,8 @@ app.get("/api/users/me", async (request, reply) => {
               username, email, (email_verified != 0) AS emailVerified, auth_provider AS authProvider,
               google_sub AS googleSubInternal,
               display_name AS displayName, avatar_data_url AS avatarDataUrl,
-              about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
+              about_me AS aboutMe, age, sex,
+              favorite_show AS favoriteShow, favorite_show_2 AS favoriteShow2, favorite_show_3 AS favoriteShow3,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword,
               is_admin AS isAdmin, moderation_status AS moderationStatus
        FROM users WHERE id = ?`,
@@ -4222,7 +4296,8 @@ app.get("/api/users/:id", async (request, reply) => {
               username, email, (email_verified != 0) AS emailVerified, auth_provider AS authProvider,
               google_sub AS googleSubInternal,
               display_name AS displayName, avatar_data_url AS avatarDataUrl,
-              about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
+              about_me AS aboutMe, age, sex,
+              favorite_show AS favoriteShow, favorite_show_2 AS favoriteShow2, favorite_show_3 AS favoriteShow3,
               is_admin AS isAdmin, moderation_status AS moderationStatus,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword
        FROM users WHERE id = ?`,
@@ -4288,6 +4363,8 @@ app.patch("/api/users/:id", async (request, reply) => {
     age?: number | null;
     sex?: string | null;
     favoriteShow?: string | null;
+    favoriteShow2?: string | null;
+    favoriteShow3?: string | null;
     currentPassword?: string;
     newPassword?: string;
     email?: string | null;
@@ -4466,13 +4543,30 @@ app.patch("/api/users/:id", async (request, reply) => {
       db.prepare(`UPDATE users SET favorite_show = ? WHERE id = ?`).run(t || null, id);
     }
   }
+  if ("favoriteShow2" in body) {
+    if (body.favoriteShow2 === null || body.favoriteShow2 === "") {
+      db.prepare(`UPDATE users SET favorite_show_2 = NULL WHERE id = ?`).run(id);
+    } else if (typeof body.favoriteShow2 === "string") {
+      const t = body.favoriteShow2.trim().slice(0, 200);
+      db.prepare(`UPDATE users SET favorite_show_2 = ? WHERE id = ?`).run(t || null, id);
+    }
+  }
+  if ("favoriteShow3" in body) {
+    if (body.favoriteShow3 === null || body.favoriteShow3 === "") {
+      db.prepare(`UPDATE users SET favorite_show_3 = NULL WHERE id = ?`).run(id);
+    } else if (typeof body.favoriteShow3 === "string") {
+      const t = body.favoriteShow3.trim().slice(0, 200);
+      db.prepare(`UPDATE users SET favorite_show_3 = ? WHERE id = ?`).run(t || null, id);
+    }
+  }
   const row = db
     .prepare(
       `SELECT id, timezone, reminder_hour_local AS reminderHourLocal, calendar_token AS calendarToken,
               task_nudge_days_after_air AS taskNudgeDaysAfterAir, push_prefs_json, onboarding_prefs_json, created_at AS createdAt,
               username, email, (email_verified != 0) AS emailVerified, auth_provider AS authProvider,
               display_name AS displayName, avatar_data_url AS avatarDataUrl,
-              about_me AS aboutMe, age, sex, favorite_show AS favoriteShow,
+              about_me AS aboutMe, age, sex,
+              favorite_show AS favoriteShow, favorite_show_2 AS favoriteShow2, favorite_show_3 AS favoriteShow3,
               google_sub AS googleSubInternal,
               (password_hash IS NOT NULL AND trim(password_hash) != '') AS hasPassword, is_admin AS isAdmin,
               moderation_status AS moderationStatus
@@ -4664,7 +4758,7 @@ app.get("/api/shows/discover", async (request, reply) => {
   return { shows, discoveryKey: key };
 });
 
-/** Add Shows — “Popular on AirAlert”: internal adoption + ratings only (see `popularOnAiralert.ts`). */
+/** Add Shows — “Popular on AirAlert”: Bayesian-smoothed AirAlert ratings first, add-count tie-break (see `popularOnAiralert.ts`). */
 app.get("/api/shows/popular-on-airalert", async (request, reply) => {
   const excludeUserId = (request.query as { excludeUserId?: string }).excludeUserId?.trim() ?? "";
   const limitRaw = Number((request.query as { limit?: string }).limit);
@@ -5088,8 +5182,13 @@ app.get("/api/users/:userId/recommended-shows", async (request, reply) => {
     .prepare(`SELECT tvmaze_show_id AS id FROM show_subscriptions WHERE user_id = ?`)
     .all(userId) as { id: number }[];
   const ids = rows.map((r) => Number(r.id)).filter((n) => Number.isInteger(n) && n > 0);
+  const qp = request.query as Record<string, string | undefined>;
+  const recommendDebug =
+    qp.debug === "1" ||
+    qp.debug === "true" ||
+    qp.recommendDebug === "1";
   try {
-    const { shows, queriesUsed } = await computeRecommendedShows(userId, ids);
+    const { shows, queriesUsed } = await computeRecommendedShows(userId, ids, { debug: recommendDebug });
     return { shows, queriesUsed };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -5690,6 +5789,33 @@ app.get("/api/users/:userId/activity-notifications", async (request, reply) => {
     )
     .all(userId, ...ACTIVITY_NOTIFICATION_KINDS);
   return { activities: rows };
+});
+
+/**
+ * Remove one Activity inbox row for the signed-in user only (`activity_notifications.user_id`).
+ * Does not affect other users (they have separate rows).
+ */
+app.delete("/api/users/:userId/activity-notifications/:notificationId", async (request, reply) => {
+  const { userId, notificationId } = request.params as { userId: string; notificationId: string };
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401);
+    return { error: "Sign in required" };
+  }
+  if (sid !== userId) {
+    reply.code(403);
+    return { error: "Forbidden" };
+  }
+  if (!notificationId || typeof notificationId !== "string") {
+    reply.code(400);
+    return { error: "Invalid notification id" };
+  }
+  const result = db.prepare(`DELETE FROM activity_notifications WHERE id = ? AND user_id = ?`).run(notificationId, userId);
+  if (result.changes === 0) {
+    reply.code(404);
+    return { error: "Not found" };
+  }
+  return { ok: true };
 });
 
 app.get("/api/users/:userId/upcoming", async (request, reply) => {
@@ -8297,7 +8423,8 @@ app.get("/api/community/users/:userId/profile", async (request, reply) => {
   const row = db
     .prepare(
       `SELECT id, display_name AS displayName, avatar_data_url AS avatarDataUrl, username,
-              about_me AS aboutMe, age, sex, favorite_show AS favoriteShow, created_at AS createdAt
+              about_me AS aboutMe, age, sex,
+              favorite_show AS favoriteShow, favorite_show_2 AS favoriteShow2, favorite_show_3 AS favoriteShow3, created_at AS createdAt
        FROM users WHERE id = ?`,
     )
     .get(userId) as Record<string, unknown> | undefined;

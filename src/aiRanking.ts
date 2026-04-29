@@ -269,10 +269,11 @@ export type AIScoreBreakdown = {
  * not fetched for trending to avoid extra API calls).
  */
 export const AI_WEIGHTS = {
-  REC_SUMMARY_WEIGHT: 30,
-  REC_RATING_GENRE_WEIGHT: 8,
-  REC_WEAK_THRESHOLD: 0.03,
-  REC_WEAK_MULT: 0.82,
+  REC_SUMMARY_WEIGHT: 34,
+  REC_RATING_GENRE_WEIGHT: 10,
+  REC_WEAK_THRESHOLD: 0.038,
+  /** Applied when summary AI match is weak and base taste score is not strong. */
+  REC_WEAK_MULT: 0.64,
 
   TREND_RATING_GENRE_WEIGHT: 1.5,
 } as const;
