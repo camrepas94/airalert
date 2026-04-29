@@ -299,7 +299,7 @@ export async function runPersonNewProjectNotifications(): Promise<PersonProjectN
           f.user_id,
           {
             title: `${personName} — new project`,
-            body: `${c.showName} is now on their TVMaze credits.`,
+            body: `${c.showName} is now listed on their credits.`,
             url: `/?communityShow=${c.tvmazeShowId}`,
           },
           { kind: "personNewProject" },

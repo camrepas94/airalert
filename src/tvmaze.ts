@@ -77,7 +77,7 @@ export type TvmazeEpisode = {
 
 function unwrap<T>(res: Response): Promise<T> {
   if (!res.ok) {
-    throw new Error(`TVMaze HTTP ${res.status}: ${res.statusText}`);
+    throw new Error(`Show data request failed (${res.status}): ${res.statusText}`);
   }
   return res.json() as Promise<T>;
 }
@@ -153,7 +153,7 @@ export async function fetchShowsCatalogPage(page: number): Promise<TvmazeShowLis
   const res = await fetch(`${BASE}/shows?page=${page}`);
   if (res.status === 404) return [];
   if (!res.ok) {
-    throw new Error(`TVMaze shows?page=${page} HTTP ${res.status}: ${res.statusText}`);
+    throw new Error(`Catalog page ${page} request failed (${res.status}): ${res.statusText}`);
   }
   const rows = (await res.json()) as TvmazeShowListItem[];
   return Array.isArray(rows) ? rows : [];

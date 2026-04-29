@@ -904,7 +904,7 @@
       <details class="admin-mod-log-details">
         <summary>Move a community post</summary>
         <p class="sub" style="margin: 0 0 0.65rem; font-size: 0.84rem; line-height: 1.45">
-          When someone posts under the wrong show thread, move the post to the correct TVMaze show. Episode tags are cleared.
+          When someone posts under the wrong show thread, move the post to the correct show. Episode tags are cleared.
           In the main app, admins with the Community tab can use <strong>Move to show…</strong> on the post instead.
         </p>
         <div style="display: flex; flex-wrap: wrap; gap: 0.65rem; align-items: flex-end">
@@ -913,7 +913,7 @@
             <input type="text" id="adminMovePostId" style="min-width: 18rem; max-width: 100%" placeholder="Post id" autocomplete="off" />
           </div>
           <div>
-            <label for="adminMoveShowId">Destination TVMaze show ID</label><br />
+            <label for="adminMoveShowId">Destination show ID (numeric)</label><br />
             <input type="number" id="adminMoveShowId" min="1" step="1" style="width: 9rem" placeholder="e.g. 82" />
           </div>
           <button type="button" id="adminMovePostSubmit">Move post</button>
@@ -1659,7 +1659,7 @@
                 "<div class=\"detail-add-show\">" +
                 "<label for=\"admAddShow_" +
                 u.id +
-                "\">Add show (TVMaze numeric ID)</label>" +
+                "\">Add show (numeric catalog ID)</label>" +
                 "<input type=\"number\" id=\"admAddShow_" +
                 u.id +
                 "\" min=\"1\" step=\"1\" placeholder=\"e.g. 82\" />" +
@@ -1804,7 +1804,7 @@
                   ev.stopPropagation();
                   const n = Number(addIn.value);
                   if (!Number.isInteger(n) || n < 1) {
-                    showToast("Enter a valid TVMaze show ID");
+                    showToast("Enter a valid show ID");
                     return;
                   }
                   try {
@@ -1986,7 +1986,7 @@
           const tvmazeShowId = Number(showRaw);
           if (!Number.isInteger(tvmazeShowId) || tvmazeShowId < 1) {
             if (msg) {
-              msg.textContent = "Enter a positive TVMaze show ID.";
+              msg.textContent = "Enter a positive numeric show ID.";
               msg.classList.add("err");
             }
             return;

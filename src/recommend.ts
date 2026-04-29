@@ -748,7 +748,7 @@ export async function computeRecommendedShows(
   const candidates = new Map<number, Agg>();
 
   if (profile.genreWeights.size > 0) {
-    queriesUsed.push("Catalog: broader TVMaze pages, scored by weighted genre overlap");
+    queriesUsed.push("Catalog: broader show pages, scored by weighted genre overlap");
     const catalogMatches = await scanShowsCatalogForGenreFit(profile.genreWeights, subSet, {
       pageRanges: [
         [0, 18],

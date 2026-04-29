@@ -1050,6 +1050,7 @@
         touch-action: pan-y;
         padding-bottom: 3.5rem;
         -webkit-overflow-scrolling: touch;
+        overflow-anchor: auto;
         position: relative;
         z-index: 0;
         isolation: isolate;
@@ -1062,6 +1063,8 @@
         z-index: 0;
         pointer-events: none;
         border-radius: 0;
+        transform: translateZ(0);
+        backface-visibility: hidden;
         background:
           radial-gradient(ellipse 120% 95% at 6% 18%, rgba(192, 38, 211, 0.2) 0%, transparent 58%),
           radial-gradient(ellipse 100% 85% at 94% 22%, rgba(236, 72, 153, 0.18) 0%, transparent 55%),
@@ -1079,6 +1082,8 @@
         z-index: 0;
         pointer-events: none;
         opacity: 0.55;
+        transform: translateZ(0);
+        backface-visibility: hidden;
         background-image: radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.55), transparent),
           radial-gradient(1px 1px at 38% 42%, rgba(200, 230, 255, 0.4), transparent),
           radial-gradient(0.8px 0.8px at 72% 28%, rgba(255, 255, 255, 0.45), transparent),
@@ -1158,8 +1163,8 @@
         flex: 1 1 auto;
         min-height: 0;
         background: rgba(4, 8, 22, 0.08);
-        -webkit-backdrop-filter: blur(18px) saturate(1.35);
-        backdrop-filter: blur(18px) saturate(1.35);
+        -webkit-backdrop-filter: blur(14px) saturate(1.28);
+        backdrop-filter: blur(14px) saturate(1.28);
         border-left-color: rgba(34, 211, 238, 0.65);
         border-right-color: rgba(232, 121, 249, 0.55);
         box-shadow: var(--shadow-lift), 0 0 0 1px rgba(255, 255, 255, 0.06) inset, var(--dm-glow-layer),
@@ -1213,8 +1218,8 @@
         background: linear-gradient(rgba(6, 10, 26, 0.55), rgba(4, 8, 20, 0.72)) padding-box,
           var(--dm-surface-edge, linear-gradient(130deg, rgba(34, 211, 238, 0.5), rgba(91, 156, 255, 0.45), rgba(236, 72, 153, 0.48), rgba(168, 85, 247, 0.42))) border-box;
         background-clip: padding-box, border-box;
-        -webkit-backdrop-filter: blur(16px) saturate(1.25);
-        backdrop-filter: blur(16px) saturate(1.25);
+        -webkit-backdrop-filter: blur(12px) saturate(1.18);
+        backdrop-filter: blur(12px) saturate(1.18);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), var(--dm-glow-layer, 0 8px 28px rgba(0, 0, 0, 0.45));
       }
       #tab-messages .dm-inbox-rail {
@@ -2203,8 +2208,8 @@
       }
       section {
         background: var(--panel);
-        -webkit-backdrop-filter: blur(22px) saturate(1.15);
-        backdrop-filter: blur(22px) saturate(1.15);
+        -webkit-backdrop-filter: blur(14px) saturate(1.12);
+        backdrop-filter: blur(14px) saturate(1.12);
         border: 1px solid var(--border);
         border-left: 3px solid var(--accent);
         border-right: 3px solid var(--accent);
@@ -2261,8 +2266,8 @@
       }
       #appSettingsModal details.settings-surface {
         background: var(--panel);
-        -webkit-backdrop-filter: blur(22px) saturate(1.15);
-        backdrop-filter: blur(22px) saturate(1.15);
+        -webkit-backdrop-filter: blur(14px) saturate(1.12);
+        backdrop-filter: blur(14px) saturate(1.12);
         border: 1px solid var(--border);
         border-left: 3px solid var(--accent);
         border-right: 3px solid var(--accent);
@@ -4861,8 +4866,8 @@
         background: var(--chrome-glass-fill) padding-box, var(--dm-surface-edge) border-box;
         background-clip: padding-box, border-box;
         box-shadow: var(--chrome-rail-shadow);
-        -webkit-backdrop-filter: blur(28px) saturate(1.5);
-        backdrop-filter: blur(28px) saturate(1.5);
+        -webkit-backdrop-filter: blur(18px) saturate(1.35);
+        backdrop-filter: blur(18px) saturate(1.35);
         -webkit-transform: translateZ(0);
         transform: translateZ(0);
         isolation: isolate;
@@ -6589,7 +6594,7 @@
       .community-thread-card:active:not(:disabled) {
         transform: translateY(0);
       }
-      /** Full-bleed hero (Trending + General carousels): TVMaze art + scrim; horizontal scroll unchanged */
+      /** Full-bleed hero (Trending + General carousels): show artwork + scrim; horizontal scroll unchanged */
       .community-thread-card--hero {
         position: relative;
         display: block;
@@ -8316,15 +8321,14 @@
             rgba(12, 6, 28, 0.18) 100%
           ),
           linear-gradient(180deg, rgba(4, 6, 18, 0.28) 0%, rgba(4, 4, 14, 0.08) 100%);
-        -webkit-backdrop-filter: blur(28px) saturate(1.42);
-        backdrop-filter: blur(28px) saturate(1.42);
+        -webkit-backdrop-filter: blur(18px) saturate(1.32);
+        backdrop-filter: blur(18px) saturate(1.32);
         border-bottom: 1px solid rgba(130, 200, 255, 0.14);
         box-shadow: 0 4px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08),
           0 0 48px -12px rgba(34, 211, 238, 0.12);
         -webkit-transform: translateZ(0);
         transform: translateZ(0);
-        transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, padding 0.22s ease,
-          -webkit-backdrop-filter 0.22s ease, backdrop-filter 0.22s ease;
+        transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, padding 0.22s ease;
       }
       .app-top::after {
         content: "";
@@ -8351,8 +8355,8 @@
             rgba(12, 5, 26, 0.55) 100%
           ),
           linear-gradient(180deg, rgba(6, 8, 22, 0.72) 0%, rgba(4, 4, 14, 0.45) 100%);
-        -webkit-backdrop-filter: blur(32px) saturate(1.45);
-        backdrop-filter: blur(32px) saturate(1.45);
+        -webkit-backdrop-filter: blur(22px) saturate(1.38);
+        backdrop-filter: blur(22px) saturate(1.38);
         box-shadow: 0 6px 32px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.07),
           0 0 56px -10px rgba(34, 211, 238, 0.16);
         padding-top: max(0.4rem, env(safe-area-inset-top, 0px));
@@ -8385,8 +8389,9 @@
         margin-bottom: 0.65rem;
       }
       /**
-       * Mobile GPU: heavy full-width `backdrop-filter` on the chrome stack can hitch scrolling
-       * and delay first paint. Keep the same look with opaque gradients + light blur only ≤480px.
+       * Mobile: lighter chrome blur (GPU). Desktop/tablet: heavier blur lives on `.app-top` above.
+       * Header transitions omit `backdrop-filter` so blur snaps once per scroll threshold — avoids
+       * interpolating expensive filters every frame while scrolling.
        */
       @media (max-width: 480px) {
         .app-top {
@@ -8396,6 +8401,24 @@
         .tab-rail {
           -webkit-backdrop-filter: blur(10px) saturate(1.15);
           backdrop-filter: blur(10px) saturate(1.15);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .main-scroll {
+          -webkit-overflow-scrolling: auto;
+        }
+        section,
+        #appSettingsModal details.settings-surface,
+        .app-top,
+        .tab-rail,
+        #tab-messages .dm-inbox-page-root.panel-rail-cyan,
+        #tab-messages .dm-inbox-rail {
+          -webkit-backdrop-filter: none !important;
+          backdrop-filter: none !important;
+        }
+        .tab-btn.active {
+          animation: none !important;
         }
       }
 
@@ -9782,12 +9805,12 @@
           </div>
           <div id="searchLoadingBar" class="search-loading-bar" hidden>
             <div class="search-loading-bar-fill" aria-hidden="true"></div>
-            <span class="search-loading-bar-text" id="searchLoadingBarText">Searching TVMaze &amp; catalog…</span>
+            <span class="search-loading-bar-text" id="searchLoadingBarText">Searching shows &amp; catalog…</span>
           </div>
           <p id="searchDiscoveryBanner" class="search-discovery-banner" role="status" hidden>
             <span class="search-discovery-kicker" id="searchDiscoveryKicker">Browse</span>
             <span class="search-discovery-name" id="searchDiscoveryBannerText">—</span>
-            <span class="search-discovery-hint muted" id="searchDiscoveryHint">Matches use TVMaze show genres and format — not show-title search.</span>
+            <span class="search-discovery-hint muted" id="searchDiscoveryHint">Matches use listed show genres and format — not show-title search.</span>
           </p>
           <p class="msg err" id="searchErr"></p>
           <div id="searchPostToolbar" class="search-post-toolbar">
@@ -9901,7 +9924,7 @@
           </button>
           <div class="fold-body" id="foldPersonFollowsBody">
             <p class="muted person-follows-lead">
-              Follow actors, writers, or directors. On each hourly check, if TVMaze lists a <strong>new show</strong> on their
+              Follow actors, writers, or directors. On each hourly check, if we detect a <strong>new show</strong> on their
               cast or crew credits, you get a push — often before entertainment news catches up.
             </p>
             <div class="person-follow-search-wrap">
@@ -9909,7 +9932,7 @@
                 type="search"
                 id="personFollowSearchInput"
                 class="person-follow-search-input"
-                placeholder="Search people on TVMaze…"
+                placeholder="Search people…"
                 autocomplete="off"
                 aria-label="Search people to follow"
               />
@@ -10832,7 +10855,7 @@
                     </label>
                     <label class="push-pref-row">
                       <input type="checkbox" id="pushPrefPersonNewProject" checked />
-                      <span><strong>People you follow</strong> — new show in their TVMaze credits</span>
+                      <span><strong>People you follow</strong> — new show in their credits</span>
                     </label>
                   </div>
                 </div>
@@ -11992,7 +12015,7 @@
             }
           } else if (lastAiredEpisode) {
             next.textContent =
-              "No upcoming date in TVMaze yet. Last in guide: " +
+              "No upcoming date yet. Last in guide: " +
               formatAirDate(lastAiredEpisode.airdate, lastAiredEpisode.airtime || "") +
               " · " +
               lastAiredEpisode.label;
@@ -12107,7 +12130,8 @@
             left.appendChild(name);
             const meta = document.createElement("div");
             meta.className = "pf-meta";
-            meta.textContent = "TVMaze person #" + f.tvmazePersonId + " · notify when a new show appears on their credits";
+            meta.textContent =
+              "Person #" + f.tvmazePersonId + " · notify when a new show appears on their credits";
             left.appendChild(meta);
             const btn = document.createElement("button");
             btn.type = "button";
@@ -13427,7 +13451,22 @@
         const onAct = () => schedulePresenceActivityTouch();
         document.addEventListener("pointerdown", onAct, { capture: true, passive: true });
         document.addEventListener("keydown", onAct, { capture: true, passive: true });
-        window.addEventListener("scroll", () => schedulePresenceActivityTouch(), { capture: true, passive: true });
+        const mainScrollEl = document.getElementById("mainScroll");
+        if (mainScrollEl) {
+          let scrollPresenceCoalesce = false;
+          mainScrollEl.addEventListener(
+            "scroll",
+            () => {
+              if (scrollPresenceCoalesce) return;
+              scrollPresenceCoalesce = true;
+              requestAnimationFrame(() => {
+                scrollPresenceCoalesce = false;
+                schedulePresenceActivityTouch();
+              });
+            },
+            { passive: true },
+          );
+        }
         setInterval(() => postSelfPresenceHeartbeat(false), 42000);
         postSelfPresenceHeartbeat(true);
       }
@@ -15147,7 +15186,7 @@
                 "\" style='margin-left:0.35rem'>Save</button>" +
                 "</div>";
               html +=
-                "<div style='margin:0.5rem 0'><strong>Add show (TVMaze id)</strong> " +
+                "<div style='margin:0.5rem 0'><strong>Add show (numeric catalog ID)</strong> " +
                 "<input type='number' id=\"admAddShow_" +
                 u.id +
                 "\" min='1' style='width:5rem;margin-left:0.35rem'/> " +
@@ -15287,7 +15326,7 @@
                 addBtn.addEventListener("click", async () => {
                   const n = Number(addIn.value);
                   if (!Number.isInteger(n) || n < 1) {
-                    showToast("Enter a valid TVMaze show id");
+                    showToast("Enter a valid show ID");
                     return;
                   }
                   try {
@@ -15898,7 +15937,7 @@
           note.className = "muted";
           note.style.fontSize = "0.8rem";
           note.textContent =
-            "Episode list loaded live from TVMaze. Run Refresh all show data under Settings (gear) to save dates into the cache for faster loads and up-to-date tasks.";
+            "Episode list loaded live from our guide. Run Refresh all show data under Settings (gear) to save dates into the cache for faster loads and up-to-date tasks.";
           body.appendChild(note);
         }
 
@@ -17015,7 +17054,7 @@
         return "News";
       }
 
-      /** Invalidates in-flight headline fetches + DOM when `loadCommunityHeadlines` runs again before TVMaze responds. */
+      /** Invalidates in-flight headline fetches + DOM when `loadCommunityHeadlines` runs again before poster URLs resolve. */
       let communityHeadlinesPaintId = 0;
 
       /** Breaking news rail: slow horizontal auto-scroll (teardown on each reload). */
@@ -17568,7 +17607,7 @@
         const empty = document.getElementById("communityShowNewsEmpty");
         if (!panel || !list) return;
 
-        // Get show image from the thread hero background or fetch from TVMaze
+        // Get show image from the thread hero background or fetch poster URL by show id
         let showImg = "";
         const heroEl = document.getElementById("communityShowHeroBg");
         if (heroEl && heroEl.style.backgroundImage) {
@@ -20079,7 +20118,7 @@
               hint.textContent =
                 queriesUsed.length > 0
                   ? "No strong catalog or search matches right now — try subscribing to another show or refresh later."
-                  : "Subscribe to a few shows first (search above) — we use their TVMaze genres to score the catalog.";
+                  : "Subscribe to a few shows first (search above) — we use their listed genres to score the catalog.";
             }
             return;
           }
@@ -20164,9 +20203,9 @@
           }
           if (hint) {
             if (key === "trending") {
-              hint.textContent = "Running shows with strong TVMaze scores — not a title search.";
+              hint.textContent = "Running shows with strong popularity signals — not a title search.";
             } else {
-              hint.textContent = "Matches use TVMaze show genres and format — not show-title search.";
+              hint.textContent = "Matches use listed show genres and format — not show-title search.";
             }
           }
           banner.hidden = false;
@@ -20184,9 +20223,9 @@
         activeSearchAbortController = new AbortController();
         const reqId = ++activeSearchRequestId;
 
-        const defaultLoadMsg = "Searching TVMaze & catalog…";
+        const defaultLoadMsg = "Searching shows & catalog…";
         if (loadText) {
-          loadText.textContent = "Scanning the TVMaze catalog for genre & format matches…";
+          loadText.textContent = "Scanning the catalog for genre & format matches…";
         }
         renderSearchSkeleton(box, 5);
         let showedBar = false;
@@ -20479,7 +20518,7 @@
         linkP.innerHTML = "";
         if (loadingBar) loadingBar.hidden = true;
         const loadText = document.getElementById("searchLoadingBarText");
-        if (loadText) loadText.textContent = "Searching TVMaze & catalog…";
+        if (loadText) loadText.textContent = "Searching shows & catalog…";
         const bnr = document.getElementById("searchDiscoveryBanner");
         if (bnr) bnr.hidden = true;
         searchResultState.kind = "title";

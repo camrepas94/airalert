@@ -4701,7 +4701,7 @@ async function buildShowDetailsJson(showId: number, tzQuery: string | undefined)
       .prepare(`SELECT COUNT(*) AS c FROM episodes_cache WHERE tvmaze_show_id = ?`)
       .get(showId) as { c: number };
     if (!subRow && cachedRows.c === 0) {
-      throw new Error("Show not found (TVMaze unavailable or show removed, and nothing in cache).");
+      throw new Error("Show not found (guide unavailable or show removed, and nothing in cache).");
     }
     show = {
       id: showId,
@@ -5333,7 +5333,7 @@ app.post("/api/users/:userId/person-follows", async (request, reply) => {
     person = await fetchPerson(body.tvmazePersonId);
   } catch {
     reply.code(404);
-    return { error: "Person not found on TVMaze" };
+    return { error: "Person not found in our guide" };
   }
   const id = uuidv4();
   try {
@@ -6808,7 +6808,7 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
         tvmazeShowId: showId,
         tvmazeEpisodeId: ep,
       });
-      return { error: "Could not verify show with TVMaze" };
+      return { error: "Could not verify show details right now" };
     }
     const showName = showDetail.name?.trim() || "Unknown show";
 
@@ -7038,7 +7038,7 @@ app.post("/api/community/posts", async (request, reply) => {
       statusCode: 400,
       tvmazeShowId,
     });
-    return { error: "Could not verify show with TVMaze" };
+    return { error: "Could not verify show details right now" };
   }
   const showName = showDetail.name?.trim() || "Unknown show";
   const id = uuidv4();
@@ -7236,7 +7236,7 @@ app.patch("/api/community/posts/:postId", async (request, reply) => {
       newShowName = det.name?.trim() || "Unknown show";
     } catch {
       reply.code(400);
-      return { error: "Could not verify show with TVMaze" };
+      return { error: "Could not verify show details right now" };
     }
   } else if (!admin && body.tvmazeShowId != null && body.tvmazeShowId !== cur.tvmaze_show_id) {
     reply.code(403);

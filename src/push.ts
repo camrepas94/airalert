@@ -46,7 +46,7 @@ export type PushPrefs = {
   communityMention: boolean;
   communityReply: boolean;
   communityThreadNewPost: boolean;
-  /** People you follow — new show on their TVMaze cast/crew credits */
+  /** People you follow — new show on their cast/crew credits */
   personNewProject: boolean;
 };
 
