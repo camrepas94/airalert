@@ -8502,6 +8502,28 @@ app.get("/terms.html", async (_req, reply) =>
 app.get("/support.html", async (_req, reply) =>
   sendPublicUtf8File(reply, "support.html", "text/html", "no-store, max-age=0"),
 );
+/** Help center guides (linked from `support.html`; explicit routes — no generic static middleware). */
+app.get("/guides.css", async (_req, reply) =>
+  sendPublicUtf8File(reply, "guides.css", "text/css", "public, max-age=300"),
+);
+app.get("/guide-notifications.html", async (_req, reply) =>
+  sendPublicUtf8File(reply, "guide-notifications.html", "text/html", "no-store, max-age=0"),
+);
+app.get("/guide-account.html", async (_req, reply) =>
+  sendPublicUtf8File(reply, "guide-account.html", "text/html", "no-store, max-age=0"),
+);
+app.get("/guide-tasks.html", async (_req, reply) =>
+  sendPublicUtf8File(reply, "guide-tasks.html", "text/html", "no-store, max-age=0"),
+);
+app.get("/guide-community.html", async (_req, reply) =>
+  sendPublicUtf8File(reply, "guide-community.html", "text/html", "no-store, max-age=0"),
+);
+app.get("/guide-delete-account.html", async (_req, reply) =>
+  sendPublicUtf8File(reply, "guide-delete-account.html", "text/html", "no-store, max-age=0"),
+);
+app.get("/report-bug.html", async (_req, reply) =>
+  sendPublicUtf8File(reply, "report-bug.html", "text/html", "no-store, max-age=0"),
+);
 
 cron.schedule("5 * * * *", async () => {
   try {

@@ -1,45 +1,746 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="robots" content="noindex" />
-    <title>AirAlert Support</title>
-    <style>
-      :root { color-scheme: dark; --bg:#050508; --card:#101525; --text:#eef2ff; --muted:#94a3b8; --accent:#22d3ee; --border:rgba(148,163,184,.22); font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; }
-      body { margin:0; min-height:100vh; background:radial-gradient(circle at top, rgba(91,156,255,.14), transparent 34%), var(--bg); color:var(--text); line-height:1.6; padding:2rem 1rem; }
-      main { width:min(100%, 48rem); margin:0 auto; background:rgba(16,21,37,.86); border:1px solid var(--border); border-radius:18px; padding:1.25rem; }
-      h1 { margin:0 0 .4rem; letter-spacing:-.03em; }
-      h2 { margin:1.2rem 0 .35rem; font-size:1rem; color:#dbeafe; }
-      p, li { color:var(--muted); }
-      a { color:var(--accent); }
-      code { color:#e0f2fe; background:rgba(15,23,42,.8); border:1px solid var(--border); border-radius:8px; padding:.12rem .35rem; }
-      .top { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:center; margin-bottom:1rem; }
-    </style>
-  </head>
-  <body>
-    <main>
-      <div class="top">
-        <div>
-          <h1>AirAlert Support</h1>
-          <p>Private beta support and review-facing help entry point.</p>
-        </div>
-        <a href="/">Open AirAlert</a>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AirAlert Support</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080a14;--surface:#0d1020;--card:#0f1224;
+  --cyan:#00d4ff;--purple:#a855f7;--pink:#ec4899;
+  --text:#e8ecff;--muted:#7a84a8;--muted2:#3a4060;
+  --grad:linear-gradient(135deg,#00d4ff 0%,#a855f7 50%,#ec4899 100%);
+  --r:16px;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Nunito',sans-serif;font-size:16px;line-height:1.65;
+  overflow-x:hidden;
+}
+
+/* STARS */
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:#fff;animation:tw var(--d,3s) ease-in-out infinite var(--dl,0s)}
+@keyframes tw{0%,100%{opacity:var(--mn,.08)}50%{opacity:var(--mx,.5)}}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 6vw;
+  background:rgba(8,10,20,0.88);backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(0,212,255,0.1);
+}
+.logo{
+  display:flex;align-items:center;text-decoration:none;line-height:0;
+}
+.logo img{display:block;height:34px;width:auto}
+.nav-app{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.85rem;
+  letter-spacing:1px;text-transform:uppercase;
+  text-decoration:none;color:#fff;padding:9px 22px;border-radius:100px;
+  background:var(--grad);box-shadow:0 0 20px rgba(168,85,247,0.35);
+  transition:box-shadow .2s,transform .15s;
+}
+.nav-app:hover{box-shadow:0 0 34px rgba(168,85,247,0.6);transform:translateY(-1px)}
+
+/* HERO */
+.hero{
+  position:relative;z-index:1;
+  text-align:center;padding:140px 6vw 80px;
+}
+.hero-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 30% 40%,rgba(0,212,255,0.07),transparent 65%),
+    radial-gradient(ellipse 50% 50% at 75% 60%,rgba(168,85,247,0.09),transparent 65%);
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 18px;border-radius:100px;
+  font-family:'Rajdhani',sans-serif;font-size:0.78rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.28);color:var(--cyan);
+  margin-bottom:28px;animation:fadeUp .5s ease both;
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+h1{
+  font-family:'Rajdhani',sans-serif;font-weight:700;
+  font-size:clamp(2.6rem,7vw,5rem);line-height:1.0;letter-spacing:-1px;
+  max-width:700px;margin:0 auto;
+  animation:fadeUp .6s .08s ease both;
+}
+h1 .g{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(168,85,247,0.45))}
+.hero-sub{
+  font-size:1.05rem;color:var(--muted);max-width:460px;margin:20px auto 0;
+  animation:fadeUp .6s .16s ease both;
+}
+
+/* SEARCH BAR */
+.search-wrap{
+  max-width:520px;margin:40px auto 0;
+  position:relative;animation:fadeUp .6s .22s ease both;
+}
+.search-bar{
+  width:100%;background:rgba(0,0,0,0.35);
+  border:1px solid rgba(168,85,247,0.28);
+  border-radius:100px;padding:14px 20px 14px 50px;
+  color:var(--text);font-family:'Nunito',sans-serif;font-size:0.95rem;
+  outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.search-bar:focus{border-color:rgba(0,212,255,.45);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
+.search-bar::placeholder{color:var(--muted)}
+.search-icon{
+  position:absolute;left:18px;top:50%;transform:translateY(-50%);
+  font-size:1.1rem;pointer-events:none;
+}
+
+/* QUICK LINKS */
+.quick{
+  display:flex;justify-content:center;flex-wrap:wrap;gap:10px;
+  margin-top:28px;animation:fadeUp .6s .28s ease both;
+}
+.quick-pill{
+  padding:8px 18px;border-radius:100px;
+  font-family:'Rajdhani',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:.5px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+  color:var(--muted);text-decoration:none;
+  transition:border-color .2s,color .2s,background .2s;cursor:pointer;
+}
+.quick-pill:hover{border-color:rgba(0,212,255,.35);color:var(--cyan);background:rgba(0,212,255,.06)}
+
+/* SECTION */
+.section{position:relative;z-index:1;padding:80px 6vw}
+.section-label{
+  font-family:'Rajdhani',sans-serif;font-size:0.75rem;font-weight:700;
+  letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:14px;
+}
+h2{
+  font-family:'Rajdhani',sans-serif;font-weight:700;
+  font-size:clamp(1.8rem,3.5vw,2.6rem);letter-spacing:-.5px;line-height:1.05;
+}
+.section-sub{color:var(--muted);max-width:480px;margin-top:10px;font-size:0.95rem}
+
+/* TOPIC GRID */
+.topic-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:16px;margin-top:48px;
+}
+.topic-card{
+  position:relative;padding:2px;border-radius:var(--r);
+  background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(168,85,247,0.2),rgba(236,72,153,0.2));
+  transition:transform .22s;cursor:pointer;text-decoration:none;color:inherit;
+}
+.topic-card:hover{transform:translateY(-4px)}
+.topic-card:hover .topic-inner{background:rgba(20,18,38,1)}
+.topic-inner{
+  background:var(--card);border-radius:calc(var(--r) - 2px);
+  padding:28px 24px;height:100%;
+  transition:background .2s;position:relative;overflow:hidden;
+}
+.topic-inner::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(0,212,255,0.04),transparent 70%);
+}
+.topic-icon{font-size:1.8rem;margin-bottom:14px;display:block}
+.topic-inner h3{
+  font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;letter-spacing:.5px;margin-bottom:8px;
+}
+.topic-inner p{color:var(--muted);font-size:0.88rem;line-height:1.6}
+.topic-arrow{
+  display:inline-block;margin-top:14px;
+  font-family:'Rajdhani',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:1px;
+  color:var(--cyan);text-transform:uppercase;
+}
+
+/* FAQ */
+.faq-list{max-width:720px;margin-top:48px}
+.faq-item{
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  overflow:hidden;
+}
+.faq-q{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 0;cursor:pointer;gap:16px;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.3px;
+  transition:color .18s;user-select:none;
+}
+.faq-q:hover{color:var(--cyan)}
+.faq-chevron{
+  flex-shrink:0;width:28px;height:28px;border-radius:50%;
+  border:1px solid rgba(255,255,255,0.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.7rem;color:var(--muted);
+  transition:transform .25s,border-color .2s,color .2s;
+}
+.faq-item.open .faq-chevron{transform:rotate(180deg);border-color:rgba(0,212,255,.3);color:var(--cyan)}
+.faq-a{
+  max-height:0;overflow:hidden;
+  transition:max-height .35s ease,padding .25s;
+  color:var(--muted);font-size:0.93rem;line-height:1.7;
+}
+.faq-item.open .faq-a{max-height:300px;padding-bottom:20px}
+.faq-a a{color:var(--cyan);text-decoration:none}
+.faq-a a:hover{text-decoration:underline}
+
+/* STEPS */
+.steps{max-width:640px;margin-top:48px}
+.step-row{display:flex;gap:20px;align-items:flex-start;padding:24px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.step-row:last-child{border-bottom:none}
+.step-num{
+  width:44px;height:44px;flex-shrink:0;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.1rem;
+  background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.22);
+  color:var(--cyan);box-shadow:0 0 14px rgba(0,212,255,0.1);
+}
+.step-row h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.3px;margin-bottom:5px}
+.step-row p{color:var(--muted);font-size:0.88rem}
+.step-row code{
+  background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);
+  color:var(--cyan);border-radius:6px;padding:1px 7px;font-size:0.82rem;
+}
+
+/* WEB FEEDBACK (FormSubmit → feedback@airalert.io) */
+.feedback-split-label{
+  font-family:'Rajdhani',sans-serif;font-size:0.75rem;font-weight:700;
+  letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);
+  margin:36px 0 20px;
+}
+.feedback-web{
+  margin-top:8px;padding:32px 28px;
+  background:var(--card);border:1px solid rgba(255,255,255,0.07);
+  border-radius:var(--r);
+  position:relative;overflow:hidden;
+}
+.feedback-web::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(0,212,255,0.05),transparent 70%);
+}
+.feedback-web-title{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.35rem;letter-spacing:.3px;
+  margin-bottom:10px;position:relative;z-index:1;
+}
+.feedback-web-lead{
+  color:var(--muted);font-size:0.93rem;margin-bottom:24px;max-width:560px;position:relative;z-index:1;
+}
+.feedback-form{max-width:560px;position:relative;z-index:1}
+.feedback-field{margin-bottom:18px}
+.feedback-field label{
+  display:block;font-family:'Rajdhani',sans-serif;font-size:0.78rem;font-weight:700;
+  letter-spacing:1.2px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;
+}
+.feedback-field input,.feedback-field select,.feedback-field textarea{
+  width:100%;background:rgba(0,0,0,0.35);border:1px solid rgba(168,85,247,0.25);
+  border-radius:12px;padding:12px 16px;color:var(--text);font-family:'Nunito',sans-serif;font-size:0.95rem;
+  outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.feedback-field textarea{min-height:160px;resize:vertical;line-height:1.6}
+.feedback-field input:focus,.feedback-field select:focus,.feedback-field textarea:focus{
+  border-color:rgba(0,212,255,.4);box-shadow:0 0 0 3px rgba(0,212,255,.08);
+}
+.feedback-hint{font-size:0.8rem;color:var(--muted2);margin-top:6px}
+.feedback-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:10px}
+.feedback-submit{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:1px;text-transform:uppercase;
+  padding:12px 28px;border-radius:100px;border:none;cursor:pointer;
+  background:var(--grad);color:#fff;box-shadow:0 0 22px rgba(168,85,247,0.35);
+  transition:box-shadow .2s,transform .15s,opacity .2s;
+}
+.feedback-submit:hover:not(:disabled){box-shadow:0 0 34px rgba(168,85,247,0.5);transform:translateY(-1px)}
+.feedback-submit:disabled{opacity:.55;cursor:not-allowed}
+.feedback-note{font-size:0.78rem;color:var(--muted);max-width:520px;line-height:1.55;margin-top:16px}
+.feedback-msg{margin-top:18px;padding:14px 18px;border-radius:12px;font-size:0.9rem;display:none}
+.feedback-msg.ok{background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.28);color:var(--text)}
+.feedback-msg.err{background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.25);color:var(--text)}
+.honey{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;overflow:hidden}
+
+/* CONTACT BLOCK */
+.contact-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;margin-top:48px;
+}
+.contact-card{
+  background:var(--card);border:1px solid rgba(255,255,255,0.07);
+  border-radius:var(--r);padding:26px 22px;
+  transition:border-color .2s,transform .2s;
+}
+.contact-card:hover{border-color:rgba(168,85,247,.3);transform:translateY(-3px)}
+.contact-icon{font-size:1.6rem;margin-bottom:12px;display:block}
+.contact-card h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.95rem;letter-spacing:.5px;margin-bottom:6px}
+.contact-card p{color:var(--muted);font-size:0.83rem;line-height:1.55;margin-bottom:14px}
+.contact-btn{
+  display:inline-block;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.78rem;
+  letter-spacing:1px;text-transform:uppercase;
+  padding:8px 18px;border-radius:100px;text-decoration:none;
+  border:1px solid rgba(168,85,247,.3);color:var(--purple);
+  background:rgba(168,85,247,.08);
+  transition:border-color .2s,background .2s,box-shadow .2s;
+}
+.contact-btn:hover{border-color:rgba(168,85,247,.6);background:rgba(168,85,247,.15);box-shadow:0 0 14px rgba(168,85,247,.2)}
+.contact-btn.cyan{border-color:rgba(0,212,255,.3);color:var(--cyan);background:rgba(0,212,255,.08)}
+.contact-btn.cyan:hover{border-color:rgba(0,212,255,.6);background:rgba(0,212,255,.15);box-shadow:0 0 14px rgba(0,212,255,.2)}
+.contact-btn.pink{border-color:rgba(236,72,153,.3);color:var(--pink);background:rgba(236,72,153,.08)}
+.contact-btn.pink:hover{border-color:rgba(236,72,153,.6);background:rgba(236,72,153,.15);box-shadow:0 0 14px rgba(236,72,153,.2)}
+
+/* BETA BANNER */
+.beta-banner{
+  position:relative;z-index:1;
+  margin:0 6vw 0;padding:2px;border-radius:20px;
+  background:var(--grad);
+  box-shadow:0 0 60px rgba(168,85,247,0.15);
+}
+.beta-inner{
+  background:var(--surface);border-radius:18px;
+  padding:40px 36px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:24px;flex-wrap:wrap;
+}
+.beta-text h3{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.5rem;letter-spacing:-.3px;margin-bottom:6px;
+  background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.beta-text p{color:var(--muted);font-size:0.93rem;max-width:400px}
+.beta-btn{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.95rem;
+  letter-spacing:1px;text-transform:uppercase;
+  color:#fff;padding:14px 32px;border-radius:100px;white-space:nowrap;
+  background:var(--grad);border:none;cursor:pointer;text-decoration:none;
+  box-shadow:0 0 26px rgba(168,85,247,0.4);
+  transition:box-shadow .2s,transform .15s;display:inline-block;
+}
+.beta-btn:hover{box-shadow:0 0 44px rgba(168,85,247,0.65);transform:translateY(-1px)}
+
+/* DELETION */
+.deletion-block{
+  background:rgba(236,72,153,0.05);
+  border:1px solid rgba(236,72,153,0.18);
+  border-radius:var(--r);padding:28px 24px;margin-top:48px;
+  max-width:620px;
+}
+.deletion-block h3{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.5px;
+  color:var(--pink);margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.deletion-block p{color:var(--muted);font-size:0.9rem;line-height:1.65}
+.deletion-block code{
+  background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.2);
+  color:var(--pink);border-radius:6px;padding:1px 7px;font-size:0.82rem;
+}
+
+/* FOOTER */
+footer{
+  position:relative;z-index:1;
+  border-top:1px solid rgba(255,255,255,0.06);
+  padding:32px 6vw;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+}
+footer p{color:var(--muted);font-size:0.82rem}
+.foot-links a{color:var(--muted);font-size:0.82rem;text-decoration:none;margin-left:20px;transition:color .2s}
+.foot-links a:hover{color:var(--cyan)}
+
+/* UTILS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.vis{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .reveal,.reveal.vis{opacity:1;transform:none;transition:none}
+}
+</style>
+<noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">
+    <img src="/logo.svg" alt="AirAlert" width="212" height="36" />
+  </a>
+  <a href="/" class="nav-app">Open App</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge"><span class="badge-dot"></span>Support Centre</div>
+  <h1>How can we<br><span class="g">help you?</span></h1>
+  <p class="hero-sub">Find answers, send feedback, and get the most out of AirAlert during beta.</p>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-bar" type="text" placeholder="Search for help… e.g. push notifications, delete account" oninput="filterFaq(this.value)"/>
+  </div>
+  <div class="quick">
+    <a class="quick-pill" href="guide-notifications.html">Push notifications</a>
+    <a class="quick-pill" href="guide-account.html">Account & sign-in</a>
+    <a class="quick-pill" href="guide-tasks.html">Tasks & checklist</a>
+    <a class="quick-pill" href="guide-community.html">Community</a>
+    <a class="quick-pill" href="guide-delete-account.html">Delete account</a>
+  </div>
+</div>
+
+<!-- TOPICS -->
+<section class="section" style="padding-top:20px">
+  <div class="section-label">Browse Topics</div>
+  <h2>What do you need help with?</h2>
+  <div class="topic-grid reveal">
+    <a class="topic-card" href="guide-notifications.html">
+      <div class="topic-inner">
+        <span class="topic-icon">🔔</span>
+        <h3>Push Notifications</h3>
+        <p>Set up alerts for new episodes, community replies, cast news, and direct messages.</p>
+        <span class="topic-arrow">View guide →</span>
       </div>
-      <h2>Get Help</h2>
-      <ul>
-        <li>Beta testers can send structured feedback from Profile → Help &amp; legal → Send beta feedback.</li>
-        <li>Use Settings → Help, privacy &amp; legal for privacy, terms, and account deletion guidance.</li>
-        <li>Use Community report actions for posts, reviews, chat messages, or member profiles that need moderation.</li>
-      </ul>
-      <h2>Account Deletion</h2>
-      <p>
-        Signed-in users can delete their account in the app from Profile → Session → Delete account. This removes the account and related AirAlert data.
-      </p>
-      <h2>Future Support Channels</h2>
-      <p>
-        Before public store submission, connect hosted support URLs and mailbox aliases such as <code>support@airalert.app</code>, <code>bugs@airalert.app</code>, and <code>privacy@airalert.app</code>.
-      </p>
-    </main>
-  </body>
+    </a>
+    <a class="topic-card" href="guide-account.html">
+      <div class="topic-inner">
+        <span class="topic-icon">👤</span>
+        <h3>Account & Sign-in</h3>
+        <p>Create an account, sign in with Google, sync your list across devices, and reset your password.</p>
+        <span class="topic-arrow">View guide →</span>
+      </div>
+    </a>
+    <a class="topic-card" href="guide-tasks.html">
+      <div class="topic-inner">
+        <span class="topic-icon">📋</span>
+        <h3>Tasks & Checklist</h3>
+        <p>How episodes appear in Tasks, marking watched, binge-watching mode, and ratings.</p>
+        <span class="topic-arrow">View guide →</span>
+      </div>
+    </a>
+    <a class="topic-card" href="guide-community.html">
+      <div class="topic-inner">
+        <span class="topic-icon">💬</span>
+        <h3>Community & Chat</h3>
+        <p>Episode threads, spoiler controls, predictions, reporting posts, and live rooms.</p>
+        <span class="topic-arrow">View guide →</span>
+      </div>
+    </a>
+    <a class="topic-card" href="guide-delete-account.html">
+      <div class="topic-inner">
+        <span class="topic-icon">🗑️</span>
+        <h3>Delete Account</h3>
+        <p>How to permanently remove your account, show list, tasks, and community data.</p>
+        <span class="topic-arrow">View guide →</span>
+      </div>
+    </a>
+    <a class="topic-card" href="#feedback">
+      <div class="topic-inner">
+        <span class="topic-icon">🚀</span>
+        <h3>Beta Feedback</h3>
+        <p>Send structured feedback, report bugs, and suggest features during the private beta.</p>
+        <span class="topic-arrow">Send feedback →</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" style="padding-top:0" id="faq-section">
+  <div class="section-label">FAQ</div>
+  <h2>Common questions</h2>
+  <div class="faq-list reveal" id="faqList">
+
+    <div class="faq-item" data-tags="notifications push alerts episodes">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I turn on push notifications?
+        <span class="faq-chevron">▾</span>
+      </div>
+      <div class="faq-a">Go to <strong>Settings</strong> (top-right gear icon) → <strong>Push notifications</strong> → tap <strong>Turn on push for this device</strong>. You can then pick exactly what triggers an alert — episode air times, community replies, cast news, or direct messages. Each can be toggled independently.
+      </div>
+    </div>
+
+    <div class="faq-item" data-tags="notifications push episodes tasks" id="notifications">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Why am I not getting episode notifications?
+        <span class="faq-chevron">▾</span>
+      </div>
+      <div class="faq-a">Check three things: (1) Push is enabled in Settings → Push notifications. (2) The <strong>Episode airs today</strong> toggle is on. (3) Your timezone is set correctly in Settings → Time & timezone. Episodes fire on the daily pass at the hour you configure — not the moment they air.
+      </div>
+    </div>
+
+    <div class="faq-item" data-tags="account signin login google sync" id="account">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I sync my shows across devices?
+        <span class="faq-chevron">▾</span>
+      </div>
+      <div class="faq-a">You need a real account (not guest). Open the <strong>Account menu</strong> (top-right person icon) → <strong>Create account</strong>. Use email + password or Continue with Google. Once signed in, your list syncs automatically across any browser or device.
+      </div>
+    </div>
+
+    <div class="faq-item" data-tags="account password reset signin">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        I forgot my password. How do I reset it?
+        <span class="faq-chevron">▾</span>
+      </div>
+      <div class="faq-a">On the sign-in screen tap <strong>Forgot password?</strong> and enter your account email. A reset link will be sent when outbound email is active. If email isn't set up yet in this beta build, try signing in with <strong>Continue with Google</strong> using the same email address.
+      </div>
+    </div>
+
+    <div class="faq-item" data-tags="tasks checklist episodes watched" id="tasks">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Why doesn't an episode show up in my Tasks?
+        <span class="faq-chevron">▾</span>
+      </div>
+      <div class="faq-a">Tasks only shows episodes that have already aired. If the episode is upcoming it will appear after its air date. You can also refresh show data in <strong>Settings → Refresh all show data</strong> to pull the latest info from TVMaze.
+      </div>
+    </div>
+
+    <div class="faq-item" data-tags="tasks binge watching spoiler behind">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How does binge-watching / episodes-behind mode work?
+        <span class="faq-chevron">▾</span>
+      </div>
+      <div class="faq-a">Inside any show's Community tab, tap <strong>Watch progress & blur</strong>. Turn on <strong>Binge-watching later</strong> to mute all alerts for that show and blur every episode thread. Or set a specific number of episodes you're behind — AirAlert will blur only those threads. Tap to reveal any blurred thread when you're ready.
+      </div>
+    </div>
+
+    <div class="faq-item" data-tags="community chat post spoiler report" id="community">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I report a post or member?
+        <span class="faq-chevron">▾</span>
+      </div>
+      <div class="faq-a">Tap the <strong>⋯</strong> menu on any post, review, chat message, or member profile and choose <strong>Report</strong>. For member profiles, open the profile and use the report action at the bottom. Moderation actions go directly to the AirAlert admin queue.
+      </div>
+    </div>
+
+    <div class="faq-item" data-tags="community unlock shows add three">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        Community and Inbox are locked — how do I unlock them?
+        <span class="faq-chevron">▾</span>
+      </div>
+      <div class="faq-a">Add at least <strong>3 shows</strong> to your list via <strong>Add Shows</strong>. Once you've subscribed to three shows, Community, Inbox, and personalised recommendations unlock automatically. You also need a real account (not guest) to post and send messages.
+      </div>
+    </div>
+
+    <div class="faq-item" data-tags="follow cast actor director tvmaze push">
+      <div class="faq-q" onclick="toggleFaq(this)">
+        How do I follow a cast member or director?
+        <span class="faq-chevron">▾</span>
+      </div>
+      <div class="faq-a">Go to any show page → scroll to the cast/crew section → tap <strong>Follow</strong> next to a name. AirAlert checks TVMaze credits hourly. When that person is listed on a new project you'll get a push notification — often before entertainment news covers it.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW TO GET HELP: STEPS -->
+<section class="section" style="padding-top:0" id="feedback">
+  <div class="section-label">Beta Feedback</div>
+  <h2>Send beta feedback</h2>
+  <p class="section-sub">The fastest way to report bugs or suggest features during private beta — in the app or using the form below.</p>
+  <p class="feedback-split-label">In the app</p>
+  <div class="steps reveal">
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div>
+        <h3>Open your Profile</h3>
+        <p>Tap the person icon in the top-right corner of the app to open your profile.</p>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div>
+        <h3>Go to Help &amp; legal</h3>
+        <p>Scroll down to the <code>Help, privacy &amp; legal</code> section and tap <code>Send beta feedback</code>.</p>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div>
+        <h3>Describe the issue or idea</h3>
+        <p>Be as specific as possible — which section, what you expected, what happened. Screenshots help.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="feedback-web reveal" id="web-feedback">
+    <h3 class="feedback-web-title">Send feedback from the web</h3>
+    <p class="feedback-web-lead">Share bugs, ideas, or beta impressions. Submissions are emailed to <strong>feedback@airalert.io</strong>.</p>
+
+    <form class="feedback-form" id="beta-feedback-form" action="https://formsubmit.co/feedback@airalert.io" method="POST">
+      <input type="hidden" name="_subject" value="[AirAlert Beta] Website feedback"/>
+      <input type="text" name="_gotcha" class="honey" tabindex="-1" autocomplete="off" aria-hidden="true"/>
+
+      <div class="feedback-field">
+        <label for="fb-name">Name <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input id="fb-name" type="text" name="name" maxlength="120" placeholder="Your name" autocomplete="name"/>
+      </div>
+      <div class="feedback-field">
+        <label for="fb-email">Email</label>
+        <input id="fb-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email"/>
+        <p class="feedback-hint">We’ll only use this if we need to follow up.</p>
+      </div>
+      <div class="feedback-field">
+        <label for="fb-type">Feedback type</label>
+        <select id="fb-type" name="category" required>
+          <option value="" disabled selected>Select…</option>
+          <option value="Bug report">Bug report</option>
+          <option value="Feature idea">Feature idea</option>
+          <option value="General feedback">General feedback</option>
+          <option value="Something else">Something else</option>
+        </select>
+      </div>
+      <div class="feedback-field">
+        <label for="fb-msg">Your feedback</label>
+        <textarea id="fb-msg" name="message" required maxlength="8000" placeholder="What happened? What did you expect? Steps to reproduce help us fix bugs faster."></textarea>
+      </div>
+
+      <div class="feedback-actions">
+        <button type="submit" class="feedback-submit" id="beta-feedback-submit">Send feedback</button>
+      </div>
+
+      <p class="feedback-note">Delivered through FormSubmit to protect against spam. The first time you use this address, FormSubmit may send <strong>feedback@airalert.io</strong> a one-time activation link — click it once so submissions reach the inbox. If sending fails, email us directly at feedback@airalert.io.</p>
+
+      <div class="feedback-msg ok" id="feedback-msg-ok" role="status">Thanks — your feedback was sent. We read every message.</div>
+      <div class="feedback-msg err" id="feedback-msg-err" role="alert"></div>
+    </form>
+  </div>
+</section>
+
+<!-- BETA BANNER -->
+<div class="beta-banner reveal">
+  <div class="beta-inner">
+    <div class="beta-text">
+      <h3>You're helping build AirAlert</h3>
+      <p>Every bug report and feature suggestion shapes the app. We read all beta feedback — thank you for being here early.</p>
+    </div>
+    <a href="/" class="beta-btn">Open App &amp; Send Feedback</a>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<section class="section">
+  <div class="section-label">Contact</div>
+  <h2>Get in touch</h2>
+  <p class="section-sub">Beta channels — more options coming before public launch.</p>
+  <div class="contact-grid reveal">
+    <div class="contact-card">
+      <span class="contact-icon">📲</span>
+      <h3>In-App Feedback</h3>
+      <p>The fastest route during beta. Profile → Help &amp; legal → Send beta feedback.</p>
+      <a href="/" class="contact-btn cyan">Open App</a>
+    </div>
+    <div class="contact-card">
+      <span class="contact-icon">📧</span>
+      <h3>Email Support</h3>
+      <p>Reach us at <strong>support@airalert.io</strong> for account issues, billing questions, or anything the in-app flow doesn’t cover.</p>
+      <a href="mailto:support@airalert.io" class="contact-btn cyan">Email support@airalert.io</a>
+    </div>
+    <div class="contact-card">
+      <span class="contact-icon">🐛</span>
+      <h3>Bug Reports</h3>
+      <p>Found something broken? Send a structured report from the web or use in-app feedback with steps to reproduce.</p>
+      <a href="report-bug.html" class="contact-btn pink">Report Bug</a>
+    </div>
+  </div>
+
+  <!-- ACCOUNT DELETION -->
+  <div class="deletion-block reveal" id="deletion">
+    <h3>🗑️ Account Deletion</h3>
+    <p>To permanently delete your account and all associated data — watch list, tasks, Community posts, messages, and push subscriptions — open the app and go to <code>Profile → Session &amp; destructive actions → Delete account</code>. This action cannot be undone. Guest sessions (no account created) are cleared automatically when you clear your browser's site data for AirAlert.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="/" class="logo">
+    <img src="/logo.svg" alt="AirAlert" width="212" height="36" />
+  </a>
+  <p>© 2026 AirAlert · Private Beta</p>
+  <div class="foot-links">
+    <a href="/">App</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+  </div>
+</footer>
+
+<script>
+// Stars
+const sc=document.getElementById('stars');
+for(let i=0;i<180;i++){
+  const s=document.createElement('div');s.className='star';
+  const sz=Math.random()*1.8+0.3;
+  s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;--d:${(Math.random()*4+2).toFixed(1)}s;--dl:${(Math.random()*8).toFixed(1)}s;--mn:${(Math.random()*.1).toFixed(2)};--mx:${(Math.random()*.5+.15).toFixed(2)}`;
+  sc.appendChild(s);
+}
+
+// Scroll reveal
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis')}),{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// FAQ toggle
+function toggleFaq(el){
+  const item=el.closest('.faq-item');
+  const wasOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+  if(!wasOpen) item.classList.add('open');
+}
+
+// FAQ search filter
+function filterFaq(val){
+  const q=val.toLowerCase();
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    const text=(item.querySelector('.faq-q').textContent+' '+(item.dataset.tags||'')).toLowerCase();
+    item.style.display=(!q||text.includes(q))?'':'none';
+  });
+}
+
+// Web feedback form → FormSubmit → feedback@airalert.io
+(function(){
+  const form = document.getElementById('beta-feedback-form');
+  if (!form) return;
+  const btn = document.getElementById('beta-feedback-submit');
+  const okEl = document.getElementById('feedback-msg-ok');
+  const errEl = document.getElementById('feedback-msg-err');
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    errEl.style.display = 'none';
+    okEl.style.display = 'none';
+    errEl.textContent = '';
+    btn.disabled = true;
+    const fd = new FormData(form);
+    fd.append('_ajax', 'true');
+    try {
+      const res = await fetch('https://formsubmit.co/ajax/feedback@airalert.io', {
+        method: 'POST',
+        body: fd,
+        headers: { Accept: 'application/json' }
+      });
+      let data = null;
+      const text = await res.text();
+      try { data = text ? JSON.parse(text) : null; } catch (_) {}
+      if (!res.ok) throw new Error('Network error');
+      if (data && (data.error || data.success === false || data.success === 'false')) {
+        throw new Error(data.message || 'Send failed');
+      }
+      okEl.style.display = 'block';
+      form.reset();
+      okEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch (err) {
+      errEl.textContent = 'Could not send automatically. Email us at feedback@airalert.io or try again.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+
+// Quick pill scroll (legacy / hash links)
+function scrollTo(id) {
+  const el = document.getElementById(id) || document.getElementById('faq-section');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const faq = document.getElementById(id);
+  if (faq && faq.classList.contains('faq-item')) faq.classList.add('open');
+}
+</script>
+</body>
 </html>

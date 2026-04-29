@@ -8853,6 +8853,123 @@
       .profile-edit-card--about {
         border-left: 3px solid rgba(244, 114, 182, 0.5);
       }
+      .profile-edit-card--shows {
+        border-left: 3px solid rgba(167, 139, 250, 0.55);
+      }
+      .profile-edit-card--genres {
+        border-left: 3px solid rgba(52, 211, 153, 0.45);
+      }
+      .profile-edit-shows-lead,
+      .profile-edit-genres-lead {
+        margin: -0.35rem 0 0.85rem;
+        font-size: 0.82rem;
+        line-height: 1.45;
+      }
+      .profile-edit-shows-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+      }
+      @media (max-width: 520px) {
+        .profile-edit-shows-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .profile-edit-show-slot {
+        border: 1px dashed rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        padding: 0.85rem 0.65rem;
+        text-align: center;
+        min-height: 6.25rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        background: rgba(0, 0, 0, 0.2);
+      }
+      .profile-edit-show-slot--filled {
+        border-style: solid;
+        border-color: rgba(34, 211, 238, 0.22);
+        background: rgba(34, 211, 238, 0.06);
+      }
+      .profile-edit-show-slot--ghost {
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      .profile-edit-show-poster {
+        font-size: 1.35rem;
+        line-height: 1;
+      }
+      .profile-edit-show-slot-name {
+        font-size: 0.78rem;
+        font-weight: 700;
+        line-height: 1.25;
+        word-break: break-word;
+        max-width: 100%;
+      }
+      .profile-edit-show-slot-rank {
+        font-size: 0.65rem;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(148, 163, 184, 0.95);
+      }
+      .profile-edit-show-plus {
+        font-size: 1.35rem;
+        color: rgba(100, 116, 139, 0.9);
+      }
+      .profile-edit-show-ghost-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: rgba(148, 163, 184, 0.85);
+      }
+      .profile-edit-genres-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.35rem;
+      }
+      .profile-edit-genre-chip {
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(203, 213, 225, 0.95);
+      }
+      .profile-edit-genre-empty {
+        margin-top: 0.35rem;
+      }
+      .profile-edit-field-row--identity {
+        margin-top: 0.85rem;
+      }
+      .profile-account-lead {
+        margin-bottom: 0.65rem !important;
+      }
+      .profile-account-subcard--compact .google-oauth-start-btn {
+        margin-bottom: 0.65rem;
+      }
+      .profile-account-forgot-row {
+        margin: 0.35rem 0 0.5rem;
+      }
+      .profile-account-forgot-btn {
+        font-size: 0.82rem;
+        padding: 0.25rem 0.5rem;
+      }
+      .profile-account-google-second {
+        margin-top: 0.5rem;
+      }
+      .profile-account-tight-lead {
+        margin-bottom: 0.5rem !important;
+        font-size: 0.82rem;
+      }
+      .profile-share-actions--edit {
+        padding: 0.75rem;
+      }
       .profile-edit-card--share {
         border-left: 3px solid rgba(34, 211, 238, 0.42);
         background: linear-gradient(150deg, rgba(8, 18, 30, 0.62), rgba(8, 12, 28, 0.5));
@@ -8933,7 +9050,7 @@
         font-size: 0.78rem;
       }
       .profile-edit-field--spotlight {
-        margin-top: 1.05rem;
+        margin-top: 0;
       }
       .profile-edit-field--spotlight .profile-edit-status-hint {
         margin-top: 0.5rem;
@@ -9088,7 +9205,7 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-end;
         gap: 0.75rem;
         padding: 0.85rem 1rem calc(0.95rem + env(safe-area-inset-bottom, 0px));
         border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -9097,28 +9214,9 @@
         backdrop-filter: blur(22px) saturate(1.2);
         box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.55);
       }
-      .profile-edit-save-note {
-        margin: 0;
-        font-size: 0.8rem;
-        line-height: 1.35;
-        flex: 1;
-        min-width: 0;
-      }
-      .profile-edit-save-note strong {
-        color: #eef3ff;
-        font-weight: 650;
-      }
-      .profile-edit-save-note[hidden] {
-        display: none !important;
-      }
-      @media (max-width: 520px) {
-        .profile-edit-sticky {
-          flex-wrap: wrap;
-        }
-        .profile-edit-save-primary {
-          flex: 1 1 auto;
-          min-width: min(100%, 12rem);
-        }
+      .profile-edit-save-primary {
+        width: 100%;
+        max-width: 22rem;
       }
       .profile-edit-field-stack {
         display: flex;
@@ -10994,266 +11092,277 @@
         <div class="profile-edit-modal-shell">
           <div class="modal-body-scroll profile-edit-scroll" id="appProfileModalBody">
             <div class="profile-edit-stack">
-                <section class="profile-edit-card profile-edit-card--basics" aria-labelledby="profileBasicsHeading">
-                  <h2 id="profileBasicsHeading" class="profile-edit-block-label">Profile basics</h2>
-                  <div class="profile-edit-avatar-row">
-                    <div class="profile-avatar-wrap">
-                      <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden />
-                      <button type="button" class="profile-avatar-btn" id="profileAvatarBtn" aria-label="Change profile photo">
-                        <img id="profileAvatarImg" alt="" width="88" height="88" hidden decoding="async" />
-                        <span id="profileAvatarPlaceholder" class="profile-avatar-placeholder" aria-hidden="true">+</span>
-                      </button>
-                    </div>
-                    <div class="profile-edit-avatar-side">
-                      <p class="profile-edit-avatar-name" id="profileBasicsDisplayPreview">Your profile</p>
-                      <p class="profile-edit-avatar-sub muted">
-                        <span id="profileBasicsHandleLine">—</span>
-                        · Member since <span id="profileMemberSince">—</span>
-                      </p>
-                      <div class="profile-edit-photo-btns">
-                        <button type="button" class="profile-edit-pill-btn" id="profileChangePhotoAltBtn">Change photo</button>
-                        <button type="button" class="profile-edit-pill-btn profile-edit-pill-btn--danger" id="removeAvatarBtn">Remove</button>
-                      </div>
-                    </div>
+              <!-- 1. Profile basics — avatar + identity fields (reference: Identity block) -->
+              <section class="profile-edit-card profile-edit-card--basics" aria-labelledby="profileBasicsHeading">
+                <h2 id="profileBasicsHeading" class="profile-edit-block-label">Profile basics</h2>
+                <div class="profile-edit-avatar-row">
+                  <div class="profile-avatar-wrap">
+                    <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden />
+                    <button type="button" class="profile-avatar-btn" id="profileAvatarBtn" aria-label="Change profile photo">
+                      <img id="profileAvatarImg" alt="" width="88" height="88" hidden decoding="async" />
+                      <span id="profileAvatarPlaceholder" class="profile-avatar-placeholder" aria-hidden="true">+</span>
+                    </button>
                   </div>
-                  <p class="muted profile-edit-micro-hint profile-edit-avatar-hint-inline">
-                    Tap your photo to update — JPG, PNG, or WebP.
-                  </p>
-                  <div class="profile-edit-field profile-edit-field--spotlight">
-                    <label for="profileFavoriteShow">Spotlight show</label>
-                    <div class="profile-edit-status-bar">
-                      <span class="profile-edit-status-icon" aria-hidden="true">📺</span>
-                      <input
-                        id="profileFavoriteShow"
-                        type="text"
-                        maxlength="200"
-                        placeholder="What are you watching?"
-                        autocomplete="off"
-                        aria-describedby="profileFavoriteShowHint"
-                      />
-                      <span class="profile-edit-status-count" id="profileFavoriteShowCount" aria-live="polite">0/200</span>
-                    </div>
-                    <p id="profileFavoriteShowHint" class="muted profile-edit-micro-hint profile-edit-status-hint">
-                      Your top pick — shown on your public profile when set.
+                  <div class="profile-edit-avatar-side">
+                    <p class="profile-edit-avatar-name" id="profileBasicsDisplayPreview">Your profile</p>
+                    <p class="profile-edit-avatar-sub muted">
+                      <span id="profileBasicsHandleLine">—</span>
+                      · Member since <span id="profileMemberSince">—</span>
                     </p>
+                    <div class="profile-edit-photo-btns">
+                      <button type="button" class="profile-edit-pill-btn" id="profileChangePhotoAltBtn">Change photo</button>
+                      <button type="button" class="profile-edit-pill-btn profile-edit-pill-btn--danger" id="removeAvatarBtn">Remove</button>
+                    </div>
                   </div>
-                  <p class="muted msg profile-card-msg" id="profileInfoMsg"></p>
-                </section>
-
-                <section class="profile-edit-card profile-edit-card--about profile-edit-card--about-you" aria-labelledby="profileAboutCardHeading">
-                  <h2 id="profileAboutCardHeading" class="profile-edit-block-label">About you</h2>
-                  <div class="profile-edit-field-row">
-                    <div class="profile-edit-field">
-                      <label for="displayName">Display name</label>
-                      <input id="displayName" type="text" maxlength="120" placeholder="Your name" autocomplete="name" />
-                    </div>
-                    <div class="profile-edit-field">
-                      <div id="profileUsernameLabelBlock" class="profile-edit-field-heading">Username</div>
-                      <div
-                        class="profile-edit-faux-input"
-                        id="profileUsernameDisplay"
-                        aria-labelledby="profileUsernameLabelBlock"
-                        aria-live="polite"
-                      >
-                        —
-                      </div>
-                    </div>
+                </div>
+                <p class="muted profile-edit-micro-hint profile-edit-avatar-hint-inline">JPG, PNG, or WebP · tap photo to update</p>
+                <div class="profile-edit-field-row profile-edit-field-row--identity">
+                  <div class="profile-edit-field">
+                    <label for="displayName">Display name</label>
+                    <input id="displayName" type="text" maxlength="120" placeholder="Your name" autocomplete="name" />
                   </div>
                   <div class="profile-edit-field">
-                    <label for="profileAboutMe">Bio</label>
-                    <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="Tell the community something about you…"></textarea>
-                  </div>
-                  <div class="profile-edit-subsection profile-edit-subsection--optional">
-                    <h3 class="profile-edit-subsection-title">Optional</h3>
-                    <div class="profile-form-row profile-form-row--split">
-                      <div>
-                        <label for="profileAge">Age</label>
-                        <input id="profileAge" type="number" min="1" max="120" placeholder="—" inputmode="numeric" />
-                      </div>
-                      <div>
-                        <label for="profileSex">Sex</label>
-                        <select id="profileSex" aria-label="Sex">
-                          <option value="">Prefer not to say</option>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
-                          <option value="other">Other</option>
-                        </select>
-                      </div>
+                    <div id="profileUsernameLabelBlock" class="profile-edit-field-heading">Username</div>
+                    <div
+                      class="profile-edit-faux-input"
+                      id="profileUsernameDisplay"
+                      aria-labelledby="profileUsernameLabelBlock"
+                      aria-live="polite"
+                    >
+                      —
                     </div>
                   </div>
-                  <p class="muted msg profile-card-msg" id="profileAboutMsg"></p>
-                </section>
+                </div>
+                <p class="muted msg profile-card-msg" id="profileInfoMsg"></p>
+              </section>
 
-                <section
-                    class="profile-edit-card profile-edit-card--share profile-share-card-section"
-                    id="profileShareCardSection"
-                    hidden
-                    aria-labelledby="profileShareCardHeading"
-                  >
-                    <h2 id="profileShareCardHeading" class="profile-edit-block-label">Share card</h2>
-                    <p class="profile-edit-card-lead muted profile-share-card-intro">
-                      Square PNG with your stats — preview, download, or share.
-                    </p>
-                    <div class="profile-edit-share-shell">
-                      <p class="profile-share-preview-wrap" id="profileSharePreviewWrap" hidden style="margin: 0">
-                        <canvas id="profileShareCanvas" width="1080" height="1080" class="profile-share-canvas"></canvas>
-                      </p>
-                      <div class="profile-share-actions" style="padding: 0.75rem">
-                        <button type="button" id="profileShareCardGenerateBtn">Preview card</button>
-                        <button type="button" class="secondary" id="profileShareCardDownloadBtn" disabled>Download PNG</button>
-                        <button type="button" class="secondary" id="profileShareCardShareBtn" disabled>Share…</button>
-                      </div>
+              <!-- 2. About you — bio + optional demographics -->
+              <section class="profile-edit-card profile-edit-card--about profile-edit-card--about-you" aria-labelledby="profileAboutCardHeading">
+                <h2 id="profileAboutCardHeading" class="profile-edit-block-label">About you</h2>
+                <div class="profile-edit-field">
+                  <label for="profileAboutMe">Bio</label>
+                  <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="Tell the community something about you…"></textarea>
+                </div>
+                <div class="profile-edit-subsection profile-edit-subsection--optional">
+                  <h3 class="profile-edit-subsection-title">Optional</h3>
+                  <div class="profile-form-row profile-form-row--split">
+                    <div>
+                      <label for="profileAge">Age</label>
+                      <input id="profileAge" type="number" min="1" max="120" placeholder="—" inputmode="numeric" />
                     </div>
-                    <p class="muted msg profile-card-msg" id="profileShareCardMsg"></p>
-                </section>
+                    <div>
+                      <label for="profileSex">Sex</label>
+                      <select id="profileSex" aria-label="Sex">
+                        <option value="">Prefer not to say</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <p class="muted msg profile-card-msg" id="profileAboutMsg"></p>
+              </section>
 
+              <!-- 3. Top shows — spotlight field + reference-style slots (single persisted pick) -->
+              <section class="profile-edit-card profile-edit-card--shows" aria-labelledby="profileShowsHeading">
+                <h2 id="profileShowsHeading" class="profile-edit-block-label">Top shows</h2>
+                <p class="profile-edit-card-lead muted profile-edit-shows-lead">Spotlight pick — shown on your public profile.</p>
+                <div class="profile-edit-field profile-edit-field--spotlight">
+                  <label for="profileFavoriteShow">Spotlight</label>
+                  <div class="profile-edit-status-bar">
+                    <span class="profile-edit-status-icon" aria-hidden="true">📺</span>
+                    <input
+                      id="profileFavoriteShow"
+                      type="text"
+                      maxlength="200"
+                      placeholder="Currently watching…"
+                      autocomplete="off"
+                      aria-describedby="profileFavoriteShowHint"
+                    />
+                    <span class="profile-edit-status-count" id="profileFavoriteShowCount" aria-live="polite">0/200</span>
+                  </div>
+                  <p id="profileFavoriteShowHint" class="muted profile-edit-micro-hint profile-edit-status-hint">
+                    Your headline show — one pick today; more slots may open later.
+                  </p>
+                </div>
+                <div class="profile-edit-shows-grid" aria-hidden="true">
+                  <div class="profile-edit-show-slot" id="profileEditShowSlot1">
+                    <div class="profile-edit-show-poster" aria-hidden="true">📺</div>
+                    <div class="profile-edit-show-slot-name" id="profileEditShowSpotlightPreview">—</div>
+                    <div class="profile-edit-show-slot-rank">#1 Spotlight</div>
+                  </div>
+                  <div class="profile-edit-show-slot profile-edit-show-slot--ghost">
+                    <span class="profile-edit-show-plus" aria-hidden="true">+</span>
+                    <span class="profile-edit-show-ghost-label">Reserved</span>
+                  </div>
+                  <div class="profile-edit-show-slot profile-edit-show-slot--ghost">
+                    <span class="profile-edit-show-plus" aria-hidden="true">+</span>
+                    <span class="profile-edit-show-ghost-label">Reserved</span>
+                  </div>
+                </div>
+              </section>
+
+              <!-- 4. Top genres — read-only chips from subscriptions (reference-style density) -->
+              <section class="profile-edit-card profile-edit-card--genres" id="profileEditGenresSection" aria-labelledby="profileGenresHeading">
+                <h2 id="profileGenresHeading" class="profile-edit-block-label">Top genres</h2>
+                <p class="profile-edit-card-lead muted profile-edit-genres-lead">Inferred from your subscriptions — not edited here.</p>
+                <div id="profileEditGenreChips" class="profile-edit-genres-wrap"></div>
+                <p id="profileEditGenreEmpty" class="muted profile-edit-micro-hint profile-edit-genre-empty" hidden></p>
+              </section>
+
+              <!-- 5. Share card -->
+              <section
+                class="profile-edit-card profile-edit-card--share profile-share-card-section"
+                id="profileShareCardSection"
+                hidden
+                aria-labelledby="profileShareCardHeading"
+              >
+                <h2 id="profileShareCardHeading" class="profile-edit-block-label">Share card</h2>
+                <p class="profile-edit-card-lead muted profile-share-card-intro">Square PNG with your stats — preview, download, or share.</p>
+                <div class="profile-edit-share-shell">
+                  <p class="profile-share-preview-wrap" id="profileSharePreviewWrap" hidden style="margin: 0">
+                    <canvas id="profileShareCanvas" width="1080" height="1080" class="profile-share-canvas"></canvas>
+                  </p>
+                  <div class="profile-share-actions profile-share-actions--edit">
+                    <button type="button" id="profileShareCardGenerateBtn">Preview card</button>
+                    <button type="button" class="secondary" id="profileShareCardDownloadBtn" disabled>Download PNG</button>
+                    <button type="button" class="secondary" id="profileShareCardShareBtn" disabled>Share…</button>
+                  </div>
+                </div>
+                <p class="muted msg profile-card-msg" id="profileShareCardMsg"></p>
+              </section>
+
+              <!-- 6. Account -->
               <section class="profile-edit-card profile-edit-card--account" aria-labelledby="profileAccountHeading">
                 <h2 id="profileAccountHeading" class="profile-edit-block-label">Account</h2>
-                <p class="profile-edit-card-lead muted" id="accountLeadGuest">
-                  Guest on this device. Create an account to sync, use Community, messages, and search — with a public <strong>@username</strong>.
+                <p class="profile-edit-card-lead muted profile-account-lead" id="accountLeadGuest">
+                  Guest · create an account for sync, Community, and messages.
                 </p>
-                <p class="profile-edit-card-lead muted" id="accountLeadRegistered" hidden>
-                  Signed in. Your <strong>@username</strong> is your public handle.
-                </p>
+                <p class="profile-edit-card-lead muted profile-account-lead" id="accountLeadRegistered" hidden>Signed in</p>
                 <div id="accountGuest">
-                  <div class="profile-account-subcard profile-account-subcard--signin">
-                  <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn" data-google-login hidden style="margin-bottom: 0.65rem">
-                    Continue with Google
-                  </button>
-                  <div class="profile-account-grid profile-account-grid--register profile-account-register-block">
-                    <div>
-                      <label for="regEmail">Email (account sign-in)</label>
-                      <input id="regEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" />
-                    </div>
-                    <div>
-                      <label for="regUsername">Username (public @handle)</label>
-                      <input id="regUsername" type="text" autocomplete="username" maxlength="32" placeholder="3–32 chars: letters, numbers, . _ -" />
-                      <p class="muted" style="font-size: 0.76rem; margin: 0.25rem 0 0; line-height: 1.35">
-                        Public handle for Community and messages. This is not your account email.
-                      </p>
-                    </div>
-                    <div>
-                      <label for="regPassword">Password</label>
-                      <input id="regPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
-                      <p class="muted" style="font-size: 0.76rem; margin: 0.25rem 0 0">8–128 characters, at least one letter.</p>
-                    </div>
-                    <div>
-                      <label for="regPassword2">Confirm password</label>
-                      <input id="regPassword2" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
-                    </div>
-                  </div>
-                  <button type="button" class="profile-account-primary-btn" id="regBtn">Create account</button>
-                  <p class="muted profile-account-divider-label">Already have an account?</p>
-                  <div class="profile-account-login-row">
-                    <div>
-                      <label for="loginEmail">Email or public username</label>
-                      <input
-                        id="loginEmail"
-                        type="text"
-                        autocomplete="username"
-                        inputmode="email"
-                        placeholder="you@example.com or @username"
-                      />
-                    </div>
-                    <div>
-                      <label for="loginPassword">Password</label>
-                      <input id="loginPassword" type="password" autocomplete="current-password" />
-                    </div>
-                  </div>
-                  <p class="muted" style="margin: 0.35rem 0 0; font-size: 0.82rem">
-                    <button type="button" class="secondary" id="profileForgotPwBtn" style="font-size: inherit; padding: 0.2rem 0.45rem">
-                      Forgot password?
+                  <div class="profile-account-subcard profile-account-subcard--signin profile-account-subcard--compact">
+                    <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn" data-google-login hidden>
+                      Continue with Google
                     </button>
-                  </p>
-                  <button type="button" class="secondary profile-account-primary-btn" id="loginBtn">Sign in</button>
-                  <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn" data-google-login hidden style="margin-top: 0.5rem">
-                    Continue with Google
-                  </button>
+                    <div class="profile-account-grid profile-account-grid--register profile-account-register-block">
+                      <div>
+                        <label for="regEmail">Email</label>
+                        <input id="regEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" />
+                      </div>
+                      <div>
+                        <label for="regUsername">Username</label>
+                        <input id="regUsername" type="text" autocomplete="username" maxlength="32" placeholder="Public @handle" />
+                      </div>
+                      <div>
+                        <label for="regPassword">Password</label>
+                        <input id="regPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
+                      </div>
+                      <div>
+                        <label for="regPassword2">Confirm password</label>
+                        <input id="regPassword2" type="password" autocomplete="new-password" minlength="8" maxlength="128" />
+                      </div>
+                    </div>
+                    <button type="button" class="profile-account-primary-btn" id="regBtn">Create account</button>
+                    <p class="muted profile-account-divider-label">Already have an account?</p>
+                    <div class="profile-account-login-row">
+                      <div>
+                        <label for="loginEmail">Email or username</label>
+                        <input id="loginEmail" type="text" autocomplete="username" inputmode="email" placeholder="you@example.com or @handle" />
+                      </div>
+                      <div>
+                        <label for="loginPassword">Password</label>
+                        <input id="loginPassword" type="password" autocomplete="current-password" />
+                      </div>
+                    </div>
+                    <p class="profile-account-forgot-row">
+                      <button type="button" class="secondary profile-account-forgot-btn" id="profileForgotPwBtn">Forgot password?</button>
+                    </p>
+                    <button type="button" class="secondary profile-account-primary-btn" id="loginBtn">Sign in</button>
+                    <button type="button" class="secondary google-oauth-start-btn profile-account-primary-btn profile-account-google-second" data-google-login hidden>
+                      Continue with Google
+                    </button>
                   </div>
                 </div>
                 <div id="accountSignedIn" hidden>
                   <div class="profile-account-subcard profile-account-subcard--signin">
-                  <p class="profile-account-signed-lead">
-                    Account signed in as <strong id="accountUsernameLabel"></strong>
-                  </p>
-                  <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">Use <strong>Sign out</strong> below to end this session on this device.</p>
-                  <div id="accountEmailVerifyBanner" class="account-email-verify" hidden>
-                    <h3 class="profile-account-block-title" style="margin-top: 0.35rem">Verify your email</h3>
-                    <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">We’ll email a verification link when outbound mail is enabled.</p>
-                    <button type="button" class="secondary profile-account-primary-btn" id="acctResendVerifyBtn">
-                      Send verification email
-                    </button>
-                  </div>
+                    <p class="profile-account-signed-lead">Signed in as <strong id="accountUsernameLabel"></strong></p>
+                    <div id="accountEmailVerifyBanner" class="account-email-verify" hidden>
+                      <h3 class="profile-account-block-title">Verify email</h3>
+                      <p class="muted profile-edit-card-lead profile-account-tight-lead">We’ll send a link when outbound mail is enabled.</p>
+                      <button type="button" class="secondary profile-account-primary-btn" id="acctResendVerifyBtn">Send verification email</button>
+                    </div>
                   </div>
                   <div class="profile-account-subcard profile-account-subcard--security">
-                  <div id="accountEmailUpgrade" class="account-email-upgrade" hidden>
-                    <h3 class="profile-account-block-title" style="margin-top: 0.35rem">Add an account email</h3>
-                    <p class="muted profile-edit-card-lead" style="margin-bottom: 0.5rem">Add a recoverable sign-in email. Your @username stays your public handle.</p>
-                    <div class="profile-account-grid profile-account-pw-grid">
-                      <div>
-                        <label for="acctUpgradeEmail">Email</label>
-                        <input id="acctUpgradeEmail" type="email" autocomplete="email" />
+                    <div id="accountEmailUpgrade" class="account-email-upgrade" hidden>
+                      <h3 class="profile-account-block-title">Add sign-in email</h3>
+                      <p class="muted profile-edit-card-lead profile-account-tight-lead">Recoverable email · @username stays public.</p>
+                      <div class="profile-account-grid profile-account-pw-grid">
+                        <div>
+                          <label for="acctUpgradeEmail">Email</label>
+                          <input id="acctUpgradeEmail" type="email" autocomplete="email" />
+                        </div>
+                        <div>
+                          <label for="acctUpgradeCurPw">Current password</label>
+                          <input id="acctUpgradeCurPw" type="password" autocomplete="current-password" />
+                        </div>
                       </div>
-                      <div>
-                        <label for="acctUpgradeCurPw">Current password</label>
-                        <input id="acctUpgradeCurPw" type="password" autocomplete="current-password" />
-                      </div>
+                      <button type="button" class="secondary profile-account-primary-btn" id="acctSaveEmailBtn">Save email</button>
+                      <p class="msg err profile-card-msg" id="acctUpgradeEmailErr" hidden></p>
                     </div>
-                    <button type="button" class="secondary profile-account-primary-btn" id="acctSaveEmailBtn">Save email</button>
-                    <p class="msg err profile-card-msg" id="acctUpgradeEmailErr" hidden></p>
-                  </div>
-                  <div id="accountChangePassword" class="account-change-pw" hidden>
-                    <h3 class="profile-account-block-title" style="margin-top: 0.35rem">Change password</h3>
-                    <div class="profile-account-grid profile-account-pw-grid">
-                      <div>
-                        <label for="acctCurPw">Current password</label>
-                        <input id="acctCurPw" type="password" autocomplete="current-password" />
+                    <div id="accountChangePassword" class="account-change-pw" hidden>
+                      <h3 class="profile-account-block-title">Change password</h3>
+                      <div class="profile-account-grid profile-account-pw-grid">
+                        <div>
+                          <label for="acctCurPw">Current password</label>
+                          <input id="acctCurPw" type="password" autocomplete="current-password" />
+                        </div>
+                        <div>
+                          <label for="acctNewPw">New password</label>
+                          <input id="acctNewPw" type="password" autocomplete="new-password" minlength="8" />
+                        </div>
+                        <div>
+                          <label for="acctNewPw2">Confirm new</label>
+                          <input id="acctNewPw2" type="password" autocomplete="new-password" minlength="8" />
+                        </div>
                       </div>
-                      <div>
-                        <label for="acctNewPw">New password</label>
-                        <input id="acctNewPw" type="password" autocomplete="new-password" minlength="8" />
-                      </div>
-                      <div>
-                        <label for="acctNewPw2">Confirm new</label>
-                        <input id="acctNewPw2" type="password" autocomplete="new-password" minlength="8" />
-                      </div>
+                      <button type="button" class="secondary profile-account-primary-btn" id="acctUpdatePwBtn">Update password</button>
                     </div>
-                    <button type="button" class="secondary profile-account-primary-btn" id="acctUpdatePwBtn">Update password</button>
-                  </div>
                   </div>
                 </div>
                 <p class="msg err profile-card-msg" id="accountErr"></p>
               </section>
 
+              <!-- 7. Session & destructive -->
               <section
                 id="profileSignOutSection"
                 class="profile-edit-card profile-edit-card--session profile-signout-section profile-edit-session-band"
                 hidden
                 aria-labelledby="profileSessionHeading"
               >
-                <h2 id="profileSessionHeading" class="profile-edit-block-label">Session &amp; safety</h2>
-                <p class="profile-edit-card-lead muted profile-edit-session-lead">Sign out or delete your account.</p>
+                <h2 id="profileSessionHeading" class="profile-edit-block-label">Session &amp; destructive actions</h2>
                 <div class="profile-edit-session-block profile-edit-session-block--signout" role="group" aria-labelledby="profileSessionSignOutLabel">
-                  <h3 id="profileSessionSignOutLabel" class="profile-edit-session-block-title">End session on this device</h3>
-                  <p class="muted profile-edit-session-block-lead">
-                    Sign out ends this signed-in session in this browser. You’ll continue as a <strong>guest</strong> here until you sign in again.
-                  </p>
+                  <h3 id="profileSessionSignOutLabel" class="profile-edit-session-block-title">Sign out</h3>
+                  <p class="muted profile-edit-session-block-lead">Ends this session on this device.</p>
                   <button type="button" class="secondary profile-session-signout-btn" id="signOutAccountBtn">Sign out</button>
                 </div>
-                <div id="profileAccountDeletionSection" class="profile-edit-session-block profile-edit-session-block--danger" role="group" aria-labelledby="profileDeleteAccountLabel" hidden>
+                <div
+                  id="profileAccountDeletionSection"
+                  class="profile-edit-session-block profile-edit-session-block--danger"
+                  role="group"
+                  aria-labelledby="profileDeleteAccountLabel"
+                  hidden
+                >
                   <h3 id="profileDeleteAccountLabel" class="profile-edit-session-block-title profile-edit-session-block-title--danger">Delete account</h3>
                   <p class="muted profile-edit-session-block-lead profile-edit-session-block-lead--tight">
-                    Permanently removes your AirAlert account, watch list, tasks, Community content, messages, and push subscriptions.
+                    Permanently removes your account, watch list, Community content, and messages.
                   </p>
                   <button type="button" class="danger" id="deleteAccountBtn">Delete account</button>
                 </div>
               </section>
             </div>
           </div>
-        <div class="profile-edit-sticky" role="region" aria-label="Save profile changes">
-          <p class="profile-edit-save-note muted" id="profileEditSaveNote" hidden>
-            Editing <strong id="profileEditSaveHandle">—</strong>
-          </p>
+        <div class="profile-edit-sticky" role="region" aria-label="Save profile">
           <button type="button" class="profile-edit-save-primary" id="saveProfileAllBtn">Save profile</button>
         </div>
       </div>
@@ -11745,6 +11854,60 @@
         const cnt = document.getElementById("profileFavoriteShowCount");
         if (!fs || !cnt) return;
         cnt.textContent = fs.value.length + "/200";
+        syncProfileShowSpotlightPreview();
+      }
+
+      /** Decorative slot preview — mirrors `#profileFavoriteShow` (reference show-slot look). */
+      function syncProfileShowSpotlightPreview() {
+        const inp = document.getElementById("profileFavoriteShow");
+        const prev = document.getElementById("profileEditShowSpotlightPreview");
+        const slot = document.getElementById("profileEditShowSlot1");
+        if (!inp || !prev || !slot) return;
+        const t = inp.value.trim();
+        prev.textContent = t || "—";
+        slot.classList.toggle("profile-edit-show-slot--filled", Boolean(t));
+      }
+
+      /** Read-only genre chips from subscription-derived taste (`GET /api/community/users/:id/profile`). */
+      function syncProfileGenreChipsFromSession(u) {
+        const wrap = document.getElementById("profileEditGenreChips");
+        const emptyEl = document.getElementById("profileEditGenreEmpty");
+        if (!wrap || !emptyEl) return;
+        wrap.innerHTML = "";
+        emptyEl.hidden = true;
+        emptyEl.textContent = "";
+        if (!u || !accountIsRegistered(u)) {
+          emptyEl.hidden = false;
+          emptyEl.textContent = "Sign in to see genres from your subscriptions.";
+          return;
+        }
+        void loadProfileEditGenreChips(u.id);
+      }
+
+      async function loadProfileEditGenreChips(userId) {
+        const wrap = document.getElementById("profileEditGenreChips");
+        const emptyEl = document.getElementById("profileEditGenreEmpty");
+        if (!wrap || !emptyEl || !userId) return;
+        try {
+          const p = await api("/api/community/users/" + encodeURIComponent(userId) + "/profile");
+          const g = p.watchStats && Array.isArray(p.watchStats.topGenres) ? p.watchStats.topGenres : [];
+          wrap.innerHTML = "";
+          if (!g.length) {
+            emptyEl.hidden = false;
+            emptyEl.textContent = "Subscribe to shows — top genres appear here.";
+            return;
+          }
+          emptyEl.hidden = true;
+          for (const name of g.slice(0, 12)) {
+            const span = document.createElement("span");
+            span.className = "profile-edit-genre-chip";
+            span.textContent = String(name);
+            wrap.appendChild(span);
+          }
+        } catch (e) {
+          emptyEl.hidden = false;
+          emptyEl.textContent = "Could not load genres.";
+        }
       }
 
       function syncProfileIdentityFromUser(u) {
@@ -11768,10 +11931,6 @@
         if (un) un.textContent = handleStr;
         const hl = document.getElementById("profileBasicsHandleLine");
         if (hl) hl.textContent = handleStr;
-        const saveHandle = document.getElementById("profileEditSaveHandle");
-        if (saveHandle) saveHandle.textContent = handleStr;
-        const saveNote = document.getElementById("profileEditSaveNote");
-        if (saveNote) saveNote.hidden = !(u && accountIsRegistered(u) && u.username);
         const ms = document.getElementById("profileMemberSince");
         if (ms) ms.textContent = formatMemberSince(u && u.createdAt);
         const am = document.getElementById("profileAboutMe");
@@ -11793,6 +11952,7 @@
         }
         syncProfileBasicsPreviewFromInputs(u);
         syncSelfProfilePresenceFromSession();
+        syncProfileGenreChipsFromSession(u);
       }
 
       function syncProfileShareSection() {

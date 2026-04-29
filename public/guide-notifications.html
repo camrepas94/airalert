@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Push Notifications — AirAlert Help</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="guides.css" />
+</head>
+<body>
+<div id="stars"></div>
+<nav>
+  <a href="support.html" class="nav-back">← Back to Support</a>
+  <a href="index.html" class="logo" aria-label="AirAlert home">
+    <img src="logo.svg" alt="AirAlert" width="212" height="36" />
+  </a>
+</nav>
+<div class="page">
+  <div class="breadcrumb"><a href="support.html">Support</a><span>›</span><span>Push Notifications</span></div>
+  <div class="hero-label">Guide</div>
+  <h1>🔔 Push Notifications</h1>
+  <p class="hero-sub">Everything you need to know about setting up and customising alerts so you never miss an episode, reply, or cast update.</p>
+
+  <div class="toc reveal">
+    <div class="toc-label">On this page</div>
+    <a href="#enable">Enabling push on your device</a>
+    <a href="#types">What each notification type does</a>
+    <a href="#schedule">Daily schedule & reminder hour</a>
+    <a href="#still">Still watching? nudge</a>
+    <a href="#pershow">Per-show alert settings</a>
+    <a href="#troubleshoot">Not receiving notifications?</a>
+  </div>
+
+  <div class="guide-section reveal" id="enable">
+    <h2><span class="ico">📱</span> Enabling push on your device</h2>
+    <p>AirAlert uses your browser's built-in push system — no app store download needed. You need to grant permission once per device.</p>
+    <ul class="step-list">
+      <li><span class="step-n">1</span><div><strong>Open Settings</strong> Tap the gear icon in the top-right corner of the app.</div></li>
+      <li><span class="step-n">2</span><div><strong>Scroll to Push Notifications</strong> Find the <code>Push notifications</code> section near the bottom of Settings.</div></li>
+      <li><span class="step-n">3</span><div><strong>Tap "Turn on push for this device"</strong> Your browser will show a permission prompt — tap <strong>Allow</strong>.</div></li>
+      <li><span class="step-n">4</span><div><strong>Send a test</strong> Tap <code>Send test notification</code> to confirm everything is working.</div></li>
+    </ul>
+    <div class="info-box"><p><strong>iPhone users:</strong> Make sure you're using Safari and that Notifications are allowed in iOS Settings → Safari → Advanced → Website Settings for AirAlert. AirAlert must be added to your Home Screen for push to work on iOS.</p></div>
+  </div>
+
+  <div class="guide-section reveal" id="types">
+    <h2><span class="ico">🗂️</span> What each notification type does</h2>
+    <p>You can toggle each type independently. Here's exactly what triggers each one:</p>
+    <table class="toggle-table">
+      <tr><th>Type</th><th>When it fires</th><th>Default</th></tr>
+      <tr><td>Episode airs today</td><td>Once per day at your chosen hour when a subscribed show has an episode on today's date. Opens Tasks.</td><td><span class="pill on">On</span></td></tr>
+      <tr><td>Still watching? nudge</td><td>X days after air if the episode is still unchecked in Tasks. Configurable timing.</td><td><span class="pill opt">Optional</span></td></tr>
+      <tr><td>People you follow — new show</td><td>When TVMaze lists a followed cast/crew member on a new project.</td><td><span class="pill on">On</span></td></tr>
+      <tr><td>Direct messages</td><td>When another member sends you a DM. Opens Inbox.</td><td><span class="pill on">On</span></td></tr>
+      <tr><td>@mentions</td><td>When someone tags your @username in a post or thread.</td><td><span class="pill on">On</span></td></tr>
+      <tr><td>Replies to your posts</td><td>When someone replies to a thread or post you created.</td><td><span class="pill on">On</span></td></tr>
+      <tr><td>New post in followed thread</td><td>When anyone posts in a show thread you're subscribed to. Opens Community.</td><td><span class="pill opt">Optional</span></td></tr>
+    </table>
+  </div>
+
+  <div class="guide-section reveal" id="schedule">
+    <h2><span class="ico">⏰</span> Daily schedule & reminder hour</h2>
+    <p>AirAlert doesn't fire episode alerts the instant a show airs — it runs a daily pass at a time you choose. This keeps things predictable and lets you set it for your evening routine rather than getting pinged at 3 AM.</p>
+    <p>In <strong>Settings → Schedule & nudges</strong>, set your <strong>Daily reminder hour</strong> to a local hour (e.g. 18 = 6 PM). AirAlert will check all your subscribed shows once per day at that hour and send a single bundled alert if anything aired that day.</p>
+    <div class="info-box"><p><strong>Tip:</strong> Make sure your timezone is set correctly in <code>Settings → Time & timezone</code> first — the daily hour is always in your local time.</p></div>
+  </div>
+
+  <div class="guide-section reveal" id="still">
+    <h2><span class="ico">👀</span> Still watching? nudge</h2>
+    <p>If an episode sits unwatched in Tasks for a while, AirAlert can give you a gentle nudge. In <strong>Settings → Schedule & nudges</strong>, enable the <strong>"Still watching?"</strong> toggle and pick a delay:</p>
+    <ul class="step-list">
+      <li><span class="step-n">–</span><div><strong>1 day after air</strong> Good for keeping up with fast-moving shows.</div></li>
+      <li><span class="step-n">–</span><div><strong>3 days after air</strong> Balanced — gives you the weekend but keeps you on track.</div></li>
+      <li><span class="step-n">–</span><div><strong>7 days after air</strong> Relaxed — one nudge per episode per week max.</div></li>
+    </ul>
+    <p>At most one nudge fires per episode, and only if the episode is still unchecked. If you mark it watched first, the nudge never fires.</p>
+  </div>
+
+  <div class="guide-section reveal" id="pershow">
+    <h2><span class="ico">📺</span> Per-show alert settings</h2>
+    <p>You can mute all alerts for a specific show without touching your global settings. This is useful for shows you've fallen behind on.</p>
+    <ul class="step-list">
+      <li><span class="step-n">1</span><div><strong>Open the show</strong> Go to My List and tap the show.</div></li>
+      <li><span class="step-n">2</span><div><strong>Open Community tab</strong> Scroll to <code>Watch progress & blur</code>.</div></li>
+      <li><span class="step-n">3</span><div><strong>Enable "Binge-watching later"</strong> This mutes all episode alerts and blurs all episode threads for that show until you turn it off.</div></li>
+    </ul>
+  </div>
+
+  <div class="guide-section reveal" id="troubleshoot">
+    <h2><span class="ico">🔧</span> Not receiving notifications?</h2>
+    <p>Work through these checks in order:</p>
+    <ul class="step-list">
+      <li><span class="step-n">1</span><div><strong>Check browser permission</strong> In your browser settings, confirm notifications are <em>Allowed</em> for the AirAlert site — not blocked or set to Ask.</div></li>
+      <li><span class="step-n">2</span><div><strong>Check OS-level permission</strong> On iOS: Settings → Notifications → Safari → ensure AirAlert is allowed. On Android: Settings → Apps → Browser → Notifications.</div></li>
+      <li><span class="step-n">3</span><div><strong>Check your timezone</strong> <code>Settings → Time & timezone</code> — if this is wrong your daily hour fires at the wrong time.</div></li>
+      <li><span class="step-n">4</span><div><strong>Re-subscribe to push</strong> In Settings, tap <code>Turn on push for this device</code> again. If it says already enabled, try a different browser.</div></li>
+      <li><span class="step-n">5</span><div><strong>Send test notification</strong> Tap <code>Send test notification</code> in Settings. If this arrives but episode alerts don't, the toggles are likely off.</div></li>
+    </ul>
+    <div class="warn-box"><p><strong>iOS note:</strong> Push only works on iOS if AirAlert is installed as a Home Screen web app (tap Share → Add to Home Screen in Safari). Push does not work in a regular Safari tab on iPhone.</p></div>
+  </div>
+
+  <div class="nav-footer reveal">
+    <a href="guide-account.html" class="nav-link"><div class="nl-dir">Next guide →</div><div class="nl-title">👤 Account & Sign-in</div></a>
+    <a href="support.html#faq-section" class="nav-link" style="text-align:right"><div class="nl-dir">Still stuck?</div><div class="nl-title">Browse FAQ on Support</div></a>
+  </div>
+</div>
+<footer>
+  <a href="index.html" class="logo" aria-label="AirAlert home"><img src="logo.svg" alt="AirAlert" width="212" height="36" /></a>
+  <p>© 2026 AirAlert · Private Beta</p>
+  <div class="foot-right">
+    <a href="support.html">Support</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+  </div>
+</footer>
+<script>
+const sc = document.getElementById('stars');
+for (let i = 0; i < 160; i++) {
+  const s = document.createElement('div'); s.className = 'star';
+  const sz = Math.random() * 1.8 + 0.3;
+  s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;--d:${(Math.random()*4+2).toFixed(1)}s;--dl:${(Math.random()*8).toFixed(1)}s;--mn:${(Math.random()*.1).toFixed(2)};--mx:${(Math.random()*.5+.15).toFixed(2)}`;
+  sc.appendChild(s);
+}
+const obs = new IntersectionObserver(e => e.forEach(x => { if (x.isIntersecting) x.target.classList.add('vis'); }), { threshold: 0.06 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

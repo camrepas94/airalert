@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Community &amp; Chat — AirAlert Help</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="guides.css" />
+</head>
+<body>
+<div id="stars"></div>
+<nav>
+  <a href="support.html" class="nav-back">← Back to Support</a>
+  <a href="index.html" class="logo" aria-label="AirAlert home">
+    <img src="logo.svg" alt="AirAlert" width="212" height="36" />
+  </a>
+</nav>
+<div class="page">
+  <div class="breadcrumb"><a href="support.html">Support</a><span>›</span><span>Community &amp; Chat</span></div>
+  <div class="hero-label">Guide</div>
+  <h1>💬 Community &amp; Chat</h1>
+  <p class="hero-sub">Episode threads, spoiler safety, fan predictions, reporting, following cast, and how Inbox fits in.</p>
+
+  <div class="toc reveal">
+    <div class="toc-label">On this page</div>
+    <a href="#unlock">Unlocking Community &amp; Inbox</a>
+    <a href="#threads">Episode threads &amp; posts</a>
+    <a href="#spoilers">Spoiler blur &amp; predictions</a>
+    <a href="#safety">Reporting &amp; safety</a>
+    <a href="#follow">Following cast &amp; crew</a>
+    <a href="#inbox">Inbox &amp; direct messages</a>
+  </div>
+
+  <div class="guide-section reveal" id="unlock">
+    <h2><span class="ico">🔓</span> Unlocking Community &amp; Inbox</h2>
+    <p>Add at least <strong>3 shows</strong> to your list via <strong>Add Shows</strong>. Once you've subscribed to three shows, <strong>Community</strong>, <strong>Inbox</strong>, and personalised picks unlock — as long as you're using a <strong>real account</strong> (not guest).</p>
+    <div class="info-box"><p><strong>Why three?</strong> It keeps early beta discussion grounded in people who are actively tracking multiple shows.</p></div>
+  </div>
+
+  <div class="guide-section reveal" id="threads">
+    <h2><span class="ico">🧵</span> Episode threads &amp; posts</h2>
+    <p>Each show has spaces for general chat and per-episode discussion. Open the <strong>Community</strong> tab on a show to see threads that match what you've watched — or what's blurred if you're behind.</p>
+    <p>Your <strong>@username</strong> is how people mention you. Keep it respectful; harassment and spam violate the Terms.</p>
+  </div>
+
+  <div class="guide-section reveal" id="spoilers">
+    <h2><span class="ico">🙈</span> Spoiler blur &amp; predictions</h2>
+    <p>If you're not caught up, AirAlert can <strong>blur</strong> episode threads until you choose to reveal them. Configure this under <strong>Watch progress &amp; blur</strong> on the show's Community tab.</p>
+    <p><strong>Fan predictions</strong> let you vote before an episode airs; voting typically locks at air time and the author reveals results afterward — check in-app rules for the current beta.</p>
+  </div>
+
+  <div class="guide-section reveal" id="safety">
+    <h2><span class="ico">🛡️</span> Reporting &amp; safety</h2>
+    <p>If you see abuse, spam, or content that breaks the rules, use the <strong>report</strong> flow in the app where available. Moderators may remove posts or restrict accounts that put the community at risk.</p>
+    <div class="warn-box"><p><strong>Reminder:</strong> Don't share passwords, payment info, or private details in public threads or DMs with strangers.</p></div>
+  </div>
+
+  <div class="guide-section reveal" id="follow">
+    <h2><span class="ico">⭐</span> Following cast &amp; crew</h2>
+    <p>On a show page, scroll to cast/crew and tap <strong>Follow</strong> next to a person. AirAlert checks credits periodically; when TVMaze lists them on a <strong>new project</strong>, you can get a push — often before headlines catch up.</p>
+    <p>Manage these alerts alongside your other toggles in <strong>Settings → Push notifications</strong>.</p>
+  </div>
+
+  <div class="guide-section reveal" id="inbox">
+    <h2><span class="ico">📬</span> Inbox &amp; direct messages</h2>
+    <p><strong>Inbox</strong> holds direct messages and notifications about replies or @mentions, depending on your settings. You need an account and (once unlocked) access to messaging features as enabled in your beta.</p>
+    <p>Push toggles for DMs and replies live under push settings — see the <a href="guide-notifications.html">Push Notifications guide</a> for detail.</p>
+  </div>
+
+  <div class="nav-footer reveal">
+    <a href="guide-tasks.html" class="nav-link"><div class="nl-dir">← Previous</div><div class="nl-title">📋 Tasks &amp; Checklist</div></a>
+    <a href="guide-delete-account.html" class="nav-link" style="text-align:right"><div class="nl-dir">Next guide →</div><div class="nl-title">🗑️ Delete account</div></a>
+  </div>
+</div>
+<footer>
+  <a href="index.html" class="logo" aria-label="AirAlert home"><img src="logo.svg" alt="AirAlert" width="212" height="36" /></a>
+  <p>© 2026 AirAlert · Private Beta</p>
+  <div class="foot-right">
+    <a href="support.html">Support</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+  </div>
+</footer>
+<script>
+const sc = document.getElementById('stars');
+for (let i = 0; i < 160; i++) {
+  const s = document.createElement('div'); s.className = 'star';
+  const sz = Math.random() * 1.8 + 0.3;
+  s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;--d:${(Math.random()*4+2).toFixed(1)}s;--dl:${(Math.random()*8).toFixed(1)}s;--mn:${(Math.random()*.1).toFixed(2)};--mx:${(Math.random()*.5+.15).toFixed(2)}`;
+  sc.appendChild(s);
+}
+const obs = new IntersectionObserver(e => e.forEach(x => { if (x.isIntersecting) x.target.classList.add('vis'); }), { threshold: 0.06 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

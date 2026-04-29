@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Report a Bug — AirAlert Support</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080a14;--surface:#0d1020;--card:#0f1224;
+  --cyan:#00d4ff;--purple:#a855f7;--pink:#ec4899;
+  --text:#e8ecff;--muted:#7a84a8;--muted2:#3a4060;
+  --grad:linear-gradient(135deg,#00d4ff 0%,#a855f7 50%,#ec4899 100%);
+  --r:16px;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Nunito',sans-serif;font-size:16px;line-height:1.65;
+  overflow-x:hidden;
+}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:#fff;animation:tw var(--d,3s) ease-in-out infinite var(--dl,0s)}
+@keyframes tw{0%,100%{opacity:var(--mn,.08)}50%{opacity:var(--mx,.5)}}
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 6vw;gap:12px;flex-wrap:wrap;
+  background:rgba(8,10,20,0.88);backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(236,72,153,0.12);
+}
+.nav-back{
+  font-family:'Rajdhani',sans-serif;font-size:0.85rem;font-weight:600;
+  color:var(--muted);text-decoration:none;letter-spacing:.5px;
+  transition:color .2s;
+}
+.nav-back:hover{color:var(--pink)}
+.nav-right{display:flex;align-items:center;gap:14px}
+.logo{display:flex;align-items:center;text-decoration:none;line-height:0}
+.logo img{display:block;height:34px;width:auto;max-width:min(212px,50vw)}
+.nav-app{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.85rem;
+  letter-spacing:1px;text-transform:uppercase;
+  text-decoration:none;color:#fff;padding:9px 22px;border-radius:100px;
+  background:var(--grad);box-shadow:0 0 20px rgba(236,72,153,0.25);
+  transition:box-shadow .2s,transform .15s;
+}
+.nav-app:hover{box-shadow:0 0 34px rgba(236,72,153,0.45);transform:translateY(-1px)}
+.page{
+  position:relative;z-index:1;
+  max-width:720px;margin:0 auto;
+  padding:120px 6vw 80px;
+}
+.page-glow{
+  position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background:
+    radial-gradient(ellipse 55% 45% at 20% 15%,rgba(236,72,153,0.07),transparent 55%),
+    radial-gradient(ellipse 50% 50% at 85% 50%,rgba(168,85,247,0.06),transparent 55%);
+}
+.breadcrumb{
+  display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--muted2);
+  margin-bottom:24px;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;
+}
+.breadcrumb a{color:var(--muted);text-decoration:none;transition:color .2s}
+.breadcrumb a:hover{color:var(--pink)}
+.section-label{
+  font-family:'Rajdhani',sans-serif;font-size:0.75rem;font-weight:700;
+  letter-spacing:2.5px;text-transform:uppercase;color:var(--pink);margin-bottom:12px;
+}
+h1{
+  font-family:'Rajdhani',sans-serif;font-weight:700;
+  font-size:clamp(2rem,5vw,3rem);letter-spacing:-.5px;line-height:1.05;
+  margin-bottom:12px;
+}
+.lead{color:var(--muted);font-size:1rem;margin-bottom:32px;max-width:560px}
+.lead strong{color:var(--text)}
+.feedback-web{
+  padding:32px 28px;
+  background:var(--card);border:1px solid rgba(236,72,153,0.15);
+  border-radius:var(--r);position:relative;overflow:hidden;
+}
+.feedback-web::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(236,72,153,0.07),transparent 70%);
+}
+.feedback-web-title{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.35rem;letter-spacing:.3px;
+  margin-bottom:10px;position:relative;z-index:1;
+}
+.feedback-web-lead{
+  color:var(--muted);font-size:0.93rem;margin-bottom:24px;max-width:560px;position:relative;z-index:1;
+}
+.feedback-form{max-width:560px;position:relative;z-index:1}
+.feedback-field{margin-bottom:18px}
+.feedback-field label{
+  display:block;font-family:'Rajdhani',sans-serif;font-size:0.78rem;font-weight:700;
+  letter-spacing:1.2px;text-transform:uppercase;color:var(--pink);margin-bottom:8px;
+}
+.feedback-field input,.feedback-field select,.feedback-field textarea{
+  width:100%;background:rgba(0,0,0,0.35);border:1px solid rgba(236,72,153,0.22);
+  border-radius:12px;padding:12px 16px;color:var(--text);font-family:'Nunito',sans-serif;font-size:0.95rem;
+  outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.feedback-field textarea{min-height:140px;resize:vertical;line-height:1.6}
+.feedback-field textarea.bug-detail{min-height:200px}
+.feedback-field input:focus,.feedback-field select:focus,.feedback-field textarea:focus{
+  border-color:rgba(236,72,153,.45);box-shadow:0 0 0 3px rgba(236,72,153,.08);
+}
+.feedback-hint{font-size:0.8rem;color:var(--muted2);margin-top:6px}
+.feedback-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:10px}
+.feedback-submit.bug-submit{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:1px;text-transform:uppercase;
+  padding:12px 28px;border-radius:100px;border:none;cursor:pointer;color:#fff;
+  background:linear-gradient(135deg,#ec4899 0%,#a855f7 55%,#00d4ff 100%);
+  box-shadow:0 0 22px rgba(236,72,153,0.35);
+  transition:box-shadow .2s,transform .15s,opacity .2s;
+}
+.feedback-submit.bug-submit:hover:not(:disabled){box-shadow:0 0 34px rgba(236,72,153,0.5);transform:translateY(-1px)}
+.feedback-submit:disabled{opacity:.55;cursor:not-allowed}
+.feedback-note{font-size:0.78rem;color:var(--muted);max-width:520px;line-height:1.55;margin-top:16px}
+.feedback-msg{margin-top:18px;padding:14px 18px;border-radius:12px;font-size:0.9rem;display:none}
+.feedback-msg.ok{background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.22);color:var(--text)}
+.feedback-msg.err{background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.3);color:var(--text)}
+.honey{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;overflow:hidden}
+.tip-box{
+  background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.18);
+  border-radius:var(--r);padding:16px 18px;margin-bottom:24px;position:relative;z-index:1;
+}
+.tip-box p{font-size:0.88rem;color:var(--muted);line-height:1.6}
+.tip-box strong{color:var(--pink)}
+footer{
+  position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.06);
+  padding:32px 6vw;margin-top:48px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+}
+footer p{color:var(--muted);font-size:0.82rem}
+.foot-links a{color:var(--muted);font-size:0.82rem;text-decoration:none;margin-left:20px;transition:color .2s}
+.foot-links a:first-child{margin-left:0}
+.foot-links a:hover{color:var(--pink)}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease}
+.reveal.vis{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div class="page-glow" aria-hidden="true"></div>
+
+<nav>
+  <a href="support.html" class="nav-back">← Back to Support</a>
+  <div class="nav-right">
+    <a href="index.html" class="logo" aria-label="AirAlert home">
+      <img src="logo.svg" alt="AirAlert" width="212" height="36" />
+    </a>
+    <a href="/" class="nav-app">Open App</a>
+  </div>
+</nav>
+
+<main class="page">
+  <div class="breadcrumb"><a href="support.html">Support</a><span>›</span><span>Report a bug</span></div>
+  <div class="section-label">Bug reports</div>
+  <h1>🐛 Report a bug</h1>
+  <p class="lead">Tell us what broke, where it happened, and how we can reproduce it. Reports are sent to <strong>bugs@airalert.io</strong>.</p>
+
+  <div class="feedback-web reveal" id="bug-form-wrap">
+    <div class="tip-box">
+      <p><strong>Good reports include:</strong> device &amp; browser (or app context), what you clicked, what you expected, and what happened instead. Screenshots attached elsewhere can be mentioned in the description.</p>
+    </div>
+
+    <h3 class="feedback-web-title">Bug report form</h3>
+    <p class="feedback-web-lead">The more detail you share, the faster we can track it down.</p>
+
+    <form class="feedback-form" id="bug-report-form" action="https://formsubmit.co/bugs@airalert.io" method="POST">
+      <input type="hidden" name="_subject" value="[AirAlert Beta] Bug report (website)"/>
+      <input type="text" name="_gotcha" class="honey" tabindex="-1" autocomplete="off" aria-hidden="true"/>
+
+      <div class="feedback-field">
+        <label for="bug-summary">Short summary</label>
+        <input id="bug-summary" type="text" name="summary" required maxlength="200" placeholder="e.g. Tasks list empty after marking episode watched" autocomplete="off"/>
+      </div>
+      <div class="feedback-field">
+        <label for="bug-email">Your email</label>
+        <input id="bug-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email"/>
+        <p class="feedback-hint">So we can follow up if we need more detail.</p>
+      </div>
+      <div class="feedback-field">
+        <label for="bug-name">Name <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input id="bug-name" type="text" name="name" maxlength="120" placeholder="Your name" autocomplete="name"/>
+      </div>
+      <div class="feedback-field">
+        <label for="bug-area">Where in the app?</label>
+        <select id="bug-area" name="area" required>
+          <option value="" disabled selected>Select…</option>
+          <option value="Tasks / checklist">Tasks / checklist</option>
+          <option value="My List / shows">My List / shows</option>
+          <option value="Community / chat">Community / chat</option>
+          <option value="Notifications / push">Notifications / push</option>
+          <option value="Account / profile">Account / profile</option>
+          <option value="Search / discovery">Search / discovery</option>
+          <option value="Other / not sure">Other / not sure</option>
+        </select>
+      </div>
+      <div class="feedback-field">
+        <label for="bug-device">Device &amp; browser <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input id="bug-device" type="text" name="device_and_browser" maxlength="300" placeholder="e.g. iPhone 15, Safari PWA · Windows 11, Chrome 120" autocomplete="off"/>
+      </div>
+      <div class="feedback-field">
+        <label for="bug-msg">Steps to reproduce &amp; what went wrong</label>
+        <textarea id="bug-msg" class="bug-detail" name="message" required maxlength="8000" placeholder="1. Go to…&#10;2. Tap…&#10;3. Expected: …&#10;4. Actually: …"></textarea>
+      </div>
+
+      <div class="feedback-actions">
+        <button type="submit" class="feedback-submit bug-submit" id="bug-report-submit">Submit bug report</button>
+      </div>
+
+      <p class="feedback-note">Delivered through FormSubmit (same as web feedback). The first time this inbox is used, FormSubmit may email <strong>bugs@airalert.io</strong> a one-time activation link — click it so reports are delivered. If submit fails, email bugs@airalert.io directly.</p>
+
+      <div class="feedback-msg ok" id="bug-msg-ok" role="status">Thanks — your bug report was sent. We’ll review it as soon as we can.</div>
+      <div class="feedback-msg err" id="bug-msg-err" role="alert"></div>
+    </form>
+  </div>
+</main>
+
+<footer>
+  <a href="index.html" class="logo" aria-label="AirAlert home">
+    <img src="logo.svg" alt="AirAlert" width="212" height="36" />
+  </a>
+  <p>© 2026 AirAlert · Private Beta</p>
+  <div class="foot-links">
+    <a href="support.html">Support</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+  </div>
+</footer>
+
+<script>
+const sc=document.getElementById('stars');
+for(let i=0;i<160;i++){
+  const s=document.createElement('div');s.className='star';
+  const sz=Math.random()*1.8+0.3;
+  s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;--d:${(Math.random()*4+2).toFixed(1)}s;--dl:${(Math.random()*8).toFixed(1)}s;--mn:${(Math.random()*.1).toFixed(2)};--mx:${(Math.random()*.5+.15).toFixed(2)}`;
+  sc.appendChild(s);
+}
+const bugWrap=document.getElementById('bug-form-wrap');
+const bugObs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis')}),{threshold:0.06});
+if(bugWrap) bugObs.observe(bugWrap);
+
+(function(){
+  const form=document.getElementById('bug-report-form');
+  if(!form)return;
+  const btn=document.getElementById('bug-report-submit');
+  const okEl=document.getElementById('bug-msg-ok');
+  const errEl=document.getElementById('bug-msg-err');
+  form.addEventListener('submit',async function(e){
+    e.preventDefault();
+    errEl.style.display='none';okEl.style.display='none';errEl.textContent='';
+    btn.disabled=true;
+    const fd=new FormData(form);
+    fd.append('_ajax','true');
+    try{
+      const res=await fetch('https://formsubmit.co/ajax/bugs@airalert.io',{
+        method:'POST',body:fd,headers:{Accept:'application/json'}
+      });
+      const text=await res.text();
+      let data=null;
+      try{data=text?JSON.parse(text):null;}catch(_){}
+      if(!res.ok)throw new Error('Network error');
+      if(data&&(data.error||data.success===false||data.success==='false'))
+        throw new Error(data.message||'Send failed');
+      okEl.style.display='block';form.reset();
+      okEl.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }catch(err){
+      errEl.textContent='Could not send automatically. Email bugs@airalert.io with your report.';
+      errEl.style.display='block';
+    }finally{
+      btn.disabled=false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

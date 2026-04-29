@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tasks & Checklist — AirAlert Help</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="guides.css" />
+</head>
+<body>
+<div id="stars"></div>
+<nav>
+  <a href="support.html" class="nav-back">← Back to Support</a>
+  <a href="index.html" class="logo" aria-label="AirAlert home">
+    <img src="logo.svg" alt="AirAlert" width="212" height="36" />
+  </a>
+</nav>
+<div class="page">
+  <div class="breadcrumb"><a href="support.html">Support</a><span>›</span><span>Tasks &amp; Checklist</span></div>
+  <div class="hero-label">Guide</div>
+  <h1>📋 Tasks &amp; Checklist</h1>
+  <p class="hero-sub">How episodes land in Tasks, how to mark watched, use binge mode, rate episodes, and keep your checklist accurate.</p>
+
+  <div class="toc reveal">
+    <div class="toc-label">On this page</div>
+    <a href="#overview">What Tasks is for</a>
+    <a href="#appear">When episodes appear</a>
+    <a href="#actions">Watched, not watching &amp; ratings</a>
+    <a href="#binge">Binge-watching &amp; spoiler blur</a>
+    <a href="#stats">Checklist stats</a>
+    <a href="#refresh">Refreshing show data</a>
+  </div>
+
+  <div class="guide-section reveal" id="overview">
+    <h2><span class="ico">✅</span> What Tasks is for</h2>
+    <p>The <strong>Tasks</strong> tab is your day-to-day watch queue. Episodes that have <strong>already aired</strong> show up here so you can mark what you've seen, skip what you're dropping, and rate what you finished.</p>
+    <p>Use <strong>My List</strong> to subscribe to shows; use <strong>Tasks</strong> to work through what's on your plate.</p>
+  </div>
+
+  <div class="guide-section reveal" id="appear">
+    <h2><span class="ico">📅</span> When episodes appear</h2>
+    <p>Only episodes with an air date <strong>on or before today</strong> appear in Tasks. Future episodes stay off the list until they've aired.</p>
+    <p>If something's missing after air day, try <strong>Settings → Refresh all show data</strong> to pull the latest schedules from TVMaze.</p>
+    <div class="info-box"><p><strong>Timezone matters:</strong> "Today" follows your account timezone in <code>Settings → Time & timezone</code>.</p></div>
+  </div>
+
+  <div class="guide-section reveal" id="actions">
+    <h2><span class="ico">👆</span> Watched, not watching &amp; ratings</h2>
+    <p>Each row is an episode. Use the in-row actions to:</p>
+    <ul class="step-list">
+      <li><span class="step-n">•</span><div><strong>Watched</strong> Marks the episode complete and updates your progress.</div></li>
+      <li><span class="step-n">•</span><div><strong>Not watching</strong> Removes it from your active queue without necessarily marking prior episodes.</div></li>
+      <li><span class="step-n">•</span><div><strong>Rate</strong> After watching, you can leave a score where the app offers ratings.</div></li>
+    </ul>
+    <p>Exact labels match what's shown in your beta build — they may appear as chips or buttons under each title.</p>
+  </div>
+
+  <div class="guide-section reveal" id="binge">
+    <h2><span class="ico">🙈</span> Binge-watching &amp; spoiler blur</h2>
+    <p>If you're behind on a show, open the show → <strong>Community</strong> tab → <strong>Watch progress &amp; blur</strong>.</p>
+    <ul class="step-list">
+      <li><span class="step-n">1</span><div><strong>Binge-watching later</strong> Mutes episode notifications for that show and blurs episode threads until you're caught up.</div></li>
+      <li><span class="step-n">2</span><div><strong>Episodes behind</strong> Optionally set how many episodes you're behind — AirAlert blurs only those threads until you reveal them.</div></li>
+    </ul>
+    <p>Tap a blurred thread when you're ready to read — you're always in control.</p>
+  </div>
+
+  <div class="guide-section reveal" id="stats">
+    <h2><span class="ico">📊</span> Checklist stats</h2>
+    <p>The checklist summary (shows on watchlist, episodes to watch, watched count, etc.) updates as you interact with Tasks. Stats are there to give you a quick snapshot of how much you've cleared versus what's left.</p>
+  </div>
+
+  <div class="guide-section reveal" id="refresh">
+    <h2><span class="ico">🔄</span> Refreshing show data</h2>
+    <p>Networks sometimes shift air times or episode orders. If Tasks looks stale, go to <strong>Settings</strong> and run <strong>Refresh all show data</strong> to reconcile with TVMaze.</p>
+  </div>
+
+  <div class="nav-footer reveal">
+    <a href="guide-account.html" class="nav-link"><div class="nl-dir">← Previous</div><div class="nl-title">👤 Account &amp; Sign-in</div></a>
+    <a href="guide-community.html" class="nav-link" style="text-align:right"><div class="nl-dir">Next guide →</div><div class="nl-title">💬 Community &amp; Chat</div></a>
+  </div>
+</div>
+<footer>
+  <a href="index.html" class="logo" aria-label="AirAlert home"><img src="logo.svg" alt="AirAlert" width="212" height="36" /></a>
+  <p>© 2026 AirAlert · Private Beta</p>
+  <div class="foot-right">
+    <a href="support.html">Support</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+  </div>
+</footer>
+<script>
+const sc = document.getElementById('stars');
+for (let i = 0; i < 160; i++) {
+  const s = document.createElement('div'); s.className = 'star';
+  const sz = Math.random() * 1.8 + 0.3;
+  s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;--d:${(Math.random()*4+2).toFixed(1)}s;--dl:${(Math.random()*8).toFixed(1)}s;--mn:${(Math.random()*.1).toFixed(2)};--mx:${(Math.random()*.5+.15).toFixed(2)}`;
+  sc.appendChild(s);
+}
+const obs = new IntersectionObserver(e => e.forEach(x => { if (x.isIntersecting) x.target.classList.add('vis'); }), { threshold: 0.06 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
