@@ -21101,6 +21101,65 @@
         }
       }
 
+      /**
+       * Website deep link `?open=beta-feedback`: Settings → Help, privacy & legal → same prompt as “Send beta feedback”.
+       * Runs after bootstrap (guest or registered — `/api/beta-feedback` accepts anonymous sessions).
+       */
+      async function openBetaFeedbackDeepLinkFlow() {
+        if (window.__AIRALERT_DEBUG_BOOT || new URLSearchParams(window.location.search).get("debug_boot") === "1") {
+          console.info("[AirAlert] deep link flow: openBetaFeedbackDeepLinkFlow start");
+        }
+        openAppSettingsModal("legal");
+        const help = document.getElementById("settingsHelpSection");
+        if (help && help instanceof HTMLDetailsElement) help.open = true;
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        await new Promise((r) => setTimeout(r, 240));
+        const sent = await promptForBetaFeedback("deeplink_open_beta_feedback");
+        if (sent) showToast("Feedback sent");
+        console.info("[AirAlert] deep link flow: beta feedback prompt finished", { sent });
+      }
+
+      /** Consumes `open=beta-feedback` from the URL (strip param) and opens the in-app feedback path. */
+      function consumeOpenBetaFeedbackDeepLinkFromUrl() {
+        let u;
+        try {
+          u = new URL(window.location.href);
+        } catch {
+          return;
+        }
+        if (u.searchParams.get("open") !== "beta-feedback") return;
+        u.searchParams.delete("open");
+        const qs = u.searchParams.toString();
+        history.replaceState({}, "", u.pathname + (qs ? "?" + qs : "") + u.hash);
+        console.info("[AirAlert] deep link: consumed ?open=beta-feedback");
+        void (async () => {
+          try {
+            await openBetaFeedbackDeepLinkFlow();
+            trackAnalyticsEvent(
+              "notification.deep_link_success",
+              { destination: "beta_feedback_prompt" },
+              { sourceScreen: "deeplink", targetType: "beta_feedback", flushSoon: true },
+            );
+          } catch (e) {
+            console.warn("[AirAlert] deep link ?open=beta-feedback failed", e);
+            try {
+              openAppSettingsModal("legal");
+            } catch (_) {
+              /* ignore */
+            }
+            showToast("Open Settings (gear) → Help, privacy & legal → Send beta feedback.");
+            trackAnalyticsEvent(
+              "notification.deep_link_failure",
+              {
+                destination: "beta_feedback_prompt",
+                reason: e && e.message ? String(e.message) : "flow_failed",
+              },
+              { sourceScreen: "deeplink", targetType: "beta_feedback", flushSoon: true },
+            );
+          }
+        })();
+      }
+
       async function openAppProfileModal() {
         closeHeaderMenus();
         closeLegalDocumentModal();
@@ -23258,6 +23317,14 @@
           /* ignore tab deep link errors */
         }
 
+        const hadOpenBetaFeedbackIntent =
+          new URLSearchParams(window.location.search).get("open") === "beta-feedback";
+        try {
+          consumeOpenBetaFeedbackDeepLinkFromUrl();
+        } catch (e) {
+          console.warn("[AirAlert] consumeOpenBetaFeedbackDeepLinkFromUrl error", e);
+        }
+
         setInterval(() => void refreshDmUnread(), 60000);
         document.addEventListener("visibilitychange", () => {
           if (document.visibilityState === "visible") void refreshDmUnread();
@@ -23266,6 +23333,7 @@
           entryPath: window.location.pathname,
           hasCommunityLink: new URLSearchParams(window.location.search).has("communityShow"),
           hasDmLink: new URLSearchParams(window.location.search).has("dmThread") || new URLSearchParams(window.location.search).get("openInbox") === "1",
+          hadOpenBetaFeedbackIntent,
         }, { sourceScreen: getActiveTabName(), onceKey: "session:" + analyticsSessionId, flushSoon: true });
 
         function clientValidateSignupEmail(email) {
