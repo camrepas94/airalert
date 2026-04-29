@@ -378,6 +378,132 @@ export async function searchShowsWithCatalog(
   return [...byId.values()];
 }
 
+/** Add Shows discovery chips: keys map to TVMaze list metadata (genres, type) — not title search. */
+export const TVMAZE_DISCOVERY_KEYS = new Set([
+  "reality_tv",
+  "drama",
+  "comedy",
+  "crime",
+  "dating",
+  "competition",
+  "scifi",
+  "trending",
+]);
+
+/**
+ * How well a catalog list row matches a fixed discovery key (0 = exclude).
+ * Uses `genres` + `type` from `GET /shows?page=` (same as trending/recommend).
+ */
+export function matchShowForDiscoveryKey(key: string, show: TvmazeShowListItem): number {
+  if (!show?.id) return 0;
+  const g = new Set(
+    (show.genres ?? [])
+      .map((x) => x.trim().toLowerCase())
+      .filter((x) => x.length > 0),
+  );
+  const type = (show.type ?? "").trim().toLowerCase();
+  const name = (show.name ?? "").toLowerCase();
+  const status = (show.status ?? "").trim().toLowerCase();
+  const rating = show.rating?.average;
+  const r = typeof rating === "number" && Number.isFinite(rating) ? rating : 0;
+  const qual = 1 + Math.min(10, r) / 12;
+
+  switch (key) {
+    case "reality_tv": {
+      if (type === "reality") return 3 * qual;
+      if (g.has("reality")) return 2.2 * qual;
+      return 0;
+    }
+    case "drama": {
+      if (g.has("drama")) return 2.5 * qual;
+      return 0;
+    }
+    case "comedy": {
+      if (g.has("comedy")) return 2.5 * qual;
+      return 0;
+    }
+    case "crime": {
+      if (g.has("crime")) return 2.5 * qual;
+      return 0;
+    }
+    case "dating": {
+      if (type !== "reality") return 0;
+      if (g.has("romance") || g.has("music")) return 2.4 * qual;
+      if (
+        /bachelor|bachelorette|love|date|married|island|match|heart|temptation|wedding|proposal|relationship|coupl|affect|rose|villa|suite|divorc|flavou?r|flavor|single|affect|connection/.test(
+          name,
+        )
+      ) {
+        return 2.2 * qual;
+      }
+      return 0;
+    }
+    case "competition": {
+      if (g.has("game-show")) return 2.8 * qual;
+      if (type === "reality" || g.has("music") || g.has("food")) {
+        if (
+          /competition|contest|challenge|survivor|amazing|voice|mask|bake|chef|idol|factor|dance|battles|greatest|chopped|masterchef|great british|ninja|tournament|championship|bake-?off|cook|kitchen|gordon|guy|iron|world|cup|olymp|face off|dancing/i.test(
+            name,
+          )
+        ) {
+          return 2.3 * qual;
+        }
+      }
+      return 0;
+    }
+    case "scifi": {
+      if (g.has("science-fiction") || g.has("science fiction")) return 2.5 * qual;
+      return 0;
+    }
+    case "trending": {
+      if (status === "running" && r >= 6.2) return 1.2 * r;
+      return 0;
+    }
+    default:
+      return 0;
+  }
+}
+
+/**
+ * Walk paginated `GET /shows` and collect shows whose metadata matches the discovery key.
+ */
+export async function scanShowsCatalogForDiscoveryKey(
+  key: string,
+  excludeIds: Set<number>,
+  opts: { maxPages: number; concurrency: number; resultCap: number },
+): Promise<{ show: TvmazeShowListItem; score: number }[]> {
+  const { maxPages, concurrency, resultCap } = opts;
+  const byId = new Map<number, { show: TvmazeShowListItem; score: number }>();
+
+  for (let start = 0; start < maxPages; start += concurrency) {
+    const batch: number[] = [];
+    for (let i = 0; i < concurrency && start + i < maxPages; i++) {
+      batch.push(start + i);
+    }
+    if (batch.length === 0) break;
+
+    const settled = await Promise.allSettled(batch.map((p) => fetchShowsCatalogPage(p)));
+    for (const s of settled) {
+      if (s.status !== "fulfilled") continue;
+      for (const show of s.value) {
+        if (!show?.id || excludeIds.has(show.id)) continue;
+        const score = matchShowForDiscoveryKey(key, show);
+        if (score <= 0) continue;
+        const prev = byId.get(show.id);
+        if (!prev || score > prev.score) {
+          byId.set(show.id, { show, score });
+        }
+      }
+    }
+    if (byId.size >= resultCap * 6) {
+      break;
+    }
+    await new Promise((r) => setTimeout(r, 5));
+  }
+
+  return [...byId.values()].sort((a, b) => b.score - a.score);
+}
+
 export async function fetchShowEpisodes(showId: number): Promise<TvmazeEpisode[]> {
   const res = await fetch(`${BASE}/shows/${showId}/episodes?specials=1`);
   return unwrap<TvmazeEpisode[]>(res);

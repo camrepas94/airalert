@@ -19,7 +19,10 @@ import {
   fetchPreviousEpisodeAirdates,
   searchPeople,
   fetchPerson,
+  TVMAZE_DISCOVERY_KEYS,
+  scanShowsCatalogForDiscoveryKey,
 } from "./tvmaze.js";
+import { computePopularOnAiralert } from "./popularOnAiralert.js";
 import {
   calendarDatePlusDays,
   normalizeEpisodeAirdate,
@@ -4579,6 +4582,100 @@ app.get("/api/shows/search", async (request, reply) => {
   return { shows: shows.slice(0, limit) };
 });
 
+/**
+ * Add Shows / Explore chips: filter the TVMaze catalog by `genres` + `type` (not show-title search).
+ */
+app.get("/api/shows/discover", async (request, reply) => {
+  const key = String((request.query as { key?: string }).key ?? "").trim();
+  if (!key || !TVMAZE_DISCOVERY_KEYS.has(key)) {
+    reply.code(400);
+    return { error: "Invalid or missing key" };
+  }
+  const excludeUserId = (request.query as { excludeUserId?: string }).excludeUserId?.trim() ?? "";
+  const limitRaw = Number((request.query as { limit?: string }).limit);
+  const limit = Number.isFinite(limitRaw) ? Math.min(100, Math.max(4, Math.floor(limitRaw))) : 30;
+  const maxPagesRaw = Number((request.query as { maxPages?: string }).maxPages);
+  const maxPages = Number.isFinite(maxPagesRaw) ? Math.min(120, Math.max(20, Math.floor(maxPagesRaw))) : 50;
+
+  let excluded = new Set<number>();
+  if (excludeUserId) {
+    const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(excludeUserId);
+    if (u) {
+      const subs = db
+        .prepare(`SELECT tvmaze_show_id FROM show_subscriptions WHERE user_id = ?`)
+        .all(excludeUserId) as { tvmaze_show_id: number }[];
+      excluded = new Set(subs.map((s) => Number(s.tvmaze_show_id)));
+    }
+  }
+
+  const ranked = await scanShowsCatalogForDiscoveryKey(key, excluded, {
+    maxPages,
+    concurrency: 10,
+    resultCap: limit * 3,
+  });
+  const top = ranked.slice(0, limit);
+  if (top.length === 0) {
+    return { shows: [], discoveryKey: key, emptyReason: "no_genre_hits" };
+  }
+
+  const ids = top.map((t) => t.show.id);
+  const lastAiredById = await fetchPreviousEpisodeAirdates(ids);
+
+  type ShowHit = {
+    id: number;
+    name: string;
+    network: string | null;
+    premiered: string | null;
+    image: string | null;
+    lastAiredDate: string | null;
+    genres: string[];
+    summary: string | null;
+    matchScore: number;
+    discoveryKey: string;
+  };
+
+  const shows: ShowHit[] = top.map(({ show, score }) => {
+    const rawGenres = show.genres;
+    const genres = Array.isArray(rawGenres)
+      ? rawGenres.map((x) => String(x)).filter((x) => x.length > 0).slice(0, 6)
+      : [];
+    const m = Math.round(score * 100) / 100;
+    return {
+      id: show.id,
+      name: show.name,
+      network: show.network?.name ?? show.webChannel?.name ?? null,
+      premiered: show.premiered ?? null,
+      image: show.image?.medium ?? null,
+      lastAiredDate: lastAiredById.get(show.id) ?? null,
+      genres,
+      summary: null,
+      matchScore: m,
+      discoveryKey: key,
+    };
+  });
+
+  shows.sort((a, b) => {
+    if (a.lastAiredDate && b.lastAiredDate) return b.lastAiredDate.localeCompare(a.lastAiredDate);
+    if (a.lastAiredDate && !b.lastAiredDate) return -1;
+    if (!a.lastAiredDate && b.lastAiredDate) return 1;
+    return b.matchScore - a.matchScore;
+  });
+
+  return { shows, discoveryKey: key };
+});
+
+/** Add Shows — “Popular on AirAlert”: internal adoption + ratings only (see `popularOnAiralert.ts`). */
+app.get("/api/shows/popular-on-airalert", async (request, reply) => {
+  const excludeUserId = (request.query as { excludeUserId?: string }).excludeUserId?.trim() ?? "";
+  const limitRaw = Number((request.query as { limit?: string }).limit);
+  const limit = Number.isFinite(limitRaw) ? Math.min(100, Math.max(1, Math.floor(limitRaw))) : 12;
+  const out = await computePopularOnAiralert({
+    excludeUserId: excludeUserId ? excludeUserId : null,
+    limit,
+  });
+  return out;
+});
+
 type EpisodeRow = {
   id: number;
   name: string;
@@ -4789,6 +4886,31 @@ app.get("/api/users/:userId/subscriptions", async (request, reply) => {
     LIMIT 1
   `);
 
+  const showIdList = Array.from(
+    new Set(rows.map((r) => r.tvmazeShowId).filter((id) => Number.isInteger(id) && id > 0)),
+  );
+  const airAlertRatingByShow = new Map<number, { airAlertAvgRating: number; airAlertRatingCount: number }>();
+  if (showIdList.length > 0) {
+    const ph = showIdList.map(() => "?").join(", ");
+    const aggRows = db
+      .prepare(
+        `SELECT tvmaze_show_id AS sid, AVG(rating) AS a, COUNT(*) AS c
+         FROM community_episode_ratings
+         WHERE tvmaze_show_id IN (${ph})
+         GROUP BY tvmaze_show_id`,
+      )
+      .all(...showIdList) as { sid: number; a: number | null; c: number }[];
+    for (const ar of aggRows) {
+      const c = Number(ar.c) || 0;
+      if (c > 0 && ar.a != null) {
+        airAlertRatingByShow.set(Number(ar.sid), {
+          airAlertAvgRating: Math.round(Number(ar.a) * 100) / 100,
+          airAlertRatingCount: c,
+        });
+      }
+    }
+  }
+
   const subscriptions = rows.map((row) => {
     const { bingeLaterRaw, ...rest } = row;
     const next = nextStmt.get(row.tvmazeShowId, todayStr) as
@@ -4803,8 +4925,11 @@ app.get("/api/users/:userId/subscriptions", async (request, reply) => {
       !next && !last
         ? (tbaNextStmt.get(row.tvmazeShowId) as { name: string; season: number; number: number } | undefined)
         : undefined;
+    const air = airAlertRatingByShow.get(row.tvmazeShowId);
     return {
       ...rest,
+      airAlertAvgRating: air != null ? air.airAlertAvgRating : null,
+      airAlertRatingCount: air != null ? air.airAlertRatingCount : 0,
       bingeLater: bingeLaterRaw === 1,
       nextEpisode: next
         ? {
@@ -5013,6 +5138,7 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
   let addedFrom: string | null = null;
   if (
     body.addedFrom === "search" ||
+    body.addedFrom === "discover" ||
     body.addedFrom === "recommended" ||
     body.addedFrom === "trending" ||
     body.addedFrom === "starter_pack" ||

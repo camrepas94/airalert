@@ -127,6 +127,16 @@
           0 0 52px -6px rgba(34, 211, 238, 0.28),
           0 0 72px -10px rgba(168, 85, 247, 0.2),
           0 0 56px -8px rgba(236, 72, 153, 0.14);
+        /** Major section titles — cyan → violet → magenta neon text (Watch checklist / product reference) */
+        --app-section-heading-gradient: linear-gradient(
+          92deg,
+          #22d3ee 0%,
+          #38bdf8 11%,
+          #818cf8 36%,
+          #a855f7 56%,
+          #c026d3 74%,
+          #f472b6 100%
+        );
         /** App shell: canonical max width on all viewports (centered app surface in the browser) */
         --layout-max: min(40rem, calc(100vw - 1.25rem));
         --layout-pad-x: 1.1rem;
@@ -1512,9 +1522,9 @@
       .dm-inbox-section-label {
         font-size: 0.68rem;
         font-weight: 700;
-        letter-spacing: 0.09em;
-        text-transform: uppercase;
-        color: rgba(154, 184, 224, 0.82);
+      }
+      .dm-inbox-section-label.app-section-heading {
+        letter-spacing: 0.11em;
       }
       .dm-inbox-section-hint {
         font-size: 0.72rem;
@@ -2207,8 +2217,12 @@
         section {
           background: var(--panel-solid);
         }
+        #appSettingsModal details.settings-surface {
+          background: var(--panel-solid);
+        }
       }
-      section.push-section {
+      section.push-section,
+      details.push-section {
         border-left-color: var(--neon-magenta);
         border-right-color: var(--neon-magenta);
         box-shadow: var(--shadow-lift), var(--shadow-card), var(--panel-glow-magenta);
@@ -2234,14 +2248,70 @@
         box-shadow: var(--shadow-lift), var(--shadow-card), 0 0 40px -8px rgba(52, 211, 153, 0.22),
           0 0 80px -20px rgba(34, 197, 94, 0.12);
       }
-      section.push-section .push-btn {
+      section.push-section .push-btn,
+      details.push-section .push-btn {
         width: 100%;
         margin-top: 0.5rem;
         font-size: 1rem;
         padding: 0.65rem 1rem;
       }
-      #appSettingsModal .settings-modal-stack > section {
+      #appSettingsModal .settings-modal-stack > section,
+      #appSettingsModal .settings-modal-stack > details {
         margin-bottom: 0;
+      }
+      #appSettingsModal details.settings-surface {
+        background: var(--panel);
+        -webkit-backdrop-filter: blur(22px) saturate(1.15);
+        backdrop-filter: blur(22px) saturate(1.15);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+        border-right: 3px solid var(--accent);
+        border-radius: 16px;
+        padding: 0.55rem 1rem 0.65rem;
+        box-shadow: var(--shadow-lift), var(--shadow-card), var(--panel-glow-blue);
+      }
+      #appSettingsModal details.settings-surface[open] {
+        padding-bottom: 1rem;
+      }
+      .settings-disclosure-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.65rem;
+        list-style: none;
+        cursor: pointer;
+        padding: 0.1rem 0;
+      }
+      .settings-disclosure-summary::-webkit-details-marker {
+        display: none;
+      }
+      .settings-disclosure-summary::marker {
+        content: "";
+      }
+      .settings-disclosure-summary .section-header-highlight {
+        flex: 1;
+        min-width: 0;
+        margin-bottom: 0;
+        text-align: left;
+      }
+      .settings-disclosure-summary h2.section-header-highlight {
+        width: 100%;
+      }
+      .settings-disclosure-chev {
+        flex-shrink: 0;
+        font-size: 0.65rem;
+        line-height: 1;
+        opacity: 0.75;
+        transition: transform 0.2s ease;
+      }
+      details.settings-surface[open] > .settings-disclosure-summary .settings-disclosure-chev {
+        transform: rotate(-180deg);
+      }
+      .settings-disclosure-body {
+        padding-top: 0.45rem;
+      }
+      .settings-disclosure-body > .settings-surface-lead:first-child {
+        margin-top: 0;
       }
       .settings-modal-body {
         padding: 0.7rem 0.75rem 1.1rem;
@@ -2275,9 +2345,9 @@
         margin: 0 0 0.5rem;
         font-size: 0.64rem;
         font-weight: 700;
-        letter-spacing: 0.09em;
-        text-transform: uppercase;
-        color: rgba(200, 215, 240, 0.8);
+      }
+      h3.settings-pref-block-title.app-section-heading {
+        letter-spacing: 0.11em;
       }
       .settings-field-tight label {
         display: block;
@@ -2355,13 +2425,6 @@
         justify-content: center;
         text-align: center;
       }
-      .support-note-list {
-        margin: 0.5rem 0 0;
-        padding-left: 1.1rem;
-        color: var(--muted);
-        font-size: 0.78rem;
-        line-height: 1.45;
-      }
       @media (max-width: 560px) {
         .store-readiness-link-grid {
           grid-template-columns: 1fr;
@@ -2372,11 +2435,6 @@
           padding: 0.75rem 0.95rem 1.2rem;
         }
       }
-      #appSettingsModal .settings-surface--data {
-        border-left-color: rgba(91, 156, 255, 0.8);
-        border-right-color: rgba(91, 156, 255, 0.38);
-      }
-      #appSettingsModal .settings-surface--time {
         border-left-color: rgba(34, 211, 238, 0.7);
         border-right-color: rgba(34, 211, 238, 0.32);
       }
@@ -2399,6 +2457,34 @@
         color: var(--accent-hot);
         margin: 0 0 0.75rem;
         font-weight: 600;
+      }
+      /**
+       * Unified neon section heading text — gradient fill + light edge glow (reference: Tasks “Watch checklist”).
+       * Use on major module titles; pair with `.section-header-highlight` via inner `<span class="app-section-heading">`.
+       */
+      .app-section-heading {
+        font-weight: 780;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        background: var(--app-section-heading-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.4)) drop-shadow(0 0 14px rgba(167, 139, 250, 0.26))
+          drop-shadow(0 0 22px rgba(236, 72, 153, 0.14));
+      }
+      @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+        .app-section-heading {
+          color: #bae6fd;
+          -webkit-text-fill-color: #bae6fd;
+          background: none;
+          filter: none;
+        }
+      }
+      .section-header-highlight .app-section-heading {
+        position: relative;
+        z-index: 2;
       }
       @keyframes galactic-header-shimmer {
         0%,
@@ -2433,7 +2519,7 @@
         letter-spacing: 0.16em;
         text-transform: uppercase;
         text-align: center;
-        color: #f5fbff;
+        color: transparent;
         border: 1px solid rgba(34, 211, 238, 0.38);
         background: linear-gradient(
           168deg,
@@ -2447,7 +2533,6 @@
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.09) inset, 0 2px 0 rgba(255, 255, 255, 0.1) inset,
           0 0 0 1px rgba(34, 211, 238, 0.1) inset, 0 0 52px 4px rgba(34, 211, 238, 0.16),
           0 0 88px -12px rgba(167, 139, 250, 0.22), 0 16px 48px rgba(0, 0, 0, 0.42);
-        text-shadow: 0 0 32px rgba(34, 211, 238, 0.5), 0 0 56px rgba(91, 156, 255, 0.22), 0 1px 2px rgba(0, 0, 0, 0.65);
       }
       .section-header-highlight::before {
         content: "";
@@ -2466,7 +2551,6 @@
         animation: galactic-header-shimmer 9s ease-in-out infinite;
       }
       .section-header-highlight.header-magenta {
-        color: #fef5ff;
         border-color: rgba(232, 121, 249, 0.42);
         background: linear-gradient(
           168deg,
@@ -2480,10 +2564,8 @@
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07) inset, 0 2px 0 rgba(255, 255, 255, 0.08) inset,
           0 0 0 1px rgba(232, 121, 249, 0.12) inset, 0 0 56px 4px rgba(232, 121, 249, 0.18),
           0 0 90px -10px rgba(91, 156, 255, 0.15), 0 16px 48px rgba(0, 0, 0, 0.42);
-        text-shadow: 0 0 32px rgba(232, 121, 249, 0.48), 0 0 48px rgba(168, 85, 247, 0.2), 0 1px 2px rgba(0, 0, 0, 0.65);
       }
       .section-header-highlight.header-blue {
-        color: #eef8ff;
         border-color: rgba(91, 156, 255, 0.44);
         background: linear-gradient(
           168deg,
@@ -2497,10 +2579,8 @@
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 2px 0 rgba(255, 255, 255, 0.09) inset,
           0 0 0 1px rgba(91, 156, 255, 0.12) inset, 0 0 50px 4px rgba(91, 156, 255, 0.2),
           0 0 80px -12px rgba(34, 211, 238, 0.14), 0 16px 48px rgba(0, 0, 0, 0.42);
-        text-shadow: 0 0 28px rgba(91, 156, 255, 0.42), 0 0 40px rgba(34, 211, 238, 0.2), 0 1px 2px rgba(0, 0, 0, 0.65);
       }
       .section-header-highlight.header-guide {
-        color: #ecfdf5;
         border-color: rgba(52, 211, 153, 0.44);
         background: linear-gradient(
           168deg,
@@ -2514,10 +2594,8 @@
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 2px 0 rgba(255, 255, 255, 0.09) inset,
           0 0 0 1px rgba(52, 211, 153, 0.14) inset, 0 0 48px 4px rgba(52, 211, 153, 0.18),
           0 0 72px -12px rgba(16, 185, 129, 0.14), 0 16px 48px rgba(0, 0, 0, 0.42);
-        text-shadow: 0 0 26px rgba(52, 211, 153, 0.4), 0 0 38px rgba(16, 185, 129, 0.18), 0 1px 2px rgba(0, 0, 0, 0.65);
       }
       .section-header-highlight.header-gold {
-        color: #fffdf5;
         border-color: rgba(251, 191, 36, 0.42);
         background: linear-gradient(
           168deg,
@@ -2531,7 +2609,6 @@
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07) inset, 0 2px 0 rgba(255, 255, 255, 0.08) inset,
           0 0 0 1px rgba(251, 191, 36, 0.12) inset, 0 0 48px 4px rgba(251, 191, 36, 0.2),
           0 0 72px -8px rgba(252, 211, 77, 0.12), 0 16px 48px rgba(0, 0, 0, 0.42);
-        text-shadow: 0 0 26px rgba(251, 191, 36, 0.4), 0 0 36px rgba(252, 211, 77, 0.18), 0 1px 2px rgba(0, 0, 0, 0.65);
       }
       button.fold-toggle.fold-toggle-highlight {
         margin: 0 0 0.85rem;
@@ -2631,6 +2708,21 @@
       button.fold-toggle.fold-toggle-magenta .fold-chev {
         position: relative;
         z-index: 1;
+      }
+      button.fold-toggle.fold-toggle-highlight .app-section-heading,
+      button.fold-toggle.fold-toggle-cyan .app-section-heading,
+      button.fold-toggle.fold-toggle-magenta .app-section-heading {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+      }
+      button.fold-toggle.fold-toggle-highlight,
+      button.fold-toggle.fold-toggle-cyan,
+      button.fold-toggle.fold-toggle-magenta {
+        text-shadow: none !important;
+      }
+      section .fold-toggle .fold-title .app-section-heading {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
       }
       .add-shows-hero-bar {
         margin-bottom: 0.75rem;
@@ -3311,6 +3403,194 @@
         padding: 0.35rem 0.5rem;
         white-space: nowrap;
       }
+      /* ── Tasks / Watch checklist (reference: compact 2×2 stats, centered rows, side-by-side actions) ── */
+      #tab-tasks section.tasks-checklist-section {
+        padding: 0.8rem 0.85rem 0.9rem;
+        margin-bottom: 0.75rem;
+        background: linear-gradient(165deg, rgba(6, 8, 20, 0.92) 0%, rgba(2, 4, 12, 0.96) 100%);
+        border-color: rgba(100, 120, 200, 0.14);
+      }
+      h2.tasks-checklist-heading {
+        margin: 0 0 0.5rem;
+        padding: 0;
+        border: none;
+        background: none;
+        box-shadow: none;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        font-size: 0.82rem;
+        text-align: center;
+        line-height: 1.2;
+      }
+      h2.tasks-checklist-heading.app-section-heading {
+        font-weight: 800;
+        letter-spacing: 0.18em;
+      }
+      @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+        h2.tasks-checklist-heading.app-section-heading {
+          color: #bae6fd;
+          -webkit-text-fill-color: #bae6fd;
+        }
+      }
+      #tab-tasks .tasks-stats-section {
+        margin: 0 0 0.5rem;
+      }
+      #tab-tasks .tasks-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.4rem;
+      }
+      #tab-tasks .tasks-stat-card {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(120, 100, 180, 0.2);
+        border-radius: 10px;
+        padding: 0.4rem 0.35rem 0.45rem;
+        text-align: center;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35) inset, 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+      }
+      #tab-tasks .tasks-stat-card .tasks-stat-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      #tab-tasks .tasks-stat-card .tasks-stat-label {
+        font-size: 0.58rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: rgba(138, 155, 184, 0.92);
+        margin-top: 0.15rem;
+        line-height: 1.25;
+      }
+      #tab-tasks .tasks-list {
+        margin: 0;
+        padding: 0;
+      }
+      #tab-tasks .tasks-list li {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.38rem;
+        padding: 0.48rem 0 0.55rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      #tab-tasks .tasks-list li:last-child {
+        border-bottom: none;
+      }
+      #tab-tasks .task-body {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: 100%;
+        text-align: center;
+      }
+      #tab-tasks .task-line {
+        font-size: 0.86rem;
+        line-height: 1.3;
+        font-weight: 600;
+        color: var(--text);
+        padding: 0 0.15rem;
+      }
+      #tab-tasks .task-line strong {
+        font-weight: 700;
+      }
+      #tab-tasks .task-meta--airdate {
+        font-size: 0.74rem;
+        font-weight: 500;
+        margin-top: 0.12rem;
+        color: #2dd4bf;
+        text-shadow: 0 0 12px rgba(45, 212, 191, 0.25);
+      }
+      #tab-tasks .task-meta--nudge {
+        font-size: 0.65rem;
+        font-weight: 500;
+        margin-top: 0.08rem;
+        color: rgba(148, 163, 184, 0.85);
+        letter-spacing: 0.02em;
+      }
+      #tab-tasks .task-meta.muted {
+        text-align: center;
+        font-size: 0.7rem;
+        line-height: 1.3;
+        margin-top: 0.12rem;
+        color: rgba(148, 163, 184, 0.88) !important;
+      }
+      #tab-tasks .task-actions {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        width: 100%;
+        max-width: 100%;
+        gap: 0.4rem;
+        margin-top: 0.1rem;
+      }
+      #tab-tasks .task-actions:has(> :only-child),
+      #tab-tasks .task-actions--single {
+        justify-content: center;
+      }
+      #tab-tasks .task-actions:has(> :only-child) button,
+      #tab-tasks .task-actions--single button {
+        flex: 0 1 12.5rem;
+        max-width: 100%;
+      }
+      #tab-tasks .task-action-btn,
+      #tab-tasks .task-actions button {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 0.4rem 0.45rem;
+        border-radius: 9px;
+        min-height: 0;
+        background: rgba(8, 10, 24, 0.85) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: rgba(240, 245, 255, 0.92) !important;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4) inset;
+        flex: 1 1 0;
+        min-width: 0;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.2;
+      }
+      #tab-tasks .task-action-btn:hover:not(:disabled),
+      #tab-tasks .task-actions button:hover:not(:disabled) {
+        background: rgba(20, 24, 40, 0.92) !important;
+        border-color: rgba(120, 160, 220, 0.32) !important;
+        filter: none;
+        transform: none;
+      }
+      #tab-tasks .tasks-open-empty {
+        margin: 0.35rem 0 0.6rem;
+        text-align: center;
+        font-size: 0.8rem;
+        line-height: 1.4;
+      }
+      #tab-tasks #tasksEmpty {
+        text-align: center;
+        font-size: 0.8rem;
+        margin: 0.35rem 0 0.5rem;
+      }
+      #tab-tasks .tasks-fold-block {
+        margin-top: 0.45rem;
+        padding-top: 0.15rem;
+      }
+      #tab-tasks .tasks-fold-block + .tasks-fold-block {
+        margin-top: 0.5rem;
+        padding-top: 0.4rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      #tab-tasks .tasks-fold-toggle {
+        margin-top: 0.15rem;
+        padding: 0.4rem 0.55rem;
+        font-size: 0.78rem;
+        border-radius: 11px;
+        opacity: 0.95;
+      }
+      #tab-tasks .fold-body {
+        padding-top: 0.2rem;
+      }
+      #tab-tasks #foldTasksCompletedBtn,
+      #tab-tasks #foldTasksSkippedBtn {
+        margin-top: 0.12rem;
+      }
       .task-body {
         flex: 1;
         min-width: 0;
@@ -3707,6 +3987,38 @@
         color: var(--muted);
         letter-spacing: 0.02em;
       }
+      .search-discovery-banner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem 0.65rem;
+        margin: 0.4rem 0 0.55rem;
+        padding: 0.5rem 0.75rem 0.55rem;
+        border-radius: 12px;
+        border: 1px solid rgba(130, 200, 255, 0.2);
+        background: linear-gradient(155deg, rgba(34, 211, 238, 0.1) 0%, rgba(8, 12, 28, 0.65) 100%);
+        font-size: 0.85rem;
+        line-height: 1.4;
+      }
+      .search-discovery-banner[hidden] {
+        display: none !important;
+      }
+      .search-discovery-kicker {
+        font-size: 0.6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: rgba(34, 211, 238, 0.95);
+      }
+      .search-discovery-name {
+        font-weight: 700;
+        color: var(--text);
+      }
+      .search-discovery-hint {
+        font-size: 0.72rem;
+        margin: 0;
+        flex: 1 1 9rem;
+      }
       .search-post-toolbar {
         display: none;
         flex-wrap: wrap;
@@ -3838,6 +4150,14 @@
         transform: translateY(-1px);
         border-color: rgba(34, 211, 238, 0.55);
         box-shadow: 0 0 32px -6px rgba(34, 211, 238, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+      }
+      button.discovery-chip[aria-pressed="true"] {
+        border-color: rgba(34, 211, 238, 0.55);
+        color: #f0f9ff;
+        background: linear-gradient(168deg, rgba(34, 100, 160, 0.4) 0%, rgba(12, 18, 40, 0.85) 100%) padding-box,
+          var(--dm-surface-edge) border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.2) inset, 0 0 14px -2px rgba(34, 211, 238, 0.3);
       }
       button.discovery-chip:active {
         transform: translateY(0);
@@ -4032,6 +4352,47 @@
       .subs-binge-later input {
         margin-top: 0.2rem;
         flex-shrink: 0;
+      }
+      .subs-show-engage-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.4rem 0.55rem;
+        margin-top: 0.4rem;
+        max-width: 22rem;
+      }
+      .subs-airalert-rating {
+        font-size: 0.76rem;
+        line-height: 1.35;
+        color: rgba(186, 210, 240, 0.9);
+        min-width: 0;
+        flex: 1 1 7.5rem;
+      }
+      .subs-airalert-rating--empty {
+        color: rgba(138, 155, 184, 0.8);
+        font-size: 0.74rem;
+        font-style: normal;
+        font-weight: 500;
+      }
+      .subs-airalert-score {
+        font-weight: 700;
+        color: rgba(253, 224, 71, 0.9);
+        margin-right: 0.35rem;
+        letter-spacing: 0.02em;
+      }
+      .subs-airalert-count {
+        font-size: 0.66rem;
+        color: rgba(148, 163, 184, 0.88);
+        white-space: nowrap;
+      }
+      .subs-discuss-btn {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 0.3rem 0.55rem;
+        border-radius: 9px;
+        flex: 0 0 auto;
+        white-space: nowrap;
       }
       .community-catchup-binge {
         display: flex;
@@ -4893,9 +5254,9 @@
         margin: 0.15rem 0.5rem 0.2rem;
         font-size: 0.78rem;
         font-weight: 700;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: rgba(200, 230, 255, 0.92);
+      }
+      .header-notifications-heading.app-section-heading {
+        letter-spacing: 0.12em;
       }
       .header-notifications-hint {
         margin: 0 0.5rem 0.45rem;
@@ -6158,11 +6519,13 @@
       }
       .community-subsection-heading {
         font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: rgba(180, 200, 230, 0.6);
+        letter-spacing: 0.1em;
         margin: 0.75rem 0 0.45rem;
         font-weight: 700;
+      }
+      .community-subsection-heading.app-section-heading {
+        letter-spacing: 0.12em;
+        font-weight: 780;
       }
       .community-thread-list {
         list-style: none;
@@ -6849,9 +7212,9 @@
         margin: 0 0 0.35rem;
         font-size: 0.72rem;
         font-weight: 750;
+      }
+      .community-polls-heading.app-section-heading {
         letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: #ddd6fe;
       }
       .community-polls-lead {
         margin: 0 0 0.65rem;
@@ -8377,7 +8740,7 @@
 
       /* ─── Edit Profile modal (mobile-first) ───────────────────────────────── */
       .profile-edit-modal.utility-modal-panel {
-        max-width: min(520px, calc(100vw - 1rem));
+        max-width: min(680px, calc(100vw - 1rem));
         max-height: min(92vh, 900px);
       }
       .profile-edit-modal-shell {
@@ -8409,8 +8772,10 @@
         filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.35)) drop-shadow(0 0 28px rgba(167, 139, 250, 0.2));
       }
       .profile-edit-scroll.modal-body-scroll {
-        padding: 0.8rem 0.9rem 1.1rem;
-        padding-bottom: calc(0.65rem + env(safe-area-inset-bottom, 0px));
+        padding: 0.75rem 0.85rem 1.25rem;
+        /* Room below last card for sticky save bar (taller when note + wrapped button on narrow widths) */
+        padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+        scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
         font-size: 0.92rem;
         overflow-x: hidden;
         overscroll-behavior: contain;
@@ -8418,31 +8783,41 @@
       .profile-edit-stack {
         display: flex;
         flex-direction: column;
-        gap: 1.1rem;
-      }
-      .profile-edit-main-grid,
-      .profile-edit-profile-column,
-      .profile-edit-account-column {
-        display: flex;
-        flex-direction: column;
         gap: 1.05rem;
+        max-width: 42rem;
+        margin: 0 auto;
+      }
+      .profile-edit-block-label,
+      h2.profile-edit-block-label {
+        margin: 0 0 1.05rem;
+        font-size: 0.72rem;
+        font-weight: 750;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #22d3ee;
+        line-height: 1.3;
       }
       .profile-edit-card {
         box-sizing: border-box;
-        border-radius: 14px;
-        padding: 1rem 1.05rem 1.12rem;
-        background: rgba(8, 12, 28, 0.58);
-        border: 1px solid rgba(130, 200, 255, 0.22);
-        box-shadow: 0 4px 28px rgba(0, 0, 0, 0.28);
+        position: relative;
+        overflow: hidden;
+        border-radius: 20px;
+        padding: 1.35rem 1.25rem 1.4rem;
+        background: rgba(15, 18, 36, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
       }
-      .profile-edit-card-title {
-        margin: 0 0 0.35rem;
-        font-size: 0.78rem;
-        font-weight: 750;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        opacity: 0.95;
-        color: rgba(210, 230, 255, 0.95);
+      .profile-edit-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(ellipse 70% 45% at 50% 0%, rgba(34, 211, 238, 0.06), transparent 65%);
+        z-index: 0;
+      }
+      .profile-edit-card > * {
+        position: relative;
+        z-index: 1;
       }
       .profile-edit-card-lead {
         margin: 0 0 0.85rem;
@@ -8467,12 +8842,120 @@
         border-color: rgba(248, 113, 113, 0.22);
         background: rgba(18, 8, 14, 0.42);
       }
-      .profile-edit-card--session .profile-edit-card-title {
-        color: rgba(255, 200, 210, 0.95);
+      .profile-edit-card--session .profile-edit-block-label {
+        color: rgba(255, 200, 210, 0.98);
       }
       .profile-card-msg {
         margin-top: 0.55rem;
         min-height: 1.1em;
+      }
+      .profile-edit-avatar-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.1rem;
+      }
+      .profile-edit-avatar-side {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+      .profile-edit-avatar-name {
+        margin: 0;
+        font-size: 1.08rem;
+        font-weight: 750;
+        letter-spacing: 0.02em;
+        line-height: 1.25;
+        color: #f0f4ff;
+      }
+      .profile-edit-avatar-sub {
+        margin: 0;
+        font-size: 0.8rem;
+        line-height: 1.45;
+      }
+      .profile-edit-photo-btns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-top: 0.2rem;
+      }
+      .profile-edit-pill-btn {
+        font-size: 0.75rem;
+        font-weight: 650;
+        padding: 0.42rem 0.9rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--muted);
+        cursor: pointer;
+        font-family: inherit;
+        transition: border-color 0.15s ease, color 0.15s ease;
+      }
+      .profile-edit-pill-btn:hover {
+        border-color: rgba(34, 211, 238, 0.35);
+        color: #c8e8ff;
+      }
+      .profile-edit-pill-btn--danger:hover {
+        border-color: rgba(244, 114, 182, 0.45);
+        color: #fbcfe8;
+      }
+      .profile-edit-micro-hint {
+        margin: 0.85rem 0 0;
+        font-size: 0.76rem;
+        line-height: 1.45;
+      }
+      .profile-edit-field-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+        margin-bottom: 0.85rem;
+      }
+      @media (min-width: 520px) {
+        .profile-edit-field-row {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .profile-edit-field {
+        margin-bottom: 0.85rem;
+      }
+      .profile-edit-field:last-child {
+        margin-bottom: 0;
+      }
+      .profile-edit-field > label {
+        display: block;
+        font-size: 0.68rem;
+        font-weight: 750;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(150, 170, 210, 0.88);
+        margin-bottom: 0.42rem;
+      }
+      .profile-edit-field-heading {
+        display: block;
+        font-size: 0.68rem;
+        font-weight: 750;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(150, 170, 210, 0.88);
+        margin-bottom: 0.42rem;
+      }
+      .profile-edit-faux-input {
+        min-height: 48px;
+        padding: 0.62rem 0.85rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.32);
+        color: rgba(220, 228, 255, 0.92);
+        font-size: 0.93rem;
+        line-height: 1.35;
+        word-break: break-word;
+      }
+      .profile-edit-share-shell {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.22);
       }
       .profile-edit-scroll .profile-edit-section,
       .profile-edit-scroll .panel-rail-cyan,
@@ -8535,15 +9018,41 @@
       .profile-edit-sticky {
         flex-shrink: 0;
         position: relative;
-        z-index: 2;
+        z-index: 4;
         display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0;
-        padding: 0.8rem 0.9rem calc(0.85rem + env(safe-area-inset-bottom, 0px));
-        border-top: 1px solid rgba(130, 200, 255, 0.28);
-        background: linear-gradient(180deg, rgba(6, 10, 22, 0.88) 0%, rgba(10, 14, 28, 0.97) 100%);
-        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.55);
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.85rem 1rem calc(0.95rem + env(safe-area-inset-bottom, 0px));
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(8, 10, 20, 0.94);
+        -webkit-backdrop-filter: blur(22px) saturate(1.2);
+        backdrop-filter: blur(22px) saturate(1.2);
+        box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.55);
+      }
+      .profile-edit-save-note {
+        margin: 0;
+        font-size: 0.8rem;
+        line-height: 1.35;
+        flex: 1;
+        min-width: 0;
+      }
+      .profile-edit-save-note strong {
+        color: #eef3ff;
+        font-weight: 650;
+      }
+      .profile-edit-save-note[hidden] {
+        display: none !important;
+      }
+      @media (max-width: 520px) {
+        .profile-edit-sticky {
+          flex-wrap: wrap;
+        }
+        .profile-edit-save-primary {
+          flex: 1 1 auto;
+          min-width: min(100%, 12rem);
+        }
       }
       .profile-edit-field-stack {
         display: flex;
@@ -8653,42 +9162,39 @@
       @media (max-width: 719px) {
         .profile-edit-scroll {
           font-size: 0.9rem;
-          padding: 0.75rem 0.8rem 1rem;
-          padding-left: 0.78rem;
-          padding-right: 0.78rem;
+          padding: 0.72rem 0.78rem 1rem;
+          /* Must exceed sticky bar height (esp. two-row layout ≤520px with “Editing @…” + Save) */
+          padding-bottom: calc(9.25rem + env(safe-area-inset-bottom, 0px));
+          scroll-padding-bottom: calc(9.25rem + env(safe-area-inset-bottom, 0px));
         }
         .profile-edit-card {
-          padding: 0.9rem 0.85rem 1rem;
-        }
-        .profile-edit-main-grid,
-        .profile-edit-profile-column,
-        .profile-edit-account-column {
-          gap: 1rem;
+          padding: 1.1rem 1rem 1.15rem;
         }
         .profile-account-subcard {
           padding: 0.72rem;
         }
       }
       .profile-edit-save-primary {
-        width: 100%;
-        min-height: 48px;
-        font-size: 1.02rem;
+        flex-shrink: 0;
+        width: auto;
+        min-height: 46px;
+        min-width: 10.5rem;
+        font-size: 0.82rem;
         font-weight: 750;
-        border-radius: 12px;
-        padding: 0.65rem 1rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        border-radius: 999px;
+        border: none;
+        padding: 0.62rem 1.35rem;
+        color: #fff;
+        cursor: pointer;
+        background: linear-gradient(125deg, #22d3ee 0%, #a855f7 50%, #ec4899 100%);
+        box-shadow: 0 0 22px rgba(168, 85, 247, 0.38);
+        transition: box-shadow 0.15s ease, transform 0.12s ease;
       }
-      @media (min-width: 720px) {
-        .profile-edit-sticky {
-          flex-direction: row;
-          align-items: center;
-          justify-content: center;
-          padding-left: 1.15rem;
-          padding-right: 1.15rem;
-        }
-        .profile-edit-save-primary {
-          width: auto;
-          min-width: 12rem;
-        }
+      .profile-edit-save-primary:hover {
+        box-shadow: 0 0 34px rgba(168, 85, 247, 0.55);
+        transform: translateY(-1px);
       }
       .profile-remove-photo-btn {
         width: 100%;
@@ -8789,6 +9295,10 @@
       .profile-signout-section {
         margin-top: 0.5rem;
         padding-bottom: 0.25rem;
+      }
+      /* Keep destructive actions reachable above sticky save bar when scrolling / focus */
+      #profileAccountDeletionSection:not([hidden]) {
+        scroll-margin-bottom: calc(8rem + env(safe-area-inset-bottom, 0px));
       }
       .profile-account-register-block {
         margin-top: 0.35rem;
@@ -9101,7 +9611,7 @@
                 aria-label="Activity"
               >
                 <div class="header-notifications-inner">
-                  <p class="header-notifications-heading">Activity</p>
+                  <p class="header-notifications-heading app-section-heading">Activity</p>
                   <p class="header-notifications-hint muted">
                     Mentions, replies to your posts, and group invites appear here.
                   </p>
@@ -9258,8 +9768,8 @@
             id="starterPicksSection"
           >
             <div class="starter-picks-head">
-              <h2 class="section-header-highlight starter-picks-title" id="starterPicksHeading">Popular on AirAlert</h2>
-              <p class="starter-picks-sub muted">Perfect starter picks — add in one tap</p>
+              <h2 class="section-header-highlight starter-picks-title" id="starterPicksHeading"><span class="app-section-heading">Popular on AirAlert</span></h2>
+              <p class="starter-picks-sub muted" id="starterPicksSub">Shows AirAlert users add — tap to add yours</p>
             </div>
             <div class="trending-scroll-wrap starter-picks-scroll">
               <div class="trending-scroll search-results" id="starterPicksList"></div>
@@ -9272,8 +9782,13 @@
           </div>
           <div id="searchLoadingBar" class="search-loading-bar" hidden>
             <div class="search-loading-bar-fill" aria-hidden="true"></div>
-            <span class="search-loading-bar-text">Searching TVMaze &amp; catalog…</span>
+            <span class="search-loading-bar-text" id="searchLoadingBarText">Searching TVMaze &amp; catalog…</span>
           </div>
+          <p id="searchDiscoveryBanner" class="search-discovery-banner" role="status" hidden>
+            <span class="search-discovery-kicker" id="searchDiscoveryKicker">Browse</span>
+            <span class="search-discovery-name" id="searchDiscoveryBannerText">—</span>
+            <span class="search-discovery-hint muted" id="searchDiscoveryHint">Matches use TVMaze show genres and format — not show-title search.</span>
+          </p>
           <p class="msg err" id="searchErr"></p>
           <div id="searchPostToolbar" class="search-post-toolbar">
             <div class="search-post-field">
@@ -9298,7 +9813,7 @@
 
         <section class="trending-section panel-rail-cyan" aria-labelledby="trendingHeading">
           <div class="trending-section-head">
-            <h2 id="trendingHeading" class="section-header-highlight">Trending fan favorites</h2>
+            <h2 id="trendingHeading" class="section-header-highlight"><span class="app-section-heading">Trending fan favorites</span></h2>
             <p class="trending-section-sub muted">Shows people are adding right now — matched to your taste when you subscribe.</p>
           </div>
           <p class="search-loading" id="trendingLoading" hidden aria-hidden="true">Trending</p>
@@ -9311,7 +9826,7 @@
         <section class="recommended-section panel-rail-magenta" aria-labelledby="recommendedHeading">
           <div class="recommended-fold-head">
             <button type="button" class="fold-toggle fold-toggle-highlight" id="foldRecommendedBtn" aria-expanded="false" aria-controls="foldRecommendedBody">
-              <span class="fold-title" id="recommendedHeading">Recommended for you</span>
+              <span class="fold-title" id="recommendedHeading"><span class="app-section-heading">Recommended for you</span></span>
               <span class="fold-chev" aria-hidden="true">▼</span>
             </button>
             <button type="button" class="secondary" id="recommendedRefreshBtn">Refresh</button>
@@ -9360,7 +9875,7 @@
             aria-expanded="true"
             aria-controls="foldSubsBody"
           >
-            <span class="fold-title" id="foldSubsHeading">Your shows</span>
+            <span class="fold-title" id="foldSubsHeading"><span class="app-section-heading">Your shows</span></span>
             <span class="fold-chev" aria-hidden="true">▼</span>
           </button>
           <div class="fold-body" id="foldSubsBody">
@@ -9381,7 +9896,7 @@
             aria-expanded="true"
             aria-controls="foldPersonFollowsBody"
           >
-            <span class="fold-title" id="foldPersonFollowsHeading">People you follow</span>
+            <span class="fold-title" id="foldPersonFollowsHeading"><span class="app-section-heading">People you follow</span></span>
             <span class="fold-chev" aria-hidden="true">▼</span>
           </button>
           <div class="fold-body" id="foldPersonFollowsBody">
@@ -9411,7 +9926,7 @@
         <section class="panel-rail-guide" aria-label="Weekly TV guide">
           <div class="week-guide-head">
             <div>
-              <h2 class="section-header-highlight header-guide">My week</h2>
+              <h2 class="section-header-highlight header-guide"><span class="app-section-heading">My week</span></h2>
               <p class="muted week-guide-sub" id="weekGuideRange">Open this tab to load your week.</p>
             </div>
             <div class="week-guide-nav">
@@ -9429,8 +9944,8 @@
       </template>
       <template id="tpl-shell-tab-tasks">
         <div class="app-shell-mounted" data-app-shell-mounted="tasks">
-        <section class="panel-rail-magenta" aria-label="Watch checklist">
-          <h2 class="section-header-highlight">Watch checklist</h2>
+        <section class="panel-rail-magenta tasks-checklist-section" aria-label="Watch checklist">
+          <h2 class="tasks-checklist-heading app-section-heading">Watch checklist</h2>
           <div class="tasks-stats-section" id="tasksStatsSection" aria-live="polite">
             <div class="tasks-stats-grid">
               <div class="tasks-stat-card">
@@ -9452,19 +9967,17 @@
             </div>
           </div>
           <ul class="tasks-list" id="tasksList"></ul>
-          <p class="muted tasks-open-empty" id="tasksOpenEmpty" hidden>
-            All caught up — nothing left on your open list. Expand <strong>Watched</strong> or <strong>Not watching</strong> below to review.
-          </p>
+          <p class="muted tasks-open-empty" id="tasksOpenEmpty" hidden>All caught up. Open <strong>Watched</strong> or <strong>Not watching</strong> below.</p>
           <p class="muted" id="tasksEmpty" style="display: none">No tasks yet. After a subscribed show has an episode on today’s date, it will show up here.</p>
-          <div id="tasksCompletedFoldWrap">
+          <div id="tasksCompletedFoldWrap" class="tasks-fold-block">
             <button
               type="button"
-              class="fold-toggle fold-toggle-magenta"
+              class="fold-toggle fold-toggle-magenta tasks-fold-toggle"
               id="foldTasksCompletedBtn"
               aria-expanded="false"
               aria-controls="foldTasksCompletedBody"
             >
-              <span class="fold-title">Watched <span class="tasks-completed-badge" id="tasksCompletedBadge">(0)</span></span>
+              <span class="fold-title"><span class="app-section-heading">Watched</span> <span class="tasks-completed-badge" id="tasksCompletedBadge">(0)</span></span>
               <span class="fold-chev" aria-hidden="true">▼</span>
             </button>
             <div class="fold-body" id="foldTasksCompletedBody" hidden>
@@ -9472,15 +9985,15 @@
               <ul class="tasks-list" id="tasksListCompleted"></ul>
             </div>
           </div>
-          <div id="tasksSkippedFoldWrap">
+          <div id="tasksSkippedFoldWrap" class="tasks-fold-block">
             <button
               type="button"
-              class="fold-toggle fold-toggle-magenta"
+              class="fold-toggle fold-toggle-magenta tasks-fold-toggle"
               id="foldTasksSkippedBtn"
               aria-expanded="false"
               aria-controls="foldTasksSkippedBody"
             >
-              <span class="fold-title">Not watching <span class="tasks-completed-badge" id="tasksSkippedBadge">(0)</span></span>
+              <span class="fold-title"><span class="app-section-heading">Not watching</span> <span class="tasks-completed-badge" id="tasksSkippedBadge">(0)</span></span>
               <span class="fold-chev" aria-hidden="true">▼</span>
             </button>
             <div class="fold-body" id="foldTasksSkippedBody" hidden>
@@ -9536,16 +10049,16 @@
               hidden
               aria-live="polite"
             >
-              <h3 class="community-subsection-heading" id="communityHeadlinesTitle">Breaking news</h3>
+              <h3 class="community-subsection-heading app-section-heading" id="communityHeadlinesTitle">Breaking news</h3>
               <p class="community-headlines-err msg" id="communityHeadlinesErr" role="alert" hidden></p>
               <p class="community-headlines-empty muted" id="communityHeadlinesEmpty" hidden></p>
               <ul class="community-headlines-rail" id="communityHeadlinesRail" role="list" aria-label="Breaking news"></ul>
             </div>
 
-            <h3 class="community-subsection-heading community-subsection-heading--primary">Discussions</h3>
+            <h3 class="community-subsection-heading community-subsection-heading--primary app-section-heading">Discussions</h3>
             <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
             <ul class="community-thread-list" id="communityThreadList"></ul>
-            <h3 class="community-subsection-heading" id="communityGeneralHeading" hidden>General Discussion</h3>
+            <h3 class="community-subsection-heading app-section-heading" id="communityGeneralHeading" hidden>General Discussion</h3>
             <ul class="community-general-list" id="communityGeneralList"></ul>
           </div>
           <div class="community-thread-view hidden" id="communityThreadView">
@@ -9711,7 +10224,7 @@
                 </p>
               </details>
               <section class="community-show-news-panel" id="communityShowNewsPanel" hidden aria-label="Show news">
-                <h3 class="community-polls-heading">Breaking News</h3>
+                <h3 class="community-polls-heading app-section-heading">Breaking News</h3>
                 <div id="communityShowNewsList" class="community-show-news-list"></div>
                 <p class="muted" id="communityShowNewsEmpty" hidden style="font-size: 0.82rem; margin: 0">No breaking news for this show yet.</p>
               </section>
@@ -9726,7 +10239,7 @@
                 >
               </div>
               <section class="community-sentiment-chart-panel" id="communityShowRatingsChartPanel" hidden aria-label="Season scores">
-                <h3 class="community-polls-heading">Community scores</h3>
+                <h3 class="community-polls-heading app-section-heading">Community scores</h3>
                 <div class="community-sentiment-chart-toolbar">
                   <label for="communityRatingsSeasonSelect">Season</label>
                   <select id="communityRatingsSeasonSelect" class="community-ratings-season-select"></select>
@@ -9734,7 +10247,7 @@
                 <div id="communityRatingsChartSvg" class="community-sentiment-chart-svg" role="img" aria-label="Ratings chart"></div>
               </section>
               <section class="community-episode-polls" id="communityEpisodePollsPanel" hidden aria-label="Prediction polls">
-                <h3 class="community-polls-heading">Predictions</h3>
+                <h3 class="community-polls-heading app-section-heading">Predictions</h3>
                 <p class="muted community-polls-lead" id="communityPollsLead">
                   Before this episode’s listed air date, add a poll and vote — who dies, will they get together, etc. Voting
                   locks when the episode airs; the author can then reveal the correct outcome.
@@ -9756,7 +10269,7 @@
                 </div>
               </section>
               <section class="community-episode-rating" id="communityEpisodeRatingPanel" hidden aria-label="Rate this episode">
-                <h3 class="community-polls-heading">Your rating</h3>
+                <h3 class="community-polls-heading app-section-heading">Your rating</h3>
                 <p class="muted community-polls-lead" id="communityEpisodeRatingLead">
                   How was this episode? One score per member — you can change it anytime.
                 </p>
@@ -9921,7 +10434,7 @@
             <div id="dmInboxListView">
               <div class="dm-inbox-layout">
                 <div class="dm-inbox-main">
-                  <h2 id="dmInboxTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Inbox</h2>
+                  <h2 id="dmInboxTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0"><span class="app-section-heading">Inbox</span></h2>
                   <div class="dm-inbox-hub-tabs" role="tablist" aria-label="Inbox">
                     <button
                       type="button"
@@ -9957,7 +10470,7 @@
                   <div class="dm-inbox-hub-scroll dm-inbox-hub-scroll--tabbed" id="dmInboxHubScroll">
                     <section id="dmInboxSectionDms" class="dm-inbox-section" aria-labelledby="dmInboxDmsSectionLabel">
                       <div class="dm-inbox-section-head">
-                        <span class="dm-inbox-section-label" id="dmInboxDmsSectionLabel">Direct messages</span>
+                        <span class="dm-inbox-section-label app-section-heading" id="dmInboxDmsSectionLabel">Direct messages</span>
                         <span class="dm-inbox-section-hint">1:1</span>
                       </div>
                       <div id="dmInboxThreadList" class="dm-inbox-thread-list"></div>
@@ -9967,7 +10480,7 @@
                     </section>
                     <section id="dmInboxSectionGroups" class="dm-inbox-section" aria-label="Group chats">
                       <div class="dm-inbox-section-head">
-                        <span class="dm-inbox-section-label">Groups</span>
+                        <span class="dm-inbox-section-label app-section-heading">Groups</span>
                         <span class="dm-inbox-section-hint">Multi-member</span>
                       </div>
                       <div id="dmInboxGroupList" class="dm-inbox-thread-list"></div>
@@ -9987,7 +10500,7 @@
                   id="dmInboxThreadTitleDm"
                   class="section-header-highlight header-cyan-glow dm-inbox-chat-heading dm-inbox-thread-title-inline"
                 >
-                  Chat
+                  <span class="app-section-heading">Chat</span>
                 </h3>
               </div>
               <button
@@ -10001,7 +10514,7 @@
                   <img id="dmInboxGroupHeaderAvatar" class="dm-inbox-group-header-avatar" alt="" width="36" height="36" hidden decoding="async" />
                   <span id="dmInboxGroupHeaderAvatarFb" class="dm-inbox-group-header-avatar-fb">G</span>
                 </span>
-                <span id="dmInboxThreadTitleGroup" class="section-header-highlight header-cyan-glow dm-inbox-group-title-text">Group</span>
+                <span id="dmInboxThreadTitleGroup" class="section-header-highlight header-cyan-glow dm-inbox-group-title-text"><span class="app-section-heading">Group</span></span>
               </button>
               <div id="dmInboxMessages" class="dm-inbox-messages"></div>
               <p id="dmInboxTypingRow" class="dm-inbox-typing-row" hidden aria-live="polite"></p>
@@ -10037,7 +10550,7 @@
         <div id="dmCreateGroupModal" class="dm-create-group-modal" hidden>
           <div class="dm-create-group-backdrop" id="dmCreateGroupBackdrop"></div>
           <div class="dm-create-group-sheet" role="dialog" aria-labelledby="dmCreateGroupTitle" aria-modal="true">
-            <h3 id="dmCreateGroupTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Create group</h3>
+            <h3 id="dmCreateGroupTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0"><span class="app-section-heading">Create group</span></h3>
             <label class="dm-create-group-label" for="dmCreateGroupNameInput">Group name</label>
             <input type="text" id="dmCreateGroupNameInput" class="dm-compose-search-input" placeholder="e.g. Watch party" maxlength="80" autocomplete="off" />
             <label class="dm-create-group-label" for="dmCreateGroupSearchInput">Add members</label>
@@ -10054,7 +10567,7 @@
         <div id="dmGroupSettingsModal" class="dm-create-group-modal" hidden>
           <div class="dm-create-group-backdrop" id="dmGroupSettingsBackdrop"></div>
           <div class="dm-create-group-sheet" role="dialog" aria-labelledby="dmGroupSettingsTitle" aria-modal="true">
-            <h3 id="dmGroupSettingsTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">Group</h3>
+            <h3 id="dmGroupSettingsTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0"><span class="app-section-heading">Group</span></h3>
             <div id="dmGroupSettingsPhotoSection" class="dm-group-settings-photo-row">
               <div class="dm-group-settings-photo-preview" id="dmGroupSettingsPhotoPreview">
                 <img id="dmGroupSettingsPhotoImg" alt="" width="64" height="64" hidden decoding="async" />
@@ -10253,133 +10766,127 @@
         </div>
         <div class="modal-body-scroll settings-modal-body" id="appSettingsModalBody">
           <div class="settings-modal-stack">
-            <section
-              id="settingsRefreshSection"
-              class="settings-surface settings-surface--data"
-              role="region"
-              aria-labelledby="settingsDataHeading"
-            >
-              <h4 id="settingsDataHeading" class="settings-surface-h section-header-highlight header-blue">Show &amp; episode data</h4>
-              <p class="settings-surface-lead muted">
-                Refresh TVMaze data in the server cache so <strong>My List</strong> and <strong>Tasks</strong> stay current. New shows update when you add them.
-              </p>
-              <button type="button" class="secondary" id="settingsRefreshDataBtn">Refresh all show data</button>
-              <p class="muted msg" id="settingsJobMsg" style="margin: 0.5rem 0 0; font-size: 0.8rem; line-height: 1.4"></p>
-              <pre id="settingsJobOut" style="display: none; margin: 0.35rem 0 0; font-size: 0.72rem"></pre>
-            </section>
-
-            <section
-              id="settingsRemindersSection"
-              class="settings-surface settings-surface--time"
-              role="region"
-              aria-labelledby="settingsTimeHeading"
-            >
-              <h4 id="settingsTimeHeading" class="settings-surface-h section-header-highlight header-cyan">Time &amp; timezone</h4>
-              <p class="settings-surface-lead muted">
-                One timezone for tasks, reminders, and episode-day notifications.
-              </p>
-              <div>
-                <label for="tz">Timezone</label>
-                <input id="tz" type="text" placeholder="America/Los_Angeles" />
-              </div>
-              <button type="button" class="settings-save-tz-btn" id="saveProfile" style="margin-top: 0.75rem">Save timezone</button>
-              <p class="muted msg" id="profileMsg"></p>
-            </section>
-
-            <section id="settingsPushSection" class="settings-surface settings-surface--push push-section" aria-labelledby="pushHeading">
-              <h2 id="pushHeading" class="section-header-highlight header-magenta" style="font-size: 0.95rem; margin: 0 0 0.4rem">Push notifications</h2>
-              <p class="settings-surface-lead muted" style="margin-bottom: 0.35rem">
-                Turn on push on this device, then pick what can leave the app. The top-right Activity menu stays focused on mentions, replies, and invites.
-              </p>
-
-              <div class="settings-pref-block">
-                <h3 class="settings-pref-block-title">Schedule &amp; nudges</h3>
-                <div class="settings-field-tight">
-                  <label for="hour">Daily reminder hour (local)</label>
-                  <input id="hour" type="number" min="0" max="23" value="8" />
-                  <p class="muted" style="font-size: 0.76rem; margin-top: 0.3rem; line-height: 1.4">
-                    Local hour (from your timezone) for the pass that includes <strong>Episode airs today</strong> and similar alerts.
-                  </p>
+            <details id="settingsRemindersSection" class="settings-surface settings-surface--time">
+              <summary class="settings-disclosure-summary">
+                <h4 id="settingsTimeHeading" class="settings-surface-h section-header-highlight header-cyan" style="margin: 0">
+                  <span class="app-section-heading">Time &amp; timezone</span>
+                </h4>
+                <span class="settings-disclosure-chev" aria-hidden="true">▾</span>
+              </summary>
+              <div class="settings-disclosure-body">
+                <p class="settings-surface-lead muted">One timezone for tasks, reminders, and episode notifications.</p>
+                <div>
+                  <label for="tz">Timezone</label>
+                  <input id="tz" type="text" placeholder="America/Los_Angeles" />
                 </div>
-                <div class="settings-field-tight" style="margin-top: 0.85rem">
-                  <label for="taskNudgeDays">“Still watching?” — days after air</label>
-                  <select id="taskNudgeDays" aria-label="Days after air date to nudge about unwatched episodes">
-                    <option value="">Off</option>
-                    <option value="1">1 day after air date</option>
-                    <option value="3">3 days after air date</option>
-                    <option value="7">7 days after air date</option>
-                  </select>
-                  <p class="muted" style="font-size: 0.76rem; margin-top: 0.3rem; line-height: 1.4">
-                    At most one reminder per episode if still unwatched. Needs the <strong>Still watching?</strong> toggle below and push on this device.
-                  </p>
+                <button type="button" class="settings-save-tz-btn" id="saveProfile" style="margin-top: 0.75rem">Save timezone</button>
+                <p class="muted msg" id="profileMsg"></p>
+              </div>
+            </details>
+
+            <details id="settingsPushSection" class="settings-surface settings-surface--push push-section">
+              <summary class="settings-disclosure-summary">
+                <h2 id="pushHeading" class="section-header-highlight header-magenta" style="font-size: 0.95rem; margin: 0">
+                  <span class="app-section-heading">Push notifications</span>
+                </h2>
+                <span class="settings-disclosure-chev" aria-hidden="true">▾</span>
+              </summary>
+              <div class="settings-disclosure-body">
+                <p class="settings-surface-lead muted" style="margin-bottom: 0.35rem">
+                  Choose what can notify this device. Activity keeps mentions and replies.
+                </p>
+
+                <div class="settings-pref-block">
+                  <h3 class="settings-pref-block-title app-section-heading">Schedule &amp; nudges</h3>
+                  <div class="settings-field-tight">
+                    <label for="hour">Daily reminder hour (local)</label>
+                    <input id="hour" type="number" min="0" max="23" value="8" />
+                    <p class="muted" style="font-size: 0.76rem; margin-top: 0.3rem; line-height: 1.4">
+                      Local hour (from your timezone) for the pass that includes <strong>Episode airs today</strong> and similar alerts.
+                    </p>
+                  </div>
+                  <div class="settings-field-tight" style="margin-top: 0.85rem">
+                    <label for="taskNudgeDays">“Still watching?” — days after air</label>
+                    <select id="taskNudgeDays" aria-label="Days after air date to nudge about unwatched episodes">
+                      <option value="">Off</option>
+                      <option value="1">1 day after air date</option>
+                      <option value="3">3 days after air date</option>
+                      <option value="7">7 days after air date</option>
+                    </select>
+                    <p class="muted" style="font-size: 0.76rem; margin-top: 0.3rem; line-height: 1.4">
+                      At most one reminder per episode if still unwatched. Needs the <strong>Still watching?</strong> toggle below and push on this device.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="settings-pref-block">
+                  <h3 class="settings-pref-block-title app-section-heading">Show &amp; episode alerts</h3>
+                  <div class="push-prefs-list">
+                    <label class="push-pref-row">
+                      <input type="checkbox" id="pushPrefEpisodeAirsToday" checked />
+                      <span>Episode airs today — opens <strong>Tasks</strong></span>
+                    </label>
+                    <label class="push-pref-row">
+                      <input type="checkbox" id="pushPrefTaskStillWatching" checked />
+                      <span>“Still watching?” for unchecked tasks (uses timing above)</span>
+                    </label>
+                    <label class="push-pref-row">
+                      <input type="checkbox" id="pushPrefPersonNewProject" checked />
+                      <span><strong>People you follow</strong> — new show in their TVMaze credits</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="settings-pref-block">
+                  <h3 class="settings-pref-block-title app-section-heading">Social &amp; Community push</h3>
+                  <div class="push-prefs-list">
+                    <label class="push-pref-row">
+                      <input type="checkbox" id="pushPrefDmMessage" checked />
+                      <span>Direct messages — opens <strong>Inbox</strong></span>
+                    </label>
+                    <label class="push-pref-row">
+                      <input type="checkbox" id="pushPrefCommunityMention" checked />
+                      <span>When someone @mentions you — also appears in Activity</span>
+                    </label>
+                    <label class="push-pref-row">
+                      <input type="checkbox" id="pushPrefCommunityReply" checked />
+                      <span>Replies to your posts — also appears in Activity</span>
+                    </label>
+                    <label class="push-pref-row">
+                      <input type="checkbox" id="pushPrefCommunityThreadNewPost" checked />
+                      <span>New post in a followed show thread — opens Community</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="settings-push-actions">
+                  <button type="button" id="savePushPrefsBtn">Save notification preferences</button>
+                  <button type="button" class="secondary push-btn" id="enablePushBtn">Turn on push for this device</button>
+                  <button type="button" class="secondary push-btn" id="testPushBtn">Send test notification</button>
+                  <p class="muted msg" id="pushMsg" style="width: 100%"></p>
                 </div>
               </div>
+            </details>
 
-              <div class="settings-pref-block">
-                <h3 class="settings-pref-block-title">Show &amp; episode alerts</h3>
-                <div class="push-prefs-list">
-                  <label class="push-pref-row">
-                    <input type="checkbox" id="pushPrefEpisodeAirsToday" checked />
-                    <span>Episode airs today — opens <strong>Tasks</strong></span>
-                  </label>
-                  <label class="push-pref-row">
-                    <input type="checkbox" id="pushPrefTaskStillWatching" checked />
-                    <span>“Still watching?” for unchecked tasks (uses timing above)</span>
-                  </label>
-                  <label class="push-pref-row">
-                    <input type="checkbox" id="pushPrefPersonNewProject" checked />
-                    <span><strong>People you follow</strong> — new show in their TVMaze credits</span>
-                  </label>
+            <details id="settingsHelpSection" class="settings-surface">
+              <summary class="settings-disclosure-summary">
+                <h4 id="settingsHelpHeading" class="settings-surface-h section-header-highlight header-cyan" style="margin: 0">
+                  <span class="app-section-heading">Help, privacy &amp; legal</span>
+                </h4>
+                <span class="settings-disclosure-chev" aria-hidden="true">▾</span>
+              </summary>
+              <div class="settings-disclosure-body">
+                <p class="settings-surface-lead muted">Privacy, terms, support, and beta feedback.</p>
+                <div class="store-readiness-link-grid" aria-label="Help and legal links">
+                  <button type="button" class="secondary" data-legal-doc="privacy">Privacy</button>
+                  <button type="button" class="secondary" data-legal-doc="terms">Terms</button>
+                  <a class="secondary" href="/support.html" target="_blank" rel="noopener">Support</a>
                 </div>
+                <button type="button" class="secondary" id="settingsBetaFeedbackBtn" style="margin-top: 0.65rem; width: 100%">
+                  Send beta feedback
+                </button>
               </div>
-
-              <div class="settings-pref-block">
-                <h3 class="settings-pref-block-title">Social &amp; Community push</h3>
-                <div class="push-prefs-list">
-                  <label class="push-pref-row">
-                    <input type="checkbox" id="pushPrefDmMessage" checked />
-                    <span>Direct messages — opens <strong>Inbox</strong></span>
-                  </label>
-                  <label class="push-pref-row">
-                    <input type="checkbox" id="pushPrefCommunityMention" checked />
-                    <span>When someone @mentions you — also appears in Activity</span>
-                  </label>
-                  <label class="push-pref-row">
-                    <input type="checkbox" id="pushPrefCommunityReply" checked />
-                    <span>Replies to your posts — also appears in Activity</span>
-                  </label>
-                  <label class="push-pref-row">
-                    <input type="checkbox" id="pushPrefCommunityThreadNewPost" checked />
-                    <span>New post in a followed show thread — opens Community</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="settings-push-actions">
-                <button type="button" id="savePushPrefsBtn">Save notification preferences</button>
-                <button type="button" class="secondary push-btn" id="enablePushBtn">Turn on push for this device</button>
-                <button type="button" class="secondary push-btn" id="testPushBtn">Send test notification</button>
-                <p class="muted msg" id="pushMsg" style="width: 100%"></p>
-              </div>
-            </section>
-            <section id="settingsHelpSection" class="settings-surface" aria-labelledby="settingsHelpHeading">
-              <h4 id="settingsHelpHeading" class="settings-surface-h section-header-highlight header-cyan">Help, privacy &amp; legal</h4>
-              <p class="settings-surface-lead muted">
-                Store-review essentials in one place: privacy details, beta support, terms, and account deletion guidance.
-              </p>
-              <div class="store-readiness-link-grid" aria-label="Help and legal links">
-                <button type="button" class="secondary" data-legal-doc="privacy">Privacy</button>
-                <button type="button" class="secondary" data-legal-doc="terms">Terms</button>
-                <a class="secondary" href="/support.html" target="_blank" rel="noopener">Support</a>
-              </div>
-              <button type="button" class="secondary" id="settingsBetaFeedbackBtn" style="margin-top: 0.65rem; width: 100%">
-                Send beta feedback
-              </button>
-              <ul class="support-note-list">
-                <li>Account deletion: Account menu (top right) → Your profile → Session &amp; destructive actions.</li>
-                <li>Beta feedback: use <strong>Send beta feedback</strong> above.</li>
-              </ul>
-            </section>
+            </details>
           </div>
         </div>
       </div>
@@ -10404,47 +10911,54 @@
         <div class="profile-edit-modal-shell">
           <div class="modal-body-scroll profile-edit-scroll" id="appProfileModalBody">
             <div class="profile-edit-stack">
-              <div class="profile-edit-main-grid">
-                <div class="profile-edit-profile-column">
                 <section class="profile-edit-card profile-edit-card--basics" aria-labelledby="profileBasicsHeading">
-                  <h2 id="profileBasicsHeading" class="profile-edit-card-title">Profile basics</h2>
-                  <p class="profile-edit-card-lead muted">Photo, display name, and public username.</p>
-                  <div class="profile-identity">
-                  <div class="profile-identity-inner">
+                  <h2 id="profileBasicsHeading" class="profile-edit-block-label">Profile basics</h2>
+                  <div class="profile-edit-avatar-row">
                     <div class="profile-avatar-wrap">
                       <input type="file" id="profileAvatarInput" accept="image/jpeg,image/png,image/webp" hidden />
                       <button type="button" class="profile-avatar-btn" id="profileAvatarBtn" aria-label="Change profile photo">
                         <img id="profileAvatarImg" alt="" width="88" height="88" hidden decoding="async" />
                         <span id="profileAvatarPlaceholder" class="profile-avatar-placeholder" aria-hidden="true">+</span>
                       </button>
-                      <p class="muted profile-avatar-hint">Tap to add or change. With a photo, tap to enlarge.</p>
                     </div>
-                    <div class="profile-identity-fields">
-                      <label for="displayName">Display name</label>
-                      <input id="displayName" type="text" maxlength="120" placeholder="Your full name" autocomplete="name" />
-                      <div class="profile-readonly-row">
-                        <span class="profile-readonly-label">Username</span>
-                        <span id="profileUsernameDisplay" class="profile-readonly-value">—</span>
-                      </div>
-                      <div class="profile-readonly-row">
-                        <span class="profile-readonly-label">Member since</span>
-                        <span id="profileMemberSince" class="profile-readonly-value">—</span>
-                      </div>
-                      <div class="profile-photo-actions">
-                        <button type="button" class="secondary profile-remove-photo-btn" id="removeAvatarBtn">Remove photo</button>
+                    <div class="profile-edit-avatar-side">
+                      <p class="profile-edit-avatar-name" id="profileBasicsDisplayPreview">Your profile</p>
+                      <p class="profile-edit-avatar-sub muted">
+                        <span id="profileBasicsHandleLine">—</span>
+                        · Member since <span id="profileMemberSince">—</span>
+                      </p>
+                      <div class="profile-edit-photo-btns">
+                        <button type="button" class="profile-edit-pill-btn" id="profileChangePhotoAltBtn">Change photo</button>
+                        <button type="button" class="profile-edit-pill-btn profile-edit-pill-btn--danger" id="removeAvatarBtn">Remove</button>
                       </div>
                     </div>
                   </div>
-                  </div>
+                  <p class="muted profile-edit-micro-hint">Tap your photo to change or enlarge.</p>
                   <p class="muted msg profile-card-msg" id="profileInfoMsg"></p>
                 </section>
 
                 <section class="profile-edit-card profile-edit-card--about profile-edit-card--about-you" aria-labelledby="profileAboutCardHeading">
-                  <h2 id="profileAboutCardHeading" class="profile-edit-card-title">About you</h2>
-                  <p class="profile-edit-card-lead muted">Bio and optional details — clear a field and save to remove.</p>
-                  <div class="profile-edit-field-stack">
+                  <h2 id="profileAboutCardHeading" class="profile-edit-block-label">About you</h2>
+                  <div class="profile-edit-field-row">
+                    <div class="profile-edit-field">
+                      <label for="displayName">Display name</label>
+                      <input id="displayName" type="text" maxlength="120" placeholder="Your name" autocomplete="name" />
+                    </div>
+                    <div class="profile-edit-field">
+                      <div id="profileUsernameLabelBlock" class="profile-edit-field-heading">Username</div>
+                      <div
+                        class="profile-edit-faux-input"
+                        id="profileUsernameDisplay"
+                        aria-labelledby="profileUsernameLabelBlock"
+                        aria-live="polite"
+                      >
+                        —
+                      </div>
+                    </div>
+                  </div>
+                  <div class="profile-edit-field">
                     <label for="profileAboutMe">Bio</label>
-                    <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="A few words about you…"></textarea>
+                    <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="Tell the community something about you…"></textarea>
                   </div>
                   <div class="profile-edit-subsection profile-edit-subsection--optional">
                     <h3 class="profile-edit-subsection-title">Optional details</h3>
@@ -10464,7 +10978,7 @@
                       </div>
                     </div>
                     <label for="profileFavoriteShow">Favorite show</label>
-                    <input id="profileFavoriteShow" type="text" maxlength="200" placeholder="e.g. The Bear, Doctor Who…" autocomplete="off" />
+                    <input id="profileFavoriteShow" type="text" maxlength="200" placeholder="e.g. The Bear, Severance…" autocomplete="off" />
                   </div>
                   <p class="muted msg profile-card-msg" id="profileAboutMsg"></p>
                 </section>
@@ -10475,28 +10989,30 @@
                     hidden
                     aria-labelledby="profileShareCardHeading"
                   >
-                    <h2 id="profileShareCardHeading" class="profile-edit-card-title">Preferences &amp; sharing</h2>
-                    <p class="profile-edit-card-lead muted" style="margin-top: 0">Square share card with your stats (PNG).</p>
-                    <p class="profile-share-preview-wrap" id="profileSharePreviewWrap" hidden>
-                      <canvas id="profileShareCanvas" width="1080" height="1080" class="profile-share-canvas"></canvas>
+                    <h2 id="profileShareCardHeading" class="profile-edit-block-label">Share card</h2>
+                    <p class="muted" style="margin: -0.25rem 0 1rem; font-size: 0.82rem; line-height: 1.45">
+                      Square PNG with your stats — preview, download, or share.
                     </p>
-                    <div class="profile-share-actions">
-                      <button type="button" id="profileShareCardGenerateBtn">Preview card</button>
-                      <button type="button" class="secondary" id="profileShareCardDownloadBtn" disabled>Download PNG</button>
-                      <button type="button" class="secondary" id="profileShareCardShareBtn" disabled>Share…</button>
+                    <div class="profile-edit-share-shell">
+                      <p class="profile-share-preview-wrap" id="profileSharePreviewWrap" hidden style="margin: 0">
+                        <canvas id="profileShareCanvas" width="1080" height="1080" class="profile-share-canvas"></canvas>
+                      </p>
+                      <div class="profile-share-actions" style="padding: 0.75rem">
+                        <button type="button" id="profileShareCardGenerateBtn">Preview card</button>
+                        <button type="button" class="secondary" id="profileShareCardDownloadBtn" disabled>Download PNG</button>
+                        <button type="button" class="secondary" id="profileShareCardShareBtn" disabled>Share…</button>
+                      </div>
                     </div>
                     <p class="muted msg profile-card-msg" id="profileShareCardMsg"></p>
                 </section>
-              </div>
 
-              <div class="profile-edit-account-column">
               <section class="profile-edit-card profile-edit-card--account" aria-labelledby="profileAccountHeading">
-                <h2 id="profileAccountHeading" class="profile-edit-card-title">Account</h2>
+                <h2 id="profileAccountHeading" class="profile-edit-block-label">Account</h2>
                 <p class="profile-edit-card-lead muted" id="accountLeadGuest">
-                  Guest on this device only. Create an <strong>email-backed account</strong> to sync your list and use Community, messages, and search. You’ll pick a public <strong>@username</strong> (not your sign-in email).
+                  Guest on this device. Create an account to sync, use Community, messages, and search — with a public <strong>@username</strong>.
                 </p>
                 <p class="profile-edit-card-lead muted" id="accountLeadRegistered" hidden>
-                  Signed in with <strong>email</strong> or Google. Your <strong>@username</strong> is your public handle for Community and messages.
+                  Signed in. Your <strong>@username</strong> is your public handle.
                 </p>
                 <div id="accountGuest">
                   <div class="profile-account-subcard profile-account-subcard--signin">
@@ -10607,8 +11123,6 @@
                 </div>
                 <p class="msg err profile-card-msg" id="accountErr"></p>
               </section>
-              </div>
-              </div>
 
               <section
                 id="profileSignOutSection"
@@ -10616,9 +11130,9 @@
                 hidden
                 aria-labelledby="profileSessionHeading"
               >
-                <h2 id="profileSessionHeading" class="profile-edit-card-title">Session &amp; destructive actions</h2>
+                <h2 id="profileSessionHeading" class="profile-edit-block-label">Session &amp; safety</h2>
                 <p class="profile-edit-card-lead muted profile-edit-session-lead">
-                  Sign-in and data removal — separate from profile fields. Tap <strong>Save profile</strong> at the bottom to keep name, photo, bio, and optional details.
+                  Sign out or delete your account. Profile fields above use <strong>Save profile</strong>.
                 </p>
                 <div class="profile-edit-session-block profile-edit-session-block--signout" role="group" aria-labelledby="profileSessionSignOutLabel">
                   <h3 id="profileSessionSignOutLabel" class="profile-edit-session-block-title">End session on this device</h3>
@@ -10638,6 +11152,9 @@
             </div>
           </div>
         <div class="profile-edit-sticky" role="region" aria-label="Save profile changes">
+          <p class="profile-edit-save-note muted" id="profileEditSaveNote" hidden>
+            Editing <strong id="profileEditSaveHandle">—</strong>
+          </p>
           <button type="button" class="profile-edit-save-primary" id="saveProfileAllBtn">Save profile</button>
         </div>
       </div>
@@ -10704,6 +11221,20 @@
           console.warn("[AirAlert] localStorage.removeItem failed", key, e);
         }
       }
+
+      /** Updates text inside `.app-section-heading` when section titles change at runtime (DM headers, etc.). */
+      function setAppSectionHeadingLabel(el, text) {
+        if (!el) return;
+        const t = text == null ? "" : String(text);
+        let span = el.querySelector(":scope > .app-section-heading");
+        if (!span) {
+          span = document.createElement("span");
+          span.className = "app-section-heading";
+          el.replaceChildren(span);
+        }
+        span.textContent = t;
+      }
+
       /** Set `?debug_boot=1` or `window.__AIRALERT_DEBUG_BOOT = true` for phase logs (Railway / Safari debugging). */
       function bootCheckpoint(phase) {
         try {
@@ -11100,6 +11631,15 @@
         });
       }
 
+      function syncProfileBasicsPreviewFromInputs(u) {
+        const dn = document.getElementById("displayName");
+        const preview = document.getElementById("profileBasicsDisplayPreview");
+        if (!preview) return;
+        const dnv = dn && dn.value.trim();
+        const uname = u && u.username && String(u.username).trim();
+        preview.textContent = dnv || uname || "Your profile";
+      }
+
       function syncProfileIdentityFromUser(u) {
         const dn = document.getElementById("displayName");
         if (dn) dn.value = (u && u.displayName) || "";
@@ -11116,8 +11656,15 @@
           img.hidden = true;
           ph.hidden = false;
         }
+        const handleStr = u && u.username ? "@" + u.username : "—";
         const un = document.getElementById("profileUsernameDisplay");
-        if (un) un.textContent = (u && u.username) || "—";
+        if (un) un.textContent = handleStr;
+        const hl = document.getElementById("profileBasicsHandleLine");
+        if (hl) hl.textContent = handleStr;
+        const saveHandle = document.getElementById("profileEditSaveHandle");
+        if (saveHandle) saveHandle.textContent = handleStr;
+        const saveNote = document.getElementById("profileEditSaveNote");
+        if (saveNote) saveNote.hidden = !(u && accountIsRegistered(u) && u.username);
         const ms = document.getElementById("profileMemberSince");
         if (ms) ms.textContent = formatMemberSince(u && u.createdAt);
         const am = document.getElementById("profileAboutMe");
@@ -11136,6 +11683,7 @@
         } else {
           profileWatchSummary = { episodesCompleted: 0, showsTracked: 0 };
         }
+        syncProfileBasicsPreviewFromInputs(u);
         syncSelfProfilePresenceFromSession();
       }
 
@@ -11476,6 +12024,42 @@
           bingeSpan.textContent = " Binge later (no spoilers until I’m caught up)";
           bingeLab.appendChild(bingeSpan);
           left.appendChild(bingeLab);
+          const engageRow = document.createElement("div");
+          engageRow.className = "subs-show-engage-row";
+          const ratingBlock = document.createElement("div");
+          const rawAvg = s.airAlertAvgRating;
+          const rawCnt = s.airAlertRatingCount;
+          const cnt = rawCnt != null && rawCnt !== "" ? Number(rawCnt) : 0;
+          const avg =
+            rawAvg != null && rawAvg !== "" && Number.isFinite(Number(rawAvg)) ? Number(rawAvg) : null;
+          if (cnt > 0 && avg != null) {
+            ratingBlock.className = "subs-airalert-rating";
+            const sc = document.createElement("span");
+            sc.className = "subs-airalert-score";
+            sc.setAttribute("aria-label", "AirAlert average " + avg.toFixed(1) + " of 5");
+            sc.textContent = "★ " + avg.toFixed(1);
+            const cc = document.createElement("span");
+            cc.className = "subs-airalert-count";
+            cc.textContent = "Based on " + cnt + (cnt === 1 ? " rating" : " ratings");
+            ratingBlock.appendChild(sc);
+            ratingBlock.appendChild(document.createTextNode(" "));
+            ratingBlock.appendChild(cc);
+          } else {
+            ratingBlock.className = "subs-airalert-rating subs-airalert-rating--empty";
+            ratingBlock.textContent = "Not rated yet";
+          }
+          const discussBtn = document.createElement("button");
+          discussBtn.type = "button";
+          discussBtn.className = "secondary subs-discuss-btn";
+          discussBtn.textContent = "Discuss";
+          discussBtn.setAttribute("aria-label", "Open general discussion: " + String(s.showName || "show"));
+          discussBtn.addEventListener("click", () => {
+            if (!Number.isFinite(showId) || showId < 1) return;
+            void openCommunityShowThread(showId, s.showName);
+          });
+          engageRow.appendChild(ratingBlock);
+          engageRow.appendChild(discussBtn);
+          left.appendChild(engageRow);
           const btn = document.createElement("button");
           btn.className = "danger";
           btn.textContent = "Remove";
@@ -11968,18 +12552,31 @@
         const line = document.createElement("div");
         line.className = "task-line";
         line.innerHTML = "<strong>" + escapeHtml(t.showName) + "</strong> · " + escapeHtml(t.episodeLabel);
-        const meta = document.createElement("div");
-        meta.className = "task-meta muted";
-        meta.textContent = taskMetaLine(t);
         body.appendChild(line);
-        body.appendChild(meta);
+        if (kind === "open") {
+          const air = document.createElement("div");
+          air.className = "task-meta task-meta--airdate";
+          air.textContent = "Aired " + (t.airdate || "—");
+          body.appendChild(air);
+          if (t.nudgeSentAt) {
+            const nudgeEl = document.createElement("div");
+            nudgeEl.className = "task-meta task-meta--nudge";
+            nudgeEl.textContent = "Nudge sent";
+            body.appendChild(nudgeEl);
+          }
+        } else {
+          const meta = document.createElement("div");
+          meta.className = "task-meta muted";
+          meta.textContent = taskMetaLine(t);
+          body.appendChild(meta);
+        }
 
         if (kind === "open") {
           const actions = document.createElement("div");
           actions.className = "task-actions";
           const btnWatch = document.createElement("button");
           btnWatch.type = "button";
-          btnWatch.className = "secondary";
+          btnWatch.className = "secondary task-action-btn";
           btnWatch.textContent = "Watched";
           btnWatch.setAttribute("aria-label", "Mark watched: " + String(t.showName));
           btnWatch.addEventListener("click", async () => {
@@ -12006,7 +12603,7 @@
           });
           const btnSkip = document.createElement("button");
           btnSkip.type = "button";
-          btnSkip.className = "secondary";
+          btnSkip.className = "secondary task-action-btn";
           btnSkip.textContent = "Not watching";
           btnSkip.title = "Remove from your open list without marking as watched";
           btnSkip.setAttribute("aria-label", "Not watching: " + String(t.showName));
@@ -12023,10 +12620,10 @@
           li.appendChild(actions);
         } else {
           const actions = document.createElement("div");
-          actions.className = "task-actions";
+          actions.className = "task-actions task-actions--single";
           const btnBack = document.createElement("button");
           btnBack.type = "button";
-          btnBack.className = "secondary";
+          btnBack.className = "secondary task-action-btn";
           btnBack.textContent = kind === "watched" ? "Undo" : "Put back";
           btnBack.title =
             kind === "watched" ? "Move back to your open list" : "Show this episode on your open list again";
@@ -12479,6 +13076,41 @@
         }
       }
 
+      /**
+       * Return from an open DM or group thread to the main Inbox list.
+       * Wired in initMessagesShellAfterMount — the back button lives in a lazy <template> so
+       * document-level getElementById at parse time would miss it and leave a dead control.
+       */
+      async function goBackToDmInboxListFromThread() {
+        sendDmTypingWs(false);
+        sendDmGroupTypingWs(false);
+        if (dmTypingStopTimer) {
+          clearTimeout(dmTypingStopTimer);
+          dmTypingStopTimer = null;
+        }
+        if (dmGroupTypingStopTimer) {
+          clearTimeout(dmGroupTypingStopTimer);
+          dmGroupTypingStopTimer = null;
+        }
+        hideDmPeerTyping();
+        clearGroupTypingState();
+        closeDmComposeView();
+        resetDmChatHeaderPresenceUi();
+        dmInboxActiveThreadId = null;
+        dmInboxActiveGroupId = null;
+        dmThreadPeerReadAt = null;
+        const dmFab = document.getElementById("dmComposeBtn");
+        if (dmFab) dmFab.style.display = "";
+        const list = document.getElementById("dmInboxListView");
+        const tv = document.getElementById("dmInboxThreadView");
+        if (list) list.hidden = false;
+        if (tv) tv.hidden = true;
+        await renderDmInboxHub();
+        void refreshDmUnread();
+        syncDmInboxSplitLayout();
+        syncDmInboxActiveRowHighlight();
+      }
+
       function sendDmTypingWs(typing) {
         if (!dmWebSocket || dmWebSocket.readyState !== 1 || !dmInboxActiveThreadId) return;
         try {
@@ -12670,7 +13302,7 @@
         if (data.type === "dm_group_meta" && data.groupId && typeof data.name === "string") {
           if (dmInboxActiveGroupId === data.groupId) {
             const tg = document.getElementById("dmInboxThreadTitleGroup");
-            if (tg) tg.textContent = data.name;
+            if (tg) setAppSectionHeadingLabel(tg, data.name);
             const avMeta =
               data.avatarDataUrl != null && String(data.avatarDataUrl).trim()
                 ? String(data.avatarDataUrl).trim()
@@ -13809,7 +14441,7 @@
         const avatarHost = document.getElementById("dmInboxDmHeaderAvatarHost");
         if (dmBlock) dmBlock.hidden = false;
         if (avatarHost) avatarHost.innerHTML = "";
-        if (titleDm) titleDm.textContent = titleLabel || "Chat";
+        if (titleDm) setAppSectionHeadingLabel(titleDm, titleLabel || "Chat");
         if (host) host.classList.remove("dm-inbox-messages--group");
         if (list) list.hidden = true;
         if (tv) tv.hidden = false;
@@ -13891,7 +14523,7 @@
           err.style.display = "none";
         }
         setDmChatHeaderMode(true);
-        if (titleG) titleG.textContent = titleLabel || "Group";
+        if (titleG) setAppSectionHeadingLabel(titleG, titleLabel || "Group");
         syncDmGroupHeaderAvatar(null, titleLabel || "Group");
         if (host) {
           host.classList.add("dm-inbox-messages--group");
@@ -13903,7 +14535,7 @@
         if (host) host.innerHTML = "<p class=\"muted\" style=\"margin:0\">Fetching…</p>";
         try {
           const detail = await api("/api/dm/groups/" + encodeURIComponent(groupId));
-          if (titleG) titleG.textContent = detail.name || titleLabel || "Group";
+          if (titleG) setAppSectionHeadingLabel(titleG, detail.name || titleLabel || "Group");
           syncDmGroupHeaderAvatar(detail.avatarDataUrl, detail.name || titleLabel || "Group");
           const data = await api("/api/dm/groups/" + encodeURIComponent(groupId) + "/messages?limit=80");
           const msgs = data.messages || [];
@@ -15412,7 +16044,7 @@
         }
       }
 
-      let searchResultState = { allShows: [], page: 1 };
+      let searchResultState = { allShows: [], page: 1, kind: "title", discoverKey: null, discoverLabel: "" };
       let liveSearchTimer = null;
       let activeSearchAbortController = null;
       let activeSearchRequestId = 0;
@@ -17245,6 +17877,12 @@
         ensureCommunityThreadLiveWs();
         void loadShowNews(showId);
         applyCommunityShowSubtab();
+      }
+
+      /** General (show-wide) Community thread — from My List, live banner, deep links, etc. */
+      function openCommunityShowThread(showId, showName) {
+        setTab("community");
+        return openCommunityThread(Number(showId), String(showName || ""), undefined, { episodeId: null });
       }
 
       function updateCommunityThreadUi() {
@@ -19164,14 +19802,14 @@
       }
 
       const DISCOVERY_CHIPS = [
-        { label: "Reality TV", q: "reality competition" },
-        { label: "Drama", q: "drama" },
-        { label: "Comedy", q: "comedy" },
-        { label: "Crime", q: "crime thriller" },
-        { label: "Dating Shows", q: "dating reality" },
-        { label: "Competition", q: "competition reality" },
-        { label: "Sci-Fi", q: "science-fiction" },
-        { label: "Trending Now", q: "limited series 2024" },
+        { label: "Reality TV", key: "reality_tv" },
+        { label: "Drama", key: "drama" },
+        { label: "Comedy", key: "comedy" },
+        { label: "Crime", key: "crime" },
+        { label: "Dating Shows", key: "dating" },
+        { label: "Competition", key: "competition" },
+        { label: "Sci-Fi", key: "scifi" },
+        { label: "Trending Now", key: "trending" },
       ];
 
       function wireDiscoveryChips(userId) {
@@ -19185,17 +19823,21 @@
           b.className = "discovery-chip";
           b.setAttribute("role", "listitem");
           b.textContent = c.label;
+          b.setAttribute("aria-pressed", "false");
+          b.setAttribute("aria-label", "Explore genre: " + c.label);
           b.addEventListener("click", () => {
-            const inp = document.getElementById("searchTitle");
-            if (inp) inp.value = c.q;
+            wrap.querySelectorAll(".discovery-chip").forEach((el) => {
+              el.setAttribute("aria-pressed", "false");
+            });
+            b.setAttribute("aria-pressed", "true");
             syncSearchClearBtn();
             trackAnalyticsEvent(
               "discover.chip_click",
-              { queryLen: c.q.length },
-              { sourceScreen: "add", targetType: "discover_chip", targetId: c.label },
+              { discoveryKey: c.key },
+              { sourceScreen: "add", targetType: "discover_genre", targetId: c.key },
             );
             const uid = userId || resolveUserId();
-            if (uid) void performSearch(uid);
+            if (uid) void performDiscoveryByChip(uid, c.key, c.label);
           });
           wrap.appendChild(b);
         }
@@ -19204,49 +19846,36 @@
       async function loadStarterPicksRow(userId) {
         const box = document.getElementById("starterPicksList");
         const errEl = document.getElementById("starterPicksErr");
+        const subEl = document.getElementById("starterPicksSub");
         if (!box || !errEl) return;
         const reqId = ++starterPicksLoadRequestId;
         errEl.textContent = "";
         errEl.hidden = true;
         errEl.classList.remove("err");
         renderSearchSkeleton(box, 4);
-        const STARTER_PICK_QUERIES = [
-          "The Bear",
-          "Succession",
-          "Abbott Elementary",
-          "Wednesday",
-          "The White Lotus",
-          "Severance",
-        ];
         try {
-          const settled = await Promise.allSettled(
-            STARTER_PICK_QUERIES.map((term) => {
-              const qs = new URLSearchParams();
-              qs.set("title", term);
-              qs.set("q", term);
-              qs.set("excludeUserId", userId);
-              qs.set("limit", "8");
-              qs.set("fast", "1");
-              return api("/api/shows/search?" + qs.toString());
-            }),
-          );
+          const qs = new URLSearchParams();
+          if (userId) qs.set("excludeUserId", userId);
+          qs.set("limit", "12");
+          const data = await api("/api/shows/popular-on-airalert?" + qs.toString());
           if (reqId !== starterPicksLoadRequestId) return;
-          const seen = new Set();
-          const merged = [];
-          for (const r of settled) {
-            if (r.status !== "fulfilled") continue;
-            const shows = r.value.shows || [];
-            for (const s of shows) {
-              if (seen.has(s.id)) continue;
-              seen.add(s.id);
-              merged.push(s);
-              if (merged.length >= 10) break;
+          const merged = data.shows || [];
+          const shelfState = data.shelfState || "ok";
+          if (subEl) {
+            if (shelfState === "early") {
+              subEl.textContent = "Growing on AirAlert — popular with early users · tap to add";
+            } else if (shelfState === "empty") {
+              subEl.textContent = "When people start adding shows, favorites appear here";
+            } else {
+              subEl.textContent = "What AirAlert users add & rate — tap to add";
             }
-            if (merged.length >= 10) break;
           }
           box.innerHTML = "";
           if (!merged.length) {
-            errEl.textContent = "Couldn’t load starter picks — try search or a chip above.";
+            errEl.textContent =
+              shelfState === "empty"
+                ? "No internal picks yet — search above or tap Explore."
+                : "Nothing new to suggest — try search or Explore.";
             errEl.hidden = false;
             errEl.classList.add("err");
             return;
@@ -19257,7 +19886,7 @@
         } catch (e) {
           if (reqId !== starterPicksLoadRequestId) return;
           box.innerHTML = "";
-          errEl.textContent = e.message || "Could not load starter picks.";
+          errEl.textContent = e.message || "Could not load Popular on AirAlert.";
           errEl.hidden = false;
           errEl.classList.add("err");
         }
@@ -19272,7 +19901,7 @@
 
       function appendSearchResultCard(box, s, userId, err, addedFrom) {
         const useTrendingStack = addedFrom === "trending" || addedFrom === "starter_pack";
-        const richSearch = addedFrom === "search";
+        const richSearch = addedFrom === "search" || addedFrom === "discover";
         const card = document.createElement("div");
         card.className =
           "search-card" +
@@ -19349,6 +19978,7 @@
             const body = { tvmazeShowId: s.id };
             if (
               addedFrom === "search" ||
+              addedFrom === "discover" ||
               addedFrom === "recommended" ||
               addedFrom === "trending" ||
               addedFrom === "starter_pack"
@@ -19510,6 +20140,93 @@
         }
       }
 
+      async function performDiscoveryByChip(userId, key, displayLabel) {
+        const err = document.getElementById("searchErr");
+        const box = document.getElementById("results");
+        const toolbar = document.getElementById("searchPostToolbar");
+        const linkP = document.getElementById("searchFullPageLink");
+        const loadingBar = document.getElementById("searchLoadingBar");
+        const loadText = document.getElementById("searchLoadingBarText");
+        const banner = document.getElementById("searchDiscoveryBanner");
+        const bannerName = document.getElementById("searchDiscoveryBannerText");
+        const hint = document.getElementById("searchDiscoveryHint");
+        const input = document.getElementById("searchTitle");
+        if (input) input.value = "";
+        syncSearchClearBtn();
+        searchResultState.kind = "discover";
+        searchResultState.discoverKey = key;
+        searchResultState.discoverLabel = displayLabel;
+        if (banner && bannerName) {
+          bannerName.textContent = displayLabel;
+          const kicker = document.getElementById("searchDiscoveryKicker");
+          if (kicker) {
+            kicker.textContent = key === "trending" ? "Spotlight" : "Genre";
+          }
+          if (hint) {
+            if (key === "trending") {
+              hint.textContent = "Running shows with strong TVMaze scores — not a title search.";
+            } else {
+              hint.textContent = "Matches use TVMaze show genres and format — not show-title search.";
+            }
+          }
+          banner.hidden = false;
+        }
+        err.textContent = "";
+        err.classList.remove("err");
+        box.innerHTML = "";
+        toolbar.classList.remove("visible");
+        linkP.style.display = "none";
+        linkP.innerHTML = "";
+
+        if (activeSearchAbortController) {
+          activeSearchAbortController.abort();
+        }
+        activeSearchAbortController = new AbortController();
+        const reqId = ++activeSearchRequestId;
+
+        const defaultLoadMsg = "Searching TVMaze & catalog…";
+        if (loadText) {
+          loadText.textContent = "Scanning the TVMaze catalog for genre & format matches…";
+        }
+        renderSearchSkeleton(box, 5);
+        let showedBar = false;
+        if (loadingBar) {
+          loadingBar.hidden = false;
+          showedBar = true;
+        }
+        try {
+          const qs = new URLSearchParams();
+          qs.set("key", key);
+          qs.set("excludeUserId", userId);
+          qs.set("limit", "36");
+          const { shows } = await api("/api/shows/discover?" + qs.toString(), {
+            signal: activeSearchAbortController.signal,
+          });
+          if (reqId !== activeSearchRequestId) return;
+          if (loadText) loadText.textContent = defaultLoadMsg;
+          if (!shows || !shows.length) {
+            box.innerHTML = "";
+            err.textContent =
+              "No shows matched that browse filter in the part of the catalog we scanned. Try another genre or use title search.";
+            err.classList.add("err");
+            return;
+          }
+          searchResultState.allShows = shows;
+          const fakeQs = new URLSearchParams();
+          applySearchResultLayout(userId, fakeQs);
+        } catch (e) {
+          if (e && e.name === "AbortError") return;
+          if (loadText) loadText.textContent = defaultLoadMsg;
+          box.innerHTML = "";
+          err.textContent = e && e.message ? String(e.message) : "Could not load genre browse.";
+          err.classList.add("err");
+        } finally {
+          if (showedBar && loadingBar && reqId === activeSearchRequestId) {
+            loadingBar.hidden = true;
+          }
+        }
+      }
+
       function buildSearchQuery(userId, opts = {}) {
         const fast = opts.fast === true;
         const limit = Number.isFinite(opts.limit) ? Math.floor(opts.limit) : 100;
@@ -19622,7 +20339,8 @@
         populateNetworkFilterOptions();
         toolbar.classList.add("visible");
         const title = document.getElementById("searchTitle").value.trim();
-        if (title) {
+        const isDiscover = searchResultState.kind === "discover";
+        if (title && !isDiscover) {
           linkP.style.display = "block";
           const a = document.createElement("a");
           a.href = "/search-results.html?" + qs.toString();
@@ -19661,6 +20379,11 @@
           toolbar.classList.remove("visible");
           linkP.style.display = "none";
           linkP.innerHTML = "";
+          searchResultState.kind = "title";
+          searchResultState.discoverKey = null;
+          searchResultState.discoverLabel = "";
+          const bnr = document.getElementById("searchDiscoveryBanner");
+          if (bnr) bnr.hidden = true;
         }
         const { qs, title } = buildSearchQuery(userId, {
           fast: isLive,
@@ -19755,8 +20478,18 @@
         linkP.style.display = "none";
         linkP.innerHTML = "";
         if (loadingBar) loadingBar.hidden = true;
+        const loadText = document.getElementById("searchLoadingBarText");
+        if (loadText) loadText.textContent = "Searching TVMaze & catalog…";
+        const bnr = document.getElementById("searchDiscoveryBanner");
+        if (bnr) bnr.hidden = true;
+        searchResultState.kind = "title";
+        searchResultState.discoverKey = null;
+        searchResultState.discoverLabel = "";
         searchResultState.allShows = [];
         searchResultState.page = 1;
+        document.querySelectorAll("#discoveryChips .discovery-chip").forEach((el) => {
+          el.setAttribute("aria-pressed", "false");
+        });
         if (input) input.focus();
       }
 
@@ -19814,7 +20547,7 @@
         body.scrollTop = 0;
       }
 
-      /** @param {"refresh" | "reminders" | "push" | "legal" | undefined} which */
+      /** @param {"reminders" | "push" | "legal" | undefined} which */
       function openAppSettingsModal(which) {
         closeHeaderMenus();
         closeLegalDocumentModal();
@@ -19824,19 +20557,20 @@
         const body = document.getElementById("appSettingsModalBody");
         if (body) body.scrollTop = 0;
         const scrollId =
-          which === "refresh"
-            ? "settingsRefreshSection"
-            : which === "reminders"
-              ? "settingsRemindersSection"
-              : which === "push"
-                ? "settingsPushSection"
-                : which === "legal"
-                  ? "settingsHelpSection"
-                  : null;
+          which === "reminders"
+            ? "settingsRemindersSection"
+            : which === "push"
+              ? "settingsPushSection"
+              : which === "legal"
+                ? "settingsHelpSection"
+                : null;
         if (scrollId) {
           requestAnimationFrame(() => {
             const target = document.getElementById(scrollId);
-            if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+            if (target && target instanceof HTMLDetailsElement) {
+              target.open = true;
+            }
+            target?.scrollIntoView({ behavior: "smooth", block: "start" });
           });
         }
       }
@@ -20453,6 +21187,9 @@
         initDmGroupSettingsModal();
         initDmCompose();
         wireDmInboxSendAndInput();
+        document.getElementById("dmInboxBackBtn")?.addEventListener("click", () => {
+          void goBackToDmInboxListFromThread();
+        });
         syncDmInboxComposeFab();
       }
 
@@ -20802,27 +21539,6 @@
         el.addEventListener("click", () => closeCommunityMemberProfile());
       });
       document.getElementById("headerInboxBtn")?.addEventListener("click", () => void openDmInboxModal());
-      document.getElementById("dmInboxBackBtn")?.addEventListener("click", async () => {
-        sendDmTypingWs(false);
-        if (dmTypingStopTimer) {
-          clearTimeout(dmTypingStopTimer);
-          dmTypingStopTimer = null;
-        }
-        hideDmPeerTyping();
-        closeDmComposeView();
-        resetDmChatHeaderPresenceUi();
-        dmInboxActiveThreadId = null;
-        dmInboxActiveGroupId = null;
-        dmThreadPeerReadAt = null;
-        const dmFab = document.getElementById("dmComposeBtn");
-        if (dmFab) dmFab.style.display = "";
-        const list = document.getElementById("dmInboxListView");
-        const tv = document.getElementById("dmInboxThreadView");
-        if (list) list.hidden = false;
-        if (tv) tv.hidden = true;
-        await renderDmInboxHub();
-        void refreshDmUnread();
-      });
       let dmCreateGroupMembers = new Map();
       let dmCreateGroupSearchTimer = null;
       let dmCreateGroupSearchGen = 0;
@@ -20974,7 +21690,7 @@
               body: JSON.stringify({ name }),
             });
             const tg = document.getElementById("dmInboxThreadTitleGroup");
-            if (tg) tg.textContent = name || "Group";
+            if (tg) setAppSectionHeadingLabel(tg, name || "Group");
             const hImg = document.getElementById("dmInboxGroupHeaderAvatar");
             const url = hImg && !hImg.hidden && hImg.getAttribute("src") ? hImg.src : null;
             syncDmGroupHeaderAvatar(url, name || "Group");
@@ -21415,6 +22131,14 @@
       });
 
       document.getElementById("searchTitle")?.addEventListener("input", () => {
+        const bnr = document.getElementById("searchDiscoveryBanner");
+        if (bnr) bnr.hidden = true;
+        searchResultState.kind = "title";
+        searchResultState.discoverKey = null;
+        searchResultState.discoverLabel = "";
+        document.querySelectorAll("#discoveryChips .discovery-chip").forEach((el) => {
+          el.setAttribute("aria-pressed", "false");
+        });
         syncSearchClearBtn();
         const uid = resolveUserId();
         if (uid) scheduleLiveSearch(uid);
@@ -22341,6 +23065,13 @@
         document.getElementById("profileAvatarBtn")?.addEventListener("click", () => {
           document.getElementById("profileAvatarInput")?.click();
         });
+        document.getElementById("profileChangePhotoAltBtn")?.addEventListener("click", () => {
+          document.getElementById("profileAvatarInput")?.click();
+        });
+        document.getElementById("displayName")?.addEventListener("input", () => {
+          const me = sessionMeSnapshot;
+          syncProfileBasicsPreviewFromInputs(me || null);
+        });
         document.getElementById("profileAvatarImg")?.addEventListener("click", (e) => {
           const img = e.currentTarget;
           if (img.hidden || !img.getAttribute("src")) return;
@@ -22534,41 +23265,6 @@
           closeShowModal();
         });
 
-        async function runRefreshEpisodeJob() {
-          const settingsMsg = document.getElementById("settingsJobMsg");
-          const settingsOut = document.getElementById("settingsJobOut");
-          const setSettingsStatus = (text, isErr) => {
-            if (!settingsMsg) return;
-            settingsMsg.textContent = text;
-            settingsMsg.classList.toggle("err", !!isErr);
-          };
-          setSettingsStatus("Running…", false);
-          if (settingsOut) settingsOut.style.display = "none";
-          try {
-            const data = await api("/api/jobs/run", { method: "POST", body: "{}" });
-            let jobLine =
-              "Refreshed " + data.refreshed.length + " show(s). Logged " + data.notificationsCreated + " notification(s).";
-            if (data.taskNudgesSent > 0) {
-              jobLine += " Sent " + data.taskNudgesSent + " “still watching?” reminder(s).";
-            }
-            setSettingsStatus(jobLine, false);
-            if (settingsOut) {
-              settingsOut.style.display = "block";
-              settingsOut.textContent = JSON.stringify(data, null, 2);
-            }
-            const uid = resolveUserId();
-            if (uid) {
-              await loadSubs(uid);
-              await loadTasks(uid);
-            }
-          } catch (e) {
-            const m = e && e.message ? String(e.message) : "Refresh failed";
-            setSettingsStatus(m, true);
-          }
-        }
-        document.getElementById("settingsRefreshDataBtn")?.addEventListener("click", () => runRefreshEpisodeJob());
-
-        function scrollToHeaderTarget(id) {
           const el = document.getElementById(id);
           if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
         }

@@ -768,3 +768,9 @@ if (!cpCols.has("tag")) {
 try {
   db.exec(`CREATE INDEX IF NOT EXISTS idx_community_posts_parent ON community_posts(parent_post_id) WHERE parent_post_id IS NOT NULL`);
 } catch { /* ignore */ }
+
+try {
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_subscriptions_show ON show_subscriptions(tvmaze_show_id)`);
+} catch {
+  /* ignore */
+}
