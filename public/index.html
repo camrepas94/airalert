@@ -8928,6 +8928,49 @@
         font-size: 0.76rem;
         line-height: 1.45;
       }
+      .profile-edit-avatar-hint-inline {
+        margin: 0.5rem 0 0;
+        font-size: 0.78rem;
+      }
+      .profile-edit-field--spotlight {
+        margin-top: 1.05rem;
+      }
+      .profile-edit-field--spotlight .profile-edit-status-hint {
+        margin-top: 0.5rem;
+      }
+      .profile-edit-status-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-top: 0.4rem;
+        padding: 0.5rem 0.95rem;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.32);
+        border: 1px solid rgba(167, 139, 250, 0.24);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .profile-edit-status-bar:focus-within {
+        border-color: rgba(34, 211, 238, 0.42);
+        box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.08);
+      }
+      .profile-edit-status-icon {
+        flex-shrink: 0;
+        font-size: 1.05rem;
+        line-height: 1;
+        opacity: 0.9;
+      }
+      .profile-edit-status-count {
+        flex-shrink: 0;
+        font-size: 0.74rem;
+        line-height: 1.2;
+        color: rgba(148, 163, 184, 0.95);
+        font-variant-numeric: tabular-nums;
+      }
+      .profile-share-card-intro {
+        margin: -0.15rem 0 0.9rem;
+        font-size: 0.82rem;
+        line-height: 1.45;
+      }
       .profile-edit-field-row {
         display: grid;
         grid-template-columns: 1fr;
@@ -9256,6 +9299,23 @@
         .profile-edit-scroll select {
           font-size: 0.95rem;
         }
+      }
+      .profile-edit-scroll .profile-edit-status-bar input[type="text"] {
+        min-height: 0;
+        height: auto;
+        padding: 0.3rem 0;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        font-size: 0.93rem;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .profile-edit-scroll .profile-edit-status-bar input[type="text"]:focus {
+        outline: none;
+        border: none;
+        box-shadow: none;
       }
       .profile-edit-scroll .profile-readonly-value {
         word-break: break-word;
@@ -10956,7 +11016,27 @@
                       </div>
                     </div>
                   </div>
-                  <p class="muted profile-edit-micro-hint">Tap your photo to change or enlarge.</p>
+                  <p class="muted profile-edit-micro-hint profile-edit-avatar-hint-inline">
+                    Tap your photo to update — JPG, PNG, or WebP.
+                  </p>
+                  <div class="profile-edit-field profile-edit-field--spotlight">
+                    <label for="profileFavoriteShow">Spotlight show</label>
+                    <div class="profile-edit-status-bar">
+                      <span class="profile-edit-status-icon" aria-hidden="true">📺</span>
+                      <input
+                        id="profileFavoriteShow"
+                        type="text"
+                        maxlength="200"
+                        placeholder="What are you watching?"
+                        autocomplete="off"
+                        aria-describedby="profileFavoriteShowHint"
+                      />
+                      <span class="profile-edit-status-count" id="profileFavoriteShowCount" aria-live="polite">0/200</span>
+                    </div>
+                    <p id="profileFavoriteShowHint" class="muted profile-edit-micro-hint profile-edit-status-hint">
+                      Your top pick — shown on your public profile when set.
+                    </p>
+                  </div>
                   <p class="muted msg profile-card-msg" id="profileInfoMsg"></p>
                 </section>
 
@@ -10984,7 +11064,7 @@
                     <textarea id="profileAboutMe" rows="5" maxlength="2000" placeholder="Tell the community something about you…"></textarea>
                   </div>
                   <div class="profile-edit-subsection profile-edit-subsection--optional">
-                    <h3 class="profile-edit-subsection-title">Optional details</h3>
+                    <h3 class="profile-edit-subsection-title">Optional</h3>
                     <div class="profile-form-row profile-form-row--split">
                       <div>
                         <label for="profileAge">Age</label>
@@ -11000,8 +11080,6 @@
                         </select>
                       </div>
                     </div>
-                    <label for="profileFavoriteShow">Favorite show</label>
-                    <input id="profileFavoriteShow" type="text" maxlength="200" placeholder="e.g. The Bear, Severance…" autocomplete="off" />
                   </div>
                   <p class="muted msg profile-card-msg" id="profileAboutMsg"></p>
                 </section>
@@ -11013,7 +11091,7 @@
                     aria-labelledby="profileShareCardHeading"
                   >
                     <h2 id="profileShareCardHeading" class="profile-edit-block-label">Share card</h2>
-                    <p class="muted" style="margin: -0.25rem 0 1rem; font-size: 0.82rem; line-height: 1.45">
+                    <p class="profile-edit-card-lead muted profile-share-card-intro">
                       Square PNG with your stats — preview, download, or share.
                     </p>
                     <div class="profile-edit-share-shell">
@@ -11154,9 +11232,7 @@
                 aria-labelledby="profileSessionHeading"
               >
                 <h2 id="profileSessionHeading" class="profile-edit-block-label">Session &amp; safety</h2>
-                <p class="profile-edit-card-lead muted profile-edit-session-lead">
-                  Sign out or delete your account. Profile fields above use <strong>Save profile</strong>.
-                </p>
+                <p class="profile-edit-card-lead muted profile-edit-session-lead">Sign out or delete your account.</p>
                 <div class="profile-edit-session-block profile-edit-session-block--signout" role="group" aria-labelledby="profileSessionSignOutLabel">
                   <h3 id="profileSessionSignOutLabel" class="profile-edit-session-block-title">End session on this device</h3>
                   <p class="muted profile-edit-session-block-lead">
@@ -11663,6 +11739,14 @@
         preview.textContent = dnv || uname || "Your profile";
       }
 
+      /** Spotlight show field — keeps “n/200” in sync with `#profileFavoriteShow`. */
+      function syncProfileFavoriteShowCounter() {
+        const fs = document.getElementById("profileFavoriteShow");
+        const cnt = document.getElementById("profileFavoriteShowCount");
+        if (!fs || !cnt) return;
+        cnt.textContent = fs.value.length + "/200";
+      }
+
       function syncProfileIdentityFromUser(u) {
         const dn = document.getElementById("displayName");
         if (dn) dn.value = (u && u.displayName) || "";
@@ -11698,6 +11782,7 @@
         if (sx) sx.value = (u && u.sex) || "";
         const fs = document.getElementById("profileFavoriteShow");
         if (fs) fs.value = (u && u.favoriteShow) || "";
+        syncProfileFavoriteShowCounter();
         if (u && u.watchSummary && typeof u.watchSummary === "object") {
           profileWatchSummary = {
             episodesCompleted: Number(u.watchSummary.episodesCompleted) || 0,
@@ -23111,6 +23196,7 @@
           const me = sessionMeSnapshot;
           syncProfileBasicsPreviewFromInputs(me || null);
         });
+        document.getElementById("profileFavoriteShow")?.addEventListener("input", syncProfileFavoriteShowCounter);
         document.getElementById("profileAvatarImg")?.addEventListener("click", (e) => {
           const img = e.currentTarget;
           if (img.hidden || !img.getAttribute("src")) return;
