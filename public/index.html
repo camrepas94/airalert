@@ -3065,9 +3065,6 @@
         margin-bottom: 0;
         min-width: 0;
       }
-      .recommended-fold-head .secondary {
-        flex-shrink: 0;
-      }
       .how-to-lead {
         margin: 0 0 0.85rem;
         font-size: 0.95rem;
@@ -10153,7 +10150,6 @@
               <span class="fold-title" id="recommendedHeading"><span class="app-section-heading">Recommended for you</span></span>
               <span class="fold-chev" aria-hidden="true">▼</span>
             </button>
-            <button type="button" class="secondary" id="recommendedRefreshBtn">Refresh</button>
           </div>
           <div class="fold-body" id="foldRecommendedBody" hidden>
             <p class="muted" id="recommendedHint" hidden></p>
@@ -22798,11 +22794,6 @@
           if (box.querySelector(".search-card:not(.skeleton-card)")) return;
           loadRecommended(uid);
         });
-      });
-
-      document.getElementById("recommendedRefreshBtn")?.addEventListener("click", () => {
-        const uid = resolveUserId();
-        if (uid) loadRecommended(uid);
       });
 
       document.getElementById("onboardingMissionAddShowsBtn")?.addEventListener("click", () => {
