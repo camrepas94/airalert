@@ -23265,10 +23265,6 @@
           closeShowModal();
         });
 
-          const el = document.getElementById(id);
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-
         document.getElementById("headerSettingsBtn")?.addEventListener("click", (e) => {
           e.stopPropagation();
           closeUsernameSearchModal({ skipFocusRestore: true });
