@@ -8,7 +8,8 @@
     "start": "node dist/server.js",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/admin-gate.mjs && tsx --test test/breakingNewsDedupe.test.ts"
+    "test": "node --test test/admin-gate.mjs && tsx --test test/breakingNewsDedupe.test.ts",
+    "logo:transparent": "node scripts/make-logo-transparent.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -28,6 +29,7 @@
     "@types/node-cron": "^3.0.11",
     "@types/web-push": "^3.6.4",
     "@types/ws": "^8.18.1",
+    "sharp": "^0.34.5",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   }

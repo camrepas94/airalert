@@ -15,8 +15,8 @@
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#03051a" />
-    <link rel="icon" href="/app-icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/app-icon.svg" />
+    <link rel="icon" href="/app-icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/app-icon.png" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="stylesheet" href="/legal/legal-doc-prose.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1120,6 +1120,9 @@
         margin: 0 0 0.35rem;
         line-height: 1;
       }
+      .app-top--guest .app-top-brand-row {
+        margin-bottom: 0.12rem;
+      }
       .app-top-header-actions {
         flex-shrink: 0;
         display: flex;
@@ -1128,15 +1131,34 @@
         gap: 0.5rem;
         flex-wrap: wrap;
       }
-      .header-auth-chrome[hidden] {
-        display: none !important;
-      }
-      .header-auth-chrome {
+      /** Second row: Log in + Create account (guest only). Not used in layout when [hidden]. */
+      .app-top-guest-auth-row {
         display: flex;
         align-items: center;
-        gap: 0.35rem;
-        flex-shrink: 1;
+        justify-content: center;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.1rem 0.5rem 0.55rem;
+        margin: 0;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .app-top-guest-auth-row .header-auth-chrome {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        width: 100%;
         min-width: 0;
+        flex-shrink: 0;
+      }
+      .app-top--guest .tab-nav {
+        margin-top: 0.15rem;
+      }
+      .app-top.is-scrolled .app-top-guest-auth-row {
+        padding-top: 0;
+        padding-bottom: 0.4rem;
       }
       .header-auth-btn {
         appearance: none;
@@ -2242,15 +2264,17 @@
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        min-height: 2.85rem;
+        min-height: 2.5rem;
         transform: translateZ(0);
         isolation: isolate;
       }
       .brand-heading .brand-logo {
         display: block;
-        height: 2.45rem;
+        height: 2.5rem;
         width: auto;
         max-width: min(14.5rem, 82vw);
+        object-fit: contain;
+        object-position: left center;
         opacity: 1;
         position: relative;
         z-index: 1;
@@ -2259,7 +2283,6 @@
       }
       @media (min-width: 400px) {
         .brand-heading .brand-logo {
-          height: 2.7rem;
           max-width: 15rem;
         }
       }
@@ -8507,7 +8530,7 @@
         margin-top: 0.35rem;
       }
       .app-top.is-scrolled .brand-heading .brand-logo {
-        height: 1.7rem;
+        height: 2.2rem;
         max-width: 11.5rem;
       }
       .app-top.is-scrolled .header-icon-btn {
@@ -9744,17 +9767,9 @@
       <header class="app-top" id="appTopBar">
         <div class="app-top-brand-row">
           <h1 class="brand-heading">
-            <img class="brand-logo" src="/logo.svg" width="240" height="41" alt="AirAlert" />
+            <img class="brand-logo" src="/logo.png" width="1916" height="821" alt="AirAlert" />
           </h1>
           <div class="app-top-header-actions">
-            <div class="header-auth-chrome" id="headerAuthChrome" hidden aria-hidden="true">
-              <button type="button" class="header-auth-btn header-auth-btn--login" id="headerLogInBtn">
-                Log in
-              </button>
-              <button type="button" class="header-auth-btn header-auth-btn--signup" id="headerCreateAccountBtn">
-                Create account
-              </button>
-            </div>
             <div class="header-menu-wrap">
               <button
                 type="button"
@@ -9930,6 +9945,17 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="app-top-guest-auth-row" id="headerGuestAuthRow" hidden aria-hidden="true">
+          <div class="header-auth-chrome" id="headerAuthChrome">
+            <button type="button" class="header-auth-btn header-auth-btn--login" id="headerLogInBtn">
+              Log in
+            </button>
+            <button type="button" class="header-auth-btn header-auth-btn--signup" id="headerCreateAccountBtn">
+              Create account
+            </button>
           </div>
         </div>
 
@@ -22939,14 +22965,21 @@
         }
       }
 
-      /** Guest-only: show top-level Log in + Create account (real accounts use profile icon menu only). */
+      /** Guest-only: show Log in + Create account on their own row below the logo/icon strip. */
       function syncHeaderAuthChrome(me) {
+        const row = document.getElementById("headerGuestAuthRow");
         const chrome = document.getElementById("headerAuthChrome");
-        if (!chrome) return;
+        const topBar = document.getElementById("appTopBar");
         const kind = accountKind(me);
         const show = kind === "guest";
-        chrome.hidden = !show;
-        chrome.setAttribute("aria-hidden", show ? "false" : "true");
+        if (row) {
+          row.hidden = !show;
+          row.setAttribute("aria-hidden", show ? "false" : "true");
+        }
+        if (chrome) {
+          chrome.setAttribute("aria-hidden", show ? "false" : "true");
+        }
+        if (topBar) topBar.classList.toggle("app-top--guest", show);
       }
 
       const UNLOCK_SOCIAL_UX_MESSAGE = "Add 3 shows to unlock this feature.";

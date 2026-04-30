@@ -8536,6 +8536,18 @@ function sendPublicUtf8File(reply: FastifyReply, relativePath: string, contentTy
   return reply.type(contentType + "; charset=utf-8").send(fs.readFileSync(abs, "utf8"));
 }
 
+/** Serve a binary file from `public/` if it exists (logos, icons, etc.). */
+function sendPublicBinaryFile(reply: FastifyReply, relativePath: string, contentType: string, cacheControl: string) {
+  const abs = path.join(publicDir, path.normalize(relativePath));
+  const rel = path.relative(publicDir, abs);
+  if (rel.startsWith("..") || path.isAbsolute(rel) || !fs.existsSync(abs) || !fs.statSync(abs).isFile()) {
+    reply.code(404);
+    return reply.type("text/plain; charset=utf-8").send("Not found");
+  }
+  reply.header("Cache-Control", cacheControl);
+  return reply.type(contentType).send(fs.readFileSync(abs));
+}
+
 function readTemplateHtml(name: string): string {
   return fs.readFileSync(path.join(templatesDir, name), "utf8");
 }
@@ -8590,15 +8602,16 @@ app.get("/manifest.json", async (_req, reply) => {
   return reply.type("application/manifest+json; charset=utf-8").send(fs.readFileSync(p, "utf8"));
 });
 
-app.get("/logo.svg", async (_req, reply) => {
-  const p = path.join(publicDir, "logo.svg");
-  if (!fs.existsSync(p)) {
-    reply.code(404);
-    return "Not found";
-  }
-  reply.header("Cache-Control", "public, max-age=86400");
-  return reply.type("image/svg+xml; charset=utf-8").send(fs.readFileSync(p, "utf8"));
-});
+app.get("/logo.png", async (_req, reply) =>
+  sendPublicBinaryFile(reply, "logo.png", "image/png", "public, max-age=86400"),
+);
+/** Legacy URL — some bookmarks/cache entries still point at the old SVG filename. */
+app.get("/logo.svg", async (_req, reply) => reply.redirect("/logo.png", 302));
+
+app.get("/app-icon.png", async (_req, reply) =>
+  sendPublicBinaryFile(reply, "app-icon.png", "image/png", "public, max-age=86400"),
+);
+app.get("/app-icon.svg", async (_req, reply) => reply.redirect("/app-icon.png", 302));
 
 app.get("/galaxy-inspiration-bg.png", async (_req, reply) => {
   const p = path.join(publicDir, "galaxy-inspiration-bg.png");
