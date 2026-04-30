@@ -1,6 +1,7 @@
 /**
- * Flood-fill from image edges to remove a uniform background and write RGBA PNG.
- * Source logo is typically RGB (opaque); corners/edges reveal the background color.
+ * Removes a uniform background (RGBA PNG output).
+ * 1) Edge flood-fill — exterior bg connected to image borders.
+ * 2) Global bg match — enclosed holes (e.g. gaps between letters) match bg but are not edge-connected.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -27,7 +28,7 @@ function index(w, x, y) {
 }
 
 /**
- * Mark pixels reachable from borders via same-ish color as top-left pixel as transparent.
+ * Flood-fill from image edges to remove background connected to borders.
  */
 function floodTransparentEdge(buf, width, height, fuzz) {
   const bgIdx = index(width, 0, 0);
@@ -76,6 +77,25 @@ function floodTransparentEdge(buf, width, height, fuzz) {
   }
 }
 
+/**
+ * Pixels inside letter-shaped “holes” match the background RGB but were never reached from the border.
+ * Second pass: clear alpha anywhere color still matches the sampled background (same fuzz as edge pass).
+ */
+function punchInteriorBackgroundMatches(buf, width, height, br, bg, bb, fuzz) {
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const pi = index(width, x, y);
+      if (
+        Math.abs(buf[pi] - br) <= fuzz &&
+        Math.abs(buf[pi + 1] - bg) <= fuzz &&
+        Math.abs(buf[pi + 2] - bb) <= fuzz
+      ) {
+        buf[pi + 3] = 0;
+      }
+    }
+  }
+}
+
 async function main() {
   if (!fs.existsSync(INPUT)) {
     console.error("Missing", INPUT);
@@ -83,7 +103,11 @@ async function main() {
   }
 
   const { buf, width, height } = await rgbaFromSharp(INPUT);
+  const br = buf[0];
+  const bg = buf[1];
+  const bb = buf[2];
   floodTransparentEdge(buf, width, height, FUZZ);
+  punchInteriorBackgroundMatches(buf, width, height, br, bg, bb, FUZZ);
 
   const png = await sharp(buf, { raw: { width, height, channels: 4 } }).png().toBuffer();
 
