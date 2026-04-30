@@ -3100,18 +3100,6 @@
       .fold-toggle[aria-expanded="true"] .fold-chev {
         transform: rotate(180deg);
       }
-      .recommended-fold-head {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.75rem;
-      }
-      .recommended-fold-head .fold-toggle {
-        flex: 1 1 12rem;
-        margin-bottom: 0;
-        min-width: 0;
-      }
       .how-to-lead {
         margin: 0 0 0.85rem;
         font-size: 0.95rem;
@@ -3902,7 +3890,8 @@
       }
       #tab-add section.trending-section.panel-rail-cyan,
       #tab-add section.recommended-section.panel-rail-magenta,
-      #tab-add section.starter-picks-section.panel-rail-cyan {
+      #tab-add section.starter-picks-section.panel-rail-cyan,
+      #tab-add section.add-show-shelf-section {
         position: relative;
         isolation: isolate;
         overflow: hidden;
@@ -3919,7 +3908,8 @@
       }
       #tab-add section.trending-section.panel-rail-cyan::before,
       #tab-add section.recommended-section.panel-rail-magenta::before,
-      #tab-add section.starter-picks-section.panel-rail-cyan::before {
+      #tab-add section.starter-picks-section.panel-rail-cyan::before,
+      #tab-add section.add-show-shelf-section::before {
         display: none;
       }
       .search-hero-head {
@@ -4270,6 +4260,32 @@
       }
       .starter-picks-section--cosmic {
         margin-bottom: 1rem;
+      }
+      #tab-add section.add-show-shelf-section {
+        margin-top: 1rem;
+      }
+      #tab-add section.add-show-shelf-section#starterPicksSection {
+        margin-top: 1.05rem;
+      }
+      .add-show-shelf-head {
+        margin-bottom: 0.55rem;
+      }
+      .recommended-shelf-title.section-header-highlight {
+        margin-bottom: 0.28rem;
+      }
+      .recommended-shelf-sub {
+        margin: 0;
+        font-size: 0.84rem;
+        line-height: 1.45;
+      }
+      .recommended-shelf-teaser {
+        margin: 0 0 0.55rem;
+        font-size: 0.8rem;
+        line-height: 1.45;
+        max-width: 40rem;
+      }
+      .recommended-shelf-scroll {
+        margin-top: 0.15rem;
       }
       .starter-picks-head {
         margin-bottom: 0.55rem;
@@ -5624,6 +5640,16 @@
       #tab-community section.panel-rail-cyan.community-root {
         background: linear-gradient(165deg, rgba(10, 14, 24, 0.97) 0%, rgba(5, 8, 18, 0.98) 100%);
         contain: layout;
+      }
+      /**
+       * Scroll perf (same issue as Community): `backdrop-filter` on many stacked `<section>` panels
+       * forces expensive recomposites while `.main-scroll` moves. Use opaque fills here instead.
+       */
+      #tab-shows section,
+      #tab-tasks section,
+      #tab-guide section {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
       }
       .community-list-view {
         display: flex;
@@ -10125,20 +10151,6 @@
             </div>
             <div class="discovery-chips" id="discoveryChips" role="list"></div>
           </div>
-          <section
-            class="starter-picks-section panel-rail-cyan starter-picks-section--cosmic"
-            aria-labelledby="starterPicksHeading"
-            id="starterPicksSection"
-          >
-            <div class="starter-picks-head">
-              <h2 class="section-header-highlight starter-picks-title" id="starterPicksHeading"><span class="app-section-heading">Popular on AirAlert</span></h2>
-              <p class="starter-picks-sub muted" id="starterPicksSub">Shows AirAlert users add — tap to add yours</p>
-            </div>
-            <div class="trending-scroll-wrap starter-picks-scroll">
-              <div class="trending-scroll search-results" id="starterPicksList"></div>
-            </div>
-            <p class="msg err" id="starterPicksErr" hidden></p>
-          </section>
           <div id="recentChipsWrap" class="recent-chips-wrap" hidden>
             <p class="recent-chips-label muted">Recent searches</p>
             <div class="recent-chips" id="recentChips" role="list"></div>
@@ -10174,6 +10186,36 @@
           <div class="search-results" id="results"></div>
         </section>
 
+        <section
+          class="starter-picks-section panel-rail-cyan starter-picks-section--cosmic add-show-shelf-section"
+          aria-labelledby="starterPicksHeading"
+          id="starterPicksSection"
+        >
+          <div class="starter-picks-head add-show-shelf-head">
+            <h2 class="section-header-highlight starter-picks-title" id="starterPicksHeading"><span class="app-section-heading">Popular on AirAlert</span></h2>
+            <p class="starter-picks-sub muted" id="starterPicksSub">Shows AirAlert users add — tap to add yours</p>
+          </div>
+          <div class="trending-scroll-wrap starter-picks-scroll">
+            <div class="trending-scroll search-results" id="starterPicksList"></div>
+          </div>
+          <p class="msg err" id="starterPicksErr" hidden></p>
+        </section>
+
+        <section class="recommended-section panel-rail-magenta add-show-shelf-section" aria-labelledby="recommendedHeading">
+          <div class="recommended-shelf-head add-show-shelf-head">
+            <h2 class="section-header-highlight recommended-shelf-title" id="recommendedHeading"><span class="app-section-heading">Recommended for you</span></h2>
+            <p class="recommended-shelf-sub muted" id="recommendedHint" hidden></p>
+          </div>
+          <p class="recommended-shelf-teaser muted">
+            Picks scored from your subscribed shows’ genres — add more shows to tune suggestions.
+          </p>
+          <p class="search-loading" id="recommendedLoading" hidden aria-hidden="true">Suggestions</p>
+          <p class="msg err" id="recommendedErr"></p>
+          <div class="trending-scroll-wrap recommended-shelf-scroll">
+            <div class="trending-scroll search-results" id="recommendedList"></div>
+          </div>
+        </section>
+
         <section class="trending-section panel-rail-cyan" aria-labelledby="trendingHeading">
           <div class="trending-fold-head">
             <button
@@ -10196,21 +10238,6 @@
             <div class="trending-scroll-wrap">
               <div class="trending-scroll search-results" id="trendingList"></div>
             </div>
-          </div>
-        </section>
-
-        <section class="recommended-section panel-rail-magenta" aria-labelledby="recommendedHeading">
-          <div class="recommended-fold-head">
-            <button type="button" class="fold-toggle fold-toggle-highlight" id="foldRecommendedBtn" aria-expanded="false" aria-controls="foldRecommendedBody">
-              <span class="fold-title" id="recommendedHeading"><span class="app-section-heading">Recommended for you</span></span>
-              <span class="fold-chev" aria-hidden="true">▼</span>
-            </button>
-          </div>
-          <div class="fold-body" id="foldRecommendedBody" hidden>
-            <p class="muted" id="recommendedHint" hidden></p>
-            <p class="search-loading" id="recommendedLoading" hidden aria-hidden="true">Suggestions</p>
-            <p class="msg err" id="recommendedErr"></p>
-            <div class="search-results" id="recommendedList"></div>
           </div>
         </section>
       </div>
@@ -11974,13 +12001,14 @@
         return m.includes("User not found");
       }
 
+      /** Session bootstrap; returns cached `/api/users/me` when the cookie already exists (avoids duplicate GET right after). */
       async function ensureUser() {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
         try {
           const me = await api("/api/users/me");
           if (me && me.id) {
             safeLocalStorageSet(LS_USER, me.id);
-            return me.id;
+            return { userId: me.id, meFromEnsureSession: me };
           }
         } catch (e) {
           const m = String(e && e.message ? e.message : "");
@@ -11996,7 +12024,7 @@
           body: JSON.stringify({ timezone: tz }),
         });
         safeLocalStorageSet(LS_USER, u.id);
-        return u.id;
+        return { userId: u.id, meFromEnsureSession: null };
       }
 
       let profileAvatarDirty = false;
@@ -12462,11 +12490,16 @@
         }
       }
 
+      let loadSubsInflight = null;
       async function loadSubs(userId, opts) {
         const skipSessionRefresh = opts && opts.skipSessionRefresh === true;
-        const { subscriptions } = await api("/api/users/" + userId + "/subscriptions");
+        if (loadSubsInflight && loadSubsInflight.userId === userId) {
+          return loadSubsInflight.promise;
+        }
+        const run = async () => {
         const ul = document.getElementById("subs");
         const empty = document.getElementById("subsEmptyState");
+        const { subscriptions } = await api("/api/users/" + userId + "/subscriptions");
         if (!ul || !empty) return;
         ul.innerHTML = "";
         if (!subscriptions.length) {
@@ -12593,6 +12626,14 @@
           } catch {
             /* ignore */
           }
+        }
+        };
+        const promise = run();
+        loadSubsInflight = { userId, promise };
+        try {
+          await promise;
+        } finally {
+          if (loadSubsInflight && loadSubsInflight.promise === promise) loadSubsInflight = null;
         }
       }
 
@@ -13396,7 +13437,7 @@
         }
         safeLocalStorageRemove(LS_USER);
         appUserId = null;
-        const id = await ensureUser();
+        const { userId: id } = await ensureUser();
         appUserId = id;
         await loadUser(id);
         await loadSubs(id);
@@ -15416,7 +15457,7 @@
         updateOnboardingMissionStrip(me);
         syncHeaderProfileDropdown(me);
         syncHeaderAuthChrome(me);
-        void refreshHeaderNotificationsUnreadFromServer();
+        scheduleHeaderNotificationsUnreadRefresh();
         syncProfileEditDisclosures(me);
       }
 
@@ -20471,7 +20512,8 @@
       }
 
       function appendSearchResultCard(box, s, userId, err, addedFrom) {
-        const useTrendingStack = addedFrom === "trending" || addedFrom === "starter_pack";
+        const useTrendingStack =
+          addedFrom === "trending" || addedFrom === "starter_pack" || addedFrom === "recommended";
         const richSearch = addedFrom === "search" || addedFrom === "discover";
         const card = document.createElement("div");
         card.className =
@@ -20619,6 +20661,13 @@
         }
         card.appendChild(inner);
         box.appendChild(card);
+      }
+
+      function loadRecommendedDeferred(userId) {
+        if (userId == null) return;
+        deferAfterIdle(() => {
+          void loadRecommended(userId);
+        }, 1000);
       }
 
       async function loadRecommended(userId) {
@@ -21322,6 +21371,16 @@
         return data.activities || [];
       }
 
+      /** Coalesce bursts (e.g. multiple `applyMeToUI` during boot) into one activity-notifications GET. */
+      let headerActivityUnreadRefreshTimer = null;
+      function scheduleHeaderNotificationsUnreadRefresh() {
+        if (headerActivityUnreadRefreshTimer) clearTimeout(headerActivityUnreadRefreshTimer);
+        headerActivityUnreadRefreshTimer = setTimeout(() => {
+          headerActivityUnreadRefreshTimer = null;
+          void refreshHeaderNotificationsUnreadFromServer();
+        }, 420);
+      }
+
       /** Unread star uses GET /activity-notifications only (human/social); ack in localStorage (maybeBootstrapHeaderActivityAck). */
       async function refreshHeaderNotificationsUnreadFromServer() {
         const uid = resolveUserId();
@@ -21534,7 +21593,10 @@
           cta.addEventListener("click", () => setTab("add"));
         }
         const uid = resolveUserId();
-        if (uid) setupPersonFollowSearch(uid);
+        if (uid) {
+          setupPersonFollowSearch(uid);
+          void loadSubs(uid, { skipSessionRefresh: true });
+        }
       }
 
       function initGuideShellAfterMount() {
@@ -21902,18 +21964,26 @@
         closeAppSettingsModal();
         closeAppProfileModal();
         closeUsernameSearchModal({ skipFocusRestore: true });
-        document.querySelectorAll(".tab-panel").forEach((el) => {
-          el.classList.toggle("active", el.id === "tab-" + name);
-        });
-        document.querySelectorAll(".tab-nav .tab-btn").forEach((btn) => {
-          const on = btn.getAttribute("data-tab") === name;
-          btn.classList.toggle("active", on);
-          btn.setAttribute("aria-selected", on ? "true" : "false");
-        });
+        const nextPanel = document.getElementById("tab-" + name);
+        if (nextPanel) {
+          if (prevPanel && prevPanel !== nextPanel) prevPanel.classList.remove("active");
+          nextPanel.classList.add("active");
+        }
+        const tabNav = document.querySelector(".tab-nav");
+        if (tabNav) {
+          tabNav.querySelectorAll(".tab-btn").forEach((btn) => {
+            const on = btn.getAttribute("data-tab") === name;
+            btn.classList.toggle("active", on);
+            btn.setAttribute("aria-selected", on ? "true" : "false");
+          });
+        }
         if (name === "add") {
           renderRecentChips();
           const id = resolveUserId();
-          if (id) loadTrendingShowsDeferred(id);
+          if (id) {
+            loadTrendingShowsDeferred(id);
+            loadRecommendedDeferred(id);
+          }
         }
         if (name === "tasks") {
           trackAnalyticsEvent("activation.tasks_opened", {}, { sourceScreen: "tasks", onceKey: "tab:tasks" });
@@ -22888,18 +22958,6 @@
 
       wireFoldTogglesIn(document);
 
-      document.getElementById("foldRecommendedBtn")?.addEventListener("click", () => {
-        requestAnimationFrame(() => {
-          const btn = document.getElementById("foldRecommendedBtn");
-          const uid = resolveUserId();
-          const box = document.getElementById("recommendedList");
-          if (!btn || !uid || !box) return;
-          if (btn.getAttribute("aria-expanded") !== "true") return;
-          if (box.querySelector(".search-card:not(.skeleton-card)")) return;
-          loadRecommended(uid);
-        });
-      });
-
       document.getElementById("onboardingMissionAddShowsBtn")?.addEventListener("click", () => {
         setTab("add");
         requestAnimationFrame(() => document.getElementById("searchTitle")?.focus());
@@ -23049,18 +23107,7 @@
         loadTrendingShowsDeferred(userId);
         wireDiscoveryChips(userId);
         loadStarterPicksDeferred(userId);
-        const fr = document.getElementById("foldRecommendedBtn");
-        if (fr && fr.getAttribute("aria-expanded") === "true") {
-          if (typeof requestIdleCallback === "function") {
-            requestIdleCallback(() => {
-              void loadRecommended(userId);
-            }, { timeout: 2500 });
-          } else {
-            setTimeout(() => {
-              void loadRecommended(userId);
-            }, 400);
-          }
-        }
+        loadRecommendedDeferred(userId);
         if (getActiveTabName() === "tasks") await loadTasks(userId);
         updateContextualTipsVisibility(getActiveTabName());
       }
@@ -23197,29 +23244,31 @@
         syncHeaderAuthChrome(null);
         removeAdminUiFromDom();
         await initGoogleAuthUi();
-        const userId = await ensureUser();
+        const { userId, meFromEnsureSession } = await ensureUser();
         bootCheckpoint("after_ensureUser");
         appUserId = userId;
         startAppPresenceClient();
         let me = null;
         try {
-          me = await api("/api/users/me");
+          if (meFromEnsureSession) me = meFromEnsureSession;
+          else me = await api("/api/users/me");
           applyMeToUI(me);
         } catch {
           applyMeToUI(null);
+          me = null;
         }
         consumeEmailVerifyQueryFromUrl();
         await consumeGoogleAuthFromUrl();
         consumePasswordResetFromHash();
         if (me) applyLoadedUserToSettings(me);
         else await loadUser(userId);
-        await loadSubs(userId, { skipSessionRefresh: true });
-        bootCheckpoint("after_loadSubs");
+        bootCheckpoint("after_loadUserSettings");
         deferAfterIdle(() => {
           void loadPersonFollows(userId);
           setupPersonFollowSearch(userId);
         }, 2400);
         loadTrendingShowsDeferred(userId);
+        loadRecommendedDeferred(userId);
         wireDiscoveryChips(userId);
         loadStarterPicksDeferred(userId);
         renderRecentChips();
@@ -24223,7 +24272,7 @@
           }
           safeLocalStorageRemove(LS_USER);
           appUserId = null;
-          const id = await ensureUser();
+          const { userId: id } = await ensureUser();
           appUserId = id;
           try {
             const me = await api("/api/users/me");
@@ -24258,7 +24307,7 @@
             safeLocalStorageRemove(LS_USER);
             safeLocalStorageRemove(LS_GUEST_PROMPT);
             appUserId = null;
-            const id = await ensureUser();
+            const { userId: id } = await ensureUser();
             appUserId = id;
             const me = await api("/api/users/me");
             applyMeToUI(me);
