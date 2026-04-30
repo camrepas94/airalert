@@ -1113,24 +1113,38 @@
       }
       .app-top-brand-row {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 0.65rem;
         width: 100%;
         margin: 0 0 0.35rem;
         line-height: 1;
       }
-      /** Logo + optional guest auth buttons (same row when visible). Icons stay on the right. */
+      /** Logo left; icons + optional guest auth stacked on the right (`shouldShowGuestHeaderAuthChrome`). */
       .app-top-brand-cluster {
         display: flex;
         align-items: center;
-        flex-wrap: wrap;
-        gap: 0.45rem 0.55rem;
+        flex-wrap: nowrap;
+        gap: 0;
         flex: 1 1 auto;
         min-width: 0;
       }
+      /** Right column: icon row on top, guest Log in / Create account beneath (guest-only). */
+      .app-top-right-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: flex-start;
+        gap: 0.35rem;
+        flex-shrink: 0;
+        min-width: 0;
+        max-width: min(100%, 28rem);
+      }
       .app-top--guest-auth .app-top-brand-row {
-        margin-bottom: 0.15rem;
+        margin-bottom: 0.25rem;
+      }
+      .app-top--guest-auth .app-top-right-stack {
+        gap: 0.45rem;
       }
       .app-top-header-actions {
         flex-shrink: 0;
@@ -1144,8 +1158,8 @@
       .app-top-guest-auth-row {
         display: flex;
         align-items: center;
-        justify-content: flex-start;
-        flex: 0 1 auto;
+        justify-content: flex-end;
+        width: 100%;
         min-width: 0;
         padding: 0;
         margin: 0;
@@ -1154,7 +1168,7 @@
       .app-top-guest-auth-row .header-auth-chrome {
         display: flex;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: flex-end;
         flex-wrap: wrap;
         gap: 0.35rem;
         width: auto;
@@ -1162,7 +1176,22 @@
         flex-shrink: 1;
       }
       .app-top--guest-auth .tab-nav {
-        margin-top: 0.1rem;
+        margin-top: 0.15rem;
+      }
+      @media (max-width: 380px) {
+        .app-top-brand-row {
+          flex-wrap: wrap;
+          gap: 0.5rem 0.65rem;
+        }
+        .app-top-brand-cluster {
+          flex: 1 1 auto;
+          min-width: min(100%, 12rem);
+        }
+        .app-top-right-stack {
+          max-width: 100%;
+          flex: 1 1 auto;
+          align-items: flex-end;
+        }
       }
       .header-auth-btn {
         appearance: none;
@@ -2282,6 +2311,7 @@
         opacity: 1;
         position: relative;
         z-index: 1;
+        background: transparent;
         filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.5)) drop-shadow(0 0 22px rgba(91, 156, 255, 0.32))
           drop-shadow(0 0 30px rgba(167, 139, 250, 0.22)) drop-shadow(0 0 26px rgba(244, 114, 182, 0.18));
       }
@@ -2332,10 +2362,9 @@
         box-shadow: var(--shadow-lift), var(--shadow-card), var(--panel-glow-blue);
       }
       section.panel-rail-guide {
-        border-left-color: rgba(52, 211, 153, 0.75);
-        border-right-color: rgba(52, 211, 153, 0.75);
-        box-shadow: var(--shadow-lift), var(--shadow-card), 0 0 40px -8px rgba(52, 211, 153, 0.22),
-          0 0 80px -20px rgba(34, 197, 94, 0.12);
+        border-left-color: rgba(91, 156, 255, 0.85);
+        border-right-color: rgba(91, 156, 255, 0.85);
+        box-shadow: var(--shadow-lift), var(--shadow-card), var(--panel-glow-blue);
       }
       section.push-section .push-btn,
       details.push-section .push-btn {
@@ -2668,21 +2697,6 @@
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 2px 0 rgba(255, 255, 255, 0.09) inset,
           0 0 0 1px rgba(91, 156, 255, 0.12) inset, 0 0 50px 4px rgba(91, 156, 255, 0.2),
           0 0 80px -12px rgba(34, 211, 238, 0.14), 0 16px 48px rgba(0, 0, 0, 0.42);
-      }
-      .section-header-highlight.header-guide {
-        border-color: rgba(52, 211, 153, 0.44);
-        background: linear-gradient(
-          168deg,
-          rgba(52, 211, 153, 0.22) 0%,
-          rgba(16, 185, 129, 0.1) 28%,
-          rgba(10, 28, 24, 0.42) 52%,
-          rgba(4, 16, 12, 0.86) 100%
-        );
-        -webkit-backdrop-filter: blur(28px) saturate(1.5);
-        backdrop-filter: blur(28px) saturate(1.5);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 2px 0 rgba(255, 255, 255, 0.09) inset,
-          0 0 0 1px rgba(52, 211, 153, 0.14) inset, 0 0 48px 4px rgba(52, 211, 153, 0.18),
-          0 0 72px -12px rgba(16, 185, 129, 0.14), 0 16px 48px rgba(0, 0, 0, 0.42);
       }
       .section-header-highlight.header-gold {
         border-color: rgba(251, 191, 36, 0.42);
@@ -8754,7 +8768,7 @@
         align-items: flex-start;
         justify-content: space-between;
         gap: 0.75rem 1rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.55rem;
       }
       .week-guide-head .section-header-highlight {
         margin-bottom: 0.35rem;
@@ -8774,17 +8788,12 @@
         font-size: 0.78rem;
         padding: 0.38rem 0.65rem;
       }
-      .week-guide-tz {
-        margin: 0 0 0.65rem;
-        font-size: 0.76rem;
-        line-height: 1.4;
-      }
       .week-guide-empty-banner {
-        margin: 0 0 0.75rem;
+        margin: 0 0 0.65rem;
         padding: 0.65rem 0.85rem;
         border-radius: 12px;
-        border: 1px solid rgba(52, 211, 153, 0.28);
-        background: rgba(6, 22, 18, 0.55);
+        border: 1px solid rgba(91, 156, 255, 0.28);
+        background: rgba(8, 14, 32, 0.55);
         font-size: 0.82rem;
         line-height: 1.45;
       }
@@ -8801,8 +8810,8 @@
       .week-guide-day {
         scroll-snap-align: start;
         border-radius: 14px;
-        border: 1px solid rgba(52, 211, 153, 0.22);
-        background: linear-gradient(180deg, rgba(8, 28, 22, 0.55), rgba(4, 12, 10, 0.92));
+        border: 1px solid rgba(91, 156, 255, 0.22);
+        background: linear-gradient(180deg, rgba(12, 20, 44, 0.55), rgba(4, 8, 22, 0.92));
         min-height: 140px;
         display: flex;
         flex-direction: column;
@@ -8811,8 +8820,8 @@
       .week-guide-day-head {
         padding: 0.4rem 0.45rem 0.35rem;
         text-align: center;
-        border-bottom: 1px solid rgba(52, 211, 153, 0.15);
-        background: rgba(16, 185, 129, 0.08);
+        border-bottom: 1px solid rgba(34, 211, 238, 0.14);
+        background: rgba(34, 211, 238, 0.06);
       }
       .week-guide-dow {
         display: block;
@@ -8820,7 +8829,7 @@
         font-weight: 750;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #a7f3d0;
+        color: var(--accent-hot);
       }
       .week-guide-dmd {
         display: block;
@@ -8847,8 +8856,8 @@
       }
       .week-guide-day--skeleton {
         min-height: 140px;
-        border-color: rgba(52, 211, 153, 0.12);
-        background: linear-gradient(180deg, rgba(8, 28, 22, 0.35), rgba(4, 12, 10, 0.75));
+        border-color: rgba(91, 156, 255, 0.14);
+        background: linear-gradient(180deg, rgba(12, 20, 44, 0.35), rgba(4, 8, 22, 0.78));
       }
       .week-guide-day--skeleton .week-guide-skel-bar {
         height: 0.6rem;
@@ -8886,7 +8895,7 @@
       }
       .week-guide-slot-time {
         font-weight: 700;
-        color: #6ee7b7;
+        color: var(--neon-cyan);
         letter-spacing: 0.02em;
       }
       .week-guide-slot-show {
@@ -9774,17 +9783,8 @@
             <h1 class="brand-heading">
               <img class="brand-logo" src="/logo.png" width="1916" height="821" alt="AirAlert" />
             </h1>
-            <div class="app-top-guest-auth-row" id="headerGuestAuthRow" hidden aria-hidden="true">
-              <div class="header-auth-chrome" id="headerAuthChrome">
-                <button type="button" class="header-auth-btn header-auth-btn--login" id="headerLogInBtn">
-                  Log in
-                </button>
-                <button type="button" class="header-auth-btn header-auth-btn--signup" id="headerCreateAccountBtn">
-                  Create account
-                </button>
-              </div>
-            </div>
           </div>
+          <div class="app-top-right-stack">
           <div class="app-top-header-actions">
             <div class="header-menu-wrap">
               <button
@@ -9959,6 +9959,17 @@
                     <p id="headerNotificationsEmpty" class="header-notifications-empty muted" hidden>No new activity yet</p>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+            <div class="app-top-guest-auth-row" id="headerGuestAuthRow" hidden aria-hidden="true">
+              <div class="header-auth-chrome" id="headerAuthChrome">
+                <button type="button" class="header-auth-btn header-auth-btn--login" id="headerLogInBtn">
+                  Log in
+                </button>
+                <button type="button" class="header-auth-btn header-auth-btn--signup" id="headerCreateAccountBtn">
+                  Create account
+                </button>
               </div>
             </div>
           </div>
@@ -10277,7 +10288,7 @@
         <section class="panel-rail-guide" aria-label="Weekly TV guide">
           <div class="week-guide-head">
             <div>
-              <h2 class="section-header-highlight header-guide"><span class="app-section-heading">My week</span></h2>
+              <h2 class="section-header-highlight header-blue"><span class="app-section-heading">My week</span></h2>
               <p class="muted week-guide-sub" id="weekGuideRange">Open this tab to load your week.</p>
             </div>
             <div class="week-guide-nav">
@@ -10286,7 +10297,6 @@
               <button type="button" class="secondary" id="weekGuideNext" title="Next week">Next →</button>
             </div>
           </div>
-          <p class="muted week-guide-tz" id="weekGuideTzNote"></p>
           <p class="week-guide-empty-banner" id="weekGuideEmpty" hidden></p>
           <p class="msg err" id="weekGuideErr" style="display: none"></p>
           <div id="weekGuideGrid" class="week-guide-grid" aria-label="Episodes by day"></div>
@@ -12817,8 +12827,6 @@
           renderWeekGuideSkeleton(grid);
         }
         if (rangeEl) rangeEl.textContent = "Loading this week…";
-        const tzEl = document.getElementById("weekGuideTzNote");
-        if (tzEl) tzEl.textContent = "";
         try {
           const qs = weekGuideWeekStart ? "?weekStart=" + encodeURIComponent(weekGuideWeekStart) : "";
           const data = await api("/api/users/" + encodeURIComponent(userId) + "/week-guide" + qs);
@@ -12841,7 +12849,6 @@
 
       function renderWeekGuide(data) {
         const rangeEl = document.getElementById("weekGuideRange");
-        const tzEl = document.getElementById("weekGuideTzNote");
         const grid = document.getElementById("weekGuideGrid");
         const empty = document.getElementById("weekGuideEmpty");
         if (grid) {
@@ -12859,12 +12866,6 @@
             n +
             " episode" +
             (n === 1 ? "" : "s");
-        }
-        if (tzEl) {
-          tzEl.textContent =
-            "Times shown in 12-hour form from listing data. Dates use your profile timezone (" +
-            (data.timezone || "") +
-            "). Screenshot-friendly grid — scroll horizontally on small screens.";
         }
         if (!grid) return;
         grid.innerHTML = "";
@@ -22970,7 +22971,7 @@
         }
       }
 
-      /** Guest bootstrap only: show Log in + Create account beside logo. Uses GET /api/users/me `accountState` + `isGuestAccount` — never for registered accounts. */
+      /** Guest bootstrap only: Log in + Create account under top-right icons. Uses GET /api/users/me `accountState` + `isGuestAccount` — never for registered accounts. */
       function shouldShowGuestHeaderAuthChrome(me) {
         if (!me || !me.id) return false;
         if (me.isGuestAccount === false || me.isGuestAccount === 0) return false;
