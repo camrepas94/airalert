@@ -1165,6 +1165,9 @@
         margin: 0;
         gap: 0.35rem;
       }
+      .app-top-guest-auth-row[hidden] {
+        display: none !important;
+      }
       .app-top-guest-auth-row .header-auth-chrome {
         display: flex;
         align-items: center;
@@ -2298,8 +2301,8 @@
         align-items: center;
         justify-content: flex-start;
         min-height: 2.5rem;
-        transform: translateZ(0);
-        isolation: isolate;
+        background: transparent;
+        box-shadow: none;
       }
       .brand-heading .brand-logo {
         display: block;
@@ -2311,9 +2314,12 @@
         opacity: 1;
         position: relative;
         z-index: 1;
-        background: transparent;
-        filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.5)) drop-shadow(0 0 22px rgba(91, 156, 255, 0.32))
-          drop-shadow(0 0 30px rgba(167, 139, 250, 0.22)) drop-shadow(0 0 26px rgba(244, 114, 182, 0.18));
+        background: transparent !important;
+        border: none;
+        outline: none;
+        box-shadow: none;
+        /* Single soft glow — stacked drop-shadows read as a dark “plate” behind raster logos */
+        filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.28)) drop-shadow(0 0 28px rgba(91, 156, 255, 0.18));
       }
       @media (min-width: 400px) {
         .brand-heading .brand-logo {
@@ -9781,7 +9787,14 @@
         <div class="app-top-brand-row">
           <div class="app-top-brand-cluster">
             <h1 class="brand-heading">
-              <img class="brand-logo" src="/logo.png" width="1916" height="821" alt="AirAlert" />
+              <img
+                class="brand-logo"
+                src="/logo.png?v=aa-header-1"
+                width="1916"
+                height="821"
+                alt="AirAlert"
+                decoding="async"
+              />
             </h1>
           </div>
           <div class="app-top-right-stack">
@@ -22971,15 +22984,16 @@
         }
       }
 
-      /** Guest bootstrap only: Log in + Create account under top-right icons. Uses GET /api/users/me `accountState` + `isGuestAccount` — never for registered accounts. */
+      /**
+       * Header Log in / Create account: ONLY for guest bootstrap sessions from `/api/users/me`.
+       * Positive gate only — never infer from `accountKind` fallbacks (avoids authProvider-only mismatches).
+       */
       function shouldShowGuestHeaderAuthChrome(me) {
         if (!me || !me.id) return false;
-        if (me.isGuestAccount === false || me.isGuestAccount === 0) return false;
         const ast = typeof me.accountState === "string" ? me.accountState.trim().toLowerCase() : "";
-        if (ast && ast !== "guest") return false;
         if (ast === "guest") return true;
-        if (truthyBit(me.isGuestAccount)) return true;
-        return accountKind(me) === "guest";
+        if (ast) return false;
+        return me.isGuestAccount === true || me.isGuestAccount === 1;
       }
 
       function syncHeaderAuthChrome(me) {
