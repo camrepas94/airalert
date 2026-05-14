@@ -97,7 +97,11 @@ export function mergePushPrefsFromJson(
   return base;
 }
 
-type SendOpts = { kind?: PushNotificationKind };
+type SendOpts = {
+  kind?: PushNotificationKind;
+  /** Serialized as `kind` in the push JSON for clients; never gated by `push_prefs_json` (unlike `kind`). */
+  activityKind?: string | null;
+};
 
 export async function sendWebPushToUser(
   userId: string,
@@ -117,13 +121,27 @@ export async function sendWebPushToUser(
 
   if (!rows.length) return;
 
+  const activityKind = options?.activityKind != null && String(options.activityKind).trim() ? String(options.activityKind).trim() : null;
+  const pushKind = options?.kind;
+  const jsonKind = pushKind ?? activityKind;
+  const category = pushKind
+    ? pushNotificationCategory(pushKind)
+    : activityKind === "admin_broadcast"
+      ? ("system_account" as const)
+      : null;
+  const surface = pushKind
+    ? pushNotificationSurface(pushKind)
+    : activityKind === "admin_broadcast"
+      ? ("activity_dropdown" as const)
+      : null;
+
   const body = JSON.stringify({
     title: payload.title,
     body: payload.body,
     url: payload.url ?? "/",
-    kind: options?.kind ?? null,
-    category: options?.kind ? pushNotificationCategory(options.kind) : null,
-    surface: options?.kind ? pushNotificationSurface(options.kind) : null,
+    kind: jsonKind,
+    category,
+    surface,
   });
 
   for (const row of rows) {

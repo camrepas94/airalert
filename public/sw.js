@@ -63,6 +63,7 @@ function notificationDestination(raw) {
     if (u.searchParams.has("communityShow")) return "community_thread";
     if (u.searchParams.has("dmThread")) return "dm_thread";
     if (u.searchParams.get("openInbox") === "1") return "dm_inbox";
+    if (u.pathname === "/activity" || u.searchParams.has("activityBroadcast")) return "activity_feed";
     if (u.searchParams.has("taskEpisode")) return "tasks";
     if (u.searchParams.get("tab") === "tasks") return "tasks";
     if (u.searchParams.get("tab") === "settings") return "settings";
@@ -76,7 +77,16 @@ function notificationDestination(raw) {
 function notificationTargetId(raw) {
   try {
     const u = new URL(raw || "/", self.location.origin);
-    return u.searchParams.get("communityPostId") || u.searchParams.get("communityEpisode") || u.searchParams.get("communityShow") || u.searchParams.get("dmThread") || u.searchParams.get("taskEpisode") || u.searchParams.get("tab") || "app";
+    return (
+      u.searchParams.get("activityBroadcast") ||
+      u.searchParams.get("communityPostId") ||
+      u.searchParams.get("communityEpisode") ||
+      u.searchParams.get("communityShow") ||
+      u.searchParams.get("dmThread") ||
+      u.searchParams.get("taskEpisode") ||
+      u.searchParams.get("tab") ||
+      "app"
+    );
   } catch {
     return "unknown";
   }

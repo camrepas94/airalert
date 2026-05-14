@@ -43,6 +43,40 @@
           </details>
           <details class="admin-mod-log-details">
             <summary class="section-header-highlight header-gold admin-mod-log-summary">
+              <span class="app-section-heading">Global broadcast</span>
+            </summary>
+            <p class="muted" style="font-size: 0.75rem; margin: 0 0 0.45rem; line-height: 1.45">
+              Web push to subscribed devices plus an Activity inbox row for every user. Full paging and the standalone console
+              live on <a href="/admin.html">/admin.html</a>.
+            </p>
+            <form id="adminInAppBroadcastForm" style="max-width: 36rem">
+              <div style="margin-bottom: 0.55rem">
+                <label for="adminInAppBroadcastTitle" style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 0.25rem">Title</label>
+                <input
+                  type="text"
+                  id="adminInAppBroadcastTitle"
+                  maxlength="120"
+                  required
+                  autocomplete="off"
+                  style="width: 100%; box-sizing: border-box; padding: 0.5rem 0.65rem; border-radius: 10px; border: 1px solid rgba(130,200,255,0.22); background: rgba(0,0,0,0.35); color: inherit; font: inherit"
+                />
+              </div>
+              <div style="margin-bottom: 0.55rem">
+                <label for="adminInAppBroadcastMessage" style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 0.25rem">Message</label>
+                <textarea
+                  id="adminInAppBroadcastMessage"
+                  maxlength="8000"
+                  required
+                  rows="6"
+                  style="width: 100%; box-sizing: border-box; padding: 0.5rem 0.65rem; border-radius: 10px; border: 1px solid rgba(130,200,255,0.22); background: rgba(0,0,0,0.35); color: inherit; font: inherit; resize: vertical"
+                ></textarea>
+              </div>
+              <button type="submit" id="adminInAppBroadcastSubmit" class="secondary" style="margin: 0">Send broadcast</button>
+            </form>
+            <p class="muted" id="adminInAppBroadcastStatus" style="font-size: 0.78rem; margin: 0.5rem 0 0; line-height: 1.45"></p>
+          </details>
+          <details class="admin-mod-log-details">
+            <summary class="section-header-highlight header-gold admin-mod-log-summary">
               <span class="app-section-heading">User accounts</span>
             </summary>
             <div id="adminAccountsHost" class="admin-accounts-host"></div>

@@ -17,13 +17,16 @@ export type ActivityNotificationKind =
   | "community_reply"
   | "group_chat_invite"
   /** Internal: beta feedback submitted — recipient `user_id` must be admin only (insert path enforces). */
-  | "beta_feedback_admin";
+  | "beta_feedback_admin"
+  /** Manual message from admins — one row per recipient; deep-link opens Activity + detail modal. */
+  | "admin_broadcast";
 
 export const ACTIVITY_NOTIFICATION_KINDS = new Set<ActivityNotificationKind>([
   "community_mention",
   "community_reply",
   "group_chat_invite",
   "beta_feedback_admin",
+  "admin_broadcast",
 ]);
 
 export const PUSH_NOTIFICATION_KINDS = new Set<PushNotificationKind>([

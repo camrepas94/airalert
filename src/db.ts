@@ -117,7 +117,7 @@ db.pragma("foreign_keys = ON");
  * - `users` — all account identity, push prefs JSON, admin/moderation/beta flags, calendar token, viewer_role_override
  * - `show_subscriptions` + `watch_tasks` — “My list” and watch flow (activation counts for userRole)
  * - `community_*` — posts, polls, ratings, thread push subs, watch challenges, moderation
- * - `activity_notifications` — in-app Activity dropdown (human/social only; kinds in `notificationTypes.ts`)
+ * - `activity_notifications` — in-app Activity dropdown (human/social + admin broadcast; kinds in `notificationTypes.ts`)
  * - `notification_log` — idempotent daily episode notification sends (per user/episode/channel)
  * - `web_push_subscriptions` — active Web Push endpoints (VAPID); this is the real push transport
  * - `devices` — legacy token store for older clients; not used for Web Push

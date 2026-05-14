@@ -144,6 +144,9 @@
         --bp-md: 768px;
         --bp-lg: 900px;
         --bp-xl: 1200px;
+        /** Full-screen overlays (above header chrome ~170; below boot-fatal shell). */
+        --z-overlay-modals: 4000;
+        --z-overlay-toast: 4600;
       }
       * {
         box-sizing: border-box;
@@ -1055,6 +1058,15 @@
         z-index: 0;
         isolation: isolate;
       }
+      /** Freeze main column scroll while dialogs are open (overlays live outside #mainScroll in #aaOverlayHost). */
+      body:has(.modal-backdrop.open) #mainScroll,
+      body:has(#aaOverlayHost .community-modal:not([hidden])) #mainScroll,
+      body:has(#aaOverlayHost .dm-create-group-modal:not([hidden])) #mainScroll,
+      body:has(#aaOverlayHost .profile-photo-lightbox:not([hidden])) #mainScroll {
+        overflow: hidden !important;
+        overscroll-behavior: none;
+        touch-action: none;
+      }
       /** Galaxy + starfield behind all tab content (matches Messages / reference inbox) */
       .main-scroll::before {
         content: "";
@@ -1536,11 +1548,16 @@
       .dm-create-group-modal {
         position: fixed;
         inset: 0;
-        z-index: 60;
+        z-index: var(--z-overlay-modals);
         display: flex;
         align-items: flex-end;
         justify-content: center;
-        padding: env(safe-area-inset-bottom) max(0.5rem, env(safe-area-inset-right)) 0 max(0.5rem, env(safe-area-inset-left));
+        padding: env(safe-area-inset-top) max(0.65rem, env(safe-area-inset-right)) env(safe-area-inset-bottom)
+          max(0.65rem, env(safe-area-inset-left));
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
       }
       .dm-create-group-modal[hidden] {
         display: none !important;
@@ -1555,10 +1572,12 @@
       .dm-create-group-sheet {
         position: relative;
         width: 100%;
-        max-width: 28rem;
-        max-height: min(85vh, 520px);
+        max-width: min(28rem, calc(100vw - 1.25rem - env(safe-area-inset-left) - env(safe-area-inset-right)));
+        max-height: min(90dvh, 90vh, 520px);
         overflow: auto;
         margin-bottom: max(0.5rem, env(safe-area-inset-bottom));
+        margin-left: auto;
+        margin-right: auto;
         padding: 1rem 1rem 1.1rem;
         border-radius: 16px 16px 12px 12px;
         border: 1px solid rgba(34, 211, 238, 0.2);
@@ -3765,7 +3784,7 @@
       }
       /* Post-watch rating modal (Tasks → Watched) */
       .post-watch-review-modal .post-watch-review-panel {
-        max-width: 420px;
+        max-width: min(26.25rem, calc(100vw - 1.25rem - env(safe-area-inset-left) - env(safe-area-inset-right)));
       }
       .post-watch-review-ep {
         font-size: 0.8rem;
@@ -3911,6 +3930,17 @@
       #tab-add section.starter-picks-section.panel-rail-cyan::before,
       #tab-add section.add-show-shelf-section::before {
         display: none;
+      }
+      /* Lighter glass on small screens — same panels, less scroll jank from backdrop-filter. */
+      @media (max-width: 768px) {
+        #tab-add .search-shell,
+        #tab-add section.trending-section.panel-rail-cyan,
+        #tab-add section.recommended-section.panel-rail-magenta,
+        #tab-add section.starter-picks-section.panel-rail-cyan,
+        #tab-add section.add-show-shelf-section {
+          -webkit-backdrop-filter: blur(12px) saturate(1.22);
+          backdrop-filter: blur(12px) saturate(1.22);
+        }
       }
       .search-hero-head {
         position: relative;
@@ -4082,38 +4112,6 @@
         font-weight: 600;
         color: var(--muted);
         letter-spacing: 0.02em;
-      }
-      .search-discovery-banner {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.35rem 0.65rem;
-        margin: 0.4rem 0 0.55rem;
-        padding: 0.5rem 0.75rem 0.55rem;
-        border-radius: 12px;
-        border: 1px solid rgba(130, 200, 255, 0.2);
-        background: linear-gradient(155deg, rgba(34, 211, 238, 0.1) 0%, rgba(8, 12, 28, 0.65) 100%);
-        font-size: 0.85rem;
-        line-height: 1.4;
-      }
-      .search-discovery-banner[hidden] {
-        display: none !important;
-      }
-      .search-discovery-kicker {
-        font-size: 0.6rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: rgba(34, 211, 238, 0.95);
-      }
-      .search-discovery-name {
-        font-weight: 700;
-        color: var(--text);
-      }
-      .search-discovery-hint {
-        font-size: 0.72rem;
-        margin: 0;
-        flex: 1 1 9rem;
       }
       .search-post-toolbar {
         display: none;
@@ -4626,19 +4624,24 @@
         display: none;
         position: fixed;
         inset: 0;
-        z-index: 50;
+        z-index: var(--z-overlay-modals);
         background: rgba(6, 7, 10, 0.72);
         -webkit-backdrop-filter: blur(10px);
         backdrop-filter: blur(10px);
         align-items: flex-end;
         justify-content: center;
-        padding: 1rem;
+        padding: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(0.75rem, env(safe-area-inset-bottom))
+          max(0.75rem, env(safe-area-inset-left));
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
       }
       .modal-backdrop.open {
         display: flex;
       }
       .modal-backdrop.account-prompt-backdrop {
-        z-index: 60;
+        z-index: calc(var(--z-overlay-modals) + 20);
         align-items: center;
       }
       .account-prompt-panel {
@@ -4761,9 +4764,10 @@
         }
       }
       .modal-backdrop.utility-modal-backdrop {
-        z-index: 55;
+        z-index: calc(var(--z-overlay-modals) + 10);
         align-items: center;
-        padding: 0.85rem;
+        padding: max(0.65rem, env(safe-area-inset-top)) max(0.65rem, env(safe-area-inset-right)) max(0.65rem, env(safe-area-inset-bottom))
+          max(0.65rem, env(safe-area-inset-left));
       }
       .modal-backdrop.utility-modal-backdrop.open {
         background: rgba(4, 6, 12, 0.82);
@@ -4774,8 +4778,8 @@
         animation: utility-modal-pop-in 0.38s cubic-bezier(0.18, 1, 0.32, 1) forwards;
       }
       .utility-modal-panel {
-        max-width: min(520px, calc(100vw - 2rem));
-        max-height: min(85vh, 640px);
+        max-width: min(520px, calc(100vw - 1.25rem - env(safe-area-inset-left) - env(safe-area-inset-right)));
+        max-height: min(90dvh, 90vh, 640px);
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -4818,11 +4822,11 @@
       }
       /* Privacy / Terms in-app reader (above Settings & Profile modals) */
       #legalDocumentModal.modal-backdrop.utility-modal-backdrop {
-        z-index: 58;
+        z-index: calc(var(--z-overlay-modals) + 30);
       }
       .legal-doc-modal.utility-modal-panel {
-        max-width: min(42rem, calc(100vw - 1.25rem));
-        max-height: min(88vh, 780px);
+        max-width: min(42rem, calc(100vw - 1.25rem - env(safe-area-inset-left) - env(safe-area-inset-right)));
+        max-height: min(90dvh, 90vh, 780px);
       }
       .legal-doc-scroll#legalDocumentBody {
         padding: 1rem 1.15rem 1.4rem;
@@ -4836,6 +4840,9 @@
         .modal-backdrop {
           align-items: center;
         }
+        .dm-create-group-modal {
+          align-items: center;
+        }
       }
       .modal-panel {
         background: var(--panel);
@@ -4846,8 +4853,8 @@
         border-right: 3px solid var(--accent);
         border-radius: 18px;
         width: 100%;
-        max-width: 520px;
-        max-height: min(88vh, 720px);
+        max-width: min(520px, calc(100vw - 1.25rem - env(safe-area-inset-left) - env(safe-area-inset-right)));
+        max-height: min(90dvh, 90vh, 720px);
         display: flex;
         flex-direction: column;
         box-shadow: var(--shadow-lift), 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 80px -20px rgba(91, 156, 255, 0.18),
@@ -7877,11 +7884,16 @@
       .profile-photo-lightbox {
         position: fixed;
         inset: 0;
-        z-index: 200;
+        z-index: var(--z-overlay-modals);
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        padding: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-right)) max(0.5rem, env(safe-area-inset-bottom))
+          max(0.5rem, env(safe-area-inset-left));
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
       }
       .profile-photo-lightbox[hidden] {
         display: none !important;
@@ -7896,8 +7908,8 @@
       .profile-photo-lightbox-inner {
         position: relative;
         z-index: 1;
-        max-width: min(96vw, 42rem);
-        max-height: min(88dvh, 48rem);
+        max-width: min(96vw, calc(100vw - 1rem - env(safe-area-inset-left) - env(safe-area-inset-right)), 42rem);
+        max-height: min(90dvh, 90vh, 48rem);
         margin: auto;
         padding: 0.5rem;
         display: flex;
@@ -8324,14 +8336,23 @@
         cursor: pointer;
         margin: 0;
       }
+      .aa-overlay-host {
+        position: static;
+      }
       .community-modal {
         position: fixed;
         inset: 0;
-        z-index: 120;
+        z-index: var(--z-overlay-modals);
         display: flex;
-        align-items: flex-end;
+        align-items: center;
         justify-content: center;
-        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        padding: max(0.65rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(0.75rem, env(safe-area-inset-bottom))
+          max(0.75rem, env(safe-area-inset-left));
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
       }
       .community-modal[hidden] {
         display: none !important;
@@ -8346,33 +8367,26 @@
       }
       .community-modal-panel {
         position: relative;
+        z-index: 1;
         width: 100%;
-        max-width: 28rem;
-        max-height: min(85vh, 32rem);
+        max-width: min(28rem, calc(100vw - 1.25rem - env(safe-area-inset-left) - env(safe-area-inset-right)));
+        max-height: min(90dvh, 90vh, 32rem);
         overflow-y: auto;
         margin: auto;
         padding: 1.1rem 1.15rem 1.25rem;
-        border-radius: 18px 18px 0 0;
-        background: linear-gradient(180deg, rgba(18, 16, 32, 0.98) 0%, rgba(10, 8, 20, 0.98) 100%);
+        border-radius: 18px;
         border: 1px solid rgba(34, 211, 238, 0.2);
-        border-bottom: none;
-        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
-      }
-      @media (min-width: 520px) {
-        .community-modal {
-          align-items: center;
-        }
-        .community-modal-panel {
-          border-radius: 18px;
-          border: 1px solid rgba(34, 211, 238, 0.2);
-        }
+        background: linear-gradient(180deg, rgba(18, 16, 32, 0.98) 0%, rgba(10, 8, 20, 0.98) 100%);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+        box-sizing: border-box;
+        -webkit-overflow-scrolling: touch;
       }
 
       /* Member profile: sticky header + scroll body so dismiss is always visible */
       .community-member-profile-panel.community-modal-panel {
         display: flex;
         flex-direction: column;
-        max-height: min(92dvh, 40rem);
+        max-height: min(90dvh, 90vh, 40rem);
         padding: 0;
         overflow: hidden;
         cursor: default;
@@ -8380,7 +8394,6 @@
         -webkit-backdrop-filter: blur(22px) saturate(1.1);
         backdrop-filter: blur(22px) saturate(1.1);
         border: 1px solid rgba(130, 200, 255, 0.12);
-        border-bottom: none;
         box-shadow: 0 -6px 32px rgba(0, 0, 0, 0.4);
       }
       @media (min-width: 520px) {
@@ -8690,13 +8703,13 @@
         bottom: max(1rem, env(safe-area-inset-bottom, 0px));
         left: 50%;
         transform: translateX(-50%);
-        z-index: 200;
+        z-index: var(--z-overlay-toast);
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 0.5rem;
         pointer-events: none;
-        width: min(calc(100vw - 2rem), 22rem);
+        width: min(calc(100vw - 1.25rem - env(safe-area-inset-left) - env(safe-area-inset-right)), 22rem);
       }
       .toast {
         pointer-events: none;
@@ -10159,11 +10172,6 @@
             <div class="search-loading-bar-fill" aria-hidden="true"></div>
             <span class="search-loading-bar-text" id="searchLoadingBarText">Searching shows &amp; catalog…</span>
           </div>
-          <p id="searchDiscoveryBanner" class="search-discovery-banner" role="status" hidden>
-            <span class="search-discovery-kicker" id="searchDiscoveryKicker">Browse</span>
-            <span class="search-discovery-name" id="searchDiscoveryBannerText">—</span>
-            <span class="search-discovery-hint muted" id="searchDiscoveryHint">Matches use listed show genres and format — not show-title search.</span>
-          </p>
           <p class="msg err" id="searchErr"></p>
           <div id="searchPostToolbar" class="search-post-toolbar">
             <div class="search-post-field">
@@ -10403,40 +10411,6 @@
             </div>
           </div>
         </section>
-        <div
-          id="postWatchReviewModal"
-          class="community-modal post-watch-review-modal"
-          hidden
-          aria-hidden="true"
-        >
-          <div class="community-modal-backdrop" data-close-post-watch-review tabindex="-1"></div>
-          <div
-            class="community-modal-panel post-watch-review-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="postWatchReviewTitle"
-          >
-            <h3 id="postWatchReviewTitle" class="community-modal-title">Rate this episode?</h3>
-            <p class="muted" id="postWatchReviewLead" style="margin: 0 0 0.65rem; font-size: 0.86rem; line-height: 1.45">
-              Would you like to rate this episode out of 5? You can also leave an optional review for the Community.
-            </p>
-            <p class="post-watch-review-ep" id="postWatchReviewEpLine"></p>
-            <div class="post-watch-star-row" id="postWatchReviewStars" role="radiogroup" aria-label="Episode rating"></div>
-            <label for="postWatchReviewText" class="post-watch-review-label">Review (optional)</label>
-            <textarea
-              id="postWatchReviewText"
-              rows="4"
-              maxlength="4000"
-              placeholder="What did you think?"
-              autocomplete="off"
-            ></textarea>
-            <p class="msg err" id="postWatchReviewErr" style="display: none; margin: 0.35rem 0 0"></p>
-            <div class="community-modal-actions" style="margin-top: 0.75rem">
-              <button type="button" id="postWatchReviewSubmitBtn">Submit</button>
-              <button type="button" class="secondary" id="postWatchReviewSkipBtn">Skip for now</button>
-            </div>
-          </div>
-        </div>
         </div>
       </template>
 
@@ -10701,6 +10675,178 @@
         data-app-shell="community"
       ></div>
 
+      <template id="tpl-shell-tab-messages">
+        <section class="panel-rail-cyan dm-inbox-page-root" aria-label="Messages">
+          <div class="dm-inbox-panel">
+            <div id="dmInboxListView">
+              <div class="dm-inbox-layout">
+                <div class="dm-inbox-main">
+                  <h2 id="dmInboxTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0"><span class="app-section-heading">Inbox</span></h2>
+                  <div class="dm-inbox-hub-tabs" role="tablist" aria-label="Inbox">
+                    <button
+                      type="button"
+                      role="tab"
+                      class="dm-inbox-hub-tab dm-inbox-hub-tab--active"
+                      data-dm-rail="dms"
+                      id="dmInboxTabDms"
+                      aria-selected="true"
+                      aria-controls="dmInboxSectionDms"
+                    >
+                      Direct messages
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      class="dm-inbox-hub-tab"
+                      data-dm-rail="groups"
+                      id="dmInboxTabGroups"
+                      aria-selected="false"
+                      aria-controls="dmInboxSectionGroups"
+                    >
+                      Groups
+                    </button>
+                  </div>
+                  <div id="dmComposeView" class="dm-compose-view" hidden>
+                    <div class="dm-compose-search-wrap">
+                      <label for="dmComposeSearchInput" class="visually-hidden">Search users</label>
+                      <input type="text" id="dmComposeSearchInput" class="dm-compose-search-input" placeholder="Search by username or name..." autocomplete="off" spellcheck="false" />
+                    </div>
+                    <div id="dmComposeResults" class="dm-compose-results"></div>
+                    <p class="muted dm-compose-hint" id="dmComposeHint">Type a name to find someone and start a conversation.</p>
+                  </div>
+                  <div class="dm-inbox-hub-scroll dm-inbox-hub-scroll--tabbed" id="dmInboxHubScroll">
+                    <section id="dmInboxSectionDms" class="dm-inbox-section" aria-labelledby="dmInboxDmsSectionLabel">
+                      <div class="dm-inbox-section-head">
+                        <span class="dm-inbox-section-label app-section-heading" id="dmInboxDmsSectionLabel">Direct messages</span>
+                        <span class="dm-inbox-section-hint">1:1</span>
+                      </div>
+                      <div id="dmInboxThreadList" class="dm-inbox-thread-list"></div>
+                      <p class="muted" id="dmInboxEmpty" hidden style="margin: 0; font-size: 0.84rem; line-height: 1.45">
+                        No conversations yet. Open someone’s profile from Community and tap <strong>Direct message</strong>.
+                      </p>
+                    </section>
+                    <section id="dmInboxSectionGroups" class="dm-inbox-section" aria-label="Group chats">
+                      <div class="dm-inbox-section-head">
+                        <span class="dm-inbox-section-label app-section-heading">Groups</span>
+                        <span class="dm-inbox-section-hint">Multi-member</span>
+                      </div>
+                      <div id="dmInboxGroupList" class="dm-inbox-thread-list"></div>
+                      <p class="muted" id="dmInboxGroupEmpty" hidden style="margin: 0; font-size: 0.84rem; line-height: 1.45">
+                        No group chats yet. Tap <strong>+</strong> to create a group.
+                      </p>
+                    </section>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="dmInboxThreadView" hidden>
+              <button type="button" class="secondary dm-inbox-back" id="dmInboxBackBtn">← Inbox</button>
+              <div id="dmInboxDmHeaderBlock" class="dm-inbox-dm-header-block" hidden>
+                <div id="dmInboxDmHeaderAvatarHost" aria-hidden="true"></div>
+                <h3
+                  id="dmInboxThreadTitleDm"
+                  class="section-header-highlight header-cyan-glow dm-inbox-chat-heading dm-inbox-thread-title-inline"
+                >
+                  <span class="app-section-heading">Chat</span>
+                </h3>
+              </div>
+              <button
+                type="button"
+                id="dmInboxGroupTitleBtn"
+                class="dm-inbox-group-title-btn"
+                hidden
+                aria-label="Group details and settings"
+              >
+                <span class="dm-inbox-group-header-avatar-wrap" aria-hidden="true">
+                  <img id="dmInboxGroupHeaderAvatar" class="dm-inbox-group-header-avatar" alt="" width="36" height="36" hidden decoding="async" />
+                  <span id="dmInboxGroupHeaderAvatarFb" class="dm-inbox-group-header-avatar-fb">G</span>
+                </span>
+                <span id="dmInboxThreadTitleGroup" class="section-header-highlight header-cyan-glow dm-inbox-group-title-text"><span class="app-section-heading">Group</span></span>
+              </button>
+              <div id="dmInboxMessages" class="dm-inbox-messages"></div>
+              <p id="dmInboxTypingRow" class="dm-inbox-typing-row" hidden aria-live="polite"></p>
+              <div class="dm-inbox-compose">
+                <textarea id="dmInboxInput" rows="2" maxlength="4000" placeholder="Write a message…"></textarea>
+                <button type="button" id="dmInboxSendBtn">Send</button>
+              </div>
+            </div>
+            <p class="err" id="dmInboxErr" style="display: none; margin-top: 0.5rem"></p>
+          </div>
+        </section>
+        <div id="dmFabMenu" class="app-fab-menu">
+          <button type="button" class="app-fab-menu-item" id="dmFabNewMessage">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <path d="M5 5.5h14a1 1 0 011 1v8.5a1 1 0 01-1 1h-5.2L9.5 19.5V16H5a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke-linejoin="round"/>
+            </svg>
+            New Message
+          </button>
+          <button type="button" class="app-fab-menu-item" id="dmFabNewGroup">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <circle cx="9" cy="8" r="3"/>
+              <circle cx="17" cy="9" r="2.5"/>
+              <path d="M4.5 18.2c.4-2.5 2.6-4.2 5.1-4.2 1.5 0 2.8.6 3.7 1.6M14.2 16c1.6.4 2.8 1.7 3.2 3.3" stroke-linecap="round"/>
+            </svg>
+            Create Group
+          </button>
+        </div>
+        <button type="button" class="app-fab dm-fab-plus" id="dmComposeBtn" title="New message">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
+      </template>
+      <div
+        id="tab-messages"
+        class="tab-panel app-shell-surface"
+        role="tabpanel"
+        aria-labelledby="dmInboxTitle"
+        data-shell-lazy-root="messages"
+        data-app-shell="messages"
+      ></div>
+
+      </div>
+    </main>
+
+    <!--
+      Global overlays: keep outside #mainScroll. Scrollable ancestors + WebKit clip `position:fixed`
+      children, which cut off modals on iPhone (search username, DM sheets, post-watch dialog, etc.).
+    -->
+    <div id="aaOverlayHost" class="aa-overlay-host">
+      <div
+        id="postWatchReviewModal"
+        class="community-modal post-watch-review-modal"
+        hidden
+        aria-hidden="true"
+      >
+        <div class="community-modal-backdrop" data-close-post-watch-review tabindex="-1"></div>
+        <div
+          class="community-modal-panel post-watch-review-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="postWatchReviewTitle"
+        >
+          <h3 id="postWatchReviewTitle" class="community-modal-title">Rate this episode?</h3>
+          <p class="muted" id="postWatchReviewLead" style="margin: 0 0 0.65rem; font-size: 0.86rem; line-height: 1.45">
+            Would you like to rate this episode out of 5? You can also leave an optional review for the Community.
+          </p>
+          <p class="post-watch-review-ep" id="postWatchReviewEpLine"></p>
+          <div class="post-watch-star-row" id="postWatchReviewStars" role="radiogroup" aria-label="Episode rating"></div>
+          <label for="postWatchReviewText" class="post-watch-review-label">Review (optional)</label>
+          <textarea
+            id="postWatchReviewText"
+            rows="4"
+            maxlength="4000"
+            placeholder="What did you think?"
+            autocomplete="off"
+          ></textarea>
+          <p class="msg err" id="postWatchReviewErr" style="display: none; margin: 0.35rem 0 0"></p>
+          <div class="community-modal-actions" style="margin-top: 0.75rem">
+            <button type="button" id="postWatchReviewSubmitBtn">Submit</button>
+            <button type="button" class="secondary" id="postWatchReviewSkipBtn">Skip for now</button>
+          </div>
+        </div>
+      </div>
+
       <div id="communityNewModal" class="community-modal" hidden aria-hidden="true">
         <div class="community-modal-backdrop" data-close-community-modal></div>
         <div class="community-modal-panel" role="dialog" aria-labelledby="communityModalTitle">
@@ -10829,193 +10975,63 @@
         </div>
       </div>
 
-      <template id="tpl-shell-tab-messages">
-        <section class="panel-rail-cyan dm-inbox-page-root" aria-label="Messages">
-          <div class="dm-inbox-panel">
-            <div id="dmInboxListView">
-              <div class="dm-inbox-layout">
-                <div class="dm-inbox-main">
-                  <h2 id="dmInboxTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0"><span class="app-section-heading">Inbox</span></h2>
-                  <div class="dm-inbox-hub-tabs" role="tablist" aria-label="Inbox">
-                    <button
-                      type="button"
-                      role="tab"
-                      class="dm-inbox-hub-tab dm-inbox-hub-tab--active"
-                      data-dm-rail="dms"
-                      id="dmInboxTabDms"
-                      aria-selected="true"
-                      aria-controls="dmInboxSectionDms"
-                    >
-                      Direct messages
-                    </button>
-                    <button
-                      type="button"
-                      role="tab"
-                      class="dm-inbox-hub-tab"
-                      data-dm-rail="groups"
-                      id="dmInboxTabGroups"
-                      aria-selected="false"
-                      aria-controls="dmInboxSectionGroups"
-                    >
-                      Groups
-                    </button>
-                  </div>
-                  <div id="dmComposeView" class="dm-compose-view" hidden>
-                    <div class="dm-compose-search-wrap">
-                      <label for="dmComposeSearchInput" class="visually-hidden">Search users</label>
-                      <input type="text" id="dmComposeSearchInput" class="dm-compose-search-input" placeholder="Search by username or name..." autocomplete="off" spellcheck="false" />
-                    </div>
-                    <div id="dmComposeResults" class="dm-compose-results"></div>
-                    <p class="muted dm-compose-hint" id="dmComposeHint">Type a name to find someone and start a conversation.</p>
-                  </div>
-                  <div class="dm-inbox-hub-scroll dm-inbox-hub-scroll--tabbed" id="dmInboxHubScroll">
-                    <section id="dmInboxSectionDms" class="dm-inbox-section" aria-labelledby="dmInboxDmsSectionLabel">
-                      <div class="dm-inbox-section-head">
-                        <span class="dm-inbox-section-label app-section-heading" id="dmInboxDmsSectionLabel">Direct messages</span>
-                        <span class="dm-inbox-section-hint">1:1</span>
-                      </div>
-                      <div id="dmInboxThreadList" class="dm-inbox-thread-list"></div>
-                      <p class="muted" id="dmInboxEmpty" hidden style="margin: 0; font-size: 0.84rem; line-height: 1.45">
-                        No conversations yet. Open someone’s profile from Community and tap <strong>Direct message</strong>.
-                      </p>
-                    </section>
-                    <section id="dmInboxSectionGroups" class="dm-inbox-section" aria-label="Group chats">
-                      <div class="dm-inbox-section-head">
-                        <span class="dm-inbox-section-label app-section-heading">Groups</span>
-                        <span class="dm-inbox-section-hint">Multi-member</span>
-                      </div>
-                      <div id="dmInboxGroupList" class="dm-inbox-thread-list"></div>
-                      <p class="muted" id="dmInboxGroupEmpty" hidden style="margin: 0; font-size: 0.84rem; line-height: 1.45">
-                        No group chats yet. Tap <strong>+</strong> to create a group.
-                      </p>
-                    </section>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div id="dmInboxThreadView" hidden>
-              <button type="button" class="secondary dm-inbox-back" id="dmInboxBackBtn">← Inbox</button>
-              <div id="dmInboxDmHeaderBlock" class="dm-inbox-dm-header-block" hidden>
-                <div id="dmInboxDmHeaderAvatarHost" aria-hidden="true"></div>
-                <h3
-                  id="dmInboxThreadTitleDm"
-                  class="section-header-highlight header-cyan-glow dm-inbox-chat-heading dm-inbox-thread-title-inline"
-                >
-                  <span class="app-section-heading">Chat</span>
-                </h3>
-              </div>
-              <button
-                type="button"
-                id="dmInboxGroupTitleBtn"
-                class="dm-inbox-group-title-btn"
-                hidden
-                aria-label="Group details and settings"
-              >
-                <span class="dm-inbox-group-header-avatar-wrap" aria-hidden="true">
-                  <img id="dmInboxGroupHeaderAvatar" class="dm-inbox-group-header-avatar" alt="" width="36" height="36" hidden decoding="async" />
-                  <span id="dmInboxGroupHeaderAvatarFb" class="dm-inbox-group-header-avatar-fb">G</span>
-                </span>
-                <span id="dmInboxThreadTitleGroup" class="section-header-highlight header-cyan-glow dm-inbox-group-title-text"><span class="app-section-heading">Group</span></span>
-              </button>
-              <div id="dmInboxMessages" class="dm-inbox-messages"></div>
-              <p id="dmInboxTypingRow" class="dm-inbox-typing-row" hidden aria-live="polite"></p>
-              <div class="dm-inbox-compose">
-                <textarea id="dmInboxInput" rows="2" maxlength="4000" placeholder="Write a message…"></textarea>
-                <button type="button" id="dmInboxSendBtn">Send</button>
-              </div>
-            </div>
-            <p class="err" id="dmInboxErr" style="display: none; margin-top: 0.5rem"></p>
-          </div>
-        </section>
-        <div id="dmFabMenu" class="app-fab-menu">
-          <button type="button" class="app-fab-menu-item" id="dmFabNewMessage">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-              <path d="M5 5.5h14a1 1 0 011 1v8.5a1 1 0 01-1 1h-5.2L9.5 19.5V16H5a1 1 0 01-1-1v-9a1 1 0 011-1z" stroke-linejoin="round"/>
-            </svg>
-            New Message
-          </button>
-          <button type="button" class="app-fab-menu-item" id="dmFabNewGroup">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-              <circle cx="9" cy="8" r="3"/>
-              <circle cx="17" cy="9" r="2.5"/>
-              <path d="M4.5 18.2c.4-2.5 2.6-4.2 5.1-4.2 1.5 0 2.8.6 3.7 1.6M14.2 16c1.6.4 2.8 1.7 3.2 3.3" stroke-linecap="round"/>
-            </svg>
-            Create Group
-          </button>
-        </div>
-        <button type="button" class="app-fab dm-fab-plus" id="dmComposeBtn" title="New message">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-        </button>
-        <div id="dmCreateGroupModal" class="dm-create-group-modal" hidden>
-          <div class="dm-create-group-backdrop" id="dmCreateGroupBackdrop"></div>
-          <div class="dm-create-group-sheet" role="dialog" aria-labelledby="dmCreateGroupTitle" aria-modal="true">
-            <h3 id="dmCreateGroupTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0"><span class="app-section-heading">Create group</span></h3>
-            <label class="dm-create-group-label" for="dmCreateGroupNameInput">Group name</label>
-            <input type="text" id="dmCreateGroupNameInput" class="dm-compose-search-input" placeholder="e.g. Watch party" maxlength="80" autocomplete="off" />
-            <label class="dm-create-group-label" for="dmCreateGroupSearchInput">Add members</label>
-            <input type="text" id="dmCreateGroupSearchInput" class="dm-compose-search-input" placeholder="Search by username or name…" autocomplete="off" spellcheck="false" />
-            <div id="dmCreateGroupChipRow" class="dm-create-group-chips"></div>
-            <div id="dmCreateGroupSearchResults" class="dm-compose-results"></div>
-            <p class="muted" id="dmCreateGroupErr" style="display: none; margin: 0.35rem 0 0; font-size: 0.82rem"></p>
-            <div class="dm-create-group-actions">
-              <button type="button" class="secondary" id="dmCreateGroupCancelBtn">Cancel</button>
-              <button type="button" id="dmCreateGroupSubmitBtn">Create group</button>
-            </div>
+      <div id="dmCreateGroupModal" class="dm-create-group-modal" hidden>
+        <div class="dm-create-group-backdrop" id="dmCreateGroupBackdrop"></div>
+        <div class="dm-create-group-sheet" role="dialog" aria-labelledby="dmCreateGroupTitle" aria-modal="true">
+          <h3 id="dmCreateGroupTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0"><span class="app-section-heading">Create group</span></h3>
+          <label class="dm-create-group-label" for="dmCreateGroupNameInput">Group name</label>
+          <input type="text" id="dmCreateGroupNameInput" class="dm-compose-search-input" placeholder="e.g. Watch party" maxlength="80" autocomplete="off" />
+          <label class="dm-create-group-label" for="dmCreateGroupSearchInput">Add members</label>
+          <input type="text" id="dmCreateGroupSearchInput" class="dm-compose-search-input" placeholder="Search by username or name…" autocomplete="off" spellcheck="false" />
+          <div id="dmCreateGroupChipRow" class="dm-create-group-chips"></div>
+          <div id="dmCreateGroupSearchResults" class="dm-compose-results"></div>
+          <p class="muted" id="dmCreateGroupErr" style="display: none; margin: 0.35rem 0 0; font-size: 0.82rem"></p>
+          <div class="dm-create-group-actions">
+            <button type="button" class="secondary" id="dmCreateGroupCancelBtn">Cancel</button>
+            <button type="button" id="dmCreateGroupSubmitBtn">Create group</button>
           </div>
         </div>
-        <div id="dmGroupSettingsModal" class="dm-create-group-modal" hidden>
-          <div class="dm-create-group-backdrop" id="dmGroupSettingsBackdrop"></div>
-          <div class="dm-create-group-sheet" role="dialog" aria-labelledby="dmGroupSettingsTitle" aria-modal="true">
-            <h3 id="dmGroupSettingsTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0"><span class="app-section-heading">Group</span></h3>
-            <div id="dmGroupSettingsPhotoSection" class="dm-group-settings-photo-row">
-              <div class="dm-group-settings-photo-preview" id="dmGroupSettingsPhotoPreview">
-                <img id="dmGroupSettingsPhotoImg" alt="" width="64" height="64" hidden decoding="async" />
-                <span id="dmGroupSettingsPhotoFb" class="fb" aria-hidden="true">G</span>
-              </div>
-              <div class="dm-group-settings-photo-actions">
-                <input type="file" id="dmGroupSettingsPhotoInput" accept="image/jpeg,image/png,image/webp" hidden />
-                <button type="button" id="dmGroupSettingsPhotoChooseBtn">Change photo</button>
-                <button type="button" class="secondary" id="dmGroupSettingsPhotoRemoveBtn" hidden>Remove photo</button>
-              </div>
-            </div>
-            <label class="dm-create-group-label" for="dmGroupSettingsNameInput">Group name</label>
-            <div class="dm-group-settings-name-row">
-              <input type="text" id="dmGroupSettingsNameInput" class="dm-compose-search-input" maxlength="80" autocomplete="off" />
-              <button type="button" id="dmGroupSettingsSaveNameBtn">Save</button>
-            </div>
-            <p class="muted" id="dmGroupSettingsOwnerNote" style="margin: 0.25rem 0 0.5rem; font-size: 0.78rem"></p>
-            <h4 class="dm-group-settings-sub">Members</h4>
-            <ul id="dmGroupSettingsMemberList" class="dm-group-settings-member-list"></ul>
-            <h4 class="dm-group-settings-sub" id="dmGroupSettingsAddHeading">Add people</h4>
-            <input
-              type="text"
-              id="dmGroupSettingsSearchInput"
-              class="dm-compose-search-input"
-              placeholder="Search by username…"
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <div id="dmGroupSettingsSearchResults" class="dm-compose-results"></div>
-            <p class="muted" id="dmGroupSettingsErr" style="display: none; margin: 0.35rem 0 0; font-size: 0.82rem"></p>
-            <div class="dm-create-group-actions">
-              <button type="button" class="secondary" id="dmGroupSettingsCloseBtn">Done</button>
-            </div>
-          </div>
-        </div>
-      </template>
-      <div
-        id="tab-messages"
-        class="tab-panel app-shell-surface"
-        role="tabpanel"
-        aria-labelledby="dmInboxTitle"
-        data-shell-lazy-root="messages"
-        data-app-shell="messages"
-      ></div>
-
       </div>
-    </main>
+      <div id="dmGroupSettingsModal" class="dm-create-group-modal" hidden>
+        <div class="dm-create-group-backdrop" id="dmGroupSettingsBackdrop"></div>
+        <div class="dm-create-group-sheet" role="dialog" aria-labelledby="dmGroupSettingsTitle" aria-modal="true">
+          <h3 id="dmGroupSettingsTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0"><span class="app-section-heading">Group</span></h3>
+          <div id="dmGroupSettingsPhotoSection" class="dm-group-settings-photo-row">
+            <div class="dm-group-settings-photo-preview" id="dmGroupSettingsPhotoPreview">
+              <img id="dmGroupSettingsPhotoImg" alt="" width="64" height="64" hidden decoding="async" />
+              <span id="dmGroupSettingsPhotoFb" class="fb" aria-hidden="true">G</span>
+            </div>
+            <div class="dm-group-settings-photo-actions">
+              <input type="file" id="dmGroupSettingsPhotoInput" accept="image/jpeg,image/png,image/webp" hidden />
+              <button type="button" id="dmGroupSettingsPhotoChooseBtn">Change photo</button>
+              <button type="button" class="secondary" id="dmGroupSettingsPhotoRemoveBtn" hidden>Remove photo</button>
+            </div>
+          </div>
+          <label class="dm-create-group-label" for="dmGroupSettingsNameInput">Group name</label>
+          <div class="dm-group-settings-name-row">
+            <input type="text" id="dmGroupSettingsNameInput" class="dm-compose-search-input" maxlength="80" autocomplete="off" />
+            <button type="button" id="dmGroupSettingsSaveNameBtn">Save</button>
+          </div>
+          <p class="muted" id="dmGroupSettingsOwnerNote" style="margin: 0.25rem 0 0.5rem; font-size: 0.78rem"></p>
+          <h4 class="dm-group-settings-sub">Members</h4>
+          <ul id="dmGroupSettingsMemberList" class="dm-group-settings-member-list"></ul>
+          <h4 class="dm-group-settings-sub" id="dmGroupSettingsAddHeading">Add people</h4>
+          <input
+            type="text"
+            id="dmGroupSettingsSearchInput"
+            class="dm-compose-search-input"
+            placeholder="Search by username…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <div id="dmGroupSettingsSearchResults" class="dm-compose-results"></div>
+          <p class="muted" id="dmGroupSettingsErr" style="display: none; margin: 0.35rem 0 0; font-size: 0.82rem"></p>
+          <div class="dm-create-group-actions">
+            <button type="button" class="secondary" id="dmGroupSettingsCloseBtn">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div
       class="modal-backdrop account-prompt-backdrop"
@@ -11649,6 +11665,32 @@
         </div>
         <div class="modal-body-scroll legal-doc-scroll" id="legalDocumentBody">
           <p class="muted legal-doc-loading">Loading…</p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-backdrop utility-modal-backdrop"
+      id="adminBroadcastModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="adminBroadcastHeading"
+    >
+      <div class="modal-panel utility-modal-panel">
+        <div class="utility-modal-head">
+          <h3 id="adminBroadcastHeading">Broadcast</h3>
+          <button type="button" class="modal-close secondary" id="adminBroadcastClose" aria-label="Close broadcast">
+            ×
+          </button>
+        </div>
+        <p class="muted" id="adminBroadcastWhen" style="margin: 0 0 0.65rem; font-size: 0.82rem" hidden></p>
+        <div
+          id="adminBroadcastBody"
+          class="modal-body-scroll"
+          style="max-height: min(52vh, 28rem); white-space: pre-wrap; font-size: 0.92rem; line-height: 1.5"
+        ></div>
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 0.5rem">
+          <button type="button" class="secondary" id="adminBroadcastDismiss">OK</button>
         </div>
       </div>
     </div>
@@ -12608,7 +12650,7 @@
           btn.onclick = async () => {
             await api("/api/subscriptions/" + s.id, { method: "DELETE" });
             await loadSubs(userId);
-            loadRecommended(userId);
+            loadRecommended(userId, { force: true });
             loadTrendingShowsDeferred(userId);
           };
           li.appendChild(left);
@@ -15364,6 +15406,54 @@
             showToast(e.message || "RSS poll failed");
           }
         });
+        document.getElementById("adminInAppBroadcastForm")?.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const st = document.getElementById("adminInAppBroadcastStatus");
+          const titleEl = document.getElementById("adminInAppBroadcastTitle");
+          const msgEl = document.getElementById("adminInAppBroadcastMessage");
+          const sub = document.getElementById("adminInAppBroadcastSubmit");
+          const title = titleEl && titleEl.value ? titleEl.value.trim() : "";
+          const message = msgEl && msgEl.value ? msgEl.value.trim() : "";
+          if (!title || !message) {
+            if (st) {
+              st.textContent = "Title and message are required.";
+              st.classList.add("err");
+            }
+            return;
+          }
+          if (sub) sub.disabled = true;
+          if (st) {
+            st.textContent = "Sending…";
+            st.classList.remove("err");
+          }
+          try {
+            const res = await api("/api/admin/global-broadcast", {
+              method: "POST",
+              body: JSON.stringify({ title, message }),
+            });
+            if (st) {
+              st.textContent =
+                "Activity rows: " +
+                (res.recipientUsers ?? 0) +
+                " users. Web push: " +
+                (res.webPushSends ?? 0) +
+                " users." +
+                (res.pushConfigured ? "" : " (VAPID not configured.)");
+              st.classList.remove("err");
+            }
+            showToast("Broadcast sent");
+            const form = document.getElementById("adminInAppBroadcastForm");
+            if (form && form instanceof HTMLFormElement) form.reset();
+          } catch (err) {
+            if (st) {
+              st.textContent = err && err.message ? String(err.message) : "Broadcast failed";
+              st.classList.add("err");
+            }
+            showToast(err && err.message ? String(err.message) : "Broadcast failed");
+          } finally {
+            if (sub) sub.disabled = false;
+          }
+        });
       }
 
       function syncProfileEditDisclosures(me) {
@@ -15590,7 +15680,10 @@
             );
           }
           totalsEl.innerHTML =
-            statCard(t.users, "Users") +
+            statCard(t.users, "Users (listed)") +
+            statCard(t.registeredUsers ?? Math.max(0, t.users - (t.guests ?? 0)), "Registered") +
+            statCard(t.guests ?? 0, "Guests (active)") +
+            statCard(t.dormantGuestsExcluded ?? 0, "Dormant guests (hidden)") +
             statCard(t.subscriptions, "Show subs") +
             statCard(t.fromSearch, "From search") +
             statCard(t.fromRecommended, "From recommended") +
@@ -16659,6 +16752,9 @@
       let activeSearchAbortController = null;
       let activeSearchRequestId = 0;
       let recommendedLoadRequestId = 0;
+      /** Client-side cache for recommended shelf (avoids duplicate fetches when revisiting Add Shows). */
+      const AA_RECOMMENDED_CLIENT_TTL_MS = 50_000;
+      let aaRecommendedClientCache = null;
       let trendingLoadRequestId = 0;
       let starterPicksLoadRequestId = 0;
       let appUserId = null;
@@ -20644,7 +20740,7 @@
           if (subsAfter > subsBefore) {
             showAddedActivationToast(subsAfter);
           }
-          loadRecommended(uid);
+          loadRecommended(uid, { force: true });
           loadTrendingShowsDeferred(uid);
           if (addedFrom === "starter_pack") void loadStarterPicksRow(uid);
           subBtn.textContent = useTrendingStack ? "Added" : "Added";
@@ -20670,7 +20766,31 @@
         }, 1000);
       }
 
-      async function loadRecommended(userId) {
+      function rafAppendRecommendedCards(box, shows, userId, errEl, reqId, onDone) {
+        const chunk = 4;
+        let idx = 0;
+        function tick() {
+          if (reqId !== recommendedLoadRequestId) return;
+          const end = Math.min(idx + chunk, shows.length);
+          for (; idx < end; idx++) {
+            appendSearchResultCard(box, shows[idx], userId, errEl, "recommended");
+          }
+          if (idx < shows.length) {
+            requestAnimationFrame(tick);
+          } else if (typeof onDone === "function") {
+            onDone();
+          }
+        }
+        box.innerHTML = "";
+        if (!shows.length) {
+          if (typeof onDone === "function") onDone();
+          return;
+        }
+        requestAnimationFrame(tick);
+      }
+
+      async function loadRecommended(userId, opts) {
+        const force = !!(opts && opts.force);
         const box = document.getElementById("recommendedList");
         const hint = document.getElementById("recommendedHint");
         const loading = document.getElementById("recommendedLoading");
@@ -20684,11 +20804,11 @@
           hint.textContent = "";
           hint.hidden = true;
         }
-        if (loading) loading.hidden = true;
-        if (recommendedSec) recommendedSec.setAttribute("aria-busy", "true");
-        renderSearchSkeleton(box, 4);
-        try {
-          const data = await api("/api/users/" + encodeURIComponent(userId) + "/recommended-shows");
+        const clearBusy = () => {
+          if (loading) loading.hidden = true;
+          if (recommendedSec && reqId === recommendedLoadRequestId) recommendedSec.removeAttribute("aria-busy");
+        };
+        const applyPayload = (data, fromCache) => {
           if (reqId !== recommendedLoadRequestId) return;
           const shows = data.shows || [];
           const queriesUsed = data.queriesUsed || [];
@@ -20701,16 +20821,43 @@
                   ? "No strong catalog or search matches right now — try subscribing to another show or refresh later."
                   : "Subscribe to a few shows first (search above) — we use their listed genres to score the catalog.";
             }
+            clearBusy();
             return;
           }
           if (hint) {
             hint.hidden = true;
             hint.textContent = "";
           }
-          box.innerHTML = "";
-          for (const s of shows) {
-            appendSearchResultCard(box, s, userId, errEl, "recommended");
+          if (fromCache && shows.length <= 6) {
+            box.innerHTML = "";
+            for (const s of shows) {
+              appendSearchResultCard(box, s, userId, errEl, "recommended");
+            }
+            clearBusy();
+            return;
           }
+          rafAppendRecommendedCards(box, shows, userId, errEl, reqId, clearBusy);
+        };
+        if (
+          !force &&
+          aaRecommendedClientCache &&
+          aaRecommendedClientCache.userId === userId &&
+          Date.now() - aaRecommendedClientCache.at < AA_RECOMMENDED_CLIENT_TTL_MS
+        ) {
+          if (recommendedSec) recommendedSec.setAttribute("aria-busy", "true");
+          loading.hidden = true;
+          box.innerHTML = "";
+          applyPayload(aaRecommendedClientCache.payload, true);
+          return;
+        }
+        if (loading) loading.hidden = false;
+        if (recommendedSec) recommendedSec.setAttribute("aria-busy", "true");
+        renderSearchSkeleton(box, 4);
+        try {
+          const data = await api("/api/users/" + encodeURIComponent(userId) + "/recommended-shows");
+          if (reqId !== recommendedLoadRequestId) return;
+          aaRecommendedClientCache = { userId, at: Date.now(), payload: data };
+          applyPayload(data, false);
         } catch (e) {
           if (reqId !== recommendedLoadRequestId) return;
           box.innerHTML = "";
@@ -20720,8 +20867,7 @@
             hint.hidden = true;
             hint.textContent = "";
           }
-        } finally {
-          if (recommendedSec && reqId === recommendedLoadRequestId) recommendedSec.removeAttribute("aria-busy");
+          clearBusy();
         }
       }
 
@@ -20734,7 +20880,7 @@
         const reqId = ++trendingLoadRequestId;
         errEl.textContent = "";
         errEl.classList.remove("err");
-        if (loading) loading.hidden = true;
+        if (loading) loading.hidden = false;
         if (trendingSec) trendingSec.setAttribute("aria-busy", "true");
         renderSearchSkeleton(box, 5);
         try {
@@ -20756,6 +20902,7 @@
           errEl.textContent = e.message || "Could not load trending.";
           errEl.classList.add("err");
         } finally {
+          if (loading) loading.hidden = true;
           if (trendingSec && reqId === trendingLoadRequestId) trendingSec.removeAttribute("aria-busy");
         }
       }
@@ -20767,30 +20914,12 @@
         const linkP = document.getElementById("searchFullPageLink");
         const loadingBar = document.getElementById("searchLoadingBar");
         const loadText = document.getElementById("searchLoadingBarText");
-        const banner = document.getElementById("searchDiscoveryBanner");
-        const bannerName = document.getElementById("searchDiscoveryBannerText");
-        const hint = document.getElementById("searchDiscoveryHint");
         const input = document.getElementById("searchTitle");
         if (input) input.value = "";
         syncSearchClearBtn();
         searchResultState.kind = "discover";
         searchResultState.discoverKey = key;
         searchResultState.discoverLabel = displayLabel;
-        if (banner && bannerName) {
-          bannerName.textContent = displayLabel;
-          const kicker = document.getElementById("searchDiscoveryKicker");
-          if (kicker) {
-            kicker.textContent = key === "trending" ? "Spotlight" : "Genre";
-          }
-          if (hint) {
-            if (key === "trending") {
-              hint.textContent = "Running shows with strong popularity signals — not a title search.";
-            } else {
-              hint.textContent = "Matches use listed show genres and format — not show-title search.";
-            }
-          }
-          banner.hidden = false;
-        }
         err.textContent = "";
         err.classList.remove("err");
         box.innerHTML = "";
@@ -21002,8 +21131,6 @@
           searchResultState.kind = "title";
           searchResultState.discoverKey = null;
           searchResultState.discoverLabel = "";
-          const bnr = document.getElementById("searchDiscoveryBanner");
-          if (bnr) bnr.hidden = true;
         }
         const { qs, title } = buildSearchQuery(userId, {
           fast: isLive,
@@ -21100,8 +21227,6 @@
         if (loadingBar) loadingBar.hidden = true;
         const loadText = document.getElementById("searchLoadingBarText");
         if (loadText) loadText.textContent = "Searching shows & catalog…";
-        const bnr = document.getElementById("searchDiscoveryBanner");
-        if (bnr) bnr.hidden = true;
         searchResultState.kind = "title";
         searchResultState.discoverKey = null;
         searchResultState.discoverLabel = "";
@@ -21165,6 +21290,91 @@
         }
         modal.setAttribute("aria-busy", "false");
         body.scrollTop = 0;
+      }
+
+      function closeAdminBroadcastModal() {
+        const modal = document.getElementById("adminBroadcastModal");
+        if (modal) modal.classList.remove("open");
+      }
+
+      function openAdminBroadcastModal(row) {
+        const modal = document.getElementById("adminBroadcastModal");
+        const h = document.getElementById("adminBroadcastHeading");
+        const body = document.getElementById("adminBroadcastBody");
+        const when = document.getElementById("adminBroadcastWhen");
+        if (!modal || !h || !body) return;
+        h.textContent = row.title != null ? String(row.title) : "Broadcast";
+        const summary = row.summary != null ? String(row.summary) : "";
+        body.textContent = summary || "(No message body.)";
+        if (when) {
+          const ca = row.createdAt != null ? String(row.createdAt) : "";
+          when.textContent = ca ? "Sent: " + ca : "";
+          when.hidden = !ca;
+        }
+        modal.classList.add("open");
+      }
+
+      async function consumeActivityBroadcastDeepLinkFromUrl(userId) {
+        let u;
+        try {
+          u = new URL(window.location.href);
+        } catch {
+          return;
+        }
+        const bid = u.searchParams.get("activityBroadcast");
+        const openAct = u.searchParams.get("openActivity") === "1";
+        if (!bid || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(bid)) {
+          return;
+        }
+        u.searchParams.delete("activityBroadcast");
+        u.searchParams.delete("openActivity");
+        const qs = u.searchParams.toString();
+        history.replaceState({}, "", u.pathname + (qs ? "?" + qs : "") + u.hash);
+        if (!userId) {
+          showToast("Sign in to view this message.");
+          return;
+        }
+        let row;
+        try {
+          const data = await api(
+            "/api/users/" + encodeURIComponent(userId) + "/activity-notifications/" + encodeURIComponent(bid),
+          );
+          row = data.activity;
+        } catch {
+          showToast("That broadcast could not be loaded.");
+          return;
+        }
+        if (!row || row.kind !== "admin_broadcast") {
+          showToast("That broadcast could not be loaded.");
+          return;
+        }
+        if (openAct) {
+          closeAppSettingsModal();
+          closeAppProfileModal();
+          closeUsernameSearchModal({ skipFocusRestore: true });
+          const nd = document.getElementById("headerNotificationsDropdown");
+          const nb = document.getElementById("headerNotificationsBtn");
+          const pd = document.getElementById("headerProfileDropdown");
+          if (pd) pd.hidden = true;
+          if (nd) nd.hidden = false;
+          if (nb) nb.setAttribute("aria-expanded", "true");
+          void loadHeaderNotificationsPanel();
+        }
+        openAdminBroadcastModal(row);
+        try {
+          trackAnalyticsEvent(
+            "notification.deep_link_success",
+            { destination: "admin_broadcast_activity" },
+            {
+              sourceScreen: "deeplink",
+              targetType: "activity_notification",
+              targetId: bid,
+              flushSoon: true,
+            },
+          );
+        } catch {
+          /* ignore */
+        }
       }
 
       /** @param {"reminders" | "push" | "legal" | undefined} which */
@@ -21348,6 +21558,7 @@
         if (kind === "community_reply") return "Reply";
         if (kind === "group_chat_invite") return "Group";
         if (kind === "beta_feedback_admin") return "Beta feedback";
+        if (kind === "admin_broadcast") return "Broadcast";
         return "Activity";
       }
 
@@ -21448,6 +21659,16 @@
               if (url) {
                 try {
                   const abs = new URL(url, window.location.origin);
+                  const ab = abs.searchParams.get("activityBroadcast");
+                  if (
+                    (abs.pathname === "/activity" || ab) &&
+                    ab &&
+                    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(ab)) &&
+                    n.kind === "admin_broadcast"
+                  ) {
+                    openAdminBroadcastModal(n);
+                    return;
+                  }
                   const tab = abs.searchParams.get("tab");
                   const bf = abs.searchParams.get("betaFeedback");
                   if (
@@ -22887,8 +23108,6 @@
       });
 
       document.getElementById("searchTitle")?.addEventListener("input", () => {
-        const bnr = document.getElementById("searchDiscoveryBanner");
-        if (bnr) bnr.hidden = true;
         searchResultState.kind = "title";
         searchResultState.discoverKey = null;
         searchResultState.discoverLabel = "";
@@ -23430,6 +23649,11 @@
 
         const hadOpenBetaFeedbackIntent =
           new URLSearchParams(window.location.search).get("open") === "beta-feedback";
+        try {
+          void consumeActivityBroadcastDeepLinkFromUrl(userId);
+        } catch (e) {
+          console.warn("[AirAlert] consumeActivityBroadcastDeepLinkFromUrl error", e);
+        }
         try {
           consumeOpenBetaFeedbackDeepLinkFromUrl();
         } catch (e) {
@@ -24168,6 +24392,11 @@
         document.getElementById("legalDocumentClose")?.addEventListener("click", () => closeLegalDocumentModal());
         document.getElementById("legalDocumentModal")?.addEventListener("click", (e) => {
           if (e.target.id === "legalDocumentModal") closeLegalDocumentModal();
+        });
+        document.getElementById("adminBroadcastClose")?.addEventListener("click", () => closeAdminBroadcastModal());
+        document.getElementById("adminBroadcastDismiss")?.addEventListener("click", () => closeAdminBroadcastModal());
+        document.getElementById("adminBroadcastModal")?.addEventListener("click", (e) => {
+          if (e.target.id === "adminBroadcastModal") closeAdminBroadcastModal();
         });
         document.addEventListener("click", (e) => {
           const t = e.target && e.target.closest && e.target.closest("[data-legal-doc]");

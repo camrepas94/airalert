@@ -868,6 +868,39 @@
 
       <div class="totals stat-grid" id="totals"></div>
 
+      <details class="admin-mod-log-details" id="adminBroadcastSection">
+        <summary>Broadcast</summary>
+        <p class="sub" style="margin: 0 0 0.65rem; line-height: 1.45">
+          Sends a web push to subscribed devices and adds an <strong>Activity</strong> row for <strong>every user</strong> on
+          this server. Tapping the notification opens Activity with the full message.
+        </p>
+        <form id="adminGlobalBroadcastForm" style="max-width: 36rem">
+          <div style="margin-bottom: 0.75rem">
+            <label for="adminGlobalBroadcastTitle">Title</label><br />
+            <input
+              type="text"
+              id="adminGlobalBroadcastTitle"
+              maxlength="120"
+              required
+              autocomplete="off"
+              style="width: 100%; max-width: 100%"
+            />
+          </div>
+          <div style="margin-bottom: 0.75rem">
+            <label for="adminGlobalBroadcastMessage">Message</label><br />
+            <textarea
+              id="adminGlobalBroadcastMessage"
+              maxlength="8000"
+              required
+              rows="8"
+              style="width: 100%; max-width: 100%; resize: vertical"
+            ></textarea>
+          </div>
+          <button type="submit" id="adminGlobalBroadcastSubmit">Send broadcast</button>
+        </form>
+        <p class="muted" id="adminGlobalBroadcastStatus" style="margin: 0.75rem 0 0; font-size: 0.84rem; line-height: 1.45"></p>
+      </details>
+
       <section class="admin-dm-section" aria-label="Direct messages QA">
         <details class="admin-mod-log-details">
           <summary>Direct messages (QA)</summary>
@@ -953,6 +986,8 @@
           <strong>Sign-in email</strong> is identity for local accounts when present. <strong>Auth provider</strong> is how they
           sign in; <strong>Account</strong> is the derived model (guest vs registered vs Google vs legacy). <strong>S / R / ?</strong> counts
           subscriptions from search, recommendations, or unknown.
+          <strong>Bootstrap guests</strong> with no My List and no engagement are omitted from this list (see “Dormant guests” in summary cards);
+          they are removed from the database automatically after 7 days.
         </p>
         <div id="userCardList" class="admin-user-list" role="list"></div>
       </details>
@@ -1381,8 +1416,10 @@
           threadDelta24h: 0,
         };
         el("totals").innerHTML =
-          statCard(t.users, "Users") +
-          statCard(t.guests ?? 0, "Guest accounts") +
+          statCard(t.users, "Users (listed)") +
+          statCard(t.registeredUsers ?? Math.max(0, t.users - (t.guests ?? 0)), "Registered (listed)") +
+          statCard(t.guests ?? 0, "Guest accounts (active)") +
+          statCard(t.dormantGuestsExcluded ?? 0, "Dormant guests (hidden)") +
           statCard(t.betaUsers ?? 0, "Beta users") +
           statCard(t.testAccounts ?? 0, "Test accounts") +
           statCard(t.admins ?? 0, "Admins") +
@@ -1965,6 +2002,57 @@
       });
 
       el("betaWaitlistCsvBtn")?.addEventListener("click", () => void downloadBetaWaitlistCsv());
+
+      const gbForm = el("adminGlobalBroadcastForm");
+      if (gbForm) {
+        gbForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const st = el("adminGlobalBroadcastStatus");
+          const titleEl = el("adminGlobalBroadcastTitle");
+          const msgEl = el("adminGlobalBroadcastMessage");
+          const title = titleEl && titleEl.value ? titleEl.value.trim() : "";
+          const message = msgEl && msgEl.value ? msgEl.value.trim() : "";
+          if (!title || !message) {
+            if (st) {
+              st.textContent = "Title and message are required.";
+              st.classList.add("err");
+            }
+            return;
+          }
+          const sub = el("adminGlobalBroadcastSubmit");
+          if (sub) sub.disabled = true;
+          if (st) {
+            st.textContent = "Sending…";
+            st.classList.remove("err");
+          }
+          try {
+            const res = await api("/api/admin/global-broadcast", {
+              method: "POST",
+              body: JSON.stringify({ title, message }),
+            });
+            if (st) {
+              st.textContent =
+                "Created Activity rows for " +
+                (res.recipientUsers ?? 0) +
+                " users. Web push deliveries attempted for " +
+                (res.webPushSends ?? 0) +
+                " users with devices." +
+                (res.pushConfigured ? "" : " VAPID keys are not set — no pushes were sent.");
+              st.classList.remove("err");
+            }
+            showToast("Broadcast sent");
+            gbForm.reset();
+          } catch (err) {
+            if (st) {
+              st.textContent = err && err.message ? String(err.message) : "Broadcast failed";
+              st.classList.add("err");
+            }
+            showToast(err && err.message ? String(err.message) : "Broadcast failed");
+          } finally {
+            if (sub) sub.disabled = false;
+          }
+        });
+      }
 
       const adminMoveBtn = el("adminMovePostSubmit");
       if (adminMoveBtn) {

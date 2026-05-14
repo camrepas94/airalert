@@ -99,7 +99,7 @@ import {
   POLL_MAX_QUESTION,
 } from "./episodePolls.js";
 import { episodeHasAiredUtc } from "./episodeRatings.js";
-import { computeRecommendedShows, computeTrendingShows, clearAIProfileCache } from "./recommend.js";
+import { computeRecommendedShows, computeTrendingShows, clearAIProfileCache, type RecommendedShowHit } from "./recommend.js";
 import { hashPassword, verifyPassword } from "./password.js";
 import { createTransactionalMailer, transactionalMailStatus } from "./transactionalMail.js";
 import {
@@ -129,10 +129,35 @@ import {
   normalizeOnboardingPrefsInput,
 } from "./onboardingPrefs.js";
 import { accountStateFromDbFields, rowAuthProvider } from "./accountModel.js";
+import {
+  adminUserListVisibilitySql,
+  countAdminExcludedDormantGuests,
+  purgeDormantGuestAccountsOlderThan,
+} from "./adminUserListVisibility.js";
 import { applyLegacyNotificationPrefsPatch, getLegacyNotificationPrefsForUser } from "./legacyNotificationPrefs.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 const publicDir = path.join(process.cwd(), "public");
+
+/** In-process cache for `/recommended-shows` (heavy TVMaze + scoring). Busted when subscriptions change. */
+const RECOMMENDED_SHOWS_CACHE_TTL_MS = 90_000;
+type RecommendedShowsPayload = { shows: RecommendedShowHit[]; queriesUsed: string[] };
+const recommendedShowsCache = new Map<string, { expiresAt: number; payload: RecommendedShowsPayload }>();
+const recommendedShowsInflight = new Map<string, Promise<RecommendedShowsPayload>>();
+
+function recommendedShowsCacheKey(userId: string, sortedIds: number[]): string {
+  return userId + "|" + sortedIds.join(",");
+}
+
+function bustRecommendedShowsCacheForUser(userId: string) {
+  const prefix = userId + "|";
+  for (const k of recommendedShowsCache.keys()) {
+    if (k.startsWith(prefix)) recommendedShowsCache.delete(k);
+  }
+  for (const k of recommendedShowsInflight.keys()) {
+    if (k.startsWith(prefix)) recommendedShowsInflight.delete(k);
+  }
+}
 
 const GOOGLE_OAUTH_STATE_COOKIE = "airalert_google_oauth";
 const GOOGLE_OAUTH_STATE_MAX_AGE_SEC = 600;
@@ -1933,6 +1958,7 @@ app.get("/api/admin/community-edit-move-fragment", async (request, reply) => {
 
 app.get("/api/admin/overview", async (request, reply) => {
   if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const adminUserVis = adminUserListVisibilitySql("u");
   const rows = db
     .prepare(
       `SELECT
@@ -1960,6 +1986,7 @@ app.get("/api/admin/overview", async (request, reply) => {
          (u.password_hash IS NOT NULL AND trim(u.password_hash) != '') AS hasPasswordForState,
          trim(coalesce(u.google_sub, '')) AS googleSubForState
        FROM users u
+       WHERE ${adminUserVis}
        ORDER BY datetime(u.created_at) DESC`,
     )
     .all() as {
@@ -1990,6 +2017,7 @@ app.get("/api/admin/overview", async (request, reply) => {
   const totals = rows.reduce(
     (acc, r) => {
       acc.users += 1;
+      if (!r.isGuestAccount) acc.registeredUsers += 1;
       if (r.isGuestAccount) acc.guests += 1;
       if (r.isAdmin) acc.admins += 1;
       if (r.betaStatus && String(r.betaStatus).trim()) acc.betaUsers += 1;
@@ -2004,6 +2032,7 @@ app.get("/api/admin/overview", async (request, reply) => {
     },
     {
       users: 0,
+      registeredUsers: 0,
       guests: 0,
       admins: 0,
       betaUsers: 0,
@@ -2081,9 +2110,10 @@ app.get("/api/admin/overview", async (request, reply) => {
       emailVerified: Number(r.emailVerified) !== 0,
     };
   });
+  const dormantGuestsExcluded = countAdminExcludedDormantGuests(db);
   return {
     users: usersOut,
-    totals: { ...totals, betaWaitlistCount },
+    totals: { ...totals, betaWaitlistCount, dormantGuestsExcluded },
     community: {
       postCount,
       threadCount,
@@ -3160,6 +3190,114 @@ app.post("/api/admin/users/:userId/test-push", async (request, reply) => {
   return { ok: true, sent: true, subscriptions: n.c };
 });
 
+const GLOBAL_BROADCAST_TITLE_MAX = 120;
+const GLOBAL_BROADCAST_MESSAGE_MAX = 8000;
+const GLOBAL_BROADCAST_INSERT_BATCH = 200;
+const GLOBAL_BROADCAST_PUSH_CONCURRENCY = 10;
+
+/**
+ * Manual global broadcast: one `activity_notifications` row per user (kind `admin_broadcast`) plus web push
+ * for users with subscriptions. Batched to avoid long single-thread stalls.
+ */
+app.post("/api/admin/global-broadcast", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const body = (request.body ?? {}) as { title?: string; message?: string };
+  const titleRaw = typeof body.title === "string" ? body.title.trim() : "";
+  const messageRaw = typeof body.message === "string" ? body.message.trim() : "";
+  if (!titleRaw || !messageRaw) {
+    reply.code(400);
+    logEvent(request, {
+      event: "admin.global_broadcast",
+      feature: "admin",
+      action: "global_broadcast",
+      status: "failure",
+      reason: "missing_title_or_message",
+      statusCode: 400,
+    });
+    return { error: "title and message are required" };
+  }
+  const title = titleRaw.slice(0, GLOBAL_BROADCAST_TITLE_MAX);
+  const message = messageRaw.slice(0, GLOBAL_BROADCAST_MESSAGE_MAX);
+  const pushBody =
+    message.length > 360 ? `${message.slice(0, 357).trimEnd()}…` : message;
+
+  const userRows = db.prepare(`SELECT id FROM users`).all() as { id: string }[];
+  const pushConfigured = isWebPushConfigured();
+  const userIdsWithPush = pushConfigured
+    ? new Set(
+        (db.prepare(`SELECT DISTINCT user_id AS id FROM web_push_subscriptions`).all() as { id: string }[]).map(
+          (r) => r.id,
+        ),
+      )
+    : null;
+  let usersNotified = 0;
+  let pushSendCount = 0;
+
+  for (let i = 0; i < userRows.length; i += GLOBAL_BROADCAST_INSERT_BATCH) {
+    const slice = userRows.slice(i, i + GLOBAL_BROADCAST_INSERT_BATCH);
+    const work: { userId: string; url: string }[] = [];
+    db.transaction(() => {
+      for (const { id: uid } of slice) {
+        const nid = uuidv4();
+        const url = `/activity?activityBroadcast=${encodeURIComponent(nid)}`;
+        insertActivityNotification({
+          id: nid,
+          recipientUserId: uid,
+          kind: "admin_broadcast",
+          title,
+          summary: message,
+          url,
+          actorUserId: null,
+        });
+        work.push({ userId: uid, url });
+        usersNotified++;
+      }
+    })();
+
+    if (pushConfigured && userIdsWithPush) {
+      for (let j = 0; j < work.length; j += GLOBAL_BROADCAST_PUSH_CONCURRENCY) {
+        const chunk = work.slice(j, j + GLOBAL_BROADCAST_PUSH_CONCURRENCY);
+        const results = await Promise.all(
+          chunk.map(async (w) => {
+            if (!userIdsWithPush.has(w.userId)) return false;
+            await sendWebPushToUser(
+              w.userId,
+              { title, body: pushBody, url: w.url },
+              { activityKind: "admin_broadcast" },
+            );
+            return true;
+          }),
+        );
+        for (const ok of results) {
+          if (ok) pushSendCount += 1;
+        }
+        await new Promise<void>((resolve) => {
+          setImmediate(() => resolve());
+        });
+      }
+    }
+  }
+
+  logEvent(request, {
+    event: "admin.global_broadcast",
+    feature: "admin",
+    action: "global_broadcast",
+    status: "success",
+    recipientUsers: usersNotified,
+    webPushSends: pushSendCount,
+    pushConfigured,
+  });
+
+  return {
+    ok: true,
+    recipientUsers: usersNotified,
+    webPushSends: pushSendCount,
+    pushConfigured,
+    titleLength: title.length,
+    messageLength: message.length,
+  };
+});
+
 app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
   if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { userId } = request.params as { userId: string };
@@ -3217,6 +3355,7 @@ app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
     }
     throw e;
   }
+  bustRecommendedShowsCacheForUser(userId);
   let episodesCached = 0;
   try {
     episodesCached = await refreshShowEpisodes(show.id);
@@ -3239,11 +3378,15 @@ app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
 app.delete("/api/admin/subscriptions/:subscriptionId", async (request, reply) => {
   if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { subscriptionId } = request.params as { subscriptionId: string };
-  const r = db.prepare(`DELETE FROM show_subscriptions WHERE id = ?`).run(subscriptionId);
-  if (r.changes === 0) {
+  const row = db
+    .prepare(`SELECT user_id AS userId FROM show_subscriptions WHERE id = ?`)
+    .get(subscriptionId) as { userId: string } | undefined;
+  if (!row) {
     reply.code(404);
     return { error: "Not found" };
   }
+  db.prepare(`DELETE FROM show_subscriptions WHERE id = ?`).run(subscriptionId);
+  bustRecommendedShowsCacheForUser(row.userId);
   return { ok: true };
 });
 
@@ -5182,13 +5325,40 @@ app.get("/api/users/:userId/recommended-shows", async (request, reply) => {
     .prepare(`SELECT tvmaze_show_id AS id FROM show_subscriptions WHERE user_id = ?`)
     .all(userId) as { id: number }[];
   const ids = rows.map((r) => Number(r.id)).filter((n) => Number.isInteger(n) && n > 0);
+  const idsSorted = [...ids].sort((a, b) => a - b);
   const qp = request.query as Record<string, string | undefined>;
   const recommendDebug =
     qp.debug === "1" ||
     qp.debug === "true" ||
     qp.recommendDebug === "1";
+  const cacheKey = recommendedShowsCacheKey(userId, idsSorted);
   try {
-    const { shows, queriesUsed } = await computeRecommendedShows(userId, ids, { debug: recommendDebug });
+    if (!recommendDebug) {
+      const hit = recommendedShowsCache.get(cacheKey);
+      if (hit && hit.expiresAt > Date.now()) {
+        return hit.payload;
+      }
+      let inflight = recommendedShowsInflight.get(cacheKey);
+      if (!inflight) {
+        inflight = computeRecommendedShows(userId, idsSorted, { debug: false })
+          .then((payload) => {
+            recommendedShowsInflight.delete(cacheKey);
+            recommendedShowsCache.set(cacheKey, {
+              expiresAt: Date.now() + RECOMMENDED_SHOWS_CACHE_TTL_MS,
+              payload,
+            });
+            return payload;
+          })
+          .catch((err) => {
+            recommendedShowsInflight.delete(cacheKey);
+            throw err;
+          });
+        recommendedShowsInflight.set(cacheKey, inflight);
+      }
+      const { shows, queriesUsed } = await inflight;
+      return { shows, queriesUsed };
+    }
+    const { shows, queriesUsed } = await computeRecommendedShows(userId, idsSorted, { debug: true });
     return { shows, queriesUsed };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -5268,6 +5438,7 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
     app.log.warn({ err, showId: show.id }, "refreshShowEpisodes after subscribe failed");
   }
   clearAIProfileCache(userId);
+  bustRecommendedShowsCacheForUser(userId);
   const showCountAfterAdd = (
     db.prepare(`SELECT COUNT(*) AS c FROM show_subscriptions WHERE user_id = ?`).get(userId) as { c: number }
   ).c;
@@ -5371,6 +5542,7 @@ app.delete("/api/subscriptions/:subscriptionId", async (request, reply) => {
   if (!assertSelfOrAdmin(request, reply, sub.user_id)) return;
   db.prepare(`DELETE FROM show_subscriptions WHERE id = ?`).run(subscriptionId);
   clearAIProfileCache(sub.user_id);
+  bustRecommendedShowsCacheForUser(sub.user_id);
   return { ok: true };
 });
 
@@ -5765,7 +5937,7 @@ app.patch("/api/users/:userId/watch-tasks/:taskId", async (request, reply) => {
 });
 
 /**
- * Human / social activity only (mentions, replies, group invites). Episode `notification_log` rows are not included here.
+ * Activity inbox: community / social rows and `admin_broadcast`. Episode `notification_log` rows are not included here.
  */
 app.get("/api/users/:userId/activity-notifications", async (request, reply) => {
   const { userId } = request.params as { userId: string };
@@ -5789,6 +5961,37 @@ app.get("/api/users/:userId/activity-notifications", async (request, reply) => {
     )
     .all(userId, ...ACTIVITY_NOTIFICATION_KINDS);
   return { activities: rows };
+});
+
+/** Single Activity inbox row (self or admin) — used for admin broadcast deep links. */
+app.get("/api/users/:userId/activity-notifications/:notificationId", async (request, reply) => {
+  const { userId, notificationId } = request.params as { userId: string; notificationId: string };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
+  if (!notificationId || typeof notificationId !== "string") {
+    reply.code(400);
+    return { error: "Invalid notification id" };
+  }
+  const row = db
+    .prepare(
+      `SELECT a.id, a.kind, a.title, a.summary, a.url, a.created_at AS createdAt,
+              a.actor_user_id AS actorUserId, a.source_post_id AS sourcePostId,
+              au.display_name AS actorDisplayName, au.username AS actorUsername
+       FROM activity_notifications a
+       LEFT JOIN users au ON au.id = a.actor_user_id
+       WHERE a.user_id = ? AND a.id = ?
+         AND a.kind IN (${[...ACTIVITY_NOTIFICATION_KINDS].map(() => "?").join(", ")})`,
+    )
+    .get(userId, notificationId, ...ACTIVITY_NOTIFICATION_KINDS) as Record<string, unknown> | undefined;
+  if (!row) {
+    reply.code(404);
+    return { error: "Not found" };
+  }
+  return { activity: row };
 });
 
 /**
@@ -8559,6 +8762,17 @@ app.get("/index.html", async (_req, reply) => {
   reply.header("Cache-Control", "no-store, max-age=0");
   reply.type("text/html; charset=utf-8").send(readPublicHtml("index.html"));
 });
+/** Push / Activity deep link: normalize to home with query the SPA consumes. */
+app.get("/activity", async (request, reply) => {
+  const q = request.query as Record<string, string | string[] | undefined>;
+  const raw = q.activityBroadcast;
+  const id = Array.isArray(raw) ? raw[0] : raw;
+  if (id && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id))) {
+    const enc = encodeURIComponent(String(id));
+    return reply.redirect(`/?openActivity=1&activityBroadcast=${enc}`, 302);
+  }
+  return reply.redirect("/?openActivity=1", 302);
+});
 app.get("/search-results.html", async (_req, reply) => {
   reply.header("Cache-Control", "no-store, max-age=0");
   reply.type("text/html; charset=utf-8").send(readPublicHtml("search-results.html"));
@@ -8702,6 +8916,18 @@ cron.schedule("30 */6 * * *", async () => {
     app.log.info(result, "Google News poll completed");
   } catch (err) {
     app.log.error(err, "Google News poll failed");
+  }
+});
+
+/** Remove stale bootstrap guests (no My List / engagement) after 7 days — never touches registered users. */
+cron.schedule("40 4 * * *", () => {
+  try {
+    const { deleted } = purgeDormantGuestAccountsOlderThan(db, { minAgeDays: 7, maxPerRun: 2000 });
+    if (deleted > 0) {
+      app.log.info({ deleted }, "dormant guest accounts purged");
+    }
+  } catch (err) {
+    app.log.error(err, "dormant guest purge failed");
   }
 });
 

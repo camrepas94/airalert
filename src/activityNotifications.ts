@@ -5,6 +5,8 @@ import type { ActivityNotificationKind } from "./notificationTypes.js";
 /** Human-driven events surfaced in the header activity inbox (not episode/system feed). */
 
 export function insertActivityNotification(opts: {
+  /** When set (e.g. admin broadcast), must be unique — used in per-user deep links before insert. */
+  id?: string;
   recipientUserId: string;
   kind: ActivityNotificationKind;
   title: string;
@@ -12,8 +14,8 @@ export function insertActivityNotification(opts: {
   url: string | null;
   actorUserId: string | null;
   sourcePostId?: string | null;
-}): void {
-  const id = uuidv4();
+}): string {
+  const id = opts.id ?? uuidv4();
   db.prepare(
     `INSERT INTO activity_notifications (id, user_id, kind, title, summary, url, actor_user_id, source_post_id)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -27,4 +29,5 @@ export function insertActivityNotification(opts: {
     opts.actorUserId,
     opts.sourcePostId ?? null,
   );
+  return id;
 }
