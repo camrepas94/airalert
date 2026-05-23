@@ -18,7 +18,7 @@ function normalizeGroupName(raw: string): string {
 const socketsByUser = new Map<string, Set<WebSocket>>();
 
 /** Which DM thread or group chat the client is actively viewing (via `dm_focus` WS messages). */
-type DmFocusState = { threadId?: string; groupId?: string };
+type DmFocusState = { threadId?: string; groupId?: string; visible?: boolean };
 const dmFocusByUser = new Map<string, DmFocusState>();
 
 function authorLabelForUser(userId: string): string {
@@ -59,17 +59,18 @@ function setDmClientFocus(userId: string, focus: DmFocusState | null): void {
   dmFocusByUser.set(userId, {
     threadId: typeof focus.threadId === "string" ? focus.threadId : undefined,
     groupId: typeof focus.groupId === "string" ? focus.groupId : undefined,
+    visible: focus.visible === true,
   });
 }
 
 function userIsViewingDmThread(userId: string, threadId: string): boolean {
   const f = dmFocusByUser.get(userId);
-  return Boolean(f?.threadId && f.threadId === threadId);
+  return Boolean(f?.visible === true && f.threadId && f.threadId === threadId);
 }
 
 function userIsViewingDmGroup(userId: string, groupId: string): boolean {
   const f = dmFocusByUser.get(userId);
-  return Boolean(f?.groupId && f.groupId === groupId);
+  return Boolean(f?.visible === true && f.groupId && f.groupId === groupId);
 }
 
 function shouldSendDmMessagePush(recipientId: string, threadId: string): boolean {
@@ -182,9 +183,9 @@ export function handleDmClientSocketMessage(userId: string, raw: unknown): void 
     if (d.clear === true) {
       setDmClientFocus(userId, null);
     } else if (typeof d.threadId === "string") {
-      setDmClientFocus(userId, { threadId: d.threadId });
+      setDmClientFocus(userId, { threadId: d.threadId, visible: d.visible === true });
     } else if (typeof d.groupId === "string") {
-      setDmClientFocus(userId, { groupId: d.groupId });
+      setDmClientFocus(userId, { groupId: d.groupId, visible: d.visible === true });
     } else {
       setDmClientFocus(userId, null);
     }

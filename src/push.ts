@@ -144,6 +144,8 @@ export async function sendWebPushToUser(
     surface,
   });
 
+  const urgency = options?.kind === "dmMessage" ? "high" : "normal";
+
   for (const row of rows) {
     const subscription = {
       endpoint: row.endpoint,
@@ -152,7 +154,7 @@ export async function sendWebPushToUser(
     try {
       await webpush.sendNotification(subscription, body, {
         TTL: 60 * 60 * 12,
-        urgency: "normal",
+        urgency,
       });
     } catch (err: unknown) {
       const status = typeof err === "object" && err !== null && "statusCode" in err ? (err as { statusCode?: number }).statusCode : undefined;

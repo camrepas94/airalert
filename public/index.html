@@ -4127,7 +4127,7 @@
       }
       .tasks-show-head {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         gap: 0.5rem;
         width: 100%;
         min-height: 44px;
@@ -4171,11 +4171,11 @@
         display: block;
         font-size: 0.88rem;
         font-weight: 700;
-        line-height: 1.25;
+        line-height: 1.3;
         color: #f8fafc;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: normal;
       }
       .tasks-show-sub {
         display: block;
@@ -4199,6 +4199,7 @@
       }
       .tasks-show-chev {
         flex-shrink: 0;
+        margin-top: 0.2rem;
         font-size: 0.65rem;
         color: rgba(148, 163, 184, 0.9);
       }
@@ -10261,12 +10262,6 @@
       .profile-edit-card--genres {
         border-left: 3px solid rgba(52, 211, 153, 0.45);
       }
-      .profile-edit-shows-lead,
-      .profile-edit-genres-lead {
-        margin: -0.15rem 0 0.55rem;
-        font-size: 0.78rem;
-        line-height: 1.4;
-      }
       .profile-spotlight-slots {
         display: flex;
         flex-direction: column;
@@ -10475,10 +10470,6 @@
         margin: 0.85rem 0 0;
         font-size: 0.76rem;
         line-height: 1.45;
-      }
-      .profile-edit-avatar-hint-inline {
-        margin: 0.35rem 0 0;
-        font-size: 0.76rem;
       }
       .profile-share-card-intro {
         margin: -0.15rem 0 0.9rem;
@@ -12456,7 +12447,6 @@
                 <span class="settings-disclosure-chev" aria-hidden="true">▾</span>
               </summary>
               <div class="settings-disclosure-body">
-                <p class="settings-surface-lead muted">One timezone for tasks, reminders, and episode notifications.</p>
                 <div>
                   <label for="tz">Timezone</label>
                   <input id="tz" type="text" placeholder="America/Los_Angeles" />
@@ -12474,18 +12464,10 @@
                 <span class="settings-disclosure-chev" aria-hidden="true">▾</span>
               </summary>
               <div class="settings-disclosure-body">
-                <p class="settings-surface-lead muted" style="margin-bottom: 0.35rem">
-                  Choose what can notify this device. Activity keeps mentions and replies.
-                </p>
-
                 <div class="settings-pref-block">
                   <h3 class="settings-pref-block-title app-section-heading">Schedule &amp; nudges</h3>
                   <div class="settings-field-tight">
-                    <label for="hour">Daily reminder hour (local)</label>
-                    <input id="hour" type="number" min="0" max="23" value="8" />
-                    <p class="muted" style="font-size: 0.76rem; margin-top: 0.3rem; line-height: 1.4">
-                      Local hour (from your timezone) for the pass that includes <strong>Episode airs today</strong> and similar alerts.
-                    </p>
+                    <input id="hour" type="number" min="0" max="23" value="8" aria-label="Daily reminder hour (local)" />
                   </div>
                   <div class="settings-field-tight" style="margin-top: 0.85rem">
                     <label for="taskNudgeDays">“Still watching?” — days after air</label>
@@ -12495,9 +12477,6 @@
                       <option value="3">3 days after air date</option>
                       <option value="7">7 days after air date</option>
                     </select>
-                    <p class="muted" style="font-size: 0.76rem; margin-top: 0.3rem; line-height: 1.4">
-                      At most one reminder per episode if still unwatched. Needs the <strong>Still watching?</strong> toggle below and push on this device.
-                    </p>
                   </div>
                 </div>
 
@@ -12506,15 +12485,15 @@
                   <div class="push-prefs-list">
                     <label class="push-pref-row">
                       <input type="checkbox" id="pushPrefEpisodeAirsToday" checked />
-                      <span>Episode airs today — opens <strong>Tasks</strong></span>
+                      <span>Episode airs today</span>
                     </label>
                     <label class="push-pref-row">
                       <input type="checkbox" id="pushPrefTaskStillWatching" checked />
-                      <span>“Still watching?” for unchecked tasks (uses timing above)</span>
+                      <span>“Still watching?” for unchecked tasks</span>
                     </label>
                     <label class="push-pref-row">
                       <input type="checkbox" id="pushPrefPersonNewProject" checked />
-                      <span><strong>People you follow</strong> — new show in their credits</span>
+                      <span>People you follow</span>
                     </label>
                   </div>
                 </div>
@@ -12524,19 +12503,19 @@
                   <div class="push-prefs-list">
                     <label class="push-pref-row">
                       <input type="checkbox" id="pushPrefDmMessage" checked />
-                      <span>Direct &amp; group messages — opens <strong>Inbox</strong></span>
+                      <span>Direct &amp; group messages</span>
                     </label>
                     <label class="push-pref-row">
                       <input type="checkbox" id="pushPrefCommunityMention" checked />
-                      <span>When someone @mentions you — also appears in Activity</span>
+                      <span>When someone @mentions you</span>
                     </label>
                     <label class="push-pref-row">
                       <input type="checkbox" id="pushPrefCommunityReply" checked />
-                      <span>Replies to your posts — also appears in Activity</span>
+                      <span>Replies to your posts</span>
                     </label>
                     <label class="push-pref-row">
                       <input type="checkbox" id="pushPrefCommunityThreadNewPost" checked />
-                      <span>New post in a followed show thread — opens Community</span>
+                      <span>New post in a followed show thread</span>
                     </label>
                   </div>
                 </div>
@@ -12558,7 +12537,6 @@
                 <span class="settings-disclosure-chev" aria-hidden="true">▾</span>
               </summary>
               <div class="settings-disclosure-body">
-                <p class="settings-surface-lead muted">Privacy, terms, support, and beta feedback.</p>
                 <div class="store-readiness-link-grid" aria-label="Help and legal links">
                   <button type="button" class="secondary" data-legal-doc="privacy">Privacy</button>
                   <button type="button" class="secondary" data-legal-doc="terms">Terms</button>
@@ -12616,7 +12594,6 @@
                     </div>
                   </div>
                 </div>
-                <p class="muted profile-edit-micro-hint profile-edit-avatar-hint-inline">JPG, PNG, or WebP · tap photo to update</p>
                 <div class="profile-edit-field-row profile-edit-field-row--identity">
                   <div class="profile-edit-field">
                     <label for="displayName">Display name</label>
@@ -12661,7 +12638,6 @@
                 </div>
                 <div class="profile-edit-subsection profile-edit-subsection--favorites">
                   <h3 class="profile-edit-subsection-title">Favorite shows</h3>
-                  <p class="profile-edit-card-lead muted profile-edit-shows-lead">Up to three picks — shown on your public profile.</p>
                   <div class="profile-spotlight-slots">
                     <div class="profile-spotlight-row">
                       <span class="profile-spotlight-rank" aria-hidden="true">#1</span>
@@ -12703,9 +12679,6 @@
                       <span class="profile-spotlight-ct" id="profileFavoriteShowCount3" aria-live="polite">0/200</span>
                     </div>
                   </div>
-                  <p id="profileFavoriteShowsHint" class="muted profile-edit-micro-hint profile-edit-spotlight-hint">
-                    Each line saves independently — leave blank to clear a slot.
-                  </p>
                 </div>
                 <p class="muted msg profile-card-msg" id="profileAboutMsg"></p>
               </section>
@@ -12713,7 +12686,6 @@
               <!-- 3. Top genres — read-only chips from subscriptions (reference-style density) -->
               <section class="profile-edit-card profile-edit-card--genres" id="profileEditGenresSection" aria-labelledby="profileGenresHeading">
                 <h2 id="profileGenresHeading" class="profile-edit-block-label">Top genres</h2>
-                <p class="profile-edit-card-lead muted profile-edit-genres-lead">Inferred from your subscriptions — not edited here.</p>
                 <div id="profileEditGenreChips" class="profile-edit-genres-wrap"></div>
                 <p id="profileEditGenreEmpty" class="muted profile-edit-micro-hint profile-edit-genre-empty" hidden></p>
               </section>
@@ -15336,7 +15308,7 @@
         }
       }
 
-      /** Tell the server which conversation is open so push is not suppressed app-wide. */
+      /** Tell the server which conversation is open (only suppresses push when app is visible in that chat). */
       function syncDmFocusWs() {
         if (!dmWebSocket || dmWebSocket.readyState !== 1) return;
         try {
@@ -15345,11 +15317,15 @@
             return;
           }
           if (dmInboxActiveThreadId) {
-            dmWebSocket.send(JSON.stringify({ type: "dm_focus", threadId: dmInboxActiveThreadId }));
+            dmWebSocket.send(
+              JSON.stringify({ type: "dm_focus", threadId: dmInboxActiveThreadId, visible: true }),
+            );
             return;
           }
           if (dmInboxActiveGroupId) {
-            dmWebSocket.send(JSON.stringify({ type: "dm_focus", groupId: dmInboxActiveGroupId }));
+            dmWebSocket.send(
+              JSON.stringify({ type: "dm_focus", groupId: dmInboxActiveGroupId, visible: true }),
+            );
             return;
           }
           dmWebSocket.send(JSON.stringify({ type: "dm_focus", clear: true }));
@@ -15698,9 +15674,17 @@
         document.addEventListener("visibilitychange", () => {
           if (document.visibilityState === "visible") {
             postSelfPresenceHeartbeat(true);
+            if (
+              sessionMeSnapshot &&
+              accountIsRegistered(sessionMeSnapshot) &&
+              hasFullSocialUiAccess(sessionMeSnapshot)
+            ) {
+              ensureDmWebSocket();
+            }
             syncDmFocusWs();
           } else {
             clearDmFocusWs();
+            disconnectDmWebSocket();
           }
         });
         window.addEventListener("focus", () => postSelfPresenceHeartbeat(true));
@@ -17219,6 +17203,9 @@
         sessionMeSnapshot = me;
         if (!userIsDbAdmin(me)) removeAdminUiFromDom();
         syncInboxChromeFromMe(me);
+        if (me && accountIsRegistered(me) && me.id) {
+          void syncWebPushSubscriptionIfGranted(me.id);
+        }
         syncUsernameSearchChrome();
         syncProfileShareSection();
         if (communityState.view === "thread") {
@@ -24640,6 +24627,53 @@
         return outputArray;
       }
 
+      async function upsertWebPushSubscription(userId, opts) {
+        const silent = opts && opts.silent;
+        const keyRes = await api("/api/push/vapid-public-key");
+        if (!keyRes.publicKey) {
+          if (!silent) throw new Error("Push is not configured on the server (missing VAPID keys).");
+          return false;
+        }
+        const vapidKeyClean = normalizeVapidPublicKeyClient(keyRes.publicKey);
+        if (!vapidKeyClean) {
+          if (!silent) throw new Error("VAPID public key from server is empty.");
+          return false;
+        }
+        const appServerKey = urlBase64ToUint8Array(vapidKeyClean);
+        const swUrl = new URL("/sw.js", apiOrigin()).href;
+        const scope = new URL("/", apiOrigin()).href;
+        let reg = await navigator.serviceWorker.getRegistration(scope);
+        if (!reg) reg = await navigator.serviceWorker.register(swUrl, { scope });
+        await reg.update();
+        let sub = await reg.pushManager.getSubscription();
+        if (!sub) {
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: appServerKey,
+          });
+        }
+        const json = sub.toJSON();
+        await api("/api/users/" + encodeURIComponent(userId) + "/push-subscription", {
+          method: "POST",
+          body: JSON.stringify(json),
+        });
+        return true;
+      }
+
+      /** Re-save push subscription when permission is already granted (fixes stale device tokens). */
+      async function syncWebPushSubscriptionIfGranted(userId) {
+        if (!userId || !("serviceWorker" in navigator) || !("PushManager" in window)) return;
+        if (Notification.permission !== "granted") return;
+        if (location.protocol !== "https:" && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+          return;
+        }
+        try {
+          await upsertWebPushSubscription(userId, { silent: true });
+        } catch {
+          /* ignore — user can use Settings → Turn on push */
+        }
+      }
+
       async function registerWebPush(userId) {
         const pushMsg = document.getElementById("pushMsg");
         pushMsg.textContent = "";
@@ -24655,54 +24689,21 @@
           return;
         }
         try {
-          const keyRes = await api("/api/push/vapid-public-key");
-          if (!keyRes.publicKey) {
-            pushMsg.textContent =
-              "Server is missing VAPID keys. On your PC run: npx web-push generate-vapid-keys — then add VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, and VAPID_SUBJECT (mailto:you@email.com) in Railway → Variables. Redeploy.";
-            pushMsg.classList.add("err");
-            return;
-          }
-          const vapidKeyClean = normalizeVapidPublicKeyClient(keyRes.publicKey);
-          if (!vapidKeyClean) {
-            pushMsg.textContent = "VAPID public key from server is empty after cleanup. Check Railway VAPID_PUBLIC_KEY (one line, no quotes).";
-            pushMsg.classList.add("err");
-            return;
-          }
-          let appServerKey;
-          try {
-            appServerKey = urlBase64ToUint8Array(vapidKeyClean);
-          } catch (decodeErr) {
-            pushMsg.textContent =
-              "VAPID public key is not valid base64 (often caused by quotes, spaces, or line breaks in Railway). Open Variables → VAPID_PUBLIC_KEY → paste the key as one line only, no quotation marks, Save, Redeploy.";
-            pushMsg.classList.add("err");
-            return;
-          }
-          const swUrl = new URL("/sw.js", apiOrigin()).href;
-          const scope = new URL("/", apiOrigin()).href;
-          const reg = await navigator.serviceWorker.register(swUrl, { scope });
-          await reg.update();
           const permission = await Notification.requestPermission();
           if (permission !== "granted") {
             pushMsg.textContent = "Notifications were blocked. Allow them for this site in system settings.";
             pushMsg.classList.add("err");
             return;
           }
-          const sub = await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: appServerKey,
-          });
-          const json = sub.toJSON();
-          await api("/api/users/" + encodeURIComponent(userId) + "/push-subscription", {
-            method: "POST",
-            body: JSON.stringify(json),
-          });
-          pushMsg.textContent =
-            "Push enabled. When a show airs on your calendar day, you should get a banner (server checks on a schedule — use Settings → Refresh all show data to test sooner).";
+          await upsertWebPushSubscription(userId, { silent: false });
+          pushMsg.textContent = "Push enabled.";
         } catch (e) {
           const msg = e && e.message ? String(e.message) : "";
           if (/invalid character/i.test(msg) || /not correctly encoded/i.test(msg) || /atob/i.test(msg)) {
             pushMsg.textContent =
               "The VAPID key failed to decode (Safari: “invalid characters”). In Railway, set VAPID_PUBLIC_KEY to a single line with no spaces or quotes — copy directly from `npx web-push generate-vapid-keys`, redeploy, try again.";
+          } else if (/VAPID|vapid/i.test(msg)) {
+            pushMsg.textContent = msg;
           } else {
             pushMsg.textContent = msg || "Could not enable push.";
           }
