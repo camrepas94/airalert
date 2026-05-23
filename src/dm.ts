@@ -17,6 +17,10 @@ function normalizeGroupName(raw: string): string {
 
 const socketsByUser = new Map<string, Set<WebSocket>>();
 
+/** Which DM thread or group chat the client is actively viewing (via `dm_focus` WS messages). */
+type DmFocusState = { threadId?: string; groupId?: string };
+const dmFocusByUser = new Map<string, DmFocusState>();
+
 function authorLabelForUser(userId: string): string {
   const row = db
     .prepare(`SELECT display_name AS displayName, username FROM users WHERE id = ?`)
@@ -41,12 +45,39 @@ export function unregisterDmSocket(userId: string, socket: WebSocket): void {
   const set = socketsByUser.get(userId);
   if (!set) return;
   set.delete(socket);
-  if (set.size === 0) socketsByUser.delete(userId);
+  if (set.size === 0) {
+    socketsByUser.delete(userId);
+    dmFocusByUser.delete(userId);
+  }
 }
 
-function userHasActiveDmSocket(userId: string): boolean {
-  const set = socketsByUser.get(userId);
-  return Boolean(set && set.size > 0);
+function setDmClientFocus(userId: string, focus: DmFocusState | null): void {
+  if (!focus?.threadId && !focus?.groupId) {
+    dmFocusByUser.delete(userId);
+    return;
+  }
+  dmFocusByUser.set(userId, {
+    threadId: typeof focus.threadId === "string" ? focus.threadId : undefined,
+    groupId: typeof focus.groupId === "string" ? focus.groupId : undefined,
+  });
+}
+
+function userIsViewingDmThread(userId: string, threadId: string): boolean {
+  const f = dmFocusByUser.get(userId);
+  return Boolean(f?.threadId && f.threadId === threadId);
+}
+
+function userIsViewingDmGroup(userId: string, groupId: string): boolean {
+  const f = dmFocusByUser.get(userId);
+  return Boolean(f?.groupId && f.groupId === groupId);
+}
+
+function shouldSendDmMessagePush(recipientId: string, threadId: string): boolean {
+  return !userIsViewingDmThread(recipientId, threadId);
+}
+
+function shouldSendDmGroupMessagePush(userId: string, groupId: string): boolean {
+  return !userIsViewingDmGroup(userId, groupId);
 }
 
 function broadcastToUser(userId: string, payload: Record<string, unknown>): void {
@@ -65,8 +96,8 @@ function broadcastToUser(userId: string, payload: Record<string, unknown>): void
 }
 
 export function broadcastDmUnreadTotal(userId: string): void {
-  const total = getDmUnreadTotal(userId);
-  broadcastToUser(userId, { type: "dm_unread", total });
+  const { total, dms, groups } = getDmUnreadBreakdown(userId);
+  broadcastToUser(userId, { type: "dm_unread", total, dms, groups });
 }
 
 function orderedPair(a: string, b: string): [string, string] {
@@ -145,6 +176,17 @@ export function handleDmClientSocketMessage(userId: string, raw: unknown): void 
   if (d.type === "dm_group_typing") {
     if (typeof d.groupId === "string" && typeof d.typing === "boolean") {
       relayDmGroupTyping(userId, d.groupId, d.typing);
+    }
+  }
+  if (d.type === "dm_focus") {
+    if (d.clear === true) {
+      setDmClientFocus(userId, null);
+    } else if (typeof d.threadId === "string") {
+      setDmClientFocus(userId, { threadId: d.threadId });
+    } else if (typeof d.groupId === "string") {
+      setDmClientFocus(userId, { groupId: d.groupId });
+    } else {
+      setDmClientFocus(userId, null);
     }
   }
 }
@@ -253,7 +295,7 @@ export function sendDmMessage(senderId: string, threadId: string, body: string):
 
   broadcastDmUnreadTotal(recipientId);
 
-  if (!userHasActiveDmSocket(recipientId)) {
+  if (shouldSendDmMessagePush(recipientId, threadId)) {
     const label = authorLabelForUser(senderId);
     const dmUrl = `/?dmThread=${encodeURIComponent(threadId)}`;
     void sendWebPushToUser(
@@ -270,12 +312,12 @@ export function sendDmMessage(senderId: string, threadId: string, body: string):
   return row;
 }
 
-export function getDmUnreadTotal(userId: string): number {
+export function getDmUnreadBreakdown(userId: string): { total: number; dms: number; groups: number } {
   const threads = db
     .prepare(`SELECT id, user_low AS low, user_high AS high FROM dm_threads WHERE user_low = ? OR user_high = ?`)
     .all(userId, userId) as { id: string; low: string; high: string }[];
 
-  let total = 0;
+  let dms = 0;
   const readStmt = db.prepare(
     `SELECT last_read_at AS lastReadAt FROM dm_thread_reads WHERE thread_id = ? AND user_id = ?`,
   );
@@ -288,16 +330,21 @@ export function getDmUnreadTotal(userId: string): number {
     const readRow = readStmt.get(t.id, userId) as { lastReadAt: string | null } | undefined;
     const cutoff = readRow?.lastReadAt ?? "1970-01-01 00:00:00";
     const c = countStmt.get(t.id, userId, cutoff) as { c: number };
-    total += Number(c.c) || 0;
+    dms += Number(c.c) || 0;
   }
 
+  let groups = 0;
   const groupIds = db
     .prepare(`SELECT group_id AS id FROM dm_group_members WHERE user_id = ?`)
     .all(userId) as { id: string }[];
   for (const g of groupIds) {
-    total += groupUnreadCountForUser(userId, g.id);
+    groups += groupUnreadCountForUser(userId, g.id);
   }
-  return total;
+  return { total: dms + groups, dms, groups };
+}
+
+export function getDmUnreadTotal(userId: string): number {
+  return getDmUnreadBreakdown(userId).total;
 }
 
 export function markDmThreadRead(threadId: string, userId: string): void {
@@ -698,6 +745,14 @@ export function sendDmGroupMessage(senderId: string, groupId: string, body: stri
     .prepare(`SELECT user_id AS userId FROM dm_group_members WHERE group_id = ?`)
     .all(groupId) as { userId: string }[];
 
+  const gNameRow = db.prepare(`SELECT name FROM dm_group_threads WHERE id = ?`).get(groupId) as
+    | { name: string }
+    | undefined;
+  const groupName = gNameRow?.name?.trim() || "Group chat";
+  const senderLabel = authorLabelForUser(senderId);
+  const pushBody = text.length > 140 ? text.slice(0, 137) + "…" : text;
+  const groupUrl = `/?dmGroup=${encodeURIComponent(groupId)}`;
+
   for (const m of members) {
     const message = enrichSingleDmGroupMessage(groupId, row, m.userId);
     broadcastToUser(m.userId, {
@@ -707,6 +762,17 @@ export function sendDmGroupMessage(senderId: string, groupId: string, body: stri
     });
     if (m.userId !== senderId) {
       broadcastDmUnreadTotal(m.userId);
+      if (shouldSendDmGroupMessagePush(m.userId, groupId)) {
+        void sendWebPushToUser(
+          m.userId,
+          {
+            title: `${senderLabel} · ${groupName}`,
+            body: pushBody,
+            url: groupUrl,
+          },
+          { kind: "dmMessage" },
+        );
+      }
     }
   }
 

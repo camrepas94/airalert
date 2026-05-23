@@ -11,8 +11,23 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content"
     />
+    <script>
+      (function () {
+        var blockOpts = { passive: false };
+        function blockPinchGesture(e) {
+          e.preventDefault();
+        }
+        function blockMultiTouchMove(e) {
+          if (e.touches && e.touches.length > 1) e.preventDefault();
+        }
+        document.addEventListener("gesturestart", blockPinchGesture, blockOpts);
+        document.addEventListener("gesturechange", blockPinchGesture, blockOpts);
+        document.addEventListener("gestureend", blockPinchGesture, blockOpts);
+        document.addEventListener("touchmove", blockMultiTouchMove, blockOpts);
+      })();
+    </script>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#03051a" />
     <link rel="icon" href="/app-icon.png" type="image/png" />
@@ -153,6 +168,9 @@
       }
       /** Root: void color only — full galaxy stack is on .galaxy-photo-base + layers */
       html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+        touch-action: manipulation;
         height: 100%;
         min-height: 100%;
         max-width: 100%;
@@ -1323,34 +1341,85 @@
         margin: 0;
       }
       /**
-       * Inbox is edge-to-edge on phones. `main` max-width + horizontal padding + overflow-x:hidden
-       * were clipping the negative-margin bleed and cutting off list dates / the + FAB.
+       * Inbox + Community are edge-to-edge on phones. `main` max-width + horizontal padding
+       * + overflow-x:hidden were clipping content and cutting off rails / FABs.
        */
       @media (max-width: 767px) {
-        main:has(#tab-messages.tab-panel.active) {
+        main:has(#tab-messages.tab-panel.active),
+        main:has(#tab-community.tab-panel.active),
+        main:has(#tab-profile.tab-panel.active) {
           max-width: none;
           width: 100%;
           padding-left: 0;
           padding-right: 0;
         }
-        main:has(#tab-messages.tab-panel.active) .app-top {
+        main:has(#tab-messages.tab-panel.active) .app-top,
+        main:has(#tab-community.tab-panel.active) .app-top,
+        main:has(#tab-profile.tab-panel.active) .app-top {
           margin-left: 0;
           margin-right: 0;
           padding-left: max(1.1rem, env(safe-area-inset-left, 0px));
           padding-right: max(1.1rem, env(safe-area-inset-right, 0px));
         }
-        main:has(#tab-messages.tab-panel.active) .app-top::after {
+        main:has(#tab-messages.tab-panel.active) .app-top::after,
+        main:has(#tab-community.tab-panel.active) .app-top::after,
+        main:has(#tab-profile.tab-panel.active) .app-top::after {
           margin-left: calc(-1 * max(1.1rem, env(safe-area-inset-left, 0px)));
           margin-right: calc(-1 * max(1.1rem, env(safe-area-inset-right, 0px)));
         }
-        main:has(#tab-messages.tab-panel.active) .tab-nav {
+        main:has(#tab-messages.tab-panel.active) .tab-nav,
+        main:has(#tab-community.tab-panel.active) .tab-nav,
+        main:has(#tab-profile.tab-panel.active) .tab-nav {
           padding-left: max(1.1rem, env(safe-area-inset-left, 0px));
           padding-right: max(1.1rem, env(safe-area-inset-right, 0px));
           box-sizing: border-box;
         }
-        #tab-messages.tab-panel.active {
+        #tab-messages.tab-panel.active,
+        #tab-community.tab-panel.active,
+        #tab-profile.tab-panel.active {
           width: 100%;
           max-width: none;
+          box-sizing: border-box;
+        }
+        #tab-community section.panel-rail-cyan.community-root,
+        #tab-profile section.panel-rail-cyan.profile-page-root {
+          padding: 0;
+          margin: 0;
+          border: none;
+          border-radius: 0;
+          box-shadow: none;
+        }
+        #tab-community .community-list-view {
+          padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+          padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+          box-sizing: border-box;
+        }
+        #tab-community .community-headlines-rail,
+        #tab-community .community-thread-list,
+        #tab-community .community-general-list {
+          margin-left: calc(-1 * max(0.75rem, env(safe-area-inset-left, 0px)));
+          margin-right: calc(-1 * max(0.75rem, env(safe-area-inset-right, 0px)));
+          padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+          padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+          scroll-padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+          scroll-padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+        }
+        #tab-community .community-show-page {
+          margin: 0;
+        }
+        #tab-community .community-show-hero {
+          margin-left: 0;
+          margin-right: 0;
+          border-radius: 0;
+          border-left: none;
+          border-right: none;
+        }
+        #tab-community .community-show-subtabs,
+        #tab-community .community-thread-presence-row,
+        #tab-community .community-thread-main-col {
+          padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+          padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+          box-sizing: border-box;
         }
         #tab-messages .dm-inbox-main > #dmInboxTitle {
           padding-left: max(0.65rem, env(safe-area-inset-left, 0px));
@@ -1485,6 +1554,23 @@
         color: var(--neon-cyan);
         background: rgba(34, 211, 238, 0.1);
         box-shadow: 0 0 18px -6px rgba(34, 211, 238, 0.45), inset 0 0 0 1px rgba(34, 211, 238, 0.1);
+      }
+      .dm-inbox-hub-tab {
+        position: relative;
+      }
+      .dm-inbox-hub-tab-dot {
+        position: absolute;
+        top: 6px;
+        right: 8px;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #fecaca, #f87171 45%, #dc2626);
+        box-shadow: 0 0 0 2px rgba(12, 20, 40, 0.92), 0 0 10px rgba(248, 113, 113, 0.8);
+        pointer-events: none;
+      }
+      .dm-inbox-hub-tab-dot[hidden] {
+        display: none !important;
       }
       .dm-inbox-hub-scroll--tabbed .dm-inbox-section-head {
         display: none;
@@ -6200,7 +6286,128 @@
         -webkit-backdrop-filter: none;
         backdrop-filter: none;
       }
+      #tab-profile {
+        position: relative;
+        isolation: isolate;
+      }
+      #tab-profile.tab-panel.active {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        box-sizing: border-box;
+        min-height: min(78dvh, 40rem);
+      }
+      #tab-profile .profile-page-root.panel-rail-cyan {
+        flex: 1 1 auto;
+        min-height: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+        overflow: visible;
+      }
+      #tab-profile .profile-page-root.panel-rail-cyan::before {
+        display: none;
+      }
+      #profilePageSearchView[hidden],
+      #profilePageMemberView[hidden] {
+        display: none !important;
+      }
+      .profile-page-search-view {
+        padding: 0.35rem 0 1rem;
+      }
+      .profile-page-lead {
+        margin: 0 0 0.75rem;
+        font-size: 0.86rem;
+        line-height: 1.45;
+      }
+      #tab-profile .profile-page-search-view > .section-header-highlight,
+      #tab-profile .profile-page-lead,
+      #tab-profile .profile-page-search-wrap {
+        padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+        padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+        box-sizing: border-box;
+      }
+      .profile-page-search-wrap {
+        position: relative;
+      }
+      .profile-page-member-view {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+      .profile-page-member-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+        padding: 0.35rem max(0.75rem, env(safe-area-inset-right, 0px)) 0.5rem
+          max(0.75rem, env(safe-area-inset-left, 0px));
+        border-bottom: 1px solid rgba(130, 200, 255, 0.1);
+      }
+      .profile-page-back-btn {
+        flex-shrink: 0;
+        margin: 0;
+        min-width: 44px;
+        min-height: 44px;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+      }
+      .profile-page-back-btn svg {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+      .profile-page-member-heading {
+        margin: 0;
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .profile-page-member-scroll {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        padding: 0.65rem max(0.75rem, env(safe-area-inset-right, 0px)) calc(1rem + env(safe-area-inset-bottom, 0px))
+          max(0.75rem, env(safe-area-inset-left, 0px));
+      }
+      #headerProfilesBtn .header-icon-svg {
+        opacity: 0.92;
+      }
+      #tab-community {
+        position: relative;
+        isolation: isolate;
+      }
+      #tab-community.tab-panel.active {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        box-sizing: border-box;
+      }
       #tab-community section.panel-rail-cyan.community-root {
+        flex: 1 1 auto;
+        min-height: 0;
+        width: 100%;
         background: linear-gradient(165deg, rgba(10, 14, 24, 0.97) 0%, rgba(5, 8, 18, 0.98) 100%);
         contain: layout;
       }
@@ -7242,17 +7449,20 @@
       .community-fab-layer {
         position: fixed;
         z-index: 38;
-        right: max(1.125rem, env(safe-area-inset-right));
-        bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 3.5rem);
+        inset: auto;
+        right: max(1rem, env(safe-area-inset-right, 0px));
+        bottom: calc(max(1rem, env(safe-area-inset-bottom, 0px)) + 3.5rem);
         width: 3.75rem;
         height: 3.75rem;
+        max-width: calc(100vw - max(1rem, env(safe-area-inset-right, 0px)) - max(1rem, env(safe-area-inset-left, 0px)));
         pointer-events: none;
         display: none;
+        box-sizing: border-box;
       }
-      #tab-community.active .community-fab-layer {
+      body:has(#tab-community.tab-panel.active) .community-fab-layer {
         display: block;
       }
-      #tab-community.active:has(#communityThreadView:not(.hidden)) .community-fab-layer {
+      body:has(#tab-community.tab-panel.active #communityThreadView:not(.hidden)) .community-fab-layer {
         display: none !important;
       }
       .community-fab-layer .community-fab-plus {
@@ -8788,6 +8998,12 @@
       .cmp-profile-about-empty {
         color: rgba(148, 163, 184, 0.75);
         font-style: italic;
+      }
+      .cmp-profile-about-card .cmp-profile-about-text + .cmp-profile-personal {
+        margin-top: 0.85rem;
+      }
+      .profile-edit-card--about .profile-form-row--split {
+        margin-top: 0.85rem;
       }
       .cmp-profile-compat-card {
         display: flex;
@@ -10864,6 +11080,25 @@
                 <div id="headerProfileMenuItems" role="group" aria-label="Account actions"></div>
               </div>
             </div>
+            <div class="header-profiles-wrap" id="headerProfilesWrap" hidden>
+              <button type="button" class="header-icon-btn" id="headerProfilesBtn" aria-label="Member profiles" title="Profiles">
+                <svg
+                  class="header-icon-svg"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
+                  />
+                </svg>
+              </button>
+            </div>
             <div class="header-inbox-wrap" id="headerInboxWrap" hidden>
               <button type="button" class="header-icon-btn" id="headerInboxBtn" aria-label="Messages inbox" title="Messages">
                 <svg
@@ -11663,7 +11898,8 @@
                       aria-selected="true"
                       aria-controls="dmInboxSectionDms"
                     >
-                      Direct messages
+                      <span class="dm-inbox-hub-tab-label">Direct messages</span>
+                      <span class="dm-inbox-hub-tab-dot" id="dmInboxTabDmsDot" hidden aria-hidden="true"></span>
                     </button>
                     <button
                       type="button"
@@ -11674,7 +11910,8 @@
                       aria-selected="false"
                       aria-controls="dmInboxSectionGroups"
                     >
-                      Groups
+                      <span class="dm-inbox-hub-tab-label">Groups</span>
+                      <span class="dm-inbox-hub-tab-dot" id="dmInboxTabGroupsDot" hidden aria-hidden="true"></span>
                     </button>
                   </div>
                   <div id="dmComposeView" class="dm-compose-view" hidden>
@@ -11788,8 +12025,69 @@
         data-app-shell="messages"
       ></div>
 
+      <div
+        id="tab-profile"
+        class="tab-panel app-shell-surface"
+        role="tabpanel"
+        aria-labelledby="profilePageTitle"
+        data-shell-lazy-root="profile"
+        data-app-shell="profile"
+      ></div>
+
       </div>
     </main>
+
+      <template id="tpl-shell-tab-profile">
+        <section class="panel-rail-cyan profile-page-root" aria-label="Profiles">
+          <div id="profilePageSearchView" class="profile-page-search-view">
+            <h2 id="profilePageTitle" class="section-header-highlight header-cyan-glow" style="margin-top: 0">
+              <span class="app-section-heading">Profiles</span>
+            </h2>
+            <p class="muted profile-page-lead">Search members by username to view their profile.</p>
+            <p id="profilePageSearchGuestHint" class="community-find-friend-guest-hint" hidden>
+              <a href="#" id="profilePageSearchGuestLink">Create an account</a> to search members.
+            </p>
+            <div class="community-find-friend profile-page-search-wrap" id="profilePageSearchWrap" aria-label="Search members">
+              <label for="profilePageSearchInput" class="visually-hidden">Search username</label>
+              <input
+                type="search"
+                id="profilePageSearchInput"
+                class="community-find-friend-input"
+                placeholder="Search username…"
+                autocomplete="off"
+                spellcheck="false"
+                enterkeyhint="search"
+                aria-controls="profilePageSearchResults"
+                aria-expanded="false"
+              />
+              <div id="profilePageSearchResults" class="community-find-friend-results" hidden role="listbox" aria-label="Matching members"></div>
+            </div>
+          </div>
+          <div id="profilePageMemberView" class="profile-page-member-view" hidden>
+            <header class="profile-page-member-toolbar">
+              <button
+                type="button"
+                class="secondary profile-page-back-btn"
+                id="profilePageBackBtn"
+                aria-label="Back to search"
+                title="Back to search"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M15 6l-6 6 6 6"/>
+                </svg>
+              </button>
+              <h2 id="profilePageMemberHeading" class="profile-page-member-heading">Member profile</h2>
+            </header>
+            <div class="profile-page-member-scroll">
+              <div id="profilePageMemberBody" class="community-member-profile-body"></div>
+              <p class="muted" id="profilePageMemberDmHint" hidden style="margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.4">
+                Create an account (Account menu, top right → Create account) to send direct messages.
+              </p>
+              <p class="err" id="profilePageMemberErr" style="display: none; margin-top: 0.5rem"></p>
+            </div>
+          </div>
+        </section>
+      </template>
 
     <!--
       Global overlays: keep outside #mainScroll. Scrollable ancestors + WebKit clip `position:fixed`
@@ -12248,7 +12546,7 @@
                   <div class="push-prefs-list">
                     <label class="push-pref-row">
                       <input type="checkbox" id="pushPrefDmMessage" checked />
-                      <span>Direct messages — opens <strong>Inbox</strong></span>
+                      <span>Direct &amp; group messages — opens <strong>Inbox</strong></span>
                     </label>
                     <label class="push-pref-row">
                       <input type="checkbox" id="pushPrefCommunityMention" checked />
@@ -12361,85 +12659,80 @@
                 <p class="muted msg profile-card-msg" id="profileInfoMsg"></p>
               </section>
 
-              <!-- 2. About you — bio + optional demographics -->
+              <!-- 2. About — bio, demographics, favorite shows -->
               <section class="profile-edit-card profile-edit-card--about profile-edit-card--about-you" aria-labelledby="profileAboutCardHeading">
-                <h2 id="profileAboutCardHeading" class="profile-edit-block-label">About you</h2>
+                <h2 id="profileAboutCardHeading" class="profile-edit-block-label">About</h2>
                 <div class="profile-edit-field">
                   <label for="profileAboutMe">Bio</label>
                   <textarea id="profileAboutMe" rows="4" maxlength="2000" placeholder="Tell the community something about you…"></textarea>
                 </div>
-                <div class="profile-edit-subsection profile-edit-subsection--optional">
-                  <h3 class="profile-edit-subsection-title">Optional</h3>
-                  <div class="profile-form-row profile-form-row--split">
-                    <div>
-                      <label for="profileAge">Age</label>
-                      <input id="profileAge" type="number" min="1" max="120" placeholder="—" inputmode="numeric" />
+                <div class="profile-form-row profile-form-row--split">
+                  <div>
+                    <label for="profileAge">Age</label>
+                    <input id="profileAge" type="number" min="1" max="120" placeholder="—" inputmode="numeric" />
+                  </div>
+                  <div>
+                    <label for="profileSex">Sex</label>
+                    <select id="profileSex" aria-label="Sex">
+                      <option value="">Prefer not to say</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="profile-edit-subsection profile-edit-subsection--favorites">
+                  <h3 class="profile-edit-subsection-title">Favorite shows</h3>
+                  <p class="profile-edit-card-lead muted profile-edit-shows-lead">Up to three picks — shown on your public profile.</p>
+                  <div class="profile-spotlight-slots">
+                    <div class="profile-spotlight-row">
+                      <span class="profile-spotlight-rank" aria-hidden="true">#1</span>
+                      <input
+                        id="profileFavoriteShow1"
+                        class="profile-spotlight-input"
+                        type="text"
+                        maxlength="200"
+                        placeholder="Add a show…"
+                        autocomplete="off"
+                        aria-label="Favorite show 1"
+                      />
+                      <span class="profile-spotlight-ct" id="profileFavoriteShowCount1" aria-live="polite">0/200</span>
                     </div>
-                    <div>
-                      <label for="profileSex">Sex</label>
-                      <select id="profileSex" aria-label="Sex">
-                        <option value="">Prefer not to say</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                      </select>
+                    <div class="profile-spotlight-row">
+                      <span class="profile-spotlight-rank" aria-hidden="true">#2</span>
+                      <input
+                        id="profileFavoriteShow2"
+                        class="profile-spotlight-input"
+                        type="text"
+                        maxlength="200"
+                        placeholder="Add another show…"
+                        autocomplete="off"
+                        aria-label="Favorite show 2"
+                      />
+                      <span class="profile-spotlight-ct" id="profileFavoriteShowCount2" aria-live="polite">0/200</span>
+                    </div>
+                    <div class="profile-spotlight-row">
+                      <span class="profile-spotlight-rank" aria-hidden="true">#3</span>
+                      <input
+                        id="profileFavoriteShow3"
+                        class="profile-spotlight-input"
+                        type="text"
+                        maxlength="200"
+                        placeholder="Add another show…"
+                        autocomplete="off"
+                        aria-label="Favorite show 3"
+                      />
+                      <span class="profile-spotlight-ct" id="profileFavoriteShowCount3" aria-live="polite">0/200</span>
                     </div>
                   </div>
+                  <p id="profileFavoriteShowsHint" class="muted profile-edit-micro-hint profile-edit-spotlight-hint">
+                    Each line saves independently — leave blank to clear a slot.
+                  </p>
                 </div>
                 <p class="muted msg profile-card-msg" id="profileAboutMsg"></p>
               </section>
 
-              <!-- 3. Top show spotlight — three persisted slots -->
-              <section class="profile-edit-card profile-edit-card--shows" aria-labelledby="profileShowsHeading">
-                <h2 id="profileShowsHeading" class="profile-edit-block-label">Top show spotlight</h2>
-                <p class="profile-edit-card-lead muted profile-edit-shows-lead">Up to three picks — shown on your public profile.</p>
-                <div class="profile-spotlight-slots">
-                  <div class="profile-spotlight-row">
-                    <span class="profile-spotlight-rank" aria-hidden="true">#1</span>
-                    <input
-                      id="profileFavoriteShow1"
-                      class="profile-spotlight-input"
-                      type="text"
-                      maxlength="200"
-                      placeholder="Add a show…"
-                      autocomplete="off"
-                      aria-label="Top spotlight show 1"
-                    />
-                    <span class="profile-spotlight-ct" id="profileFavoriteShowCount1" aria-live="polite">0/200</span>
-                  </div>
-                  <div class="profile-spotlight-row">
-                    <span class="profile-spotlight-rank" aria-hidden="true">#2</span>
-                    <input
-                      id="profileFavoriteShow2"
-                      class="profile-spotlight-input"
-                      type="text"
-                      maxlength="200"
-                      placeholder="Add another show…"
-                      autocomplete="off"
-                      aria-label="Top spotlight show 2"
-                    />
-                    <span class="profile-spotlight-ct" id="profileFavoriteShowCount2" aria-live="polite">0/200</span>
-                  </div>
-                  <div class="profile-spotlight-row">
-                    <span class="profile-spotlight-rank" aria-hidden="true">#3</span>
-                    <input
-                      id="profileFavoriteShow3"
-                      class="profile-spotlight-input"
-                      type="text"
-                      maxlength="200"
-                      placeholder="Add another show…"
-                      autocomplete="off"
-                      aria-label="Top spotlight show 3"
-                    />
-                    <span class="profile-spotlight-ct" id="profileFavoriteShowCount3" aria-live="polite">0/200</span>
-                  </div>
-                </div>
-                <p id="profileFavoriteShowsHint" class="muted profile-edit-micro-hint profile-edit-spotlight-hint">
-                  Each line saves independently — leave blank to clear a slot.
-                </p>
-              </section>
-
-              <!-- 4. Top genres — read-only chips from subscriptions (reference-style density) -->
+              <!-- 3. Top genres — read-only chips from subscriptions (reference-style density) -->
               <section class="profile-edit-card profile-edit-card--genres" id="profileEditGenresSection" aria-labelledby="profileGenresHeading">
                 <h2 id="profileGenresHeading" class="profile-edit-block-label">Top genres</h2>
                 <p class="profile-edit-card-lead muted profile-edit-genres-lead">Inferred from your subscriptions — not edited here.</p>
@@ -14892,14 +15185,35 @@
         b.hidden = !total || total <= 0;
       }
 
+      function syncDmInboxHubTabUnreadDots(dmUnread, groupUnread) {
+        const dms = Math.max(0, Number(dmUnread) || 0);
+        const groups = Math.max(0, Number(groupUnread) || 0);
+        const tabDms = document.getElementById("dmInboxTabDms");
+        const tabGroups = document.getElementById("dmInboxTabGroups");
+        const dotDms = document.getElementById("dmInboxTabDmsDot");
+        const dotGroups = document.getElementById("dmInboxTabGroupsDot");
+        if (dotDms) dotDms.hidden = dms <= 0;
+        if (dotGroups) dotGroups.hidden = groups <= 0;
+        if (tabDms) {
+          tabDms.setAttribute("aria-label", dms > 0 ? "Direct messages, " + dms + " unread" : "Direct messages");
+        }
+        if (tabGroups) {
+          tabGroups.setAttribute("aria-label", groups > 0 ? "Groups, " + groups + " unread" : "Groups");
+        }
+      }
+
       async function refreshDmUnread() {
         if (!sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot) || !hasFullSocialUiAccess(sessionMeSnapshot)) {
           setDmInboxBadge(0);
+          syncDmInboxHubTabUnreadDots(0, 0);
           return;
         }
         try {
           const r = await api("/api/dm/unread");
           setDmInboxBadge(r.total || 0);
+          const dms = r.dms != null ? r.dms : r.total || 0;
+          const groups = r.groups != null ? r.groups : 0;
+          syncDmInboxHubTabUnreadDots(dms, groups);
         } catch {
           /* ignore */
         }
@@ -14984,6 +15298,7 @@
         dmInboxActiveThreadId = null;
         dmInboxActiveGroupId = null;
         dmThreadPeerReadAt = null;
+        clearDmFocusWs();
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
         if (list) list.hidden = false;
@@ -15021,6 +15336,7 @@
         dmInboxActiveThreadId = null;
         dmInboxActiveGroupId = null;
         dmThreadPeerReadAt = null;
+        clearDmFocusWs();
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
         if (list) list.hidden = false;
@@ -15037,6 +15353,37 @@
         if (!dmWebSocket || dmWebSocket.readyState !== 1 || !dmInboxActiveThreadId) return;
         try {
           dmWebSocket.send(JSON.stringify({ type: "dm_typing", threadId: dmInboxActiveThreadId, typing: !!typing }));
+        } catch {
+          /* ignore */
+        }
+      }
+
+      /** Tell the server which conversation is open so push is not suppressed app-wide. */
+      function syncDmFocusWs() {
+        if (!dmWebSocket || dmWebSocket.readyState !== 1) return;
+        try {
+          if (document.visibilityState === "hidden" || !isDmMessagesTabActive()) {
+            dmWebSocket.send(JSON.stringify({ type: "dm_focus", clear: true }));
+            return;
+          }
+          if (dmInboxActiveThreadId) {
+            dmWebSocket.send(JSON.stringify({ type: "dm_focus", threadId: dmInboxActiveThreadId }));
+            return;
+          }
+          if (dmInboxActiveGroupId) {
+            dmWebSocket.send(JSON.stringify({ type: "dm_focus", groupId: dmInboxActiveGroupId }));
+            return;
+          }
+          dmWebSocket.send(JSON.stringify({ type: "dm_focus", clear: true }));
+        } catch {
+          /* ignore */
+        }
+      }
+
+      function clearDmFocusWs() {
+        if (!dmWebSocket || dmWebSocket.readyState !== 1) return;
+        try {
+          dmWebSocket.send(JSON.stringify({ type: "dm_focus", clear: true }));
         } catch {
           /* ignore */
         }
@@ -15121,7 +15468,14 @@
       }
 
       function handleDmSocketPayload(data) {
-        if (data.type === "dm_unread") setDmInboxBadge(data.total || 0);
+        if (data.type === "dm_unread") {
+          setDmInboxBadge(data.total || 0);
+          if (data.dms != null || data.groups != null) {
+            syncDmInboxHubTabUnreadDots(data.dms ?? 0, data.groups ?? 0);
+          } else {
+            void refreshDmUnread();
+          }
+        }
         if (data.type === "dm_thread_deleted" && data.threadId) {
           if (dmInboxActiveThreadId === data.threadId) {
             sendDmTypingWs(false);
@@ -15192,6 +15546,16 @@
             if (sc) sc.scrollTop = sc.scrollHeight;
           }
           void refreshDmUnread();
+          if (
+            !(
+              isDmMessagesTabActive() &&
+              threadView &&
+              !threadView.hidden &&
+              dmInboxActiveThreadId === data.threadId
+            )
+          ) {
+            void renderDmThreadList();
+          }
         }
         if (data.type === "dm_group_typing" && data.groupId) {
           const uid = resolveUserId();
@@ -15273,6 +15637,16 @@
             void api("/api/dm/groups/" + encodeURIComponent(data.groupId) + "/read", { method: "POST", body: "{}" });
           }
           void refreshDmUnread();
+          if (
+            !(
+              isDmMessagesTabActive() &&
+              threadView &&
+              !threadView.hidden &&
+              dmInboxActiveGroupId === data.groupId
+            )
+          ) {
+            void renderDmThreadList();
+          }
         }
         if (data.type === "dm_group_deleted" && data.groupId) {
           if (dmInboxActiveGroupId === data.groupId) {
@@ -15344,7 +15718,12 @@
         if (window.__aaPresenceClientStarted) return;
         window.__aaPresenceClientStarted = true;
         document.addEventListener("visibilitychange", () => {
-          if (document.visibilityState === "visible") postSelfPresenceHeartbeat(true);
+          if (document.visibilityState === "visible") {
+            postSelfPresenceHeartbeat(true);
+            syncDmFocusWs();
+          } else {
+            clearDmFocusWs();
+          }
         });
         window.addEventListener("focus", () => postSelfPresenceHeartbeat(true));
         const onAct = () => schedulePresenceActivityTouch();
@@ -15588,6 +15967,9 @@
           const wsProto = u.protocol === "https:" ? "wss:" : "ws:";
           const wsUrl = wsProto + "//" + u.host + "/api/dm/ws";
           dmWebSocket = new WebSocket(wsUrl);
+          dmWebSocket.onopen = () => {
+            syncDmFocusWs();
+          };
           dmWebSocket.onmessage = (ev) => {
             try {
               handleDmSocketPayload(JSON.parse(ev.data));
@@ -15635,6 +16017,7 @@
           dmInboxActiveThreadId = null;
           dmInboxActiveGroupId = null;
           dmThreadPeerReadAt = null;
+          clearDmFocusWs();
           const host = document.getElementById("dmInboxMessages");
           if (host) host.classList.remove("dm-inbox-messages--group");
           const list = document.getElementById("dmInboxListView");
@@ -15742,6 +16125,7 @@
         }
         closeDmComposeView();
         const threadId = opts && opts.threadId;
+        const groupId = opts && opts.groupId;
         const titleLabel = opts && opts.titleLabel;
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
@@ -15757,18 +16141,23 @@
           err.style.display = "none";
         }
         setTab("messages");
-        trackAnalyticsEvent("engagement.dm_opened", { openedThread: Boolean(threadId) }, {
+        const openedThread = Boolean(threadId && DM_THREAD_ID_RE.test(threadId));
+        const openedGroup = Boolean(groupId && DM_THREAD_ID_RE.test(groupId));
+        trackAnalyticsEvent("engagement.dm_opened", { openedThread: openedThread || openedGroup }, {
           sourceScreen: "messages",
-          targetType: threadId ? "dm_thread" : "dm_inbox",
-          targetId: threadId || "inbox",
+          targetType: openedThread ? "dm_thread" : openedGroup ? "dm_group" : "dm_inbox",
+          targetId: threadId || groupId || "inbox",
         });
         ensureDmWebSocket();
-        if (threadId && DM_THREAD_ID_RE.test(threadId)) {
+        if (openedThread) {
           const label = titleLabel || (await resolveDmThreadTitle(threadId));
           await openDmThreadView(threadId, label);
+        } else if (openedGroup) {
+          await openDmGroupView(groupId, titleLabel || "Group chat");
         } else {
           dmInboxRailFilter = "dms";
           await renderDmInboxHub();
+          syncDmFocusWs();
         }
         syncDmInboxSplitLayout();
       }
@@ -16182,6 +16571,11 @@
             host.appendChild(btn);
           }
           await applyPresenceToWrappers(dmPresenceEntries);
+          let dmUnreadSum = 0;
+          for (const t of threads) dmUnreadSum += Number(t.unreadCount) || 0;
+          let groupUnreadSum = 0;
+          for (const g of groups) groupUnreadSum += Number(g.unreadCount) || 0;
+          syncDmInboxHubTabUnreadDots(dmUnreadSum, groupUnreadSum);
           syncDmInboxActiveRowHighlight();
         } catch (e) {
           if (empty) empty.hidden = true;
@@ -16424,6 +16818,7 @@
           }
           await api("/api/dm/threads/" + encodeURIComponent(threadId) + "/read", { method: "POST", body: "{}" });
           void refreshDmUnread();
+          syncDmFocusWs();
         } catch (e) {
           resetDmChatHeaderPresenceUi();
           if (host) host.innerHTML = "";
@@ -16497,6 +16892,7 @@
           }
           await api("/api/dm/groups/" + encodeURIComponent(groupId) + "/read", { method: "POST", body: "{}" });
           void refreshDmUnread();
+          syncDmFocusWs();
         } catch (e) {
           if (host) host.innerHTML = "";
           if (err) {
@@ -16572,17 +16968,29 @@
             method: "POST",
             body: JSON.stringify({ otherUserId }),
           });
-          closeCommunityMemberProfile();
+          leaveProfileTab();
           await openDmInboxModal({ threadId: out.threadId, titleLabel: otherLabel || "Chat" });
         } catch (e) {
           showToast(e.message || "Could not start chat");
         }
       }
 
+      function escapeProfilePageChrome() {
+        if (profilePageState.view === "member") {
+          goBackFromProfileMemberView();
+          return;
+        }
+        leaveProfileTab();
+        setTab("add");
+      }
+
       function syncInboxChromeFromMe(me) {
         const wrap = document.getElementById("headerInboxWrap");
+        const profilesWrap = document.getElementById("headerProfilesWrap");
+        const socialOn = Boolean(me && accountIsRegistered(me) && hasFullSocialUiAccess(me));
+        if (profilesWrap) profilesWrap.hidden = !socialOn;
         if (!wrap) return;
-        if (me && accountIsRegistered(me) && hasFullSocialUiAccess(me)) {
+        if (socialOn) {
           wrap.hidden = false;
           void refreshDmUnread();
           ensureDmWebSocket();
@@ -16591,6 +16999,10 @@
           setDmInboxBadge(0);
           closeDmInboxModalQuiet();
           disconnectDmWebSocket();
+          if (isProfileTabActive()) {
+            leaveProfileTab();
+            setTab("add");
+          }
           if (document.getElementById("tab-messages")?.classList.contains("active")) {
             setTab("add");
           }
@@ -18778,9 +19190,62 @@
       let usernameSearchTimer = null;
       let usernameSearchGen = 0;
 
+      function isProfileTabActive() {
+        const p = document.getElementById("tab-profile");
+        return Boolean(p && p.classList.contains("active"));
+      }
+
+      function syncProfilePageViews() {
+        const search = document.getElementById("profilePageSearchView");
+        const member = document.getElementById("profilePageMemberView");
+        const isMember = profilePageState.view === "member";
+        if (search) search.hidden = isMember;
+        if (member) member.hidden = !isMember;
+      }
+
+      function leaveProfileTab() {
+        profilePageState.view = "search";
+        profilePageState.userId = null;
+        closeProfilePhotoLightbox();
+        syncProfilePageViews();
+        const tab = document.getElementById("tab-profile");
+        if (tab) {
+          delete tab.dataset.profileUserId;
+          delete tab.dataset.profileLabel;
+        }
+      }
+
+      function goBackFromProfileMemberView() {
+        profilePageState.view = "search";
+        profilePageState.userId = null;
+        closeProfilePhotoLightbox();
+        syncProfilePageViews();
+        const tab = document.getElementById("tab-profile");
+        if (tab) {
+          delete tab.dataset.profileUserId;
+          delete tab.dataset.profileLabel;
+        }
+        const inp = document.getElementById("profilePageSearchInput");
+        if (inp && !inp.disabled) inp.focus();
+      }
+
+      function openProfilePageSearch() {
+        closeHeaderMenus();
+        profilePageState.view = "search";
+        profilePageState.userId = null;
+        setTab("profile");
+        hideUsernameSearchDropdown();
+        syncUsernameSearchChrome();
+        const inp = document.getElementById("profilePageSearchInput");
+        if (inp) {
+          inp.value = "";
+          if (!inp.disabled) requestAnimationFrame(() => inp.focus());
+        }
+      }
+
       function hideUsernameSearchDropdown() {
-        const box = document.getElementById("usernameSearchResults");
-        const inp = document.getElementById("usernameSearchInput");
+        const box = document.getElementById("profilePageSearchResults");
+        const inp = document.getElementById("profilePageSearchInput");
         if (box) {
           box.hidden = true;
           box.innerHTML = "";
@@ -18789,8 +19254,8 @@
       }
 
       function syncUsernameSearchChrome() {
-        const inp = document.getElementById("usernameSearchInput");
-        const hint = document.getElementById("usernameSearchGuestHint");
+        const inp = document.getElementById("profilePageSearchInput");
+        const hint = document.getElementById("profilePageSearchGuestHint");
         const kind = accountKind(sessionMeSnapshot);
         const canSearch = kind === "registered";
         if (inp) {
@@ -18804,46 +19269,20 @@
       }
 
       function openUsernameSearchModal() {
-        closeHeaderMenus();
-        const modal = document.getElementById("usernameSearchModal");
-        if (!modal) return;
-        hideUsernameSearchDropdown();
-        const inp = document.getElementById("usernameSearchInput");
-        if (inp) inp.value = "";
-        syncUsernameSearchChrome();
-        modal.hidden = false;
-        modal.setAttribute("aria-hidden", "false");
-        const inp2 = document.getElementById("usernameSearchInput");
-        if (inp2 && !inp2.disabled) {
-          requestAnimationFrame(() => inp2.focus());
-        } else {
-          modal.querySelector("[data-close-username-search-modal].community-modal-close")?.focus();
-        }
+        openProfilePageSearch();
       }
 
-      function closeUsernameSearchModal(opts) {
-        const modal = document.getElementById("usernameSearchModal");
-        if (!modal || modal.hidden) return;
-        const skipFocusRestore = Boolean(opts && opts.skipFocusRestore);
-        modal.hidden = true;
-        modal.setAttribute("aria-hidden", "true");
+      function closeUsernameSearchModal() {
         hideUsernameSearchDropdown();
         if (usernameSearchTimer) {
           clearTimeout(usernameSearchTimer);
           usernameSearchTimer = null;
         }
-        const ae = document.activeElement;
-        if (ae && modal.contains(ae)) {
-          ae.blur();
-          if (!skipFocusRestore) {
-            document.getElementById("headerProfileBtn")?.focus();
-          }
-        }
       }
 
       function renderUsernameSearchResults(users, errorMessage) {
-        const box = document.getElementById("usernameSearchResults");
-        const inp = document.getElementById("usernameSearchInput");
+        const box = document.getElementById("profilePageSearchResults");
+        const inp = document.getElementById("profilePageSearchInput");
         if (!box) return;
         box.innerHTML = "";
         if (errorMessage) {
@@ -18883,7 +19322,6 @@
           });
           btn.addEventListener("click", () => {
             hideUsernameSearchDropdown();
-            closeUsernameSearchModal();
             void openCommunityMemberProfile(u.id);
           });
           box.appendChild(btn);
@@ -18899,12 +19337,12 @@
           hideUsernameSearchDropdown();
           return;
         }
-        const box = document.getElementById("usernameSearchResults");
+        const box = document.getElementById("profilePageSearchResults");
         if (box) {
           box.innerHTML = "<p class=\"community-find-friend-status\">Searching…</p>";
           box.hidden = false;
         }
-        const inp = document.getElementById("usernameSearchInput");
+        const inp = document.getElementById("profilePageSearchInput");
         if (inp) inp.setAttribute("aria-expanded", "true");
         try {
           const data = await api("/api/community/users/search?q=" + encodeURIComponent(trimmed));
@@ -21502,12 +21940,11 @@
       }
 
       function closeCommunityMemberProfile() {
-        closeProfilePhotoLightbox();
-        const m = document.getElementById("communityMemberProfileModal");
-        if (m) {
-          m.hidden = true;
-          m.setAttribute("aria-hidden", "true");
+        if (profilePageState.view === "member") {
+          goBackFromProfileMemberView();
+          return;
         }
+        leaveProfileTab();
       }
 
       function cmpProfileSectionTitle(text) {
@@ -21608,7 +22045,7 @@
         const followBtn = document.getElementById("communityProfileFollowBtn");
         const followCounts = document.getElementById("communityProfileFollowCounts");
         const dmBtn = document.getElementById("communityMemberProfileDmBtn");
-        const dmHint = document.getElementById("communityMemberProfileDmHint");
+        const dmHint = document.getElementById("profilePageMemberDmHint");
         const quick = document.getElementById("communityProfileQuickActions");
         if (!quick) return;
         if (userId === selfId || !selfId) {
@@ -21631,6 +22068,13 @@
           } else {
             dmBtn.hidden = false;
             dmHint.hidden = true;
+            dmBtn.onclick = () => {
+              const tab = document.getElementById("tab-profile");
+              const id = tab && tab.dataset.profileUserId;
+              const lab = (tab && tab.dataset.profileLabel) || label || "Member";
+              if (!id) return;
+              void startDirectMessageToUser(id, lab);
+            };
           }
         }
         if (!followBtn || !followCounts) return;
@@ -21698,22 +22142,25 @@
       }
 
       async function openCommunityMemberProfile(userId) {
-        const modal = document.getElementById("communityMemberProfileModal");
-        const body = document.getElementById("communityMemberProfileBody");
-        const errEl = document.getElementById("communityMemberProfileErr");
-        const heading = document.getElementById("communityMemberProfileHeading");
-        if (!modal || !body) return;
-        modal.hidden = false;
-        modal.setAttribute("aria-hidden", "false");
+        const tab = document.getElementById("tab-profile");
+        const body = document.getElementById("profilePageMemberBody");
+        const errEl = document.getElementById("profilePageMemberErr");
+        const heading = document.getElementById("profilePageMemberHeading");
+        if (!tab || !body) return;
+        closeHeaderMenus();
+        profilePageState.view = "member";
+        profilePageState.userId = userId;
+        setTab("profile");
+        syncProfilePageViews();
         if (errEl) {
           errEl.textContent = "";
           errEl.style.display = "none";
         }
         body.innerHTML = "<p class=\"muted\" style=\"margin:0\">Fetching…</p>";
         if (heading) heading.textContent = "Member profile";
-        const dmHintLoad = document.getElementById("communityMemberProfileDmHint");
+        const dmHintLoad = document.getElementById("profilePageMemberDmHint");
         if (dmHintLoad) dmHintLoad.hidden = true;
-        modal.dataset.profileUserId = userId;
+        tab.dataset.profileUserId = userId;
         try {
           const d = await api("/api/community/users/" + encodeURIComponent(userId) + "/profile");
           const label = communityAuthorLabelFromPublicProfile(d);
@@ -21813,6 +22260,36 @@
             aboutP.textContent = "No bio yet";
           }
           aboutCard.appendChild(aboutP);
+          const personalBox = document.createElement("div");
+          personalBox.className = "cmp-profile-personal";
+          const rowAge = document.createElement("div");
+          rowAge.className = "profile-readonly-row";
+          const ageVal =
+            d.age != null && d.age !== "" && Number.isFinite(Number(d.age)) ? String(d.age) : "\u2014";
+          rowAge.innerHTML =
+            "<span class=\"profile-readonly-label\">Age</span><span class=\"profile-readonly-value\">" +
+            escapeHtml(ageVal) +
+            "</span>";
+          personalBox.appendChild(rowAge);
+          const rowSex = document.createElement("div");
+          rowSex.className = "profile-readonly-row";
+          rowSex.innerHTML =
+            "<span class=\"profile-readonly-label\">Sex</span><span class=\"profile-readonly-value\">" +
+            escapeHtml(communityPublicSexLabel(d.sex)) +
+            "</span>";
+          personalBox.appendChild(rowSex);
+          const rowFav = document.createElement("div");
+          rowFav.className = "profile-readonly-row";
+          const favParts = [d.favoriteShow, d.favoriteShow2, d.favoriteShow3]
+            .map((x) => (x != null && String(x).trim() ? String(x).trim() : ""))
+            .filter(Boolean);
+          const fav = favParts.length ? favParts.join(" \u00b7 ") : "\u2014";
+          rowFav.innerHTML =
+            "<span class=\"profile-readonly-label\">Favorite shows</span><span class=\"profile-readonly-value\">" +
+            escapeHtml(fav) +
+            "</span>";
+          personalBox.appendChild(rowFav);
+          aboutCard.appendChild(personalBox);
           aboutSec.appendChild(aboutCard);
           inner.appendChild(aboutSec);
 
@@ -21954,7 +22431,8 @@
               postCard.appendChild(bodyP);
               postCard.appendChild(time);
               postCard.addEventListener("click", () => {
-                closeCommunityMemberProfile();
+                leaveProfileTab();
+                setTab("community");
                 openCommunityThread(post.tvmazeShowId, post.showName, 0, {});
               });
               postsSec.appendChild(postCard);
@@ -22079,41 +22557,6 @@
             );
           }
 
-          const personalSec = document.createElement("section");
-          personalSec.className = "cmp-profile-section";
-          personalSec.appendChild(cmpProfileSectionTitle("Personal info"));
-          const personalBox = document.createElement("div");
-          personalBox.className = "cmp-profile-personal";
-          const rowAge = document.createElement("div");
-          rowAge.className = "profile-readonly-row";
-          const ageVal =
-            d.age != null && d.age !== "" && Number.isFinite(Number(d.age)) ? String(d.age) : "\u2014";
-          rowAge.innerHTML =
-            "<span class=\"profile-readonly-label\">Age</span><span class=\"profile-readonly-value\">" +
-            escapeHtml(ageVal) +
-            "</span>";
-          personalBox.appendChild(rowAge);
-          const rowSex = document.createElement("div");
-          rowSex.className = "profile-readonly-row";
-          rowSex.innerHTML =
-            "<span class=\"profile-readonly-label\">Sex</span><span class=\"profile-readonly-value\">" +
-            escapeHtml(communityPublicSexLabel(d.sex)) +
-            "</span>";
-          personalBox.appendChild(rowSex);
-          const rowFav = document.createElement("div");
-          rowFav.className = "profile-readonly-row";
-          const favParts = [d.favoriteShow, d.favoriteShow2, d.favoriteShow3]
-            .map((x) => (x != null && String(x).trim() ? String(x).trim() : ""))
-            .filter(Boolean);
-          const fav = favParts.length ? favParts.join(" \u00b7 ") : "\u2014";
-          rowFav.innerHTML =
-            "<span class=\"profile-readonly-label\">Favorite shows</span><span class=\"profile-readonly-value\">" +
-            escapeHtml(fav) +
-            "</span>";
-          personalBox.appendChild(rowFav);
-          personalSec.appendChild(personalBox);
-          inner.appendChild(personalSec);
-
           if (selfId && userId !== selfId) {
             const modSec = document.createElement("section");
             modSec.className = "cmp-profile-section";
@@ -22149,7 +22592,7 @@
 
           body.innerHTML = "";
           body.appendChild(inner);
-          modal.dataset.profileLabel = label;
+          tab.dataset.profileLabel = label;
           await wireCmpProfileQuickActions(userId, label, selfId);
         } catch (e) {
           body.innerHTML = "";
@@ -23537,8 +23980,13 @@
        */
       function resetActiveSectionToRoot(tabName) {
         closeHeaderMenus();
+        if (tabName === "profile") {
+          leaveProfileTab();
+          scrollMainScrollToTop();
+          return;
+        }
         if (tabName === "community") {
-          closeCommunityMemberProfile();
+          leaveProfileTab();
           closeCommunityNewModal();
           closeCommunityEditModal();
           closeCommunityAdminMoveModal();
@@ -23585,7 +24033,8 @@
         }
       }
 
-      const shellLazyMounted = { community: false, messages: false, shows: false, guide: false, tasks: false };
+      const shellLazyMounted = { community: false, messages: false, profile: false, shows: false, guide: false, tasks: false };
+      const profilePageState = { view: "search", userId: null };
 
       function wireFoldTogglesIn(root) {
         const el = root && root.querySelectorAll ? root : document;
@@ -23737,9 +24186,48 @@
         initTasksShellAfterMount();
       }
 
+      function mountShellLazyProfile() {
+        if (shellLazyMounted.profile) return;
+        const tpl = document.getElementById("tpl-shell-tab-profile");
+        const panel = document.getElementById("tab-profile");
+        if (!tpl || !panel) return;
+        panel.appendChild(tpl.content.cloneNode(true));
+        shellLazyMounted.profile = true;
+        initProfileShellAfterMount();
+      }
+
+      function initProfileShellAfterMount() {
+        const root = document.getElementById("tab-profile");
+        if (!root || root.getAttribute("data-aa-profile-wired") === "1") return;
+        root.setAttribute("data-aa-profile-wired", "1");
+        syncProfilePageViews();
+        syncUsernameSearchChrome();
+        document.getElementById("profilePageBackBtn")?.addEventListener("click", () => {
+          goBackFromProfileMemberView();
+        });
+        document.getElementById("profilePageSearchGuestLink")?.addEventListener("click", (e) => {
+          e.preventDefault();
+          openAccountPromptRegisterModal({ entryPoint: "profile_search" });
+        });
+        const inp = document.getElementById("profilePageSearchInput");
+        const wrap = document.getElementById("profilePageSearchWrap");
+        if (inp) {
+          inp.addEventListener("input", () => {
+            scheduleUsernameSearch(inp.value || "");
+          });
+        }
+        if (wrap) {
+          document.addEventListener("click", (e) => {
+            if (!isProfileTabActive() || profilePageState.view !== "search") return;
+            if (!wrap.contains(e.target)) hideUsernameSearchDropdown();
+          });
+        }
+      }
+
       function ensureShellLazyTabMounted(name) {
         if (name === "community") mountShellLazyCommunity();
         else if (name === "messages") mountShellLazyMessages();
+        else if (name === "profile") mountShellLazyProfile();
         else if (name === "shows") mountShellLazyShows();
         else if (name === "guide") mountShellLazyGuide();
         else if (name === "tasks") mountShellLazyTasks();
@@ -23901,6 +24389,7 @@
       }
 
       function initCommunityShellAfterMount() {
+        relocateSocialFabLayers();
         initMentionAutocompleteDeferred();
         initShowSubtabsDeferred();
         setupCommunityCatchUpPanelDeferred();
@@ -24000,12 +24489,18 @@
         });
       }
 
-      function relocateDmFabToOverlayHost() {
-        const fabLayer = document.getElementById("dmFabLayer");
-        const fabMenu = document.getElementById("dmFabMenu");
+      function relocateSocialFabLayers() {
         const host = document.body;
-        if (fabMenu && fabMenu.parentElement !== host) host.appendChild(fabMenu);
-        if (fabLayer && fabLayer.parentElement !== host) host.appendChild(fabLayer);
+        const dmFabLayer = document.getElementById("dmFabLayer");
+        const dmFabMenu = document.getElementById("dmFabMenu");
+        const communityFabLayer = document.querySelector(".community-fab-layer");
+        if (dmFabMenu && dmFabMenu.parentElement !== host) host.appendChild(dmFabMenu);
+        if (dmFabLayer && dmFabLayer.parentElement !== host) host.appendChild(dmFabLayer);
+        if (communityFabLayer && communityFabLayer.parentElement !== host) host.appendChild(communityFabLayer);
+      }
+
+      function relocateDmFabToOverlayHost() {
+        relocateSocialFabLayers();
       }
 
       function initMessagesShellAfterMount() {
@@ -24058,10 +24553,13 @@
         if (prevName === "messages" && name !== "messages") {
           leaveMessagesTab();
         }
+        if (prevName === "profile" && name !== "profile") {
+          leaveProfileTab();
+        }
         closeHeaderMenus();
         closeAppSettingsModal();
         closeAppProfileModal();
-        closeUsernameSearchModal({ skipFocusRestore: true });
+        closeUsernameSearchModal();
         const nextPanel = document.getElementById("tab-" + name);
         if (nextPanel) {
           if (prevPanel && prevPanel !== nextPanel) prevPanel.classList.remove("active");
@@ -24101,7 +24599,12 @@
           const id = resolveUserId();
           if (id) void loadWeekGuide(id);
         }
+        if (name === "profile") {
+          syncUsernameSearchChrome();
+          syncProfilePageViews();
+        }
         if (name === "community") {
+          relocateSocialFabLayers();
           trackAnalyticsEvent("engagement.community_opened", { view: communityState.view }, {
             sourceScreen: "community",
             onceKey: "tab:community",
@@ -24120,10 +24623,13 @@
           disconnectCommunityThreadLiveWs();
         }
         if (name === "messages") {
-          relocateDmFabToOverlayHost();
+          relocateSocialFabLayers();
           if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && hasFullSocialUiAccess(sessionMeSnapshot)) {
             ensureDmWebSocket();
-            void renderDmInboxHub().then(() => syncDmInboxSplitLayout());
+            void renderDmInboxHub().then(() => {
+              syncDmInboxSplitLayout();
+              syncDmFocusWs();
+            });
           } else if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && !hasFullSocialUiAccess(sessionMeSnapshot)) {
             showUnlockSocialToast();
             setTab("add");
@@ -24315,31 +24821,6 @@
           });
         }
       }
-      (function setupUsernameSearch() {
-        const inp = document.getElementById("usernameSearchInput");
-        const wrap = document.getElementById("usernameSearchWrap");
-        if (!inp) return;
-        inp.addEventListener("input", () => {
-          scheduleUsernameSearch(inp.value || "");
-        });
-        if (wrap) {
-          document.addEventListener("click", (e) => {
-            const modal = document.getElementById("usernameSearchModal");
-            if (!modal || modal.hidden) return;
-            if (!wrap.contains(e.target)) hideUsernameSearchDropdown();
-          });
-        }
-        document.addEventListener("keydown", (e) => {
-          if (e.key !== "Escape") return;
-          const modal = document.getElementById("usernameSearchModal");
-          if (!modal || modal.hidden) return;
-          e.preventDefault();
-          closeUsernameSearchModal();
-        });
-      })();
-      document.querySelectorAll("[data-close-username-search-modal]").forEach((el) => {
-        el.addEventListener("click", () => closeUsernameSearchModal());
-      });
       document.querySelectorAll("[data-close-community-modal]").forEach((el) => {
         el.addEventListener("click", () => closeCommunityNewModal());
       });
@@ -24390,9 +24871,7 @@
           }
         }, 320);
       });
-      document.querySelectorAll("[data-close-member-profile]").forEach((el) => {
-        el.addEventListener("click", () => closeCommunityMemberProfile());
-      });
+      document.getElementById("headerProfilesBtn")?.addEventListener("click", () => openProfilePageSearch());
       document.getElementById("headerInboxBtn")?.addEventListener("click", () => void openDmInboxModal());
       let dmCreateGroupMembers = new Map();
       let dmCreateGroupSearchTimer = null;
@@ -24814,13 +25293,6 @@
         }
       }
 
-      document.getElementById("communityMemberProfileDmBtn")?.addEventListener("click", () => {
-        const modal = document.getElementById("communityMemberProfileModal");
-        const id = modal && modal.dataset.profileUserId;
-        const lab = (modal && modal.dataset.profileLabel) || "Member";
-        if (!id) return;
-        void startDirectMessageToUser(id, lab);
-      });
       document.getElementById("communityEditFormatBar")?.addEventListener("click", (e) => {
         const t = e.target.closest(".community-fmt-btn");
         if (!t) return;
@@ -25442,6 +25914,7 @@
         try {
           const u2 = new URL(window.location.href);
           const dmThreadParam = u2.searchParams.get("dmThread");
+          const dmGroupParam = u2.searchParams.get("dmGroup");
           if (dmThreadParam && DM_THREAD_ID_RE.test(dmThreadParam)) {
             void (async () => {
               try {
@@ -25464,6 +25937,31 @@
                 });
               }
               u2.searchParams.delete("dmThread");
+              const qs2 = u2.searchParams.toString();
+              history.replaceState({}, "", u2.pathname + (qs2 ? "?" + qs2 : "") + u2.hash);
+            })();
+          } else if (dmGroupParam && DM_THREAD_ID_RE.test(dmGroupParam)) {
+            void (async () => {
+              try {
+                await openDmInboxModal({ groupId: dmGroupParam });
+                trackAnalyticsEvent("notification.deep_link_success", { destination: "dm_group" }, {
+                  sourceScreen: "notification",
+                  targetType: "dm_group",
+                  targetId: dmGroupParam,
+                  flushSoon: true,
+                });
+              } catch {
+                trackAnalyticsEvent("notification.deep_link_failure", {
+                  destination: "dm_group",
+                  reason: "dm_open_failed",
+                }, {
+                  sourceScreen: "notification",
+                  targetType: "dm_group",
+                  targetId: dmGroupParam,
+                  flushSoon: true,
+                });
+              }
+              u2.searchParams.delete("dmGroup");
               const qs2 = u2.searchParams.toString();
               history.replaceState({}, "", u2.pathname + (qs2 ? "?" + qs2 : "") + u2.hash);
             })();
@@ -26176,9 +26674,8 @@
             else if (log && !log.hidden) showAccountPromptStep("intro");
             return;
           }
-          const cmp = document.getElementById("communityMemberProfileModal");
-          if (cmp && !cmp.hidden) {
-            closeCommunityMemberProfile();
+          if (isProfileTabActive()) {
+            escapeProfilePageChrome();
             return;
           }
           if (isDmMessagesTabActive()) {
@@ -26254,7 +26751,7 @@
           } else if (action === "your-profile") {
             openAppProfileModal();
           } else if (action === "search-username") {
-            openUsernameSearchModal();
+            openProfilePageSearch();
           } else if (action === "sign-out") {
             document.getElementById("signOutAccountBtn")?.click();
           }

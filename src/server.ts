@@ -58,6 +58,7 @@ import {
   getOrCreateDmThread,
   sendDmMessage,
   getDmUnreadTotal,
+  getDmUnreadBreakdown,
   markDmThreadRead,
   markDmThreadUnread,
   deleteDmThreadAsMember,
@@ -7890,7 +7891,8 @@ app.get("/api/dm/unread", async (request, reply) => {
   const uid = sessionRegisteredUserId(request, reply);
   if (!uid) return;
   if (!assertFullSocialAccess(reply, uid)) return;
-  return { total: getDmUnreadTotal(uid) };
+  const breakdown = getDmUnreadBreakdown(uid);
+  return { total: breakdown.total, dms: breakdown.dms, groups: breakdown.groups };
 });
 
 app.get("/api/dm/threads", async (request, reply) => {
