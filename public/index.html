@@ -1289,6 +1289,9 @@
         overflow: hidden;
         flex: 1 1 auto;
         min-height: 0;
+        padding: 0;
+        margin: 0;
+        border-radius: 0;
         background: transparent;
         -webkit-backdrop-filter: none;
         backdrop-filter: none;
@@ -1314,6 +1317,15 @@
         display: flex;
         flex-direction: column;
         min-height: min(78dvh, 40rem);
+        box-sizing: border-box;
+        margin-left: calc(-1 * var(--layout-pad-x));
+        margin-right: calc(-1 * var(--layout-pad-x));
+        width: calc(100% + 2 * var(--layout-pad-x));
+        max-width: 100vw;
+      }
+      #dmInboxListView[hidden],
+      #dmInboxThreadView[hidden] {
+        display: none !important;
       }
       .dm-inbox-panel {
         display: flex;
@@ -1443,12 +1455,12 @@
       }
       #tab-messages .dm-inbox-main > #dmInboxTitle,
       #tab-messages .dm-inbox-hub-tabs {
-        padding-left: 0.85rem;
-        padding-right: 0.85rem;
+        padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+        padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
       }
       #tab-messages .dm-inbox-hub-tabs {
-        margin-left: 0.85rem;
-        margin-right: 0.85rem;
+        margin-left: max(0.75rem, env(safe-area-inset-left, 0px));
+        margin-right: max(0.75rem, env(safe-area-inset-right, 0px));
       }
       
       .dm-compose-view {
@@ -1946,7 +1958,12 @@
       }
       .dm-inbox-thread-view__header {
         flex-shrink: 0;
-        padding: 0.35rem 0.75rem 0.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem 0.5rem;
+        padding: 0.35rem max(0.75rem, env(safe-area-inset-right, 0px)) 0.5rem
+          max(0.75rem, env(safe-area-inset-left, 0px));
         border-bottom: 1px solid rgba(130, 200, 255, 0.1);
       }
       .dm-inbox-thread-view__scroll {
@@ -1958,16 +1975,20 @@
       }
       .dm-inbox-thread-view__composer {
         flex-shrink: 0;
-        position: sticky;
-        bottom: 0;
         z-index: 12;
-        padding: 0.45rem 0.75rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
+        padding: 0.45rem max(0.75rem, env(safe-area-inset-right, 0px))
+          calc(0.55rem + env(safe-area-inset-bottom, 0px)) max(0.75rem, env(safe-area-inset-left, 0px));
         background: linear-gradient(180deg, rgba(4, 8, 22, 0) 0%, rgba(4, 8, 22, 0.92) 28%, rgba(4, 8, 22, 0.98) 100%);
+      }
+      body:has(#tab-messages.tab-panel.active #dmInboxThreadView:not([hidden])) #mainScroll {
+        overflow: hidden;
       }
       #tab-messages.tab-panel.active:has(#dmInboxThreadView:not([hidden])) {
         display: flex;
         flex-direction: column;
-        min-height: min(100dvh, 100vh);
+        flex: 1 1 auto;
+        min-height: 0;
+        height: 100%;
       }
       #tab-messages.tab-panel.active:has(#dmInboxThreadView:not([hidden])) .dm-inbox-panel,
       #tab-messages.tab-panel.active:has(#dmInboxThreadView:not([hidden])) .dm-inbox-page-root,
@@ -2352,7 +2373,28 @@
         resize: vertical;
       }
       .dm-inbox-back {
-        margin-bottom: 0.35rem;
+        flex-shrink: 0;
+        margin: 0;
+        min-width: 44px;
+        min-height: 44px;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+      }
+      .dm-inbox-back svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        flex-shrink: 0;
+      }
+      .dm-inbox-thread-view__header .dm-inbox-dm-header-block,
+      .dm-inbox-thread-view__header .dm-inbox-group-title-btn {
+        flex: 1 1 auto;
+        min-width: 0;
+        margin: 0;
       }
       .dm-message-context-menu {
         position: fixed;
@@ -7110,18 +7152,18 @@
       .dm-fab-layer {
         position: fixed;
         z-index: 45;
-        right: max(20px, env(safe-area-inset-right));
-        bottom: calc(max(20px, env(safe-area-inset-bottom)) + 3.5rem);
+        right: max(20px, env(safe-area-inset-right, 0px));
+        bottom: calc(max(20px, env(safe-area-inset-bottom, 0px)) + 3.5rem);
         width: 3.75rem;
         height: 3.75rem;
         pointer-events: none;
         display: none;
       }
-      #tab-messages.active .dm-fab-layer {
+      body:has(#tab-messages.tab-panel.active) .dm-fab-layer {
         display: block;
       }
-      #tab-messages.active:has(#dmInboxThreadView:not([hidden])) .dm-fab-layer,
-      #tab-messages.active:has(#dmComposeView:not([hidden])) .dm-fab-layer {
+      body:has(#tab-messages.tab-panel.active #dmInboxThreadView:not([hidden])) .dm-fab-layer,
+      body:has(#tab-messages.tab-panel.active #dmComposeView:not([hidden])) .dm-fab-layer {
         display: none !important;
       }
       .dm-fab-layer .dm-fab-plus {
@@ -11615,9 +11657,19 @@
                 </div>
               </div>
             </div>
-            <div id="dmInboxThreadView" class="dm-inbox-thread-view" hidden>
+            <div id="dmInboxThreadView" class="dm-inbox-thread-view dm-inbox-thread-view--dm" hidden>
               <header class="dm-inbox-thread-view__header">
-                <button type="button" class="secondary dm-inbox-back" id="dmInboxBackBtn">← Inbox</button>
+                <button
+                  type="button"
+                  class="secondary dm-inbox-back"
+                  id="dmInboxBackBtn"
+                  aria-label="Back to inbox"
+                  title="Back to inbox"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M15 6l-6 6 6 6"/>
+                  </svg>
+                </button>
                 <div id="dmInboxDmHeaderBlock" class="dm-inbox-dm-header-block" hidden>
                   <div id="dmInboxDmHeaderAvatarHost" aria-hidden="true"></div>
                   <span id="dmInboxDmHeaderName" class="dm-inbox-dm-header-name"></span>
@@ -14883,6 +14935,7 @@
         const tv = document.getElementById("dmInboxThreadView");
         if (list) list.hidden = false;
         if (tv) tv.hidden = true;
+        setDmChatHeaderMode(false);
         syncDmInboxSplitLayout();
         syncDmInboxActiveRowHighlight();
         const err = document.getElementById("dmInboxErr");
@@ -14919,6 +14972,7 @@
         const tv = document.getElementById("dmInboxThreadView");
         if (list) list.hidden = false;
         if (tv) tv.hidden = true;
+        setDmChatHeaderMode(false);
         syncDmInboxComposerForKeyboard();
         await renderDmInboxHub();
         void refreshDmUnread();
@@ -15533,6 +15587,7 @@
           const list = document.getElementById("dmInboxListView");
           if (list) list.hidden = false;
           tv.hidden = true;
+          setDmChatHeaderMode(false);
           syncDmInboxSplitLayout();
           syncDmInboxActiveRowHighlight();
           closeDmGroupSettingsModal();
@@ -23892,7 +23947,17 @@
         });
       }
 
+      function relocateDmFabToOverlayHost() {
+        const host = document.getElementById("aaOverlayHost");
+        const fabLayer = document.getElementById("dmFabLayer");
+        const fabMenu = document.getElementById("dmFabMenu");
+        if (!host) return;
+        if (fabMenu && fabMenu.parentElement !== host) host.appendChild(fabMenu);
+        if (fabLayer && fabLayer.parentElement !== host) host.appendChild(fabLayer);
+      }
+
       function initMessagesShellAfterMount() {
+        relocateDmFabToOverlayHost();
         document.querySelectorAll("#tab-messages .dm-inbox-hub-tab[data-dm-rail]").forEach((btn) => {
           btn.addEventListener("click", () => {
             const f = btn.getAttribute("data-dm-rail");
