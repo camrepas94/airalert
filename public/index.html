@@ -1289,13 +1289,11 @@
         overflow: hidden;
         flex: 1 1 auto;
         min-height: 0;
-        background: rgba(4, 8, 22, 0.08);
-        -webkit-backdrop-filter: blur(14px) saturate(1.28);
-        backdrop-filter: blur(14px) saturate(1.28);
-        border-left-color: rgba(34, 211, 238, 0.65);
-        border-right-color: rgba(232, 121, 249, 0.55);
-        box-shadow: var(--shadow-lift), 0 0 0 1px rgba(255, 255, 255, 0.06) inset, var(--dm-glow-layer),
-          0 12px 36px rgba(0, 0, 0, 0.22);
+        background: transparent;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        border: none;
+        box-shadow: none;
       }
       #tab-messages .dm-inbox-page-root.panel-rail-cyan::before {
         display: none;
@@ -1438,9 +1436,19 @@
         display: flex;
         flex-direction: column;
         min-height: 0;
+        padding: 0;
       }
       #tab-messages .dm-inbox-main {
         background: transparent;
+      }
+      #tab-messages .dm-inbox-main > #dmInboxTitle,
+      #tab-messages .dm-inbox-hub-tabs {
+        padding-left: 0.85rem;
+        padding-right: 0.85rem;
+      }
+      #tab-messages .dm-inbox-hub-tabs {
+        margin-left: 0.85rem;
+        margin-right: 0.85rem;
       }
       
       .dm-compose-view {
@@ -1632,20 +1640,19 @@
         overflow-x: hidden;
         overflow-y: auto;
         overscroll-behavior: contain;
-        padding-right: 0.1rem;
+        padding: 0;
+        margin: 0;
       }
       .dm-inbox-section {
-        margin-bottom: 1rem;
-        padding: 0.55rem 0.6rem 0.5rem;
-        border-radius: 16px;
-        border: 2px solid transparent;
-        background: var(--dm-surface-fill, linear-gradient(165deg, rgba(8, 12, 28, 0.55) 0%, rgba(4, 8, 18, 0.65) 100%)) padding-box,
-          var(--dm-surface-edge, linear-gradient(130deg, rgba(34, 211, 238, 0.45), rgba(91, 156, 255, 0.4), rgba(236, 72, 153, 0.42), rgba(168, 85, 247, 0.38))) border-box;
-        background-clip: padding-box, border-box;
-        box-shadow: var(--dm-glow-layer, 0 4px 20px rgba(0, 0, 0, 0.35));
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
       }
       #tab-messages .dm-inbox-section {
-        box-shadow: var(--dm-glow-layer), 0 8px 32px rgba(0, 0, 0, 0.35);
+        box-shadow: none;
       }
       .dm-inbox-section:last-child {
         margin-bottom: 0.35rem;
@@ -1717,12 +1724,12 @@
       .dm-inbox-thread-list {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0;
         flex: 1 1 auto;
         min-height: 0;
         max-height: none;
         overflow-y: visible;
-        margin: 0.35rem 0 0;
+        margin: 0;
       }
       .dm-inbox-thread-row {
         display: flex;
@@ -1730,36 +1737,45 @@
         gap: 0.5rem;
         width: 100%;
         text-align: left;
-        padding: 0.55rem 0.7rem;
-        border-radius: 12px;
-        border: 2px solid transparent;
-        background: linear-gradient(rgba(6, 10, 24, 0.52), rgba(4, 8, 20, 0.66)) padding-box,
-          var(--dm-surface-edge, linear-gradient(125deg, rgba(91, 156, 255, 0.48), rgba(34, 211, 238, 0.45), rgba(236, 72, 153, 0.5), rgba(168, 85, 247, 0.42))) border-box;
-        background-clip: padding-box, border-box;
+        padding: 0.65rem 0.85rem;
+        border-radius: 0;
+        border: none;
+        border-bottom: 1px solid rgba(130, 200, 255, 0.1);
+        background: transparent;
         color: inherit;
         font: inherit;
         cursor: pointer;
         touch-action: pan-y;
-        box-shadow: var(--dm-glow-layer, none);
+        box-shadow: none;
       }
       #tab-messages .dm-inbox-thread-row {
-        box-shadow: var(--dm-glow-layer), -3px 0 18px -6px rgba(91, 156, 255, 0.28), 3px 0 18px -6px rgba(168, 85, 247, 0.26);
+        box-shadow: none;
       }
       .dm-inbox-thread-row:hover {
-        background: linear-gradient(rgba(12, 16, 36, 0.72), rgba(8, 10, 26, 0.84)) padding-box,
-          var(--dm-surface-edge, linear-gradient(125deg, rgba(91, 156, 255, 0.62), rgba(34, 211, 238, 0.55), rgba(236, 72, 153, 0.58), rgba(168, 85, 247, 0.52))) border-box;
-        background-clip: padding-box, border-box;
-        box-shadow: var(--dm-glow-hover, 0 0 18px rgba(91, 156, 255, 0.25));
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: none;
       }
       .dm-inbox-thread-row--active {
-        border-color: rgba(34, 211, 238, 0.55);
-        background: linear-gradient(145deg, rgba(34, 211, 238, 0.16), rgba(91, 156, 255, 0.08)) padding-box,
-          linear-gradient(125deg, rgba(34, 211, 238, 0.75), rgba(91, 156, 255, 0.55), rgba(236, 72, 153, 0.5), rgba(168, 85, 247, 0.48)) border-box;
-        background-clip: padding-box, border-box;
-        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35) inset, var(--dm-glow-layer, none);
+        background: rgba(34, 211, 238, 0.1);
+        box-shadow: inset 3px 0 0 rgba(34, 211, 238, 0.75);
       }
       #tab-messages .dm-inbox-thread-row--active {
-        box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.38) inset, var(--dm-glow-layer), 0 0 28px -6px rgba(34, 211, 238, 0.45);
+        box-shadow: inset 3px 0 0 rgba(34, 211, 238, 0.85);
+      }
+      .dm-inbox-thread-row-aside {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.28rem;
+        margin-left: 0.35rem;
+      }
+      .dm-inbox-thread-time {
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: rgba(148, 163, 184, 0.88);
+        white-space: nowrap;
+        line-height: 1.2;
       }
       .dm-inbox-thread-row-main {
         display: flex;
@@ -1805,8 +1821,22 @@
         display: flex;
         align-items: center;
         gap: 0.65rem;
-        margin-top: 0.35rem;
+        margin: 0;
         min-width: 0;
+      }
+      .dm-inbox-dm-header-name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: rgba(241, 245, 249, 0.98);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .dm-inbox-thread-view--dm #dmInboxGroupTitleBtn {
+        display: none !important;
+      }
+      .dm-inbox-thread-view--group #dmInboxDmHeaderBlock {
+        display: none !important;
       }
       .dm-inbox-dm-header-block .dm-inbox-thread-avatar-wrap {
         width: 40px;
@@ -1885,45 +1915,95 @@
       }
       .dm-inbox-thread-unread-slot {
         flex-shrink: 0;
-        width: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        align-self: center;
+        min-height: 1.15rem;
       }
-      .dm-inbox-unread-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: radial-gradient(circle at 30% 30%, #fecaca, #f87171 55%, #be123c);
+      .dm-inbox-unread-badge {
+        min-width: 1.15rem;
+        height: 1.15rem;
+        padding: 0 0.32rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #f472b6, #a855f7);
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 700;
+        line-height: 1.15rem;
+        text-align: center;
+        box-shadow: 0 0 12px rgba(236, 72, 153, 0.45);
+      }
+      .dm-inbox-thread-preview--typing {
+        color: rgba(34, 211, 238, 0.95);
+        font-style: italic;
+      }
+      .dm-inbox-thread-view {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        width: 100%;
+      }
+      .dm-inbox-thread-view__header {
         flex-shrink: 0;
-        box-shadow: 0 0 10px rgba(248, 113, 113, 0.65), 0 0 14px rgba(236, 72, 153, 0.45);
+        padding: 0.35rem 0.75rem 0.5rem;
+        border-bottom: 1px solid rgba(130, 200, 255, 0.1);
+      }
+      .dm-inbox-thread-view__scroll {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .dm-inbox-thread-view__composer {
+        flex-shrink: 0;
+        position: sticky;
+        bottom: 0;
+        z-index: 12;
+        padding: 0.45rem 0.75rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
+        background: linear-gradient(180deg, rgba(4, 8, 22, 0) 0%, rgba(4, 8, 22, 0.92) 28%, rgba(4, 8, 22, 0.98) 100%);
+      }
+      #tab-messages.tab-panel.active:has(#dmInboxThreadView:not([hidden])) {
+        display: flex;
+        flex-direction: column;
+        min-height: min(100dvh, 100vh);
+      }
+      #tab-messages.tab-panel.active:has(#dmInboxThreadView:not([hidden])) .dm-inbox-panel,
+      #tab-messages.tab-panel.active:has(#dmInboxThreadView:not([hidden])) .dm-inbox-page-root,
+      #tab-messages.tab-panel.active:has(#dmInboxThreadView:not([hidden])) #dmInboxThreadView {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .dm-inbox-thread-view:not([hidden]) .dm-inbox-messages {
+        padding-bottom: 5.75rem;
       }
       .dm-inbox-messages {
         flex: 1 1 auto;
-        min-height: 10rem;
-        max-height: min(52dvh, 26rem);
+        min-height: 0;
+        max-height: none;
         overflow-y: auto;
         overflow-x: hidden;
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
-        margin: 0.45rem 0;
-        padding: 0.45rem 0.5rem;
-        border-radius: 14px;
-        border: 2px solid transparent;
-        background: linear-gradient(rgba(4, 8, 20, 0.35), rgba(2, 6, 16, 0.48)) padding-box,
-          var(--dm-surface-edge, linear-gradient(130deg, rgba(34, 211, 238, 0.45), rgba(91, 156, 255, 0.38), rgba(236, 72, 153, 0.42), rgba(168, 85, 247, 0.38))) border-box;
-        background-clip: padding-box, border-box;
-        box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.25), var(--dm-glow-layer, none);
+        gap: 0.55rem;
+        margin: 0;
+        padding: 0.65rem 0.75rem 0.35rem;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        -webkit-overflow-scrolling: touch;
       }
       #tab-messages .dm-inbox-messages {
-        box-shadow: inset 0 0 32px rgba(0, 0, 0, 0.35), var(--dm-glow-layer), 0 4px 24px rgba(0, 0, 0, 0.25);
+        box-shadow: none;
       }
       .dm-inbox-bubble {
-        max-width: 90%;
-        padding: 0.45rem 0.65rem;
-        border-radius: 12px;
+        max-width: min(88%, 22rem);
+        padding: 0.5rem 0.7rem;
+        border-radius: 16px;
         font-size: 0.86rem;
         line-height: 1.45;
         word-break: break-word;
@@ -1931,22 +2011,31 @@
       }
       .dm-inbox-bubble.me {
         align-self: flex-end;
-        background: rgba(91, 156, 255, 0.22);
-        border: 1px solid rgba(91, 156, 255, 0.32);
-        box-shadow: 0 0 18px -4px rgba(91, 156, 255, 0.35), 0 0 22px -5px rgba(236, 72, 153, 0.22);
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.55), rgba(236, 72, 153, 0.48));
+        border: 1px solid rgba(232, 121, 249, 0.35);
+        color: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 2px 14px rgba(168, 85, 247, 0.28);
       }
       .dm-inbox-bubble.them {
         align-self: flex-start;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(130, 200, 255, 0.14);
-        box-shadow: 0 0 16px -4px rgba(34, 211, 238, 0.2), 0 0 18px -5px rgba(168, 85, 247, 0.15);
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(91, 156, 255, 0.28));
+        border: 1px solid rgba(34, 211, 238, 0.32);
+        color: rgba(241, 245, 249, 0.98);
+        box-shadow: 0 2px 12px rgba(34, 211, 238, 0.18);
+      }
+      .dm-inbox-msg-time {
+        font-size: 0.68rem;
+        color: rgba(148, 163, 184, 0.88);
+        line-height: 1.2;
+        padding: 0 0.2rem;
       }
       .dm-inbox-msg-wrap {
         display: flex;
         flex-direction: column;
-        gap: 0.12rem;
-        max-width: 92%;
+        gap: 0.2rem;
+        max-width: min(92%, 24rem);
         align-self: flex-start;
+        margin-bottom: 0.1rem;
       }
       .dm-inbox-msg-wrap.is-me {
         align-self: flex-end;
@@ -2115,6 +2204,9 @@
       .dm-inbox-group-msg.is-me .dm-inbox-group-msg-body {
         align-items: flex-end;
       }
+      .dm-inbox-group-msg.is-me .dm-inbox-msg-time {
+        text-align: right;
+      }
       .dm-inbox-group-msg-name {
         font-size: 0.72rem;
         font-weight: 600;
@@ -2236,17 +2328,15 @@
         display: none !important;
       }
       .dm-inbox-compose {
-        margin-top: 0.35rem;
-        padding: 0.55rem 0.6rem 0.45rem;
-        border-radius: 14px;
-        border: 2px solid transparent;
-        background: linear-gradient(rgba(6, 10, 24, 0.55), rgba(4, 8, 18, 0.72)) padding-box,
-          var(--dm-surface-edge, linear-gradient(125deg, rgba(34, 211, 238, 0.5), rgba(91, 156, 255, 0.45), rgba(236, 72, 153, 0.52), rgba(168, 85, 247, 0.45))) border-box;
-        background-clip: padding-box, border-box;
-        box-shadow: var(--dm-glow-layer, 0 8px 24px rgba(0, 0, 0, 0.4));
+        margin: 0;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
       }
       #tab-messages .dm-inbox-compose {
-        box-shadow: var(--dm-glow-layer), 0 12px 40px rgba(0, 0, 0, 0.35);
+        box-shadow: none;
       }
       .dm-inbox-compose textarea {
         width: 100%;
@@ -2263,6 +2353,33 @@
       }
       .dm-inbox-back {
         margin-bottom: 0.35rem;
+      }
+      .dm-message-context-menu {
+        position: fixed;
+        z-index: var(--z-overlay-modals);
+        min-width: 7rem;
+        padding: 0.25rem;
+        border-radius: 10px;
+        border: 1px solid rgba(130, 200, 255, 0.22);
+        background: rgba(10, 14, 28, 0.97);
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+      }
+      .dm-message-context-menu button {
+        display: block;
+        width: 100%;
+        padding: 0.45rem 0.65rem;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        font-size: 0.84rem;
+        text-align: left;
+        cursor: pointer;
+      }
+      .dm-message-context-menu button:hover {
+        background: rgba(248, 113, 113, 0.12);
+        color: #fecaca;
       }
       .header-icon-btn {
         flex-shrink: 0;
@@ -3225,12 +3342,6 @@
         color: var(--text);
         font-weight: 600;
       }
-      .onboarding-mission-strip__hint {
-        margin: 0.4rem 0 0;
-        font-size: 0.84rem;
-        line-height: 1.45;
-        color: rgba(186, 230, 253, 0.92);
-      }
       .onboarding-mission-strip {
         margin: 0 0 1rem;
         padding: 0.85rem 1rem;
@@ -3256,12 +3367,6 @@
         font-weight: 750;
         letter-spacing: -0.02em;
         color: #e0f7fa;
-      }
-      .onboarding-mission-strip__sub {
-        margin: 0;
-        font-size: 0.88rem;
-        line-height: 1.45;
-        color: rgba(226, 242, 255, 0.9);
       }
       .onboarding-mission-strip__cta {
         flex-shrink: 0;
@@ -3703,6 +3808,365 @@
       #tab-tasks #foldTasksCompletedBtn,
       #tab-tasks #foldTasksSkippedBtn {
         margin-top: 0.12rem;
+      }
+      .tasks-header-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.45rem 0.65rem;
+        margin-bottom: 0.45rem;
+      }
+      .tasks-header-tools {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      .tasks-tool-btn {
+        min-height: 36px;
+        padding: 0.28rem 0.55rem;
+        border-radius: 8px;
+        border: 1px solid rgba(130, 200, 255, 0.18);
+        background: rgba(0, 0, 0, 0.35);
+        color: rgba(186, 230, 253, 0.92);
+        font-size: 0.68rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .tasks-tool-btn:hover {
+        border-color: rgba(34, 211, 238, 0.35);
+        background: rgba(34, 211, 238, 0.08);
+      }
+      .tasks-view-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.68rem;
+        color: rgba(148, 163, 184, 0.95);
+        min-height: 36px;
+      }
+      .tasks-view-toggle input {
+        width: 2rem;
+        height: 1.1rem;
+        accent-color: #22d3ee;
+      }
+      .tasks-open-host {
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+      }
+      .tasks-date-section {
+        border-radius: 12px;
+        border: 1px solid rgba(130, 200, 255, 0.1);
+        background: rgba(4, 8, 18, 0.45);
+        overflow: hidden;
+      }
+      .tasks-date-section--today {
+        border-color: rgba(34, 211, 238, 0.35);
+        box-shadow: 0 0 24px -8px rgba(34, 211, 238, 0.45), 0 0 18px -6px rgba(168, 85, 247, 0.25);
+      }
+      .tasks-date-section--overdue {
+        opacity: 0.92;
+      }
+      .tasks-date-section-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        min-height: 44px;
+        padding: 0.5rem 0.65rem;
+        border: none;
+        background: linear-gradient(
+          90deg,
+          rgba(34, 211, 238, 0.18) 0%,
+          rgba(91, 156, 255, 0.14) 35%,
+          rgba(168, 85, 247, 0.16) 70%,
+          rgba(236, 72, 153, 0.14) 100%
+        );
+        color: #f0fdfa;
+        font: inherit;
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .tasks-date-section--overdue .tasks-date-section-toggle {
+        background: linear-gradient(90deg, rgba(100, 116, 139, 0.22), rgba(71, 85, 105, 0.18));
+        color: rgba(226, 232, 240, 0.88);
+      }
+      .tasks-date-section-chev {
+        flex-shrink: 0;
+        font-size: 0.65rem;
+        opacity: 0.85;
+      }
+      .tasks-date-section-count {
+        margin-left: auto;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.12rem 0.45rem;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .tasks-date-section-actions {
+        display: flex;
+        gap: 0.35rem;
+        padding: 0 0.55rem 0.45rem;
+        flex-wrap: wrap;
+      }
+      .tasks-date-section-actions button {
+        font-size: 0.65rem;
+        padding: 0.28rem 0.45rem;
+        min-height: 32px;
+        border-radius: 8px;
+      }
+      .tasks-date-section-body {
+        padding: 0 0.45rem 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+      .tasks-date-section-body[hidden] {
+        display: none !important;
+      }
+      .tasks-show-card {
+        border-radius: 10px;
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        background: rgba(6, 10, 22, 0.72);
+        overflow: hidden;
+      }
+      .tasks-show-card--today {
+        box-shadow: 0 2px 14px -4px rgba(34, 211, 238, 0.35);
+        border-color: rgba(34, 211, 238, 0.28);
+      }
+      .tasks-show-card--overdue {
+        filter: saturate(0.78);
+        opacity: 0.9;
+      }
+      .tasks-show-head {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        min-height: 44px;
+        padding: 0.4rem 0.5rem;
+        border: none;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .tasks-show-poster {
+        width: 40px;
+        height: 56px;
+        border-radius: 6px;
+        object-fit: cover;
+        flex-shrink: 0;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(130, 200, 255, 0.15);
+      }
+      .tasks-show-poster-ph {
+        width: 40px;
+        height: 56px;
+        border-radius: 6px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 800;
+        color: rgba(186, 230, 253, 0.5);
+        background: linear-gradient(145deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.1));
+        border: 1px solid rgba(130, 200, 255, 0.12);
+      }
+      .tasks-show-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .tasks-show-title {
+        display: block;
+        font-size: 0.88rem;
+        font-weight: 700;
+        line-height: 1.25;
+        color: #f8fafc;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .tasks-show-sub {
+        display: block;
+        font-size: 0.72rem;
+        color: rgba(148, 163, 184, 0.95);
+        margin-top: 0.12rem;
+      }
+      .tasks-show-progress-wrap {
+        margin-top: 0.35rem;
+        height: 3px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+      }
+      .tasks-show-progress-bar {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #22d3ee, #a855f7, #ec4899);
+        box-shadow: 0 0 10px rgba(34, 211, 238, 0.45);
+        transition: width 0.25s ease;
+      }
+      .tasks-show-chev {
+        flex-shrink: 0;
+        font-size: 0.65rem;
+        color: rgba(148, 163, 184, 0.9);
+      }
+      .tasks-show-batch {
+        display: flex;
+        gap: 0.3rem;
+        padding: 0 0.45rem 0.4rem;
+        flex-wrap: wrap;
+      }
+      .tasks-show-batch button {
+        font-size: 0.64rem;
+        padding: 0.22rem 0.4rem;
+        min-height: 30px;
+        border-radius: 7px;
+      }
+      .tasks-show-eps {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 0.25rem 0.35rem 0.35rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+      .tasks-show-eps[hidden] {
+        display: none !important;
+      }
+      .tasks-ep-row {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 0.28rem;
+        padding: 0.38rem 0.4rem;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        touch-action: pan-y;
+        transition: transform 0.15s ease, background 0.15s ease;
+      }
+      .tasks-ep-row--today {
+        border-color: rgba(34, 211, 238, 0.25);
+        background: rgba(34, 211, 238, 0.06);
+      }
+      .tasks-ep-row--overdue {
+        border-color: rgba(248, 113, 113, 0.15);
+      }
+      .tasks-ep-row.swipe-hint-watched {
+        background: rgba(34, 197, 94, 0.12);
+      }
+      .tasks-ep-row.swipe-hint-skipped {
+        background: rgba(248, 113, 113, 0.1);
+      }
+      .tasks-ep-line {
+        font-size: 0.8rem;
+        font-weight: 600;
+        line-height: 1.3;
+        color: rgba(241, 245, 249, 0.96);
+      }
+      .tasks-ep-air {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #2dd4bf;
+      }
+      .tasks-ep-row--overdue .tasks-ep-air {
+        color: rgba(248, 113, 113, 0.9);
+      }
+      .tasks-ep-badge {
+        display: inline-block;
+        margin-left: 0.35rem;
+        padding: 0.08rem 0.35rem;
+        border-radius: 999px;
+        font-size: 0.58rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        background: rgba(34, 211, 238, 0.2);
+        border: 1px solid rgba(34, 211, 238, 0.4);
+        color: #a5f3fc;
+        vertical-align: middle;
+      }
+      .tasks-ep-nudge {
+        position: absolute;
+        top: 0.35rem;
+        right: 0.35rem;
+        width: 1.1rem;
+        height: 1.1rem;
+        border-radius: 50%;
+        border: 1px solid rgba(251, 191, 36, 0.45);
+        background: rgba(251, 191, 36, 0.2);
+        color: #fde68a;
+        font-size: 0.62rem;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: help;
+      }
+      .tasks-ep-actions {
+        display: flex;
+        gap: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(130, 200, 255, 0.15);
+      }
+      .tasks-ep-actions button {
+        flex: 1 1 0;
+        min-height: 36px;
+        padding: 0.3rem 0.35rem;
+        border: none;
+        border-radius: 0;
+        background: rgba(8, 12, 24, 0.9);
+        color: rgba(226, 242, 255, 0.92);
+        font-size: 0.68rem;
+        font-weight: 650;
+        cursor: pointer;
+      }
+      .tasks-ep-actions button + button {
+        border-left: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .tasks-ep-actions button[data-action="watched"]:hover {
+        background: rgba(34, 197, 94, 0.2);
+      }
+      .tasks-ep-actions button[data-action="skipped"]:hover {
+        background: rgba(248, 113, 113, 0.15);
+      }
+      @media (min-width: 720px) {
+        .tasks-ep-actions--icons button {
+          flex: 0 0 auto;
+          min-width: 44px;
+          font-size: 0;
+        }
+        .tasks-ep-actions--icons button[data-action="watched"]::before {
+          content: "✓";
+          font-size: 1rem;
+        }
+        .tasks-ep-actions--icons button[data-action="skipped"]::before {
+          content: "✕";
+          font-size: 0.95rem;
+        }
+      }
+      #tab-tasks.tasks-tab--compact .tasks-show-eps {
+        display: none !important;
+      }
+      #tab-tasks.tasks-tab--compact .tasks-show-card.is-expanded .tasks-show-eps {
+        display: flex !important;
+      }
+      #tab-tasks.tasks-tab--compact .tasks-show-sub--detail {
+        display: none;
       }
       .task-body {
         flex: 1;
@@ -6643,8 +7107,34 @@
       .app-fab.open svg {
         transform: rotate(45deg);
       }
-      #tab-messages.active .dm-fab-plus {
-        display: flex;
+      .dm-fab-layer {
+        position: fixed;
+        z-index: 45;
+        right: max(20px, env(safe-area-inset-right));
+        bottom: calc(max(20px, env(safe-area-inset-bottom)) + 3.5rem);
+        width: 3.75rem;
+        height: 3.75rem;
+        pointer-events: none;
+        display: none;
+      }
+      #tab-messages.active .dm-fab-layer {
+        display: block;
+      }
+      #tab-messages.active:has(#dmInboxThreadView:not([hidden])) .dm-fab-layer,
+      #tab-messages.active:has(#dmComposeView:not([hidden])) .dm-fab-layer {
+        display: none !important;
+      }
+      .dm-fab-layer .dm-fab-plus {
+        pointer-events: auto;
+        position: relative;
+        display: flex !important;
+        inset: auto;
+        bottom: auto;
+        right: auto;
+        left: auto;
+        top: auto;
+        width: 100%;
+        height: 100%;
       }
       /**
        * Community + FAB: must sit outside `.community-root` (see template). That section uses
@@ -7824,9 +8314,6 @@
         font-size: 0.82rem;
         padding: 0.45rem 0.75rem;
       }
-      .community-member-profile-inner {
-        margin: 0 0 1rem;
-      }
       .community-member-profile-hero {
         display: flex;
         align-items: flex-start;
@@ -8068,6 +8555,392 @@
         font-size: 0.68rem;
         color: rgba(148, 163, 184, 0.95);
         margin-top: 0.15rem;
+      }
+      /* ── Member profile (reorganized layout) ── */
+      .community-member-profile-inner {
+        margin: 0;
+        padding: 0 0 1.25rem;
+      }
+      .cmp-profile-section {
+        margin-bottom: 1.5rem;
+      }
+      .cmp-profile-section-title {
+        margin: 0 0 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: rgba(148, 163, 184, 0.95);
+      }
+      .cmp-profile-hero {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem 0.85rem;
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.14) 0%, rgba(168, 85, 247, 0.12) 55%, rgba(236, 72, 153, 0.08) 100%);
+        border: 1px solid rgba(130, 200, 255, 0.12);
+      }
+      .community-member-profile-avatar-lg {
+        width: 80px;
+        height: 80px;
+      }
+      .community-member-profile-avatar-ph-lg {
+        width: 80px;
+        height: 80px;
+        font-size: 1.65rem;
+      }
+      .cmp-profile-hero-text {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+      .cmp-profile-display-name {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+        color: #f8fafc;
+      }
+      .cmp-profile-username {
+        margin: 0;
+        font-size: 0.875rem;
+        color: rgba(186, 230, 253, 0.88);
+      }
+      .cmp-profile-member-since {
+        margin: 0.15rem 0 0;
+        font-size: 0.78rem;
+        color: rgba(148, 163, 184, 0.9);
+      }
+      .cmp-profile-quick-actions {
+        margin-bottom: 1.5rem;
+      }
+      .cmp-profile-action-row {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .cmp-profile-action-row .community-profile-follow-btn,
+      .cmp-profile-action-row .cmp-profile-dm-btn {
+        flex: 1 1 0;
+        min-height: 44px;
+        padding: 0.65rem 1rem;
+        border-radius: 12px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        touch-action: manipulation;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      }
+      .cmp-profile-action-row .community-profile-follow-btn {
+        border: 1px solid rgba(34, 211, 238, 0.45);
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(91, 156, 255, 0.28));
+        color: #ecfeff;
+        box-shadow: 0 4px 18px rgba(34, 211, 238, 0.2);
+      }
+      .cmp-profile-action-row .community-profile-follow-btn:hover:not(:disabled) {
+        transform: scale(1.02);
+      }
+      .cmp-profile-action-row .community-profile-follow-btn.following {
+        background: rgba(34, 211, 238, 0.12);
+        border-color: rgba(34, 211, 238, 0.35);
+      }
+      .cmp-profile-dm-btn {
+        border: 1px solid rgba(130, 200, 255, 0.28);
+        background: transparent;
+        color: rgba(226, 242, 255, 0.95);
+      }
+      .cmp-profile-dm-btn:hover:not(:disabled) {
+        transform: scale(1.02);
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .cmp-profile-follow-counts {
+        margin: 0;
+        font-size: 0.8rem;
+        color: rgba(148, 163, 184, 0.95);
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+      }
+      .cmp-profile-follow-counts svg {
+        width: 0.9rem;
+        height: 0.9rem;
+        opacity: 0.75;
+      }
+      .cmp-profile-about-card {
+        padding: 1rem;
+        border-radius: 12px;
+        background: rgba(8, 12, 28, 0.55);
+        border: 1px solid rgba(130, 200, 255, 0.12);
+      }
+      .cmp-profile-about-text {
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: rgba(241, 245, 249, 0.96);
+      }
+      .cmp-profile-about-empty {
+        color: rgba(148, 163, 184, 0.75);
+        font-style: italic;
+      }
+      .cmp-profile-compat-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        background: rgba(8, 12, 28, 0.5);
+        border: 1px solid rgba(130, 200, 255, 0.12);
+      }
+      .cmp-profile-compat-ring {
+        position: relative;
+        flex-shrink: 0;
+        width: 96px;
+        height: 96px;
+      }
+      .cmp-profile-compat-ring svg {
+        display: block;
+      }
+      .cmp-profile-compat-pct {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #f0fdfa;
+      }
+      .cmp-profile-compat-copy {
+        flex: 1;
+        min-width: 0;
+      }
+      .cmp-profile-compat-headline {
+        margin: 0 0 0.35rem;
+        font-size: 0.92rem;
+        line-height: 1.4;
+        color: rgba(226, 242, 255, 0.95);
+      }
+      .cmp-profile-compat-sub {
+        margin: 0;
+        font-size: 0.8rem;
+        color: rgba(148, 163, 184, 0.95);
+        line-height: 1.4;
+      }
+      .cmp-profile-compat-toggle {
+        margin-top: 0.45rem;
+        padding: 0;
+        border: none;
+        background: none;
+        color: rgba(34, 211, 238, 0.95);
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .cmp-profile-compat-detail {
+        margin: 0.5rem 0 0;
+        font-size: 0.78rem;
+        color: rgba(186, 230, 253, 0.88);
+        line-height: 1.45;
+      }
+      .cmp-profile-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+      }
+      .cmp-profile-stats-grid .community-profile-stat-card {
+        padding: 0.45rem 0.5rem;
+      }
+      .cmp-profile-stats-grid .community-profile-stat-value {
+        font-size: 1.1rem;
+      }
+      .cmp-profile-genre-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+      }
+      .cmp-profile-genre-row .community-profile-genre-pill {
+        padding: 0.3rem 0.65rem;
+        font-size: 0.8rem;
+      }
+      .cmp-profile-post-card {
+        display: block;
+        width: 100%;
+        margin-bottom: 0.5rem;
+        padding: 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        background: rgba(8, 12, 28, 0.55);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+        text-align: left;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        touch-action: manipulation;
+        transition: border-color 0.15s ease, background 0.15s ease;
+      }
+      .cmp-profile-post-card:hover {
+        border-color: rgba(34, 211, 238, 0.28);
+        background: rgba(12, 18, 36, 0.72);
+      }
+      .cmp-profile-post-badge {
+        display: inline-block;
+        margin-bottom: 0.45rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        background: rgba(34, 211, 238, 0.15);
+        border: 1px solid rgba(34, 211, 238, 0.3);
+        color: #a5f3fc;
+      }
+      .cmp-profile-post-body {
+        margin: 0 0 0.35rem;
+        font-size: 0.88rem;
+        line-height: 1.45;
+        color: rgba(226, 242, 255, 0.92);
+      }
+      .cmp-profile-post-time {
+        font-size: 0.72rem;
+        color: rgba(148, 163, 184, 0.9);
+      }
+      .cmp-profile-post-read-more {
+        color: rgba(34, 211, 238, 0.95);
+        font-weight: 600;
+      }
+      .cmp-profile-watching-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+      }
+      .cmp-profile-watching-tile {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        background: rgba(6, 10, 24, 0.65);
+        min-height: 7.5rem;
+      }
+      .cmp-profile-watching-tile img {
+        width: 100%;
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+        display: block;
+        background: rgba(0, 0, 0, 0.35);
+      }
+      .cmp-profile-watching-tile-ph {
+        width: 100%;
+        aspect-ratio: 2 / 3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: rgba(186, 230, 253, 0.5);
+        background: linear-gradient(145deg, rgba(34, 211, 238, 0.12), rgba(91, 156, 255, 0.08));
+      }
+      .cmp-profile-watching-overlay {
+        padding: 0.4rem 0.45rem;
+        background: linear-gradient(180deg, transparent, rgba(4, 8, 18, 0.92));
+      }
+      .cmp-profile-watching-title {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 700;
+        line-height: 1.25;
+        color: #f8fafc;
+      }
+      .cmp-profile-watching-ep {
+        display: block;
+        font-size: 0.68rem;
+        color: rgba(186, 230, 253, 0.85);
+        margin-top: 0.1rem;
+        line-height: 1.3;
+      }
+      .cmp-profile-expand-btn {
+        display: block;
+        width: 100%;
+        margin-top: 0.5rem;
+        min-height: 44px;
+        padding: 0.5rem;
+        border-radius: 10px;
+        border: 1px dashed rgba(130, 200, 255, 0.22);
+        background: transparent;
+        color: rgba(34, 211, 238, 0.95);
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .cmp-profile-collapse-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        width: 100%;
+        min-height: 44px;
+        padding: 0.45rem 0;
+        border: none;
+        background: transparent;
+        color: rgba(224, 242, 254, 0.95);
+        font-size: 0.82rem;
+        font-weight: 650;
+        cursor: pointer;
+        text-align: left;
+      }
+      .cmp-profile-chevron {
+        font-size: 0.7rem;
+        color: rgba(148, 163, 184, 0.9);
+        width: 1rem;
+        flex-shrink: 0;
+      }
+      .cmp-profile-collapse-panel {
+        overflow: hidden;
+        transition: max-height 0.2s ease, opacity 0.2s ease;
+      }
+      .cmp-profile-collapse-panel[hidden] {
+        display: none !important;
+      }
+      .cmp-profile-personal {
+        padding: 0.75rem 0.85rem;
+        border-radius: 10px;
+        border: 1px solid rgba(130, 200, 255, 0.08);
+        background: rgba(6, 10, 20, 0.4);
+      }
+      .cmp-profile-personal .profile-readonly-row {
+        margin-top: 0.35rem;
+      }
+      .cmp-profile-personal .profile-readonly-row:first-child {
+        margin-top: 0;
+      }
+      .cmp-profile-moderation {
+        display: flex;
+        gap: 0.45rem;
+        flex-wrap: wrap;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .cmp-profile-moderation button {
+        min-height: 44px;
+        font-size: 0.8rem;
+        opacity: 0.85;
+      }
+      .cmp-profile-empty {
+        margin: 0;
+        font-size: 0.86rem;
+        color: rgba(148, 163, 184, 0.8);
+        font-style: italic;
       }
       .community-edited-line {
         font-size: 0.75rem;
@@ -10121,12 +10994,6 @@
             <div class="onboarding-mission-strip__top">
               <div class="onboarding-mission-strip__copy">
                 <p class="onboarding-mission-strip__title" id="onboardingMissionTitle">Your first mission: Add 3 shows</p>
-                <p class="onboarding-mission-strip__sub">
-                  Unlock <strong>Community</strong> + <strong>Inbox</strong> — add three shows you actually care about.
-                </p>
-                <p class="onboarding-mission-strip__sub muted" id="onboardingMissionGuestNote" hidden style="margin-top: 0.35rem">
-                  Create an account (Account menu, top right → Create account) to sync your list across devices.
-                </p>
               </div>
               <button type="button" class="onboarding-mission-strip__cta" id="onboardingMissionAddShowsBtn">
                 Add Shows
@@ -10142,7 +11009,6 @@
             >
               <div class="onboarding-mission-progress__fill" id="onboardingMissionProgressFill" style="width: 0%"></div>
             </div>
-            <p class="onboarding-mission-strip__hint muted" id="onboardingMissionHint" hidden></p>
             <p class="onboarding-mission-strip__count" id="onboardingMissionCount">0 of 3 shows added</p>
             <button type="button" class="onboarding-mission-strip__dismiss" id="onboardingMissionDismissBtn">
               Dismiss
@@ -10354,7 +11220,17 @@
       <template id="tpl-shell-tab-tasks">
         <div class="app-shell-mounted" data-app-shell-mounted="tasks">
         <section class="panel-rail-magenta tasks-checklist-section" aria-label="Watch checklist">
-          <h2 class="tasks-checklist-heading app-section-heading">Watch checklist</h2>
+          <div class="tasks-header-row">
+            <h2 class="tasks-checklist-heading app-section-heading">Watch checklist</h2>
+            <div class="tasks-header-tools">
+              <button type="button" class="tasks-tool-btn" id="tasksExpandAllBtn" title="Expand all shows">Expand all</button>
+              <button type="button" class="tasks-tool-btn" id="tasksCollapseAllBtn" title="Collapse all shows">Collapse all</button>
+              <label class="tasks-view-toggle">
+                <span class="tasks-view-toggle-label">Compact</span>
+                <input type="checkbox" id="tasksCompactToggle" aria-label="Compact view" />
+              </label>
+            </div>
+          </div>
           <div class="tasks-stats-section" id="tasksStatsSection" aria-live="polite">
             <div class="tasks-stats-grid">
               <div class="tasks-stat-card">
@@ -10375,7 +11251,7 @@
               </div>
             </div>
           </div>
-          <ul class="tasks-list" id="tasksList"></ul>
+          <div id="tasksOpenHost" class="tasks-open-host" aria-live="polite"></div>
           <p class="muted tasks-open-empty" id="tasksOpenEmpty" hidden>All caught up. Open <strong>Watched</strong> or <strong>Not watching</strong> below.</p>
           <p class="muted" id="tasksEmpty" style="display: none">No tasks yet. After a subscribed show has an episode on today’s date, it will show up here.</p>
           <div id="tasksCompletedFoldWrap" class="tasks-fold-block">
@@ -10739,36 +11615,37 @@
                 </div>
               </div>
             </div>
-            <div id="dmInboxThreadView" hidden>
-              <button type="button" class="secondary dm-inbox-back" id="dmInboxBackBtn">← Inbox</button>
-              <div id="dmInboxDmHeaderBlock" class="dm-inbox-dm-header-block" hidden>
-                <div id="dmInboxDmHeaderAvatarHost" aria-hidden="true"></div>
-                <h3
-                  id="dmInboxThreadTitleDm"
-                  class="section-header-highlight header-cyan-glow dm-inbox-chat-heading dm-inbox-thread-title-inline"
+            <div id="dmInboxThreadView" class="dm-inbox-thread-view" hidden>
+              <header class="dm-inbox-thread-view__header">
+                <button type="button" class="secondary dm-inbox-back" id="dmInboxBackBtn">← Inbox</button>
+                <div id="dmInboxDmHeaderBlock" class="dm-inbox-dm-header-block" hidden>
+                  <div id="dmInboxDmHeaderAvatarHost" aria-hidden="true"></div>
+                  <span id="dmInboxDmHeaderName" class="dm-inbox-dm-header-name"></span>
+                </div>
+                <button
+                  type="button"
+                  id="dmInboxGroupTitleBtn"
+                  class="dm-inbox-group-title-btn"
+                  hidden
+                  aria-label="Group details and settings"
                 >
-                  <span class="app-section-heading">Chat</span>
-                </h3>
+                  <span class="dm-inbox-group-header-avatar-wrap" aria-hidden="true">
+                    <img id="dmInboxGroupHeaderAvatar" class="dm-inbox-group-header-avatar" alt="" width="36" height="36" hidden decoding="async" />
+                    <span id="dmInboxGroupHeaderAvatarFb" class="dm-inbox-group-header-avatar-fb">G</span>
+                  </span>
+                  <span id="dmInboxThreadTitleGroup" class="section-header-highlight header-cyan-glow dm-inbox-group-title-text"><span class="app-section-heading">Group</span></span>
+                </button>
+              </header>
+              <div class="dm-inbox-thread-view__scroll">
+                <div id="dmInboxMessages" class="dm-inbox-messages"></div>
+                <p id="dmInboxTypingRow" class="dm-inbox-typing-row" hidden aria-live="polite"></p>
               </div>
-              <button
-                type="button"
-                id="dmInboxGroupTitleBtn"
-                class="dm-inbox-group-title-btn"
-                hidden
-                aria-label="Group details and settings"
-              >
-                <span class="dm-inbox-group-header-avatar-wrap" aria-hidden="true">
-                  <img id="dmInboxGroupHeaderAvatar" class="dm-inbox-group-header-avatar" alt="" width="36" height="36" hidden decoding="async" />
-                  <span id="dmInboxGroupHeaderAvatarFb" class="dm-inbox-group-header-avatar-fb">G</span>
-                </span>
-                <span id="dmInboxThreadTitleGroup" class="section-header-highlight header-cyan-glow dm-inbox-group-title-text"><span class="app-section-heading">Group</span></span>
-              </button>
-              <div id="dmInboxMessages" class="dm-inbox-messages"></div>
-              <p id="dmInboxTypingRow" class="dm-inbox-typing-row" hidden aria-live="polite"></p>
-              <div class="dm-inbox-compose">
-                <textarea id="dmInboxInput" rows="2" maxlength="4000" placeholder="Write a message…"></textarea>
-                <button type="button" id="dmInboxSendBtn">Send</button>
-              </div>
+              <footer class="dm-inbox-thread-view__composer" id="dmInboxComposerHost">
+                <div class="dm-inbox-compose">
+                  <textarea id="dmInboxInput" rows="2" maxlength="4000" placeholder="Write a message…" enterkeyhint="send"></textarea>
+                  <button type="button" id="dmInboxSendBtn">Send</button>
+                </div>
+              </footer>
             </div>
             <p class="err" id="dmInboxErr" style="display: none; margin-top: 0.5rem"></p>
           </div>
@@ -10789,11 +11666,13 @@
             Create Group
           </button>
         </div>
-        <button type="button" class="app-fab dm-fab-plus" id="dmComposeBtn" title="New message">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-        </button>
+        <div class="dm-fab-layer" id="dmFabLayer" aria-hidden="true">
+          <button type="button" class="app-fab dm-fab-plus" id="dmComposeBtn" title="New message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+        </div>
       </template>
       <div
         id="tab-messages"
@@ -10906,13 +11785,6 @@
           </div>
           <div class="community-member-profile-scroll">
             <div id="communityMemberProfileBody" class="community-member-profile-body"></div>
-            <div class="community-profile-follow-bar" id="communityProfileFollowBar" hidden>
-              <button type="button" class="community-profile-follow-btn" id="communityProfileFollowBtn">Follow</button>
-              <span class="community-profile-follow-stats" id="communityProfileFollowStats"></span>
-            </div>
-            <button type="button" id="communityMemberProfileDmBtn" class="secondary" style="margin-top: 0.45rem; width: 100%">
-              Direct message
-            </button>
             <p class="muted" id="communityMemberProfileDmHint" hidden style="margin-top: 0.45rem; font-size: 0.82rem; line-height: 1.4">
               Create an account (Account menu, top right → Create account) to send direct messages.
             </p>
@@ -11813,9 +12685,7 @@
         const strip = document.getElementById("onboardingMissionStrip");
         const fill = document.getElementById("onboardingMissionProgressFill");
         const countEl = document.getElementById("onboardingMissionCount");
-        const hintEl = document.getElementById("onboardingMissionHint");
         const bar = document.getElementById("onboardingMissionProgress");
-        const guestNote = document.getElementById("onboardingMissionGuestNote");
         if (!strip || !fill || !countEl || !bar) return;
         const show =
           me &&
@@ -11824,7 +12694,6 @@
           isLowShowUser(me) &&
           !isOnboardingStripDismissed(me.id);
         strip.hidden = !show;
-        if (guestNote) guestNote.hidden = !show || accountIsRegistered(me);
         if (!show) return;
         const n = Math.min(ACTIVATION_MIN_SHOWS, Math.max(0, Number(me.subscribedShowCount) || 0));
         const titleMission = document.getElementById("onboardingMissionTitle");
@@ -11837,19 +12706,6 @@
         bar.setAttribute("aria-valuemax", String(ACTIVATION_MIN_SHOWS));
         bar.setAttribute("aria-valuenow", String(n));
         countEl.textContent = n + " of " + ACTIVATION_MIN_SHOWS + " shows added";
-        if (hintEl) {
-          const left = ACTIVATION_MIN_SHOWS - n;
-          if (left <= 0) {
-            hintEl.textContent = "";
-            hintEl.hidden = true;
-          } else {
-            hintEl.hidden = false;
-            hintEl.textContent =
-              left === 1
-                ? "Add 1 more show to unlock Community + Inbox."
-                : "Add " + left + " more shows to unlock Community + Inbox.";
-          }
-        }
       }
 
       function updateContextualTipsVisibility(_activeTab) {
@@ -13024,6 +13880,503 @@
         }
       }
 
+      const TASKS_SECTION_ORDER = ["today", "tomorrow", "this_week", "recent", "overdue"];
+      const TASKS_SECTION_META = {
+        today: { label: "Today", defaultOpen: true },
+        tomorrow: { label: "Tomorrow", defaultOpen: false },
+        this_week: { label: "This Week", defaultOpen: false },
+        recent: { label: "Recently Aired", defaultOpen: false },
+        overdue: { label: "Overdue", defaultOpen: false },
+      };
+      const tasksState = {
+        userId: null,
+        tasks: [],
+        compact: false,
+        showExpanded: new Set(),
+      };
+
+      function tasksSectionStorageKey(sectionId) {
+        return "tasks-section-" + sectionId;
+      }
+
+      function tasksShowStorageKey(showKey) {
+        return "tasks-show-" + showKey;
+      }
+
+      function isTasksCompactView() {
+        return tasksState.compact;
+      }
+
+      function syncTasksCompactClass() {
+        const tab = document.getElementById("tab-tasks");
+        if (tab) tab.classList.toggle("tasks-tab--compact", tasksState.compact);
+        const toggle = document.getElementById("tasksCompactToggle");
+        if (toggle) toggle.checked = tasksState.compact;
+      }
+
+      function taskUrgencyBucket(airdate) {
+        const today = localCalendarTodayYmd();
+        const ad = String(airdate || "").slice(0, 10);
+        if (!ad) return "recent";
+        if (ad === today) return "today";
+        const tomorrow = calendarDatePlusDaysClient(today, 1);
+        if (ad === tomorrow) return "tomorrow";
+        if (ad > tomorrow) return "this_week";
+        const recentCutoff = calendarDatePlusDaysClient(today, -7);
+        if (ad < recentCutoff) return "overdue";
+        return "recent";
+      }
+
+      function formatTaskAirLabel(airdate) {
+        const ad = String(airdate || "").slice(0, 10);
+        const today = localCalendarTodayYmd();
+        if (ad === today) return "Today";
+        const tomorrow = calendarDatePlusDaysClient(today, 1);
+        if (ad === tomorrow) return "Tomorrow";
+        try {
+          return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(
+            new Date(ad + "T12:00:00"),
+          );
+        } catch {
+          return ad;
+        }
+      }
+
+      function showProgressForKey(showKey, allTasks) {
+        const showTasks = allTasks.filter((t) => taskShowKey(t) === showKey);
+        const watched = showTasks.filter((t) => t.completedAt).length;
+        const open = showTasks.filter((t) => !t.completedAt && !t.dismissedAt).length;
+        const total = watched + open;
+        return { watched, open, total, pct: total ? Math.round((watched / total) * 100) : 0 };
+      }
+
+      function groupOpenTasksByShow(openTasks) {
+        const map = new Map();
+        for (const t of openTasks) {
+          const k = taskShowKey(t);
+          if (!map.has(k)) map.set(k, []);
+          map.get(k).push(t);
+        }
+        for (const arr of map.values()) {
+          arr.sort((a, b) => (b.airdate || "").localeCompare(a.airdate || "") || (a.episodeLabel || "").localeCompare(b.episodeLabel || ""));
+        }
+        return map;
+      }
+
+      function bindTaskEpisodeSwipe(row, userId, t, onDone) {
+        let startX = 0;
+        let startY = 0;
+        let tracking = false;
+        row.addEventListener(
+          "touchstart",
+          (e) => {
+            if (e.touches.length !== 1) return;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            tracking = true;
+            row.classList.remove("swipe-hint-watched", "swipe-hint-skipped");
+          },
+          { passive: true },
+        );
+        row.addEventListener(
+          "touchmove",
+          (e) => {
+            if (!tracking || e.touches.length !== 1) return;
+            const dx = e.touches[0].clientX - startX;
+            const dy = e.touches[0].clientY - startY;
+            if (Math.abs(dy) > Math.abs(dx)) return;
+            row.classList.toggle("swipe-hint-watched", dx > 48);
+            row.classList.toggle("swipe-hint-skipped", dx < -48);
+          },
+          { passive: true },
+        );
+        const end = async () => {
+          if (!tracking) return;
+          tracking = false;
+          const dx = row._lastDx || 0;
+          delete row._lastDx;
+          row.classList.remove("swipe-hint-watched", "swipe-hint-skipped");
+          if (dx > 72) {
+            try {
+              await patchWatchTaskAfterUi(userId, t.id, t, { status: "watched" });
+              onDone && onDone("watched");
+            } catch (err) {
+              showToast(err.message || "Could not update");
+            }
+          } else if (dx < -72) {
+            try {
+              await patchWatchTaskAfterUi(userId, t.id, t, { status: "skipped" });
+              onDone && onDone("skipped");
+            } catch (err) {
+              showToast(err.message || "Could not update");
+            }
+          }
+        };
+        row.addEventListener(
+          "touchend",
+          (e) => {
+            if (e.changedTouches[0]) row._lastDx = e.changedTouches[0].clientX - startX;
+            void end();
+          },
+          { passive: true },
+        );
+        row.addEventListener("touchcancel", () => void end(), { passive: true });
+      }
+
+      function createTaskEpisodeRow(userId, t, ctx) {
+        const row = document.createElement("div");
+        row.className = "tasks-ep-row";
+        row.dataset.taskId = t.id;
+        row.dataset.airdate = t.airdate || "";
+        const bucket = taskUrgencyBucket(t.airdate);
+        if (bucket === "today") row.classList.add("tasks-ep-row--today");
+        if (bucket === "overdue" || bucket === "recent") row.classList.add("tasks-ep-row--overdue");
+
+        if (t.nudgeSentAt) {
+          const nudge = document.createElement("span");
+          nudge.className = "tasks-ep-nudge";
+          nudge.textContent = "!";
+          nudge.title = "Reminder sent";
+          nudge.setAttribute("aria-label", "Nudge sent");
+          row.appendChild(nudge);
+        }
+
+        const line = document.createElement("div");
+        line.className = "tasks-ep-line";
+        line.textContent = t.episodeLabel || "Episode";
+        const air = document.createElement("div");
+        air.className = "tasks-ep-air";
+        let airText = formatTaskAirLabel(t.airdate);
+        if (bucket === "today") {
+          air.innerHTML = airText + ' <span class="tasks-ep-badge">Airing today</span>';
+        } else {
+          air.textContent = "Aired " + airText;
+        }
+        row.appendChild(line);
+        row.appendChild(air);
+
+        const actions = document.createElement("div");
+        actions.className = "tasks-ep-actions";
+        if (window.matchMedia("(min-width: 720px)").matches) actions.classList.add("tasks-ep-actions--icons");
+        const btnWatch = document.createElement("button");
+        btnWatch.type = "button";
+        btnWatch.dataset.action = "watched";
+        btnWatch.textContent = "Watched";
+        btnWatch.setAttribute("aria-label", "Mark watched");
+        const btnSkip = document.createElement("button");
+        btnSkip.type = "button";
+        btnSkip.dataset.action = "skipped";
+        btnSkip.textContent = "Skip";
+        btnSkip.setAttribute("aria-label", "Not watching");
+
+        const runWatch = async () => {
+          await patchWatchTaskAfterUi(userId, t.id, t, { status: "watched" });
+          if (accountIsRegistered(sessionMeSnapshot)) {
+            const sid = Number(t.tvmazeShowId);
+            const eid = Number(t.tvmazeEpisodeId);
+            if (Number.isInteger(sid) && sid > 0 && Number.isInteger(eid) && eid > 0) {
+              openPostWatchReviewModal({
+                tvmazeShowId: sid,
+                tvmazeEpisodeId: eid,
+                showName: String(t.showName || ""),
+                episodeLabel: String(t.episodeLabel || ""),
+              });
+            }
+          }
+        };
+        btnWatch.addEventListener("click", () => {
+          void runWatch().catch((e) => {
+            trackQaFlowFailure("watched_to_rating_review", "tasks", e.message || "watch_task_failed", {
+              tvmazeEpisodeId: t.tvmazeEpisodeId,
+            });
+            showToast(e.message || "Could not update task");
+          });
+        });
+        btnSkip.addEventListener("click", () => {
+          void patchWatchTaskAfterUi(userId, t.id, t, { status: "skipped" }).catch((e) =>
+            showToast(e.message || "Could not update task"),
+          );
+        });
+        actions.appendChild(btnWatch);
+        actions.appendChild(btnSkip);
+        row.appendChild(actions);
+
+        if (window.matchMedia("(max-width: 719px)").matches) {
+          bindTaskEpisodeSwipe(row, userId, t, null);
+        }
+        return row;
+      }
+
+      function createTaskShowCard(userId, showKey, episodes, allTasks, sectionId) {
+        const first = episodes[0];
+        const prog = showProgressForKey(showKey, allTasks);
+        const storageKey = tasksShowStorageKey(showKey);
+        const expanded =
+          tasksState.showExpanded.has(showKey) ||
+          sessionStorage.getItem(storageKey) === "1" ||
+          (!isTasksCompactView() && episodes.length === 1);
+        const bucket = taskUrgencyBucket(first.airdate);
+        const card = document.createElement("article");
+        card.className = "tasks-show-card";
+        card.dataset.showKey = showKey;
+        if (bucket === "today") card.classList.add("tasks-show-card--today");
+        if (bucket === "overdue") card.classList.add("tasks-show-card--overdue");
+        if (expanded) card.classList.add("is-expanded");
+
+        const head = document.createElement("button");
+        head.type = "button";
+        head.className = "tasks-show-head";
+        head.setAttribute("aria-expanded", expanded ? "true" : "false");
+
+        const posterPh = document.createElement("span");
+        posterPh.className = "tasks-show-poster-ph";
+        posterPh.textContent = (first.showName || "?").charAt(0).toUpperCase();
+        head.appendChild(posterPh);
+        if (first.tvmazeShowId) {
+          void fetchTvmazeShowImageUrl(first.tvmazeShowId).then((url) => {
+            if (!url || !head.isConnected) return;
+            const img = document.createElement("img");
+            img.className = "tasks-show-poster";
+            img.alt = "";
+            img.loading = "lazy";
+            img.decoding = "async";
+            img.src = url;
+            posterPh.replaceWith(img);
+          });
+        }
+
+        const meta = document.createElement("span");
+        meta.className = "tasks-show-meta";
+        const title = document.createElement("span");
+        title.className = "tasks-show-title";
+        title.textContent = first.showName || "Show";
+        const sub = document.createElement("span");
+        sub.className = "tasks-show-sub";
+        sub.innerHTML =
+          '<span class="tasks-show-sub--detail">' +
+          episodes.length +
+          " unwatched episode" +
+          (episodes.length === 1 ? "" : "s") +
+          "</span>";
+        if (prog.total > 0) {
+          sub.innerHTML +=
+            " · " + prog.watched + "/" + prog.total + " watched (" + prog.pct + "%)";
+        }
+        const barWrap = document.createElement("div");
+        barWrap.className = "tasks-show-progress-wrap";
+        const bar = document.createElement("div");
+        bar.className = "tasks-show-progress-bar";
+        bar.style.width = prog.pct + "%";
+        barWrap.appendChild(bar);
+        meta.appendChild(title);
+        meta.appendChild(sub);
+        meta.appendChild(barWrap);
+        const chev = document.createElement("span");
+        chev.className = "tasks-show-chev";
+        chev.textContent = expanded ? "\u25bc" : "\u25b6";
+        head.appendChild(meta);
+        head.appendChild(chev);
+
+        const epsPanel = document.createElement("div");
+        epsPanel.className = "tasks-show-eps";
+        epsPanel.hidden = !expanded;
+        for (const ep of episodes) {
+          epsPanel.appendChild(createTaskEpisodeRow(userId, ep, { sectionId, showKey }));
+        }
+
+        const batch = document.createElement("div");
+        batch.className = "tasks-show-batch";
+        const btnAllWatch = document.createElement("button");
+        btnAllWatch.type = "button";
+        btnAllWatch.className = "secondary";
+        btnAllWatch.textContent = "Mark all watched";
+        btnAllWatch.addEventListener("click", (e) => {
+          e.stopPropagation();
+          void batchPatchTasks(userId, episodes, "watched");
+        });
+        const btnAllSkip = document.createElement("button");
+        btnAllSkip.type = "button";
+        btnAllSkip.className = "secondary";
+        btnAllSkip.textContent = "Mark all skipped";
+        btnAllSkip.addEventListener("click", (e) => {
+          e.stopPropagation();
+          void batchPatchTasks(userId, episodes, "skipped");
+        });
+        batch.appendChild(btnAllWatch);
+        batch.appendChild(btnAllSkip);
+
+        const toggleShow = () => {
+          const nowOpen = epsPanel.hidden;
+          epsPanel.hidden = !nowOpen;
+          head.setAttribute("aria-expanded", nowOpen ? "true" : "false");
+          chev.textContent = nowOpen ? "\u25bc" : "\u25b6";
+          card.classList.toggle("is-expanded", nowOpen);
+          if (nowOpen) {
+            tasksState.showExpanded.add(showKey);
+            sessionStorage.setItem(storageKey, "1");
+          } else {
+            tasksState.showExpanded.delete(showKey);
+            sessionStorage.setItem(storageKey, "0");
+          }
+        };
+        head.addEventListener("click", toggleShow);
+
+        card.appendChild(head);
+        card.appendChild(batch);
+        card.appendChild(epsPanel);
+        return card;
+      }
+
+      async function batchPatchTasks(userId, episodes, status) {
+        for (const t of episodes) {
+          try {
+            await patchWatchTaskAfterUi(userId, t.id, t, { status });
+          } catch (e) {
+            showToast(e.message || "Could not update all");
+            break;
+          }
+        }
+      }
+
+      function renderTasksOpenHost(userId) {
+        const host = document.getElementById("tasksOpenHost");
+        if (!host) return;
+        const openTasks = tasksState.tasks.filter((t) => !t.completedAt && !t.dismissedAt);
+        host.innerHTML = "";
+        if (!openTasks.length) return;
+
+        const bySection = new Map();
+        for (const id of TASKS_SECTION_ORDER) bySection.set(id, []);
+        for (const t of openTasks) {
+          const b = taskUrgencyBucket(t.airdate);
+          if (bySection.has(b)) bySection.get(b).push(t);
+          else bySection.get("recent").push(t);
+        }
+
+        for (const sectionId of TASKS_SECTION_ORDER) {
+          const sectionTasks = bySection.get(sectionId) || [];
+          if (!sectionTasks.length) continue;
+          const meta = TASKS_SECTION_META[sectionId];
+          const sectionOpen =
+            sessionStorage.getItem(tasksSectionStorageKey(sectionId)) === "1" ||
+            (sessionStorage.getItem(tasksSectionStorageKey(sectionId)) === null && meta.defaultOpen);
+
+          const section = document.createElement("section");
+          section.className = "tasks-date-section";
+          section.dataset.sectionId = sectionId;
+          if (sectionId === "today") section.classList.add("tasks-date-section--today");
+          if (sectionId === "overdue") section.classList.add("tasks-date-section--overdue");
+
+          const toggle = document.createElement("button");
+          toggle.type = "button";
+          toggle.className = "tasks-date-section-toggle";
+          toggle.setAttribute("aria-expanded", sectionOpen ? "true" : "false");
+          const chev = document.createElement("span");
+          chev.className = "tasks-date-section-chev";
+          chev.textContent = sectionOpen ? "\u25bc" : "\u25b6";
+          if (sectionId === "overdue") {
+            const warn = document.createElement("span");
+            warn.textContent = "\u26a0 ";
+            warn.setAttribute("aria-hidden", "true");
+            toggle.appendChild(warn);
+          }
+          toggle.appendChild(chev);
+          toggle.appendChild(document.createTextNode(meta.label));
+          const count = document.createElement("span");
+          count.className = "tasks-date-section-count";
+          count.textContent = String(sectionTasks.length);
+          toggle.appendChild(count);
+
+          const body = document.createElement("div");
+          body.className = "tasks-date-section-body";
+          body.hidden = !sectionOpen;
+
+          const showMap = groupOpenTasksByShow(sectionTasks);
+          const showKeys = [...showMap.keys()].sort((a, b) => {
+            const ea = showMap.get(a)[0];
+            const eb = showMap.get(b)[0];
+            return (eb.airdate || "").localeCompare(ea.airdate || "") || (ea.showName || "").localeCompare(eb.showName || "");
+          });
+          for (const sk of showKeys) {
+            body.appendChild(createTaskShowCard(userId, sk, showMap.get(sk), tasksState.tasks, sectionId));
+          }
+
+          const secActions = document.createElement("div");
+          secActions.className = "tasks-date-section-actions";
+          const markSec = document.createElement("button");
+          markSec.type = "button";
+          markSec.className = "secondary";
+          markSec.textContent = "Mark section watched";
+          markSec.addEventListener("click", () => void batchPatchTasks(userId, sectionTasks, "watched"));
+          secActions.appendChild(markSec);
+
+          toggle.addEventListener("click", () => {
+            const open = body.hidden;
+            body.hidden = !open;
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+            chev.textContent = open ? "\u25bc" : "\u25b6";
+            sessionStorage.setItem(tasksSectionStorageKey(sectionId), open ? "1" : "0");
+          });
+
+          body.appendChild(secActions);
+          section.appendChild(toggle);
+          section.appendChild(body);
+          host.appendChild(section);
+        }
+      }
+
+      function refreshTasksStatsFromState() {
+        const statShows = document.getElementById("tasksStatShows");
+        const statOpen = document.getElementById("tasksStatOpen");
+        const statCompleted = document.getElementById("tasksStatCompleted");
+        const statSkipped = document.getElementById("tasksStatSkipped");
+        const badge = document.getElementById("tasksCompletedBadge");
+        const skipBadge = document.getElementById("tasksSkippedBadge");
+        const openEmpty = document.getElementById("tasksOpenEmpty");
+        const completedEmpty = document.getElementById("tasksCompletedEmpty");
+        const skippedEmpty = document.getElementById("tasksSkippedEmpty");
+        const foldWrap = document.getElementById("tasksCompletedFoldWrap");
+        const skippedFoldWrap = document.getElementById("tasksSkippedFoldWrap");
+        if (!statShows) return;
+        const keys = new Set();
+        let openN = 0;
+        let compN = 0;
+        let skipN = 0;
+        for (const t of tasksState.tasks) {
+          keys.add(taskShowKey(t));
+          if (t.completedAt) compN++;
+          else if (t.dismissedAt) skipN++;
+          else openN++;
+        }
+        const total = tasksState.tasks.length;
+        statShows.textContent = String(keys.size);
+        statOpen.textContent = String(openN);
+        statCompleted.textContent = String(compN);
+        statSkipped.textContent = String(skipN);
+        if (badge) badge.textContent = "(" + compN + ")";
+        if (skipBadge) skipBadge.textContent = "(" + skipN + ")";
+        if (openEmpty) openEmpty.hidden = !(total > 0 && openN === 0);
+        if (completedEmpty) completedEmpty.hidden = compN > 0;
+        if (skippedEmpty) skippedEmpty.hidden = skipN > 0;
+        if (foldWrap) foldWrap.style.display = total === 0 ? "none" : "";
+        if (skippedFoldWrap) skippedFoldWrap.style.display = total === 0 ? "none" : "";
+      }
+
+      function renderTasksCompletedSkipped(userId) {
+        const ulDone = document.getElementById("tasksListCompleted");
+        const ulSkip = document.getElementById("tasksListSkipped");
+        if (!ulDone || !ulSkip) return;
+        ulDone.innerHTML = "";
+        ulSkip.innerHTML = "";
+        for (const t of tasksState.tasks) {
+          const li = createTaskRow(userId, t);
+          if (t.completedAt) ulDone.appendChild(li);
+          else if (t.dismissedAt) ulSkip.appendChild(li);
+        }
+        sortTaskUlByAirdateDesc(ulDone);
+        sortTaskUlByAirdateDesc(ulSkip);
+      }
+
       function sortTaskUlByAirdateDesc(ul) {
         if (!ul) return;
         const lis = Array.from(ul.querySelectorAll(":scope > li"));
@@ -13045,83 +14398,24 @@
       function taskMetaLine(t) {
         const isWatched = Boolean(t.completedAt);
         const isSkipped = Boolean(t.dismissedAt) && !isWatched;
-        const parts = ["Aired " + (t.airdate || "")];
-        if (isWatched) parts.push("Marked watched");
-        else if (isSkipped) parts.push("Not watching");
-        if (t.nudgeSentAt) parts.push("Nudge sent");
+        const parts = ["Aired " + formatTaskAirLabel(t.airdate)];
+        if (isWatched) parts.push("Watched");
+        else if (isSkipped) parts.push("Skipped");
         return parts.join(" · ");
       }
 
-      async function patchWatchTaskAfterUi(userId, li, t, body) {
+      async function patchWatchTaskAfterUi(userId, _taskIdOrLi, t, body) {
         const row = await api(
           "/api/users/" + encodeURIComponent(userId) + "/watch-tasks/" + encodeURIComponent(t.id),
           { method: "PATCH", body: JSON.stringify(body) },
         );
         Object.assign(t, row);
-        const openUl = document.getElementById("tasksList");
-        const doneUl = document.getElementById("tasksListCompleted");
-        const skipUl = document.getElementById("tasksListSkipped");
-        const newLi = createTaskRow(userId, t);
-        li.remove();
-        const k = taskRowKind(t);
-        if (k === "open") openUl.appendChild(newLi);
-        else if (k === "watched") doneUl.appendChild(newLi);
-        else skipUl.appendChild(newLi);
-        sortTaskUlByAirdateDesc(openUl);
-        sortTaskUlByAirdateDesc(doneUl);
-        sortTaskUlByAirdateDesc(skipUl);
-        refreshTasksStatsFromDom();
+        const idx = tasksState.tasks.findIndex((x) => x.id === t.id);
+        if (idx >= 0) tasksState.tasks[idx] = { ...tasksState.tasks[idx], ...row };
+        renderTasksOpenHost(userId);
+        renderTasksCompletedSkipped(userId);
+        refreshTasksStatsFromState();
         void loadUser(userId);
-      }
-
-      function refreshTasksStatsFromDom() {
-        const openUl = document.getElementById("tasksList");
-        const doneUl = document.getElementById("tasksListCompleted");
-        const skipUl = document.getElementById("tasksListSkipped");
-        const statShows = document.getElementById("tasksStatShows");
-        const statOpen = document.getElementById("tasksStatOpen");
-        const statCompleted = document.getElementById("tasksStatCompleted");
-        const statSkipped = document.getElementById("tasksStatSkipped");
-        const badge = document.getElementById("tasksCompletedBadge");
-        const skipBadge = document.getElementById("tasksSkippedBadge");
-        const openEmpty = document.getElementById("tasksOpenEmpty");
-        const completedEmpty = document.getElementById("tasksCompletedEmpty");
-        const skippedEmpty = document.getElementById("tasksSkippedEmpty");
-        const foldWrap = document.getElementById("tasksCompletedFoldWrap");
-        const skippedFoldWrap = document.getElementById("tasksSkippedFoldWrap");
-        if (!openUl || !doneUl || !skipUl || !statShows || !statOpen || !statCompleted || !statSkipped) return;
-        const openN = openUl.children.length;
-        const compN = doneUl.children.length;
-        const skipN = skipUl.children.length;
-        const total = openN + compN + skipN;
-        const keys = new Set();
-        for (const ul of [openUl, doneUl, skipUl]) {
-          for (const li of ul.children) {
-            const k = li.dataset.showKey;
-            if (k) keys.add(k);
-          }
-        }
-        statShows.textContent = String(keys.size);
-        statOpen.textContent = String(openN);
-        statCompleted.textContent = String(compN);
-        statSkipped.textContent = String(skipN);
-        if (badge) badge.textContent = "(" + compN + ")";
-        if (skipBadge) skipBadge.textContent = "(" + skipN + ")";
-        if (openEmpty) {
-          openEmpty.hidden = !(total > 0 && openN === 0);
-        }
-        if (completedEmpty) {
-          completedEmpty.hidden = compN > 0;
-        }
-        if (skippedEmpty) {
-          skippedEmpty.hidden = skipN > 0;
-        }
-        if (foldWrap) {
-          foldWrap.style.display = total === 0 ? "none" : "";
-        }
-        if (skippedFoldWrap) {
-          skippedFoldWrap.style.display = total === 0 ? "none" : "";
-        }
       }
 
       function createTaskRow(userId, t) {
@@ -13137,95 +14431,33 @@
         line.className = "task-line";
         line.innerHTML = "<strong>" + escapeHtml(t.showName) + "</strong> · " + escapeHtml(t.episodeLabel);
         body.appendChild(line);
-        if (kind === "open") {
-          const air = document.createElement("div");
-          air.className = "task-meta task-meta--airdate";
-          air.textContent = "Aired " + (t.airdate || "—");
-          body.appendChild(air);
-          if (t.nudgeSentAt) {
-            const nudgeEl = document.createElement("div");
-            nudgeEl.className = "task-meta task-meta--nudge";
-            nudgeEl.textContent = "Nudge sent";
-            body.appendChild(nudgeEl);
-          }
-        } else {
-          const meta = document.createElement("div");
-          meta.className = "task-meta muted";
-          meta.textContent = taskMetaLine(t);
-          body.appendChild(meta);
-        }
+        const meta = document.createElement("div");
+        meta.className = "task-meta muted";
+        meta.textContent = taskMetaLine(t);
+        body.appendChild(meta);
 
-        if (kind === "open") {
-          const actions = document.createElement("div");
-          actions.className = "task-actions";
-          const btnWatch = document.createElement("button");
-          btnWatch.type = "button";
-          btnWatch.className = "secondary task-action-btn";
-          btnWatch.textContent = "Watched";
-          btnWatch.setAttribute("aria-label", "Mark watched: " + String(t.showName));
-          btnWatch.addEventListener("click", async () => {
-            try {
-              await patchWatchTaskAfterUi(userId, li, t, { status: "watched" });
-              if (accountIsRegistered(sessionMeSnapshot)) {
-                const sid = Number(t.tvmazeShowId);
-                const eid = Number(t.tvmazeEpisodeId);
-                if (Number.isInteger(sid) && sid > 0 && Number.isInteger(eid) && eid > 0) {
-                  openPostWatchReviewModal({
-                    tvmazeShowId: sid,
-                    tvmazeEpisodeId: eid,
-                    showName: String(t.showName || ""),
-                    episodeLabel: String(t.episodeLabel || ""),
-                  });
-                }
-              }
-            } catch (e) {
-              trackQaFlowFailure("watched_to_rating_review", "tasks", e.message || "watch_task_failed", {
-                tvmazeEpisodeId: t.tvmazeEpisodeId,
-              });
-              showToast(e.message || "Could not update task");
-            }
-          });
-          const btnSkip = document.createElement("button");
-          btnSkip.type = "button";
-          btnSkip.className = "secondary task-action-btn";
-          btnSkip.textContent = "Not watching";
-          btnSkip.title = "Remove from your open list without marking as watched";
-          btnSkip.setAttribute("aria-label", "Not watching: " + String(t.showName));
-          btnSkip.addEventListener("click", async () => {
-            try {
-              await patchWatchTaskAfterUi(userId, li, t, { status: "skipped" });
-            } catch (e) {
-              showToast(e.message || "Could not update task");
-            }
-          });
-          actions.appendChild(btnWatch);
-          actions.appendChild(btnSkip);
-          li.appendChild(body);
-          li.appendChild(actions);
-        } else {
-          const actions = document.createElement("div");
-          actions.className = "task-actions task-actions--single";
-          const btnBack = document.createElement("button");
-          btnBack.type = "button";
-          btnBack.className = "secondary task-action-btn";
-          btnBack.textContent = kind === "watched" ? "Undo" : "Put back";
-          btnBack.title =
-            kind === "watched" ? "Move back to your open list" : "Show this episode on your open list again";
-          btnBack.setAttribute(
-            "aria-label",
-            (kind === "watched" ? "Undo watched: " : "Put back on list: ") + String(t.showName),
-          );
-          btnBack.addEventListener("click", async () => {
-            try {
-              await patchWatchTaskAfterUi(userId, li, t, { status: "open" });
-            } catch (e) {
-              showToast(e.message || "Could not update task");
-            }
-          });
-          actions.appendChild(btnBack);
-          li.appendChild(body);
-          li.appendChild(actions);
-        }
+        const actions = document.createElement("div");
+        actions.className = "task-actions task-actions--single";
+        const btnBack = document.createElement("button");
+        btnBack.type = "button";
+        btnBack.className = "secondary task-action-btn";
+        btnBack.textContent = kind === "watched" ? "Undo" : "Put back";
+        btnBack.title =
+          kind === "watched" ? "Move back to your open list" : "Show this episode on your open list again";
+        btnBack.setAttribute(
+          "aria-label",
+          (kind === "watched" ? "Undo watched: " : "Put back on list: ") + String(t.showName),
+        );
+        btnBack.addEventListener("click", async () => {
+          try {
+            await patchWatchTaskAfterUi(userId, li, t, { status: "open" });
+          } catch (e) {
+            showToast(e.message || "Could not update task");
+          }
+        });
+        actions.appendChild(btnBack);
+        li.appendChild(body);
+        li.appendChild(actions);
         return li;
       }
 
@@ -13421,20 +14653,20 @@
       }
 
       async function loadTasks(userId) {
-        const ulOpen = document.getElementById("tasksList");
+        const host = document.getElementById("tasksOpenHost");
         const ulDone = document.getElementById("tasksListCompleted");
         const ulSkip = document.getElementById("tasksListSkipped");
         const empty = document.getElementById("tasksEmpty");
         const openEmpty = document.getElementById("tasksOpenEmpty");
         const foldBtn = document.getElementById("foldTasksCompletedBtn");
         const foldSkipBtn = document.getElementById("foldTasksSkippedBtn");
-        if (!ulOpen || !ulDone || !ulSkip || !empty) return;
+        if (!host || !ulDone || !ulSkip || !empty) return;
+        tasksState.userId = userId;
+        tasksState.compact = sessionStorage.getItem("tasksViewCompact") === "1";
+        syncTasksCompactClass();
         try {
           const data = await api("/api/users/" + encodeURIComponent(userId) + "/watch-tasks");
-          const tasks = data.tasks || [];
-          ulOpen.innerHTML = "";
-          ulDone.innerHTML = "";
-          ulSkip.innerHTML = "";
+          tasksState.tasks = data.tasks || [];
           if (openEmpty) openEmpty.hidden = true;
           if (foldBtn) foldBtn.setAttribute("aria-expanded", "false");
           if (foldSkipBtn) foldSkipBtn.setAttribute("aria-expanded", "false");
@@ -13442,32 +14674,29 @@
           if (foldBody) foldBody.hidden = true;
           const foldSkipBody = document.getElementById("foldTasksSkippedBody");
           if (foldSkipBody) foldSkipBody.hidden = true;
-          if (!tasks.length) {
+          if (!tasksState.tasks.length) {
+            host.innerHTML = "";
+            ulDone.innerHTML = "";
+            ulSkip.innerHTML = "";
             empty.style.display = "block";
             empty.textContent =
               "No tasks yet. After a subscribed show has an episode on today’s date, it will show up here.";
-            refreshTasksStatsFromDom();
+            refreshTasksStatsFromState();
             return;
           }
           empty.style.display = "none";
-          for (const t of tasks) {
-            const li = createTaskRow(userId, t);
-            if (t.completedAt) ulDone.appendChild(li);
-            else if (t.dismissedAt) ulSkip.appendChild(li);
-            else ulOpen.appendChild(li);
-          }
-          sortTaskUlByAirdateDesc(ulOpen);
-          sortTaskUlByAirdateDesc(ulDone);
-          sortTaskUlByAirdateDesc(ulSkip);
-          refreshTasksStatsFromDom();
+          renderTasksOpenHost(userId);
+          renderTasksCompletedSkipped(userId);
+          refreshTasksStatsFromState();
         } catch (e) {
-          ulOpen.innerHTML = "";
+          host.innerHTML = "";
           ulDone.innerHTML = "";
           ulSkip.innerHTML = "";
+          tasksState.tasks = [];
           empty.style.display = "block";
           empty.textContent = e.message || "Could not load tasks.";
           if (openEmpty) openEmpty.hidden = true;
-          refreshTasksStatsFromDom();
+          refreshTasksStatsFromState();
         }
       }
 
@@ -13543,6 +14772,9 @@
       let dmGroupSettingsSearchGen = 0;
       /** Current group member ids while settings modal detail is loaded (for add-member search). */
       let dmGroupSettingsMemberIds = new Set();
+      /** Inbox list row previews: thread/group id → typing timer. */
+      const dmInboxListDmTyping = new Map();
+      const dmInboxListGroupTyping = new Map();
       let dmInboxActivePeerUserId = null;
       let dmPeerPresenceRefreshTimer = null;
       let presenceActivityDebounceTimer = null;
@@ -13683,12 +14915,11 @@
         dmInboxActiveThreadId = null;
         dmInboxActiveGroupId = null;
         dmThreadPeerReadAt = null;
-        const dmFab = document.getElementById("dmComposeBtn");
-        if (dmFab) dmFab.style.display = "";
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
         if (list) list.hidden = false;
         if (tv) tv.hidden = true;
+        syncDmInboxComposerForKeyboard();
         await renderDmInboxHub();
         void refreshDmUnread();
         syncDmInboxSplitLayout();
@@ -13817,21 +15048,22 @@
           if (uid && data.userId === uid) return;
           const threadView = document.getElementById("dmInboxThreadView");
           const row = document.getElementById("dmInboxTypingRow");
-          if (
-            !isDmMessagesTabActive() ||
-            !threadView ||
-            threadView.hidden ||
-            dmInboxActiveThreadId !== data.threadId ||
-            !row
-          ) {
-            return;
-          }
-          if (data.typing) {
-            row.hidden = false;
-            row.textContent = "Typing…";
-            scheduleDmPeerTypingHide();
-          } else {
-            hideDmPeerTyping();
+          const inOpenThread =
+            isDmMessagesTabActive() &&
+            threadView &&
+            !threadView.hidden &&
+            dmInboxActiveThreadId === data.threadId &&
+            row;
+          if (inOpenThread) {
+            if (data.typing) {
+              row.hidden = false;
+              row.textContent = "Typing…";
+              scheduleDmPeerTypingHide();
+            } else {
+              hideDmPeerTyping();
+            }
+          } else if (isDmMessagesTabActive()) {
+            dmInboxMarkListDmTyping(data.threadId, !!data.typing);
           }
         }
         if (data.type === "dm_message" && data.message && data.threadId) {
@@ -13858,12 +15090,13 @@
           const uid = resolveUserId();
           if (uid && data.userId === uid) return;
           const threadView = document.getElementById("dmInboxThreadView");
-          if (
-            !isDmMessagesTabActive() ||
-            !threadView ||
-            threadView.hidden ||
-            dmInboxActiveGroupId !== data.groupId
-          ) {
+          const inOpenGroup =
+            isDmMessagesTabActive() &&
+            threadView &&
+            !threadView.hidden &&
+            dmInboxActiveGroupId === data.groupId;
+          if (!inOpenGroup) {
+            if (isDmMessagesTabActive()) dmInboxMarkListGroupTyping(data.groupId, !!data.typing);
             return;
           }
           const label = data.label || "Someone";
@@ -13912,8 +15145,6 @@
             const tv = document.getElementById("dmInboxThreadView");
             if (list) list.hidden = false;
             if (tv) tv.hidden = true;
-            const dmFab = document.getElementById("dmComposeBtn");
-            if (dmFab) dmFab.style.display = "";
             showToast("You were removed from this group");
             void renderDmThreadList();
             void refreshDmUnread();
@@ -13951,8 +15182,6 @@
             const tv = document.getElementById("dmInboxThreadView");
             if (list) list.hidden = false;
             if (tv) tv.hidden = true;
-            const dmFab = document.getElementById("dmComposeBtn");
-            if (dmFab) dmFab.style.display = "";
           }
           void renderDmThreadList();
           void refreshDmUnread();
@@ -13960,11 +15189,14 @@
       }
 
       function setDmChatHeaderMode(isGroup) {
-        const dm = document.getElementById("dmInboxThreadTitleDm");
+        const tv = document.getElementById("dmInboxThreadView");
         const gb = document.getElementById("dmInboxGroupTitleBtn");
         const hb = document.getElementById("dmInboxDmHeaderBlock");
+        if (tv) {
+          tv.classList.toggle("dm-inbox-thread-view--group", !!isGroup);
+          tv.classList.toggle("dm-inbox-thread-view--dm", !isGroup);
+        }
         if (hb) hb.hidden = !!isGroup;
-        if (dm) dm.hidden = !!isGroup;
         if (gb) gb.hidden = !isGroup;
       }
 
@@ -14171,15 +15403,16 @@
         div.textContent = msg.body || "";
         body.appendChild(div);
         if (!isMe) {
-          const reportBtn = document.createElement("button");
-          reportBtn.type = "button";
-          reportBtn.className = "secondary";
-          reportBtn.style.cssText = "margin-top:0.2rem;padding:0.16rem 0.4rem;font-size:0.68rem";
-          reportBtn.textContent = "Report";
-          reportBtn.addEventListener("click", () =>
+          attachDmMessageReportMenu(div, () =>
             submitModerationReport("dm_group_message", msg.id, msg.senderId, "harassment"),
           );
-          body.appendChild(reportBtn);
+        }
+        if (msg.createdAt) {
+          const ts = document.createElement("span");
+          ts.className = "dm-inbox-msg-time";
+          ts.textContent = formatDmMessageTime(msg.createdAt);
+          ts.setAttribute("aria-label", formatDmMessageTime(msg.createdAt));
+          body.appendChild(ts);
         }
         if (isMe && msg.seenBy && msg.seenBy.length) {
           const seen = document.createElement("div");
@@ -14210,14 +15443,16 @@
         if (msg.createdAt) div.dataset.createdAt = msg.createdAt;
         div.textContent = msg.body || "";
         wrap.appendChild(div);
+        if (msg.createdAt) {
+          const ts = document.createElement("span");
+          ts.className = "dm-inbox-msg-time";
+          ts.textContent = formatDmMessageTime(msg.createdAt);
+          wrap.appendChild(ts);
+        }
         if (!isMe) {
-          const reportBtn = document.createElement("button");
-          reportBtn.type = "button";
-          reportBtn.className = "secondary";
-          reportBtn.style.cssText = "margin-top:0.2rem;padding:0.16rem 0.4rem;font-size:0.68rem";
-          reportBtn.textContent = "Report";
-          reportBtn.addEventListener("click", () => submitModerationReport("dm_message", msg.id, msg.senderId, "harassment"));
-          wrap.appendChild(reportBtn);
+          attachDmMessageReportMenu(div, () =>
+            submitModerationReport("dm_message", msg.id, msg.senderId, "harassment"),
+          );
         }
         if (isMe) {
           const rr = document.createElement("span");
@@ -14609,8 +15844,6 @@
                     errEl.textContent = "";
                     errEl.style.display = "none";
                   }
-                  const dmFab = document.getElementById("dmComposeBtn");
-                  if (dmFab) dmFab.style.display = "";
                 }
                 await renderDmThreadList();
                 void refreshDmUnread();
@@ -14697,16 +15930,25 @@
         return wrap;
       }
 
-      function dmInboxAppendUnreadSlot(btn, unreadCount) {
-        const slot = document.createElement("span");
-        slot.className = "dm-inbox-thread-unread-slot";
+      function dmInboxAppendThreadAside(btn, lastMessageAt, unreadCount) {
+        const aside = document.createElement("span");
+        aside.className = "dm-inbox-thread-row-aside";
+        const timeEl = document.createElement("time");
+        timeEl.className = "dm-inbox-thread-time";
+        timeEl.dateTime = lastMessageAt || "";
+        timeEl.textContent = formatDmInboxListTime(lastMessageAt);
+        aside.appendChild(timeEl);
         if (unreadCount > 0) {
-          const dot = document.createElement("span");
-          dot.className = "dm-inbox-unread-dot";
-          dot.setAttribute("aria-hidden", "true");
-          slot.appendChild(dot);
+          const slot = document.createElement("span");
+          slot.className = "dm-inbox-thread-unread-slot";
+          const badge = document.createElement("span");
+          badge.className = "dm-inbox-unread-badge";
+          badge.textContent = unreadCount > 99 ? "99+" : String(unreadCount);
+          badge.setAttribute("aria-label", unreadCount + " unread");
+          slot.appendChild(badge);
+          aside.appendChild(slot);
         }
-        btn.appendChild(slot);
+        btn.appendChild(aside);
       }
 
       async function renderDmThreadList() {
@@ -14765,24 +16007,16 @@
               nameEl.textContent = gname;
               const previewEl = document.createElement("span");
               previewEl.className = "dm-inbox-thread-preview";
-              const mc = g.memberCount || 0;
-              const sub = mc + " member" + (mc === 1 ? "" : "s");
-              const prevText = dmInboxPreviewPlain(g.lastBody);
-              if (prevText) {
-                const meta = document.createElement("span");
-                meta.className = "dm-inbox-thread-meta";
-                meta.textContent = sub + " · ";
-                previewEl.appendChild(meta);
-                previewEl.appendChild(document.createTextNode(prevText));
-              } else {
-                previewEl.textContent = sub;
-              }
+              const meId = resolveUserId();
+              const prev = dmInboxPreviewForGroup(g, meId);
+              previewEl.textContent = prev.text || g.memberCount + " member" + (g.memberCount === 1 ? "" : "s");
+              if (prev.typing) previewEl.classList.add("dm-inbox-thread-preview--typing");
               bodyCol.appendChild(nameEl);
               bodyCol.appendChild(previewEl);
               main.appendChild(av);
               main.appendChild(bodyCol);
               btn.appendChild(main);
-              dmInboxAppendUnreadSlot(btn, g.unreadCount);
+              dmInboxAppendThreadAside(btn, g.lastMessageAt, g.unreadCount);
 
               btn.addEventListener("click", () => void openDmGroupView(g.groupId, gname));
               attachDmInboxGroupRowSwipe(btn, g.groupId, gname);
@@ -14824,15 +16058,16 @@
             nameEl.textContent = label;
             const previewEl = document.createElement("span");
             previewEl.className = "dm-inbox-thread-preview";
-            const prevText = dmInboxPreviewPlain(t.lastBody);
-            previewEl.textContent = prevText || "—";
+            const prev = dmInboxPreviewForThread(t);
+            previewEl.textContent = prev.text;
+            if (prev.typing) previewEl.classList.add("dm-inbox-thread-preview--typing");
 
             bodyCol.appendChild(nameEl);
             bodyCol.appendChild(previewEl);
             main.appendChild(av);
             main.appendChild(bodyCol);
             btn.appendChild(main);
-            dmInboxAppendUnreadSlot(btn, t.unreadCount);
+            dmInboxAppendThreadAside(btn, t.lastMessageAt, t.unreadCount);
 
             btn.addEventListener("click", () => void openDmThreadView(t.threadId, label));
             attachDmInboxThreadRowSwipe(btn, t.threadId, label);
@@ -15022,13 +16257,11 @@
         dmInboxActiveGroupId = null;
         dmInboxActiveThreadId = threadId;
         dmThreadPeerReadAt = null;
-        const dmFab = document.getElementById("dmComposeBtn");
         const dmFabMenu = document.getElementById("dmFabMenu");
-        if (dmFab) dmFab.style.display = "none";
         if (dmFabMenu) dmFabMenu.classList.remove("visible");
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
-        const titleDm = document.getElementById("dmInboxThreadTitleDm");
+        const headerName = document.getElementById("dmInboxDmHeaderName");
         const host = document.getElementById("dmInboxMessages");
         const err = document.getElementById("dmInboxErr");
         if (err) {
@@ -15040,7 +16273,7 @@
         const avatarHost = document.getElementById("dmInboxDmHeaderAvatarHost");
         if (dmBlock) dmBlock.hidden = false;
         if (avatarHost) avatarHost.innerHTML = "";
-        if (titleDm) setAppSectionHeadingLabel(titleDm, titleLabel || "Chat");
+        if (headerName) headerName.textContent = titleLabel || "Chat";
         if (host) host.classList.remove("dm-inbox-messages--group");
         if (list) list.hidden = true;
         if (tv) tv.hidden = false;
@@ -15052,6 +16285,13 @@
           const msgs = data.messages || [];
           dmThreadPeerReadAt = data.otherLastReadAt || null;
           dmInboxActivePeerUserId = data.otherUserId || null;
+          if (headerName) {
+            if (data.otherUsername && String(data.otherUsername).trim()) {
+              headerName.textContent = "@" + String(data.otherUsername).trim();
+            } else {
+              headerName.textContent = titleLabel || "Chat";
+            }
+          }
           if (avatarHost && dmInboxActivePeerUserId) {
             avatarHost.innerHTML = "";
             const avEl = dmInboxCreateAvatarEl(
@@ -15108,9 +16348,7 @@
         dmInboxActiveGroupId = groupId;
         dmThreadPeerReadAt = null;
         dmGroupStackSenderId = null;
-        const dmFab = document.getElementById("dmComposeBtn");
         const dmFabMenu = document.getElementById("dmFabMenu");
-        if (dmFab) dmFab.style.display = "none";
         if (dmFabMenu) dmFabMenu.classList.remove("visible");
         const list = document.getElementById("dmInboxListView");
         const tv = document.getElementById("dmInboxThreadView");
@@ -17641,6 +18879,214 @@
         return d + "d ago";
       }
 
+      /** Inbox conversation row: compact time (2m, 1h, Yesterday). */
+      function formatDmInboxListTime(iso) {
+        if (!iso) return "";
+        const t = new Date(iso).getTime();
+        if (Number.isNaN(t)) return "";
+        const sec = Math.floor((Date.now() - t) / 1000);
+        if (sec < 45) return "now";
+        if (sec < 3600) return Math.max(1, Math.floor(sec / 60)) + "m";
+        const h = Math.floor(sec / 3600);
+        if (h < 24) return h + "h";
+        const d = Math.floor(h / 24);
+        if (d === 1) return "Yesterday";
+        if (d < 7) return d + "d";
+        try {
+          return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(t));
+        } catch {
+          return d + "d";
+        }
+      }
+
+      /** DM bubble timestamp: Just now, 2m ago, Yesterday at 3:45 PM. */
+      function formatDmMessageTime(iso) {
+        if (!iso) return "";
+        const t = new Date(iso).getTime();
+        if (Number.isNaN(t)) return "";
+        const sec = Math.floor((Date.now() - t) / 1000);
+        if (sec < 45) return "Just now";
+        if (sec < 3600) return Math.max(1, Math.floor(sec / 60)) + "m ago";
+        const h = Math.floor(sec / 3600);
+        if (h < 24) return h + "h ago";
+        const d = Math.floor(h / 24);
+        let dayLabel = "";
+        if (d === 1) dayLabel = "Yesterday";
+        else if (d < 7) {
+          try {
+            dayLabel = new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(new Date(t));
+          } catch {
+            dayLabel = d + "d ago";
+          }
+        } else {
+          try {
+            return new Intl.DateTimeFormat(undefined, {
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            }).format(new Date(t));
+          } catch {
+            return d + "d ago";
+          }
+        }
+        try {
+          const timePart = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(t));
+          return dayLabel + " at " + timePart;
+        } catch {
+          return dayLabel;
+        }
+      }
+
+      function dmInboxPreviewTruncate(body, maxLen) {
+        const plain = dmInboxPreviewPlain(body);
+        if (!plain) return "";
+        if (plain.length <= maxLen) return plain;
+        let cut = plain.slice(0, maxLen);
+        const lastSpace = cut.lastIndexOf(" ");
+        if (lastSpace > Math.floor(maxLen * 0.45)) cut = cut.slice(0, lastSpace);
+        return cut.trimEnd() + "…";
+      }
+
+      function dmInboxPreviewForGroup(g, meId) {
+        if (dmInboxListGroupTyping.has(String(g.groupId))) return { text: "typing…", typing: true };
+        const prev = dmInboxPreviewTruncate(g.lastBody, 120);
+        if (!prev) return { text: "", typing: false };
+        let prefix = "";
+        if (g.lastSenderId && meId) {
+          if (g.lastSenderId === meId) prefix = "You: ";
+          else if (g.lastSenderLabel) prefix = g.lastSenderLabel + ": ";
+        }
+        return { text: prefix + prev, typing: false };
+      }
+
+      function dmInboxPreviewForThread(t) {
+        if (dmInboxListDmTyping.has(String(t.threadId))) return { text: "typing…", typing: true };
+        return { text: dmInboxPreviewTruncate(t.lastBody, 120) || "—", typing: false };
+      }
+
+      function dmInboxMarkListDmTyping(threadId, typing) {
+        const key = String(threadId);
+        const prev = dmInboxListDmTyping.get(key);
+        if (prev) clearTimeout(prev);
+        if (!typing) {
+          dmInboxListDmTyping.delete(key);
+          void renderDmThreadList();
+          return;
+        }
+        const timer = setTimeout(() => {
+          dmInboxListDmTyping.delete(key);
+          void renderDmThreadList();
+        }, 4200);
+        dmInboxListDmTyping.set(key, timer);
+        dmInboxUpdateListRowPreview("thread", key);
+      }
+
+      function dmInboxMarkListGroupTyping(groupId, typing) {
+        const key = String(groupId);
+        const prev = dmInboxListGroupTyping.get(key);
+        if (prev) clearTimeout(prev);
+        if (!typing) {
+          dmInboxListGroupTyping.delete(key);
+          void renderDmThreadList();
+          return;
+        }
+        const timer = setTimeout(() => {
+          dmInboxListGroupTyping.delete(key);
+          void renderDmThreadList();
+        }, 4200);
+        dmInboxListGroupTyping.set(key, timer);
+        dmInboxUpdateListRowPreview("group", key);
+      }
+
+      function dmInboxUpdateListRowPreview(kind, id) {
+        const sel =
+          kind === "group"
+            ? "#dmInboxGroupList .dm-inbox-thread-row[data-dm-group-id=\"" + id + "\"]"
+            : "#dmInboxThreadList .dm-inbox-thread-row[data-dm-thread-id=\"" + id + "\"]";
+        const row = document.querySelector(sel);
+        const preview = row && row.querySelector(".dm-inbox-thread-preview");
+        if (!preview) return;
+        if (kind === "group" && dmInboxListGroupTyping.has(id)) {
+          preview.textContent = "typing…";
+          preview.classList.add("dm-inbox-thread-preview--typing");
+          return;
+        }
+        if (kind === "thread" && dmInboxListDmTyping.has(id)) {
+          preview.textContent = "typing…";
+          preview.classList.add("dm-inbox-thread-preview--typing");
+          return;
+        }
+        preview.classList.remove("dm-inbox-thread-preview--typing");
+      }
+
+      function showDmMessageReportMenu(anchorEl, onReport) {
+        const existing = document.getElementById("dmMessageContextMenu");
+        if (existing) existing.remove();
+        const menu = document.createElement("div");
+        menu.id = "dmMessageContextMenu";
+        menu.className = "dm-message-context-menu";
+        menu.setAttribute("role", "menu");
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.setAttribute("role", "menuitem");
+        btn.textContent = "Report";
+        btn.addEventListener("click", () => {
+          menu.remove();
+          onReport();
+        });
+        menu.appendChild(btn);
+        document.body.appendChild(menu);
+        const rect = anchorEl.getBoundingClientRect();
+        const mw = menu.offsetWidth || 120;
+        const left = Math.min(Math.max(8, rect.left), window.innerWidth - mw - 8);
+        menu.style.left = left + "px";
+        menu.style.top = Math.max(8, rect.top - menu.offsetHeight - 6) + "px";
+        const close = () => {
+          menu.remove();
+          document.removeEventListener("pointerdown", close, true);
+          document.removeEventListener("keydown", onKey, true);
+        };
+        const onKey = (e) => {
+          if (e.key === "Escape") close();
+        };
+        setTimeout(() => {
+          document.addEventListener("pointerdown", close, true);
+          document.addEventListener("keydown", onKey, true);
+        }, 0);
+      }
+
+      function attachDmMessageReportMenu(el, onReport) {
+        if (!el || !onReport) return;
+        el.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          showDmMessageReportMenu(el, onReport);
+        });
+        let pressTimer = null;
+        el.addEventListener(
+          "touchstart",
+          () => {
+            pressTimer = setTimeout(() => {
+              pressTimer = null;
+              showDmMessageReportMenu(el, onReport);
+            }, 520);
+          },
+          { passive: true },
+        );
+        el.addEventListener("touchend", () => {
+          if (pressTimer) {
+            clearTimeout(pressTimer);
+            pressTimer = null;
+          }
+        });
+        el.addEventListener("touchmove", () => {
+          if (pressTimer) {
+            clearTimeout(pressTimer);
+            pressTimer = null;
+          }
+        });
+      }
+
       /** Breaking news rail: concise relative label from ISO `publishedAt` (chip on hero cards). */
       function formatHeadlinePublishedBadge(iso) {
         if (!iso || typeof iso !== "string") return "";
@@ -19956,6 +21402,193 @@
         }
       }
 
+      function cmpProfileSectionTitle(text) {
+        const el = document.createElement("h4");
+        el.className = "cmp-profile-section-title";
+        el.textContent = text;
+        return el;
+      }
+
+      function cmpProfileExpandStorageKey(userId, section) {
+        return "cmp-profile-" + section + "-" + userId;
+      }
+
+      function cmpProfileCompatRing(percent) {
+        const wrap = document.createElement("div");
+        wrap.className = "cmp-profile-compat-ring";
+        wrap.setAttribute("role", "img");
+        wrap.setAttribute("aria-label", percent + "% compatibility");
+        const color = percent >= 60 ? "#22c55e" : percent >= 35 ? "#f59e0b" : "#94a3b8";
+        const r = 42;
+        const circ = 2 * Math.PI * r;
+        const offset = circ * (1 - Math.min(100, Math.max(0, percent)) / 100);
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 96 96");
+        svg.setAttribute("width", "96");
+        svg.setAttribute("height", "96");
+        const track = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        track.setAttribute("cx", "48");
+        track.setAttribute("cy", "48");
+        track.setAttribute("r", String(r));
+        track.setAttribute("fill", "none");
+        track.setAttribute("stroke", "rgba(255,255,255,0.08)");
+        track.setAttribute("stroke-width", "8");
+        const arc = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        arc.setAttribute("cx", "48");
+        arc.setAttribute("cy", "48");
+        arc.setAttribute("r", String(r));
+        arc.setAttribute("fill", "none");
+        arc.setAttribute("stroke", color);
+        arc.setAttribute("stroke-width", "8");
+        arc.setAttribute("stroke-linecap", "round");
+        arc.setAttribute("stroke-dasharray", String(circ));
+        arc.setAttribute("stroke-dashoffset", String(offset));
+        arc.setAttribute("transform", "rotate(-90 48 48)");
+        svg.appendChild(track);
+        svg.appendChild(arc);
+        wrap.appendChild(svg);
+        const pct = document.createElement("span");
+        pct.className = "cmp-profile-compat-pct";
+        pct.textContent = percent + "%";
+        wrap.appendChild(pct);
+        return wrap;
+      }
+
+      function cmpProfileCollapsible(userId, section, label, renderContent) {
+        const key = cmpProfileExpandStorageKey(userId, section);
+        const wrap = document.createElement("section");
+        wrap.className = "cmp-profile-section cmp-profile-collapsible";
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cmp-profile-collapse-btn";
+        const open = sessionStorage.getItem(key) === "1";
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+        const chev = document.createElement("span");
+        chev.className = "cmp-profile-chevron";
+        chev.textContent = open ? "\u25bc" : "\u25b6";
+        const titleSpan = document.createElement("span");
+        titleSpan.className = "cmp-profile-collapse-label";
+        titleSpan.textContent = label;
+        btn.appendChild(chev);
+        btn.appendChild(titleSpan);
+        const panel = document.createElement("div");
+        panel.className = "cmp-profile-collapse-panel";
+        panel.hidden = !open;
+        if (open) renderContent(panel);
+        btn.addEventListener("click", () => {
+          const willOpen = panel.hidden;
+          panel.hidden = !willOpen;
+          btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+          chev.textContent = willOpen ? "\u25bc" : "\u25b6";
+          sessionStorage.setItem(key, willOpen ? "1" : "0");
+          if (willOpen && !panel.childElementCount) renderContent(panel);
+        });
+        wrap.appendChild(btn);
+        wrap.appendChild(panel);
+        return wrap;
+      }
+
+      function cmpProfileIconUserPlus() {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>';
+      }
+
+      function cmpProfileIconMail() {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>';
+      }
+
+      async function wireCmpProfileQuickActions(userId, label, selfId) {
+        const followBtn = document.getElementById("communityProfileFollowBtn");
+        const followCounts = document.getElementById("communityProfileFollowCounts");
+        const dmBtn = document.getElementById("communityMemberProfileDmBtn");
+        const dmHint = document.getElementById("communityMemberProfileDmHint");
+        const quick = document.getElementById("communityProfileQuickActions");
+        if (!quick) return;
+        if (userId === selfId || !selfId) {
+          quick.hidden = true;
+          return;
+        }
+        quick.hidden = false;
+        if (dmBtn && dmHint) {
+          if (accountKind(sessionMeSnapshot) === "guest") {
+            dmBtn.hidden = true;
+            dmHint.hidden = false;
+            dmHint.textContent = guestNeedAccountToast("to send direct messages");
+          } else if (accountKind(sessionMeSnapshot) === "unknown") {
+            dmBtn.hidden = true;
+            dmHint.hidden = true;
+          } else if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
+            dmBtn.hidden = true;
+            dmHint.hidden = false;
+            dmHint.textContent = UNLOCK_SOCIAL_UX_MESSAGE;
+          } else {
+            dmBtn.hidden = false;
+            dmHint.hidden = true;
+          }
+        }
+        if (!followBtn || !followCounts) return;
+        if (!accountIsRegistered(sessionMeSnapshot) || !hasFullSocialUiAccess(sessionMeSnapshot)) {
+          followBtn.hidden = true;
+          try {
+            const fs = await api("/api/users/" + encodeURIComponent(userId) + "/follow-status");
+            followCounts.textContent =
+              (fs.followerCount || 0) +
+              " follower" +
+              (fs.followerCount === 1 ? "" : "s") +
+              " \u00b7 " +
+              (fs.followingCount || 0) +
+              " following";
+          } catch {
+            followCounts.textContent = "";
+          }
+          return;
+        }
+        followBtn.hidden = false;
+        try {
+          const fs = await api("/api/users/" + encodeURIComponent(userId) + "/follow-status");
+          followBtn.innerHTML =
+            cmpProfileIconUserPlus() + "<span>" + (fs.following ? "Following" : "Follow") + "</span>";
+          followBtn.classList.toggle("following", !!fs.following);
+          followCounts.innerHTML =
+            cmpProfileIconUserPlus() +
+            "<span>" +
+            (fs.followerCount || 0) +
+            " follower" +
+            (fs.followerCount === 1 ? "" : "s") +
+            " \u00b7 " +
+            (fs.followingCount || 0) +
+            " following</span>";
+          followBtn.onclick = async () => {
+            const isFollowing = followBtn.classList.contains("following");
+            try {
+              if (isFollowing) {
+                await api("/api/users/" + encodeURIComponent(userId) + "/follow", { method: "DELETE" });
+                followBtn.innerHTML = cmpProfileIconUserPlus() + "<span>Follow</span>";
+                followBtn.classList.remove("following");
+                fs.followerCount = Math.max(0, (fs.followerCount || 0) - 1);
+              } else {
+                await api("/api/users/" + encodeURIComponent(userId) + "/follow", { method: "POST", body: "{}" });
+                followBtn.innerHTML = cmpProfileIconUserPlus() + "<span>Following</span>";
+                followBtn.classList.add("following");
+                fs.followerCount = (fs.followerCount || 0) + 1;
+              }
+              followCounts.innerHTML =
+                cmpProfileIconUserPlus() +
+                "<span>" +
+                fs.followerCount +
+                " follower" +
+                (fs.followerCount === 1 ? "" : "s") +
+                " \u00b7 " +
+                (fs.followingCount || 0) +
+                " following</span>";
+            } catch (e) {
+              showToast(e.message || "Could not update follow");
+            }
+          };
+        } catch {
+          followBtn.hidden = true;
+        }
+      }
+
       async function openCommunityMemberProfile(userId) {
         const modal = document.getElementById("communityMemberProfileModal");
         const body = document.getElementById("communityMemberProfileBody");
@@ -19970,26 +21603,20 @@
         }
         body.innerHTML = "<p class=\"muted\" style=\"margin:0\">Fetching…</p>";
         if (heading) heading.textContent = "Member profile";
-        const dmBtnLoad = document.getElementById("communityMemberProfileDmBtn");
         const dmHintLoad = document.getElementById("communityMemberProfileDmHint");
-        if (dmBtnLoad) dmBtnLoad.hidden = true;
         if (dmHintLoad) dmHintLoad.hidden = true;
         modal.dataset.profileUserId = userId;
         try {
           const d = await api("/api/community/users/" + encodeURIComponent(userId) + "/profile");
           const label = communityAuthorLabelFromPublicProfile(d);
+          const selfId = sessionMeSnapshot && sessionMeSnapshot.id;
           if (heading) heading.textContent = label === "Member" ? "Member profile" : label + "'s profile";
 
           const inner = document.createElement("div");
           inner.className = "community-member-profile-inner";
 
-          const secYour = document.createElement("div");
-          secYour.className = "community-member-profile-section-title";
-          secYour.textContent = "Profile";
-          inner.appendChild(secYour);
-
           const hero = document.createElement("div");
-          hero.className = "community-member-profile-hero";
+          hero.className = "cmp-profile-hero community-member-profile-hero";
           const memberAvatarOuter = document.createElement("div");
           memberAvatarOuter.className = "community-member-profile-avatar-outer";
           memberAvatarOuter.style.cssText = "position:relative;display:inline-block;";
@@ -20021,330 +21648,382 @@
           ensurePresenceSlot(memberAvatarOuter);
           hero.appendChild(memberAvatarOuter);
           const heroText = document.createElement("div");
-          heroText.className = "community-member-profile-hero-text";
-
-          const rowDn = document.createElement("div");
-          rowDn.className = "profile-readonly-row";
-          rowDn.innerHTML =
-            "<span class=\"profile-readonly-label\">Display name</span><span class=\"profile-readonly-value\">" +
-            escapeHtml(label) +
-            "</span>";
-          heroText.appendChild(rowDn);
-
-          const rowSince = document.createElement("div");
-          rowSince.className = "profile-readonly-row";
-          rowSince.innerHTML =
-            "<span class=\"profile-readonly-label\">Member since</span><span class=\"profile-readonly-value\">" +
-            escapeHtml(formatMemberSince(d.createdAt)) +
-            "</span>";
-          heroText.appendChild(rowSince);
-
-          if (d.username && String(d.username).trim()) {
-            const rowUn = document.createElement("div");
-            rowUn.className = "profile-readonly-row";
-            rowUn.innerHTML =
-              "<span class=\"profile-readonly-label\">Username</span><span class=\"profile-readonly-value\">" +
-              escapeHtml(String(d.username).trim()) +
-              "</span>";
-            heroText.appendChild(rowUn);
+          heroText.className = "cmp-profile-hero-text";
+          const hName = document.createElement("h2");
+          hName.className = "cmp-profile-display-name";
+          hName.textContent = label;
+          heroText.appendChild(hName);
+          const uname = d.username && String(d.username).trim();
+          if (uname) {
+            const hUser = document.createElement("p");
+            hUser.className = "cmp-profile-username";
+            hUser.textContent = "@" + uname;
+            heroText.appendChild(hUser);
           }
-
+          const hSince = document.createElement("p");
+          hSince.className = "cmp-profile-member-since";
+          hSince.textContent = "Member since " + formatMemberSince(d.createdAt);
+          heroText.appendChild(hSince);
           hero.appendChild(heroText);
           inner.appendChild(hero);
 
+          const quick = document.createElement("section");
+          quick.id = "communityProfileQuickActions";
+          quick.className = "cmp-profile-quick-actions cmp-profile-section";
+          const actionRow = document.createElement("div");
+          actionRow.className = "cmp-profile-action-row";
+          const followBtn = document.createElement("button");
+          followBtn.type = "button";
+          followBtn.id = "communityProfileFollowBtn";
+          followBtn.className = "community-profile-follow-btn";
+          followBtn.innerHTML = cmpProfileIconUserPlus() + "<span>Follow</span>";
+          const dmBtn = document.createElement("button");
+          dmBtn.type = "button";
+          dmBtn.id = "communityMemberProfileDmBtn";
+          dmBtn.className = "cmp-profile-dm-btn";
+          dmBtn.innerHTML = cmpProfileIconMail() + "<span>Direct message</span>";
+          actionRow.appendChild(followBtn);
+          actionRow.appendChild(dmBtn);
+          quick.appendChild(actionRow);
+          const followCounts = document.createElement("p");
+          followCounts.id = "communityProfileFollowCounts";
+          followCounts.className = "cmp-profile-follow-counts";
+          quick.appendChild(followCounts);
+          inner.appendChild(quick);
+
+          const aboutSec = document.createElement("section");
+          aboutSec.className = "cmp-profile-section";
+          aboutSec.appendChild(cmpProfileSectionTitle("About"));
+          const aboutCard = document.createElement("div");
+          aboutCard.className = "cmp-profile-about-card";
+          const aboutP = document.createElement("p");
+          aboutP.className = "cmp-profile-about-text";
+          const aboutRaw = d.aboutMe != null && String(d.aboutMe).trim() ? String(d.aboutMe).trim() : "";
+          if (aboutRaw) aboutP.textContent = aboutRaw;
+          else {
+            aboutP.classList.add("cmp-profile-about-empty");
+            aboutP.textContent = "No bio yet";
+          }
+          aboutCard.appendChild(aboutP);
+          aboutSec.appendChild(aboutCard);
+          inner.appendChild(aboutSec);
+
           const vc = d.viewerCompatibility;
           if (vc && typeof vc.percent === "number" && Number.isFinite(vc.percent)) {
-            const un = d.username && String(d.username).trim();
-            const who = un ? "@" + String(un).trim() : label;
-            const banner = document.createElement("div");
-            banner.className = "community-compatibility-banner";
-            banner.setAttribute("role", "status");
-            const line = document.createElement("p");
-            line.className = "community-compatibility-line";
-            line.appendChild(document.createTextNode("You and "));
-            const strongWho = document.createElement("strong");
-            strongWho.textContent = who;
-            line.appendChild(strongWho);
-            line.appendChild(document.createTextNode(" have "));
-            const strongPct = document.createElement("strong");
-            strongPct.textContent = String(vc.percent) + "%";
-            line.appendChild(strongPct);
-            line.appendChild(document.createTextNode(" show compatibility."));
-            banner.appendChild(line);
-            const bits = [];
+            const who = uname ? "@" + uname : label;
+            const compatSec = document.createElement("section");
+            compatSec.className = "cmp-profile-section";
+            compatSec.appendChild(cmpProfileSectionTitle("Compatibility"));
+            const compatCard = document.createElement("div");
+            compatCard.className = "cmp-profile-compat-card";
+            compatCard.appendChild(cmpProfileCompatRing(vc.percent));
+            const compatCopy = document.createElement("div");
+            compatCopy.className = "cmp-profile-compat-copy";
+            const headline = document.createElement("p");
+            headline.className = "cmp-profile-compat-headline";
+            headline.textContent = "You and " + who + " have " + vc.percent + "% show compatibility";
+            compatCopy.appendChild(headline);
             const sic = Number(vc.showsInCommon);
             const mer = Number(vc.mutualEpisodesRated);
             if (Number.isFinite(sic) && sic > 0) {
-              bits.push(sic + " show" + (sic === 1 ? "" : "s") + " in common on My List");
+              const sub = document.createElement("p");
+              sub.className = "cmp-profile-compat-sub";
+              sub.textContent = sic + " show" + (sic === 1 ? "" : "s") + " in common";
+              compatCopy.appendChild(sub);
+            }
+            const detailBits = [];
+            if (Number.isFinite(sic) && sic > 0) {
+              detailBits.push(sic + " shared show" + (sic === 1 ? "" : "s") + " on My List");
             }
             if (Number.isFinite(mer) && mer > 0) {
-              bits.push(mer + " episode" + (mer === 1 ? "" : "s") + " with both your 1–5 ratings");
+              detailBits.push(
+                mer + " episode" + (mer === 1 ? "" : "s") + " with matching 1\u20135 ratings",
+              );
             }
-            if (bits.length) {
-              const sub = document.createElement("p");
-              sub.className = "muted community-compatibility-meta";
-              sub.textContent = bits.join(" · ");
-              banner.appendChild(sub);
+            if (detailBits.length) {
+              const toggle = document.createElement("button");
+              toggle.type = "button";
+              toggle.className = "cmp-profile-compat-toggle";
+              toggle.textContent = "How we calculated this";
+              const detail = document.createElement("p");
+              detail.className = "cmp-profile-compat-detail";
+              detail.hidden = true;
+              detail.textContent = detailBits.join(". ") + ".";
+              toggle.addEventListener("click", () => {
+                detail.hidden = !detail.hidden;
+              });
+              compatCopy.appendChild(toggle);
+              compatCopy.appendChild(detail);
             }
-            inner.appendChild(banner);
+            compatCard.appendChild(compatCopy);
+            compatSec.appendChild(compatCard);
+            inner.appendChild(compatSec);
           }
 
-          const ws = d.watchStats;
-          if (ws && typeof ws === "object") {
-            const genres = Array.isArray(ws.topGenres) ? ws.topGenres : [];
-            const shelf = Array.isArray(ws.currentlyWatching) ? ws.currentlyWatching : [];
-            const hist = Array.isArray(ws.recentHistory) ? ws.recentHistory : [];
-            const ec = Number(ws.episodesCompleted) || 0;
-            const st = Number(ws.showsTracked) || 0;
-            const hasWatchActivity = ec > 0 || st > 0 || genres.length > 0 || shelf.length > 0 || hist.length > 0;
-            if (!hasWatchActivity) {
-              /* skip empty watch block for new accounts */
-            } else {
-            const secWatch = document.createElement("div");
-            secWatch.className = "community-member-profile-section-title";
-            secWatch.textContent = "Watch activity";
-            inner.appendChild(secWatch);
+          const ws = d.watchStats && typeof d.watchStats === "object" ? d.watchStats : {};
+          const genres = Array.isArray(ws.topGenres) ? ws.topGenres : [];
+          const shelf = Array.isArray(ws.currentlyWatching) ? ws.currentlyWatching : [];
+          const hist = Array.isArray(ws.recentHistory) ? ws.recentHistory : [];
+          const ec = Number(ws.episodesCompleted) || 0;
+          const st = Number(ws.showsTracked) || 0;
+          const postsTotal = Number(d.postsCount) || 0;
 
-            const statsGrid = document.createElement("div");
-            statsGrid.className = "community-profile-stats-grid";
-            const mkStat = (value, label) => {
-              const card = document.createElement("div");
-              card.className = "community-profile-stat-card";
-              const v = document.createElement("span");
-              v.className = "community-profile-stat-value";
-              v.textContent = Number.isFinite(value) ? String(value) : "0";
-              const lab = document.createElement("span");
-              lab.className = "community-profile-stat-label";
-              lab.textContent = label;
-              card.appendChild(v);
-              card.appendChild(lab);
-              return card;
-            };
-            statsGrid.appendChild(mkStat(ec, "Episodes done"));
-            statsGrid.appendChild(mkStat(st, "Shows on list"));
-            statsGrid.appendChild(mkStat(Number(d.postsCount) || 0, "Posts made"));
-            inner.appendChild(statsGrid);
+          const statsSec = document.createElement("section");
+          statsSec.className = "cmp-profile-section";
+          statsSec.appendChild(cmpProfileSectionTitle("Watch activity"));
+          const statsGrid = document.createElement("div");
+          statsGrid.className = "cmp-profile-stats-grid community-profile-stats-grid";
+          const mkStat = (value, statLabel) => {
+            const card = document.createElement("div");
+            card.className = "community-profile-stat-card";
+            const v = document.createElement("span");
+            v.className = "community-profile-stat-value";
+            v.textContent = Number.isFinite(value) ? String(value) : "0";
+            const lab = document.createElement("span");
+            lab.className = "community-profile-stat-label";
+            lab.textContent = statLabel;
+            card.appendChild(v);
+            card.appendChild(lab);
+            return card;
+          };
+          statsGrid.appendChild(mkStat(ec, "Episodes done"));
+          statsGrid.appendChild(mkStat(st, "Shows on list"));
+          statsGrid.appendChild(mkStat(postsTotal, "Posts made"));
+          statsSec.appendChild(statsGrid);
+          inner.appendChild(statsSec);
 
-            if (genres.length) {
-              const gLabel = document.createElement("p");
-              gLabel.className = "community-profile-shelf-label";
-              gLabel.style.marginTop = "0.15rem";
-              gLabel.textContent = "Top genres";
-              inner.appendChild(gLabel);
-              const gRow = document.createElement("div");
-              gRow.className = "community-profile-genre-row";
-              for (const g of genres) {
-                if (!g || !String(g).trim()) continue;
-                const pill = document.createElement("span");
-                pill.className = "community-profile-genre-pill";
-                pill.textContent = prettyGenreLabel(String(g));
-                gRow.appendChild(pill);
-              }
-              inner.appendChild(gRow);
+          const genreSec = document.createElement("section");
+          genreSec.className = "cmp-profile-section";
+          genreSec.appendChild(cmpProfileSectionTitle("Taste profile"));
+          if (genres.length) {
+            const gRow = document.createElement("div");
+            gRow.className = "cmp-profile-genre-row community-profile-genre-row";
+            for (const g of genres) {
+              if (!g || !String(g).trim()) continue;
+              const pill = document.createElement("span");
+              pill.className = "community-profile-genre-pill";
+              pill.textContent = prettyGenreLabel(String(g));
+              gRow.appendChild(pill);
             }
+            genreSec.appendChild(gRow);
+          } else {
+            const empty = document.createElement("p");
+            empty.className = "cmp-profile-empty";
+            empty.textContent = "No genre data yet";
+            genreSec.appendChild(empty);
+          }
+          inner.appendChild(genreSec);
 
-            if (shelf.length) {
-              const shLabel = document.createElement("p");
-              shLabel.className = "community-profile-shelf-label";
-              shLabel.textContent = "Currently watching";
-              inner.appendChild(shLabel);
-              const sh = document.createElement("div");
-              sh.className = "community-profile-shelf";
-              for (const it of shelf) {
-                const card = document.createElement("div");
-                card.className = "community-profile-shelf-card";
+          const rp = Array.isArray(d.recentPosts) ? d.recentPosts : [];
+          const postsSec = document.createElement("section");
+          postsSec.className = "cmp-profile-section";
+          postsSec.appendChild(cmpProfileSectionTitle("Recent posts"));
+          if (rp.length) {
+            for (const post of rp.slice(0, 3)) {
+              const postCard = document.createElement("button");
+              postCard.type = "button";
+              postCard.className = "cmp-profile-post-card";
+              const plain = (post.bodyHtml || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+              const truncated = plain.length > 160 ? plain.slice(0, 160).trimEnd() + "\u2026" : plain;
+              const badge = document.createElement("span");
+              badge.className = "cmp-profile-post-badge";
+              badge.textContent =
+                (post.showName && String(post.showName).trim() ? String(post.showName).trim() : "Show") +
+                (post.episodeLabel ? " \u00b7 " + String(post.episodeLabel).trim() : "");
+              const bodyP = document.createElement("p");
+              bodyP.className = "cmp-profile-post-body";
+              bodyP.textContent = truncated || "(No text)";
+              if (plain.length > 160) {
+                const more = document.createElement("span");
+                more.className = "cmp-profile-post-read-more";
+                more.textContent = " Read more";
+                bodyP.appendChild(more);
+              }
+              const time = document.createElement("span");
+              time.className = "cmp-profile-post-time";
+              time.textContent = formatCommunityRelativeTime(post.createdAt);
+              postCard.appendChild(badge);
+              postCard.appendChild(bodyP);
+              postCard.appendChild(time);
+              postCard.addEventListener("click", () => {
+                closeCommunityMemberProfile();
+                openCommunityThread(post.tvmazeShowId, post.showName, 0, {});
+              });
+              postsSec.appendChild(postCard);
+            }
+            if (postsTotal > rp.length) {
+              const morePosts = document.createElement("p");
+              morePosts.className = "muted";
+              morePosts.style.cssText = "margin:0.35rem 0 0;font-size:0.8rem";
+              morePosts.textContent = "View all " + postsTotal + " posts in Community";
+              postsSec.appendChild(morePosts);
+            }
+          } else {
+            const empty = document.createElement("p");
+            empty.className = "cmp-profile-empty";
+            empty.textContent = "No posts yet";
+            postsSec.appendChild(empty);
+          }
+          inner.appendChild(postsSec);
+
+          const watchSec = document.createElement("section");
+          watchSec.className = "cmp-profile-section";
+          watchSec.appendChild(cmpProfileSectionTitle("Currently watching"));
+          const watchHost = document.createElement("div");
+          watchSec.appendChild(watchHost);
+          if (shelf.length) {
+            const watchingKey = cmpProfileExpandStorageKey(userId, "watching-all");
+            let showAllWatching = sessionStorage.getItem(watchingKey) === "1";
+            const WATCHING_INITIAL = 6;
+            const renderWatching = () => {
+              watchHost.innerHTML = "";
+              const grid = document.createElement("div");
+              grid.className = "cmp-profile-watching-grid";
+              const slice = showAllWatching ? shelf : shelf.slice(0, WATCHING_INITIAL);
+              for (const it of slice) {
+                const tile = document.createElement("div");
+                tile.className = "cmp-profile-watching-tile";
+                const showName =
+                  it.showName && String(it.showName).trim() ? String(it.showName).trim() : "Show";
+                const ph = document.createElement("div");
+                ph.className = "cmp-profile-watching-tile-ph";
+                ph.textContent = showName.charAt(0).toUpperCase();
+                tile.appendChild(ph);
+                if (it.tvmazeShowId) {
+                  void fetchTvmazeShowImageUrl(it.tvmazeShowId).then((url) => {
+                    if (!url || !tile.isConnected) return;
+                    const img = document.createElement("img");
+                    img.alt = "";
+                    img.loading = "lazy";
+                    img.decoding = "async";
+                    img.src = url;
+                    ph.replaceWith(img);
+                  });
+                }
+                const overlay = document.createElement("div");
+                overlay.className = "cmp-profile-watching-overlay";
                 const t = document.createElement("span");
-                t.className = "community-profile-shelf-title";
-                t.textContent = it.showName && String(it.showName).trim() ? String(it.showName).trim() : "Show";
+                t.className = "cmp-profile-watching-title";
+                t.textContent = showName;
                 const ep = document.createElement("span");
-                ep.className = "community-profile-shelf-ep";
-                const nextEp = it.nextEpisodeLabel && String(it.nextEpisodeLabel).trim() ? String(it.nextEpisodeLabel).trim() : "—";
+                ep.className = "cmp-profile-watching-ep";
+                const nextEp =
+                  it.nextEpisodeLabel && String(it.nextEpisodeLabel).trim()
+                    ? String(it.nextEpisodeLabel).trim()
+                    : "\u2014";
                 const ad = it.nextAirdate ? formatProfileCompletedAt(it.nextAirdate) : "";
-                ep.textContent = ad ? nextEp + " · aired " + ad : nextEp;
-                card.appendChild(t);
-                card.appendChild(ep);
-                sh.appendChild(card);
+                ep.textContent = ad ? nextEp + " \u00b7 aired " + ad : nextEp;
+                overlay.appendChild(t);
+                overlay.appendChild(ep);
+                tile.appendChild(overlay);
+                grid.appendChild(tile);
               }
-              inner.appendChild(sh);
-            }
+              watchHost.appendChild(grid);
+              if (shelf.length > WATCHING_INITIAL) {
+                const expandBtn = document.createElement("button");
+                expandBtn.type = "button";
+                expandBtn.className = "cmp-profile-expand-btn";
+                expandBtn.textContent = showAllWatching
+                  ? "Show less"
+                  : "View all " + shelf.length + " shows";
+                expandBtn.addEventListener("click", () => {
+                  showAllWatching = !showAllWatching;
+                  sessionStorage.setItem(watchingKey, showAllWatching ? "1" : "0");
+                  renderWatching();
+                });
+                watchHost.appendChild(expandBtn);
+              }
+            };
+            renderWatching();
+          } else {
+            const empty = document.createElement("p");
+            empty.className = "cmp-profile-empty";
+            empty.textContent = "Not currently watching anything";
+            watchHost.appendChild(empty);
+          }
+          inner.appendChild(watchSec);
 
-            if (hist.length) {
-              const hLabel = document.createElement("p");
-              hLabel.className = "community-profile-shelf-label";
-              hLabel.textContent = "Recent watches";
-              inner.appendChild(hLabel);
-              const ul = document.createElement("ul");
-              ul.className = "community-profile-history";
-              for (const h of hist.slice(0, 12)) {
-                const li = document.createElement("li");
-                const strong = document.createElement("strong");
-                strong.textContent =
-                  h.episodeLabel && String(h.episodeLabel).trim() ? String(h.episodeLabel).trim() : "—";
-                li.appendChild(strong);
-                li.appendChild(document.createTextNode(" · "));
-                li.appendChild(
-                  document.createTextNode(
-                    h.showName && String(h.showName).trim() ? String(h.showName).trim() : "—",
-                  ),
-                );
-                const meta = document.createElement("span");
-                meta.className = "community-profile-history-meta";
-                meta.textContent = "Watched " + formatProfileCompletedAt(h.completedAt);
-                li.appendChild(meta);
-                ul.appendChild(li);
-              }
-              inner.appendChild(ul);
-            }
-            }
+          if (hist.length) {
+            inner.appendChild(
+              cmpProfileCollapsible(userId, "history", "Recent watches (" + hist.length + ")", (panel) => {
+                const ul = document.createElement("ul");
+                ul.className = "community-profile-history";
+                for (const h of hist) {
+                  const li = document.createElement("li");
+                  const strong = document.createElement("strong");
+                  strong.textContent =
+                    h.episodeLabel && String(h.episodeLabel).trim() ? String(h.episodeLabel).trim() : "\u2014";
+                  li.appendChild(strong);
+                  li.appendChild(document.createTextNode(" \u00b7 "));
+                  li.appendChild(
+                    document.createTextNode(
+                      h.showName && String(h.showName).trim() ? String(h.showName).trim() : "\u2014",
+                    ),
+                  );
+                  const meta = document.createElement("span");
+                  meta.className = "community-profile-history-meta";
+                  meta.textContent = "Watched " + formatProfileCompletedAt(h.completedAt);
+                  li.appendChild(meta);
+                  ul.appendChild(li);
+                }
+                panel.appendChild(ul);
+              }),
+            );
           }
 
-          const secAbout = document.createElement("div");
-          secAbout.className = "community-member-profile-section-title";
-          secAbout.textContent = "About you";
-          inner.appendChild(secAbout);
-
-          const aboutP = document.createElement("p");
-          aboutP.className = "community-member-profile-about";
-          const aboutRaw = d.aboutMe != null && String(d.aboutMe).trim() ? String(d.aboutMe).trim() : "—";
-          aboutP.textContent = aboutRaw;
-          inner.appendChild(aboutP);
-
+          const personalSec = document.createElement("section");
+          personalSec.className = "cmp-profile-section";
+          personalSec.appendChild(cmpProfileSectionTitle("Personal info"));
+          const personalBox = document.createElement("div");
+          personalBox.className = "cmp-profile-personal";
           const rowAge = document.createElement("div");
           rowAge.className = "profile-readonly-row";
           const ageVal =
-            d.age != null && d.age !== "" && Number.isFinite(Number(d.age)) ? String(d.age) : "—";
+            d.age != null && d.age !== "" && Number.isFinite(Number(d.age)) ? String(d.age) : "\u2014";
           rowAge.innerHTML =
             "<span class=\"profile-readonly-label\">Age</span><span class=\"profile-readonly-value\">" +
             escapeHtml(ageVal) +
             "</span>";
-          inner.appendChild(rowAge);
-
+          personalBox.appendChild(rowAge);
           const rowSex = document.createElement("div");
           rowSex.className = "profile-readonly-row";
           rowSex.innerHTML =
             "<span class=\"profile-readonly-label\">Sex</span><span class=\"profile-readonly-value\">" +
             escapeHtml(communityPublicSexLabel(d.sex)) +
             "</span>";
-          inner.appendChild(rowSex);
-
+          personalBox.appendChild(rowSex);
           const rowFav = document.createElement("div");
           rowFav.className = "profile-readonly-row";
           const favParts = [d.favoriteShow, d.favoriteShow2, d.favoriteShow3]
             .map((x) => (x != null && String(x).trim() ? String(x).trim() : ""))
             .filter(Boolean);
-          const fav = favParts.length ? favParts.join(" · ") : "—";
+          const fav = favParts.length ? favParts.join(" \u00b7 ") : "\u2014";
           rowFav.innerHTML =
             "<span class=\"profile-readonly-label\">Favorite shows</span><span class=\"profile-readonly-value\">" +
             escapeHtml(fav) +
             "</span>";
-          inner.appendChild(rowFav);
+          personalBox.appendChild(rowFav);
+          personalSec.appendChild(personalBox);
+          inner.appendChild(personalSec);
 
-          const rp = Array.isArray(d.recentPosts) ? d.recentPosts : [];
-          if (rp.length > 0) {
-            const secPosts = document.createElement("div");
-            secPosts.className = "community-member-profile-section-title";
-            secPosts.textContent = "Recent posts";
-            inner.appendChild(secPosts);
-            for (const post of rp) {
-              const postCard = document.createElement("button");
-              postCard.type = "button";
-              postCard.className = "community-thread-card";
-              postCard.style.cssText = "margin-bottom:0.4rem;padding:0.6rem 0.75rem";
-              const snippet = (post.bodyHtml || "").replace(/<[^>]*>/g, "").slice(0, 120);
-              postCard.innerHTML =
-                '<div class="community-thread-ep-show">' + escapeHtml(post.showName || "Show") +
-                (post.episodeLabel ? " \u00b7 " + escapeHtml(post.episodeLabel) : "") + '</div>' +
-                '<p style="font-size:0.82rem;margin:0.2rem 0 0;color:rgba(186,230,253,0.88);line-height:1.35">' + escapeHtml(snippet) + '</p>' +
-                '<span style="font-size:0.68rem;color:var(--muted)">' + formatCommunityRelativeTime(post.createdAt) + '</span>';
-              postCard.addEventListener("click", () => {
-                closeCommunityMemberProfile();
-                openCommunityThread(post.tvmazeShowId, post.showName, 0, {});
-              });
-              inner.appendChild(postCard);
-            }
-          }
-
-          await applyPresenceToWrappers([{ wrap: memberAvatarOuter, userId }]);
-
-          body.innerHTML = "";
-          body.appendChild(inner);
-          modal.dataset.profileLabel = label;
-          const dmBtn = document.getElementById("communityMemberProfileDmBtn");
-          const dmHint = document.getElementById("communityMemberProfileDmHint");
-          const selfId = sessionMeSnapshot && sessionMeSnapshot.id;
-          if (dmBtn && dmHint) {
-            if (userId === selfId) {
-              dmBtn.hidden = true;
-              dmHint.hidden = true;
-            } else if (accountKind(sessionMeSnapshot) === "guest") {
-              dmBtn.hidden = true;
-              dmHint.hidden = false;
-              dmHint.textContent = guestNeedAccountToast("to send direct messages");
-            } else if (accountKind(sessionMeSnapshot) === "unknown") {
-              dmBtn.hidden = true;
-              dmHint.hidden = true;
-            } else if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
-              dmBtn.hidden = true;
-              dmHint.hidden = false;
-              dmHint.textContent = UNLOCK_SOCIAL_UX_MESSAGE;
-            } else {
-              dmBtn.hidden = false;
-              dmHint.hidden = true;
-            }
-          }
-          const followBar = document.getElementById("communityProfileFollowBar");
-          const followBtn = document.getElementById("communityProfileFollowBtn");
-          const followStats = document.getElementById("communityProfileFollowStats");
-          if (
-            followBar &&
-            followBtn &&
-            selfId &&
-            userId !== selfId &&
-            accountIsRegistered(sessionMeSnapshot) &&
-            hasFullSocialUiAccess(sessionMeSnapshot)
-          ) {
-            followBar.hidden = false;
-            try {
-              const fs = await api("/api/users/" + encodeURIComponent(userId) + "/follow-status");
-              followBtn.textContent = fs.following ? "Following" : "Follow";
-              followBtn.classList.toggle("following", !!fs.following);
-              followStats.textContent = (fs.followerCount || 0) + " follower" + (fs.followerCount === 1 ? "" : "s");
-              followBtn.onclick = async () => {
-                const isFollowing = followBtn.classList.contains("following");
-                try {
-                  if (isFollowing) {
-                    await api("/api/users/" + encodeURIComponent(userId) + "/follow", { method: "DELETE" });
-                    followBtn.textContent = "Follow";
-                    followBtn.classList.remove("following");
-                    const c = parseInt(followStats.textContent) || 0;
-                    followStats.textContent = Math.max(0, c - 1) + " follower" + (Math.max(0, c - 1) === 1 ? "" : "s");
-                  } else {
-                    await api("/api/users/" + encodeURIComponent(userId) + "/follow", { method: "POST", body: "{}" });
-                    followBtn.textContent = "Following";
-                    followBtn.classList.add("following");
-                    const c = parseInt(followStats.textContent) || 0;
-                    followStats.textContent = (c + 1) + " follower" + ((c + 1) === 1 ? "" : "s");
-                  }
-                } catch (e) { showToast(e.message || "Could not update follow"); }
-              };
-            } catch { followBar.hidden = true; }
-          } else if (followBar) {
-            followBar.hidden = true;
-          }
           if (selfId && userId !== selfId) {
+            const modSec = document.createElement("section");
+            modSec.className = "cmp-profile-section";
+            modSec.appendChild(cmpProfileSectionTitle("Moderation"));
             const safetyBar = document.createElement("div");
-            safetyBar.style.cssText = "display:flex;gap:0.45rem;margin-top:0.55rem;flex-wrap:wrap";
+            safetyBar.className = "cmp-profile-moderation";
             const reportUserBtn = document.createElement("button");
             reportUserBtn.type = "button";
             reportUserBtn.className = "secondary";
             reportUserBtn.textContent = "Report user";
-            reportUserBtn.addEventListener("click", () => submitModerationReport("user", userId, userId, "harassment"));
+            reportUserBtn.addEventListener("click", () =>
+              submitModerationReport("user", userId, userId, "harassment"),
+            );
             safetyBar.appendChild(reportUserBtn);
             const blockUserBtn = document.createElement("button");
             blockUserBtn.type = "button";
             blockUserBtn.className = "secondary";
             blockUserBtn.textContent = "Block";
-            blockUserBtn.title = "Blocks and mutes are stored for this account; deeper feed/message filtering can build on this.";
             blockUserBtn.addEventListener("click", async () => {
               try {
                 await api("/api/users/" + encodeURIComponent(userId) + "/block", { method: "POST", body: "{}" });
@@ -20354,8 +22033,16 @@
               }
             });
             safetyBar.appendChild(blockUserBtn);
-            body.appendChild(safetyBar);
+            modSec.appendChild(safetyBar);
+            inner.appendChild(modSec);
           }
+
+          await applyPresenceToWrappers([{ wrap: memberAvatarOuter, userId }]);
+
+          body.innerHTML = "";
+          body.appendChild(inner);
+          modal.dataset.profileLabel = label;
+          await wireCmpProfileQuickActions(userId, label, selfId);
         } catch (e) {
           body.innerHTML = "";
           if (errEl) {
@@ -21849,6 +23536,47 @@
         const panel = document.getElementById("tab-tasks");
         wireFoldTogglesIn(panel);
         setupPostWatchReviewModalWiring();
+        const compactToggle = document.getElementById("tasksCompactToggle");
+        if (compactToggle && compactToggle.dataset.aaWired !== "1") {
+          compactToggle.dataset.aaWired = "1";
+          compactToggle.checked = sessionStorage.getItem("tasksViewCompact") === "1";
+          compactToggle.addEventListener("change", () => {
+            tasksState.compact = compactToggle.checked;
+            sessionStorage.setItem("tasksViewCompact", tasksState.compact ? "1" : "0");
+            syncTasksCompactClass();
+            if (tasksState.userId) renderTasksOpenHost(tasksState.userId);
+          });
+        }
+        document.getElementById("tasksExpandAllBtn")?.addEventListener("click", () => {
+          document.querySelectorAll("#tasksOpenHost .tasks-show-card").forEach((card) => {
+            const sk = card.dataset.showKey;
+            if (sk) {
+              tasksState.showExpanded.add(sk);
+              sessionStorage.setItem(tasksShowStorageKey(sk), "1");
+            }
+            card.classList.add("is-expanded");
+            const eps = card.querySelector(".tasks-show-eps");
+            const head = card.querySelector(".tasks-show-head");
+            const chev = card.querySelector(".tasks-show-chev");
+            if (eps) eps.hidden = false;
+            if (head) head.setAttribute("aria-expanded", "true");
+            if (chev) chev.textContent = "\u25bc";
+          });
+        });
+        document.getElementById("tasksCollapseAllBtn")?.addEventListener("click", () => {
+          tasksState.showExpanded.clear();
+          document.querySelectorAll("#tasksOpenHost .tasks-show-card").forEach((card) => {
+            const sk = card.dataset.showKey;
+            if (sk) sessionStorage.setItem(tasksShowStorageKey(sk), "0");
+            card.classList.remove("is-expanded");
+            const eps = card.querySelector(".tasks-show-eps");
+            const head = card.querySelector(".tasks-show-head");
+            const chev = card.querySelector(".tasks-show-chev");
+            if (eps) eps.hidden = true;
+            if (head) head.setAttribute("aria-expanded", "false");
+            if (chev) chev.textContent = "\u25b6";
+          });
+        });
       }
 
       function mountShellLazyCommunity() {
@@ -22079,6 +23807,22 @@
         fab.addEventListener("click", () => void openCommunityNewModal());
       }
 
+      function syncDmInboxComposerForKeyboard() {
+        const host = document.getElementById("dmInboxComposerHost");
+        const tv = document.getElementById("dmInboxThreadView");
+        if (!host || !tv || tv.hidden) {
+          if (host) host.style.transform = "";
+          return;
+        }
+        const vv = window.visualViewport;
+        if (!vv) {
+          host.style.transform = "";
+          return;
+        }
+        const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+        host.style.transform = offset > 8 ? "translateY(-" + offset + "px)" : "";
+      }
+
       function wireDmInboxSendAndInput() {
         const root = document.getElementById("tab-messages");
         if (!root || root.getAttribute("data-aa-dm-inbox-wired") === "1") return;
@@ -22086,6 +23830,14 @@
         const input = document.getElementById("dmInboxInput");
         if (!send || !input) return;
         root.setAttribute("data-aa-dm-inbox-wired", "1");
+        if (!root.dataset.aaDmKeyboardWired) {
+          root.dataset.aaDmKeyboardWired = "1";
+          if (window.visualViewport) {
+            window.visualViewport.addEventListener("resize", syncDmInboxComposerForKeyboard);
+            window.visualViewport.addEventListener("scroll", syncDmInboxComposerForKeyboard);
+          }
+          window.addEventListener("resize", syncDmInboxComposerForKeyboard);
+        }
         send.addEventListener("click", () => void sendDmFromInbox());
         input.addEventListener("keydown", (e) => {
           if (e.key === "Enter" && !e.shiftKey) {
@@ -22118,6 +23870,13 @@
             dmTypingStopTimer = null;
           }, 2500);
         });
+        input.addEventListener("focus", () => {
+          syncDmInboxComposerForKeyboard();
+          setTimeout(() => {
+            syncDmInboxComposerForKeyboard();
+            input.scrollIntoView({ block: "nearest", behavior: "smooth" });
+          }, 280);
+        });
         input.addEventListener("blur", () => {
           sendDmTypingWs(false);
           sendDmGroupTypingWs(false);
@@ -22129,6 +23888,7 @@
             clearTimeout(dmGroupTypingStopTimer);
             dmGroupTypingStopTimer = null;
           }
+          setTimeout(syncDmInboxComposerForKeyboard, 120);
         });
       }
 

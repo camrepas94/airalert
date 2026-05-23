@@ -445,6 +445,8 @@ export type DmGroupListRow = {
   lastMessageAt: string;
   lastBody: string | null;
   lastSenderId: string | null;
+  /** Display label for last message author (groups inbox preview). */
+  lastSenderLabel: string | null;
   memberCount: number;
   unreadCount: number;
 };
@@ -647,6 +649,7 @@ export function listDmGroupsForUser(userId: string): DmGroupListRow[] {
       lastMessageAt: t.lastMessageAt,
       lastBody: lm?.body ?? null,
       lastSenderId: lm?.senderId ?? null,
+      lastSenderLabel: lm?.senderId ? authorLabelForUser(lm.senderId) : null,
       memberCount: Number(mc.c) || 0,
       unreadCount: Number(c.c) || 0,
     };
