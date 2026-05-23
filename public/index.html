@@ -3767,6 +3767,38 @@
         opacity: 0.45;
         cursor: not-allowed;
       }
+      .aa-btn-gradient {
+        border: none;
+        border-radius: 999px;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #fff;
+        background: linear-gradient(125deg, #22d3ee 0%, #a855f7 50%, #ec4899 100%);
+        box-shadow: 0 0 22px rgba(168, 85, 247, 0.38), 0 4px 18px rgba(34, 211, 238, 0.12);
+        transition: box-shadow 0.18s ease, transform 0.15s ease, filter 0.15s ease;
+      }
+      .aa-btn-gradient:hover:not(:disabled) {
+        transform: translateY(-1px) scale(1.02);
+        filter: brightness(1.06);
+        box-shadow: 0 0 34px rgba(168, 85, 247, 0.55), 0 6px 22px rgba(34, 211, 238, 0.18);
+      }
+      .aa-btn-gradient:active:not(:disabled) {
+        transform: translateY(0) scale(1);
+      }
+      .aa-btn-gradient.following {
+        background: linear-gradient(
+          125deg,
+          rgba(34, 211, 238, 0.22) 0%,
+          rgba(168, 85, 247, 0.28) 50%,
+          rgba(236, 72, 153, 0.22) 100%
+        );
+        box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.45), 0 0 20px rgba(168, 85, 247, 0.22);
+        color: #f8fafc;
+      }
+      .aa-btn-gradient.following:hover:not(:disabled) {
+        filter: brightness(1.08);
+      }
       ul {
         list-style: none;
         padding: 0;
@@ -4203,18 +4235,6 @@
         font-size: 0.65rem;
         color: rgba(148, 163, 184, 0.9);
       }
-      .tasks-show-batch {
-        display: flex;
-        gap: 0.3rem;
-        padding: 0 0.45rem 0.4rem;
-        flex-wrap: wrap;
-      }
-      .tasks-show-batch button {
-        font-size: 0.64rem;
-        padding: 0.22rem 0.4rem;
-        min-height: 30px;
-        border-radius: 7px;
-      }
       .tasks-show-eps {
         border-top: 1px solid rgba(255, 255, 255, 0.06);
         padding: 0.25rem 0.35rem 0.35rem;
@@ -4346,6 +4366,393 @@
       }
       #tab-tasks.tasks-tab--compact .tasks-show-sub--detail {
         display: none;
+      }
+      /* My List — card layout aligned with Tasks */
+      .mylist-page-root {
+        padding-bottom: 1.5rem;
+      }
+      .mylist-header-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.45rem 0.65rem;
+        margin-bottom: 0.45rem;
+      }
+      .mylist-heading {
+        margin: 0;
+        font-size: 1rem;
+      }
+      .mylist-header-tools {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      .mylist-sort-wrap {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+      }
+      .mylist-sort-select {
+        min-height: 36px;
+        padding: 0.28rem 0.5rem;
+        border-radius: 8px;
+        border: 1px solid rgba(130, 200, 255, 0.22);
+        background: rgba(0, 0, 0, 0.35);
+        color: rgba(226, 242, 255, 0.95);
+        font-size: 0.68rem;
+        font-weight: 600;
+        max-width: 11rem;
+      }
+      .mylist-search-wrap {
+        position: relative;
+        margin-bottom: 0.55rem;
+      }
+      .mylist-search-icon {
+        position: absolute;
+        left: 0.65rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.9rem;
+        color: rgba(148, 163, 184, 0.85);
+        pointer-events: none;
+      }
+      .mylist-search-input {
+        width: 100%;
+        box-sizing: border-box;
+        min-height: 44px;
+        padding: 0.45rem 2.2rem 0.45rem 2rem;
+        border-radius: 10px;
+        border: 1px solid rgba(130, 200, 255, 0.18);
+        background: rgba(0, 0, 0, 0.35);
+        color: var(--text);
+        font-size: 0.88rem;
+      }
+      .mylist-search-clear {
+        position: absolute;
+        right: 0.35rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: rgba(186, 230, 253, 0.9);
+        font-size: 1.25rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .mylist-stats-grid .tasks-stat-label {
+        font-size: 0.62rem;
+        letter-spacing: 0.04em;
+      }
+      .mylist-host {
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+      }
+      #tab-shows.mylist-tab--grid .mylist-section-body--grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.45rem;
+      }
+      @media (min-width: 640px) {
+        #tab-shows.mylist-tab--grid .mylist-section-body--grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      .mylist-section {
+        border-radius: 12px;
+        border: 1px solid rgba(130, 200, 255, 0.1);
+        background: rgba(4, 8, 18, 0.45);
+        overflow: hidden;
+      }
+      .mylist-section--airing {
+        border-color: rgba(34, 211, 238, 0.28);
+        box-shadow: 0 0 20px -8px rgba(34, 211, 238, 0.35);
+      }
+      .mylist-section-toggle {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        width: 100%;
+        min-height: 44px;
+        padding: 0.5rem 0.65rem;
+        border: none;
+        background: linear-gradient(
+          90deg,
+          rgba(34, 211, 238, 0.14) 0%,
+          rgba(91, 156, 255, 0.1) 50%,
+          rgba(168, 85, 247, 0.12) 100%
+        );
+        color: #f0fdfa;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .mylist-section--hiatus .mylist-section-toggle {
+        background: linear-gradient(90deg, rgba(100, 116, 139, 0.2), rgba(71, 85, 105, 0.15));
+        color: rgba(226, 232, 240, 0.9);
+      }
+      .mylist-section--ended .mylist-section-toggle {
+        background: linear-gradient(90deg, rgba(71, 85, 105, 0.22), rgba(51, 65, 85, 0.18));
+        color: rgba(203, 213, 225, 0.85);
+      }
+      .mylist-section-head-text {
+        flex: 1;
+        min-width: 0;
+      }
+      .mylist-section-title {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .mylist-section-hint {
+        display: block;
+        font-size: 0.68rem;
+        color: rgba(148, 163, 184, 0.9);
+        margin-top: 0.12rem;
+        line-height: 1.35;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0;
+      }
+      .mylist-section-chev {
+        flex-shrink: 0;
+        font-size: 0.65rem;
+        margin-top: 0.15rem;
+      }
+      .mylist-section-count {
+        flex-shrink: 0;
+        font-size: 0.72rem;
+        font-weight: 700;
+        min-width: 1.5rem;
+        height: 1.5rem;
+        padding: 0 0.4rem;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        margin-top: 0.05rem;
+      }
+      .mylist-section-body {
+        padding: 0 0.45rem 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+      .mylist-section-body[hidden] {
+        display: none !important;
+      }
+      .mylist-section-empty {
+        margin: 0;
+        padding: 0.35rem 0.2rem 0.5rem;
+        font-size: 0.78rem;
+      }
+      .mylist-show-card {
+        border-radius: 10px;
+        border: 1px solid rgba(130, 200, 255, 0.12);
+        background: rgba(6, 10, 22, 0.72);
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .mylist-show-card:hover {
+        transform: scale(1.01);
+        box-shadow: 0 6px 24px rgba(34, 211, 238, 0.08);
+      }
+      .mylist-show-card--binge {
+        border-color: rgba(168, 85, 247, 0.35);
+      }
+      .mylist-show-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.55rem;
+        width: 100%;
+        padding: 0.45rem 0.5rem;
+        border: none;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .mylist-show-poster,
+      .mylist-show-poster-ph {
+        width: 72px;
+        flex-shrink: 0;
+        aspect-ratio: 2 / 3;
+        border-radius: 8px;
+        object-fit: cover;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(130, 200, 255, 0.15);
+      }
+      .mylist-show-poster-ph {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: rgba(186, 230, 253, 0.5);
+        background: linear-gradient(145deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.1));
+      }
+      @media (min-width: 720px) {
+        .mylist-show-poster,
+        .mylist-show-poster-ph {
+          width: 96px;
+        }
+      }
+      #tab-shows.mylist-tab--grid .mylist-show-head {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      #tab-shows.mylist-tab--grid .mylist-show-poster,
+      #tab-shows.mylist-tab--grid .mylist-show-poster-ph {
+        width: min(120px, 70%);
+      }
+      .mylist-show-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .mylist-show-title-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.35rem;
+      }
+      .mylist-show-title {
+        flex: 1;
+        font-size: 0.9rem;
+        font-weight: 700;
+        line-height: 1.3;
+        color: #f8fafc;
+        overflow-wrap: anywhere;
+      }
+      .mylist-binge-badge {
+        flex-shrink: 0;
+        font-size: 0.55rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 0.12rem 0.32rem;
+        border-radius: 999px;
+        background: rgba(168, 85, 247, 0.25);
+        border: 1px solid rgba(168, 85, 247, 0.45);
+        color: #e9d5ff;
+      }
+      .mylist-show-sub {
+        display: block;
+        font-size: 0.72rem;
+        color: rgba(148, 163, 184, 0.95);
+        margin-top: 0.15rem;
+        line-height: 1.35;
+      }
+      .mylist-show-next {
+        display: block;
+        font-size: 0.7rem;
+        color: rgba(34, 211, 238, 0.9);
+        margin-top: 0.2rem;
+      }
+      .mylist-show-chev {
+        flex-shrink: 0;
+        margin-top: 0.2rem;
+        font-size: 0.65rem;
+        color: rgba(148, 163, 184, 0.9);
+      }
+      .mylist-show-eps {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 0.25rem 0.35rem 0.35rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+      .mylist-show-eps[hidden] {
+        display: none !important;
+      }
+      .mylist-show-batch {
+        display: flex;
+        gap: 0.3rem;
+        padding: 0 0.35rem 0.25rem;
+        flex-wrap: wrap;
+      }
+      .mylist-show-batch button {
+        font-size: 0.64rem;
+        padding: 0.22rem 0.4rem;
+        min-height: 30px;
+        border-radius: 7px;
+      }
+      .mylist-show-footer {
+        padding: 0.35rem 0.45rem 0.45rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        align-items: center;
+      }
+      .mylist-show-meta-line {
+        width: 100%;
+        font-size: 0.68rem;
+        color: rgba(148, 163, 184, 0.9);
+        margin: 0 0 0.2rem;
+      }
+      .mylist-show-rating {
+        font-size: 0.72rem;
+        color: rgba(251, 191, 36, 0.95);
+        margin-right: auto;
+      }
+      .mylist-show-footer .secondary {
+        min-height: 36px;
+        font-size: 0.72rem;
+      }
+      .mylist-show-footer .danger {
+        min-height: 36px;
+        font-size: 0.72rem;
+        opacity: 0.85;
+      }
+      .mylist-binge-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.72rem;
+        color: rgba(186, 230, 253, 0.9);
+        min-height: 36px;
+      }
+      .mylist-filter-empty {
+        margin: 0.5rem 0;
+        font-size: 0.84rem;
+        text-align: center;
+      }
+      .mylist-skeleton-host {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+      .mylist-skeleton-card {
+        height: 5.5rem;
+        border-radius: 10px;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.04) 0%,
+          rgba(255, 255, 255, 0.1) 50%,
+          rgba(255, 255, 255, 0.04) 100%
+        );
+        background-size: 200% 100%;
+        animation: mylist-shimmer 1.2s ease-in-out infinite;
+      }
+      @keyframes mylist-shimmer {
+        0% {
+          background-position: 100% 0;
+        }
+        100% {
+          background-position: -100% 0;
+        }
       }
       .task-body {
         flex: 1;
@@ -6406,7 +6813,15 @@
         flex: 1 1 auto;
         min-height: 0;
         width: 100%;
-        background: linear-gradient(165deg, rgba(10, 14, 24, 0.97) 0%, rgba(5, 8, 18, 0.98) 100%);
+        padding: 0;
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        box-shadow: none;
+        overflow: visible;
         contain: layout;
       }
       /**
@@ -8927,43 +9342,21 @@
         gap: 0.5rem;
         margin-bottom: 0.5rem;
       }
-      .cmp-profile-action-row .community-profile-follow-btn,
-      .cmp-profile-action-row .cmp-profile-dm-btn {
+      .cmp-profile-action-row .aa-btn-gradient {
         flex: 1 1 0;
         min-height: 44px;
-        padding: 0.65rem 1rem;
-        border-radius: 12px;
-        font-size: 0.88rem;
-        font-weight: 700;
+        padding: 0.62rem 1rem;
+        font-size: 0.78rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.4rem;
-        cursor: pointer;
+        gap: 0.45rem;
         touch-action: manipulation;
-        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
       }
-      .cmp-profile-action-row .community-profile-follow-btn {
-        border: 1px solid rgba(34, 211, 238, 0.45);
-        background: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(91, 156, 255, 0.28));
-        color: #ecfeff;
-        box-shadow: 0 4px 18px rgba(34, 211, 238, 0.2);
-      }
-      .cmp-profile-action-row .community-profile-follow-btn:hover:not(:disabled) {
-        transform: scale(1.02);
-      }
-      .cmp-profile-action-row .community-profile-follow-btn.following {
-        background: rgba(34, 211, 238, 0.12);
-        border-color: rgba(34, 211, 238, 0.35);
-      }
-      .cmp-profile-dm-btn {
-        border: 1px solid rgba(130, 200, 255, 0.28);
-        background: transparent;
-        color: rgba(226, 242, 255, 0.95);
-      }
-      .cmp-profile-dm-btn:hover:not(:disabled) {
-        transform: scale(1.02);
-        background: rgba(255, 255, 255, 0.05);
+      .cmp-profile-action-row .aa-btn-gradient svg {
+        width: 1.05rem;
+        height: 1.05rem;
+        flex-shrink: 0;
       }
       .cmp-profile-follow-counts {
         margin: 0;
@@ -10732,21 +11125,8 @@
         min-height: 46px;
         min-width: 10.5rem;
         font-size: 0.82rem;
-        font-weight: 750;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        border-radius: 999px;
-        border: none;
         padding: 0.62rem 1.35rem;
-        color: #fff;
         cursor: pointer;
-        background: linear-gradient(125deg, #22d3ee 0%, #a855f7 50%, #ec4899 100%);
-        box-shadow: 0 0 22px rgba(168, 85, 247, 0.38);
-        transition: box-shadow 0.15s ease, transform 0.12s ease;
-      }
-      .profile-edit-save-primary:hover {
-        box-shadow: 0 0 34px rgba(168, 85, 247, 0.55);
-        transform: translateY(-1px);
       }
       .profile-remove-photo-btn {
         width: 100%;
@@ -11442,26 +11822,67 @@
 
       <template id="tpl-shell-tab-shows">
         <div class="app-shell-mounted" data-app-shell-mounted="shows">
-        <section class="panel-rail-blue shows-list-section" aria-labelledby="foldSubsHeading">
-          <button
-            type="button"
-            class="fold-toggle fold-toggle-cyan"
-            id="foldSubsBtn"
-            aria-expanded="true"
-            aria-controls="foldSubsBody"
-          >
-            <span class="fold-title" id="foldSubsHeading"><span class="app-section-heading">Your shows</span></span>
-            <span class="fold-chev" aria-hidden="true">▼</span>
-          </button>
-          <div class="fold-body" id="foldSubsBody">
-            <ul id="subs"></ul>
-            <div id="subsEmptyState" class="empty-state-card" style="display: none">
-              <div class="empty-state-icon" aria-hidden="true">📺</div>
-              <p class="empty-state-title">No shows yet</p>
-              <p class="empty-state-hint muted">Search by title and subscribe — your list will show up here.</p>
-              <button type="button" class="empty-state-cta" id="subsEmptyCta">Add shows</button>
+        <section class="panel-rail-blue mylist-page-root" aria-label="My List">
+          <div class="mylist-header-row">
+            <h2 class="mylist-heading app-section-heading">My List</h2>
+            <div class="mylist-header-tools">
+              <button type="button" class="tasks-tool-btn" id="mylistExpandAllBtn" title="Expand all shows">Expand all</button>
+              <button type="button" class="tasks-tool-btn" id="mylistCollapseAllBtn" title="Collapse all shows">Collapse all</button>
+              <label class="tasks-view-toggle">
+                <span class="tasks-view-toggle-label">Grid view</span>
+                <input type="checkbox" id="mylistGridToggle" aria-label="Grid view" />
+              </label>
+              <label class="mylist-sort-wrap">
+                <span class="visually-hidden">Sort by</span>
+                <select id="mylistSortSelect" class="mylist-sort-select" aria-label="Sort by">
+                  <option value="recent">Recently aired</option>
+                  <option value="az">A-Z</option>
+                  <option value="most_watched">Most watched</option>
+                  <option value="least_watched">Least watched</option>
+                  <option value="genre">By genre</option>
+                  <option value="network">By network</option>
+                  <option value="added">Date added</option>
+                </select>
+              </label>
             </div>
           </div>
+          <div class="mylist-search-wrap">
+            <span class="mylist-search-icon" aria-hidden="true">⌕</span>
+            <input
+              type="search"
+              id="mylistFilterInput"
+              class="mylist-search-input"
+              placeholder="Filter your shows…"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button type="button" class="mylist-search-clear" id="mylistFilterClear" hidden aria-label="Clear filter">×</button>
+          </div>
+          <div class="tasks-stats-section mylist-stats-section" id="mylistStatsSection" aria-live="polite" hidden>
+            <div class="tasks-stats-grid mylist-stats-grid">
+              <div class="tasks-stat-card">
+                <span class="tasks-stat-value" id="mylistStatShows">0</span>
+                <span class="tasks-stat-label">Shows</span>
+              </div>
+              <div class="tasks-stat-card">
+                <span class="tasks-stat-value" id="mylistStatUnwatched">0</span>
+                <span class="tasks-stat-label">Unwatched episodes</span>
+              </div>
+              <div class="tasks-stat-card">
+                <span class="tasks-stat-value" id="mylistStatAvg">0%</span>
+                <span class="tasks-stat-label">Avg completion</span>
+              </div>
+            </div>
+          </div>
+          <div id="mylistHost" class="mylist-host" aria-live="polite"></div>
+          <div id="mylistFilterEmpty" class="mylist-filter-empty muted" hidden>No shows match your filter.</div>
+          <div id="subsEmptyState" class="empty-state-card" hidden>
+            <div class="empty-state-icon" aria-hidden="true">📺</div>
+            <p class="empty-state-title">Your watchlist is empty</p>
+            <p class="empty-state-hint muted">Add shows to start tracking episodes and join discussions.</p>
+            <button type="button" class="empty-state-cta" id="subsEmptyCta">Browse shows</button>
+          </div>
+          <div id="mylistSkeleton" class="mylist-skeleton-host" hidden aria-hidden="true"></div>
         </section>
         <section class="panel-rail-magenta person-follows-section" aria-labelledby="foldPersonFollowsHeading">
           <button
@@ -12864,7 +13285,7 @@
             </div>
           </div>
         <div class="profile-edit-sticky" role="region" aria-label="Save profile">
-          <button type="button" class="profile-edit-save-primary" id="saveProfileAllBtn">Save profile</button>
+          <button type="button" class="profile-edit-save-primary aa-btn-gradient" id="saveProfileAllBtn">Save profile</button>
         </div>
       </div>
     </div>
@@ -13736,6 +14157,594 @@
         }
       }
 
+      const MYLIST_SECTION_ORDER = ["airing", "hiatus", "ended"];
+      const MYLIST_SECTION_META = {
+        airing: { title: "Currently airing", hint: "Shows with active seasons, sorted by next air date" },
+        hiatus: { title: "On hiatus", hint: "Shows between seasons" },
+        ended: { title: "Ended", hint: "Completed series" },
+      };
+      const myListState = {
+        userId: null,
+        subscriptions: [],
+        tasks: [],
+        filter: "",
+        sort: "recent",
+        grid: false,
+        sectionExpanded: new Set(["airing", "hiatus", "ended"]),
+        cardExpanded: new Set(),
+        showMetaCache: new Map(),
+      };
+
+      function myListShowKey(sub) {
+        const sid = Number(sub.tvmazeShowId);
+        return Number.isFinite(sid) && sid > 0 ? "s:" + sid : "n:" + String(sub.showName || "");
+      }
+
+      function myListCardStorageKey(showKey) {
+        return "mylist-show-" + showKey;
+      }
+
+      function loadMyListPrefs() {
+        try {
+          const raw = localStorage.getItem("mylist_sections_expanded");
+          if (raw) {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr)) myListState.sectionExpanded = new Set(arr.filter((x) => typeof x === "string"));
+          }
+        } catch {
+          /* ignore */
+        }
+        myListState.sort = sessionStorage.getItem("mylist_sort_by") || "recent";
+        myListState.grid = sessionStorage.getItem("mylist_view_mode") === "grid";
+        syncMyListGridClass();
+        const sortSel = document.getElementById("mylistSortSelect");
+        if (sortSel) sortSel.value = myListState.sort;
+      }
+
+      function saveMyListSectionExpanded() {
+        try {
+          localStorage.setItem("mylist_sections_expanded", JSON.stringify([...myListState.sectionExpanded]));
+        } catch {
+          /* ignore */
+        }
+      }
+
+      function syncMyListGridClass() {
+        const tab = document.getElementById("tab-shows");
+        if (tab) tab.classList.toggle("mylist-tab--grid", myListState.grid);
+        const toggle = document.getElementById("mylistGridToggle");
+        if (toggle) toggle.checked = myListState.grid;
+      }
+
+      function myListDaysBetween(a, b) {
+        const da = String(a || "").slice(0, 10);
+        const db = String(b || "").slice(0, 10);
+        if (!da || !db) return 9999;
+        return Math.round((Date.parse(db + "T12:00:00") - Date.parse(da + "T12:00:00")) / 86400000);
+      }
+
+      function myListShowBucket(sub, today) {
+        const status = String(sub.showStatus || "").trim().toLowerCase();
+        if (status.includes("ended") || status.includes("canceled") || status.includes("cancelled")) return "ended";
+        const last = sub.lastAiredEpisode?.airdate ? String(sub.lastAiredEpisode.airdate).slice(0, 10) : "";
+        const next = sub.nextEpisode?.airdate ? String(sub.nextEpisode.airdate).slice(0, 10) : "";
+        if (last && myListDaysBetween(last, today) > 400 && (!next || myListDaysBetween(today, next) > 120)) return "ended";
+        if (next && myListDaysBetween(today, next) <= 30) return "airing";
+        if (last && myListDaysBetween(last, today) <= 30) return "airing";
+        return "hiatus";
+      }
+
+      function myListProgressForShow(showKey) {
+        const showTasks = myListState.tasks.filter((t) => taskShowKey(t) === showKey);
+        const watched = showTasks.filter((t) => t.completedAt).length;
+        const open = showTasks.filter((t) => !t.completedAt && !t.dismissedAt).length;
+        const total = watched + open;
+        return { watched, open, total, pct: total ? Math.round((watched / total) * 100) : 0 };
+      }
+
+      function myListMatchesFilter(sub, q) {
+        if (!q) return true;
+        const hay = (
+          String(sub.showName || "") +
+          " " +
+          String(sub.network || "") +
+          " " +
+          String(sub.showStatus || "")
+        ).toLowerCase();
+        return hay.includes(q);
+      }
+
+      function myListSortedSubscriptions(subs) {
+        const list = subs.slice();
+        const sort = myListState.sort;
+        if (sort === "az") {
+          list.sort((a, b) => String(a.showName || "").localeCompare(String(b.showName || "")));
+        } else if (sort === "most_watched") {
+          list.sort(
+            (a, b) =>
+              myListProgressForShow(myListShowKey(b)).pct - myListProgressForShow(myListShowKey(a)).pct ||
+              String(a.showName || "").localeCompare(String(b.showName || "")),
+          );
+        } else if (sort === "least_watched") {
+          list.sort(
+            (a, b) =>
+              myListProgressForShow(myListShowKey(a)).pct - myListProgressForShow(myListShowKey(b)).pct ||
+              String(a.showName || "").localeCompare(String(b.showName || "")),
+          );
+        } else if (sort === "network") {
+          list.sort((a, b) => {
+            const na = String(a.network || "zzz");
+            const nb = String(b.network || "zzz");
+            return na.localeCompare(nb) || String(a.showName || "").localeCompare(String(b.showName || ""));
+          });
+        } else if (sort === "genre") {
+          list.sort((a, b) => String(a.showName || "").localeCompare(String(b.showName || "")));
+        } else if (sort === "added") {
+          list.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+        } else {
+          list.sort((a, b) => {
+            const la = a.lastAiredEpisode?.airdate || a.nextEpisode?.airdate || "";
+            const lb = b.lastAiredEpisode?.airdate || b.nextEpisode?.airdate || "";
+            return String(lb).localeCompare(String(la)) || String(a.showName || "").localeCompare(String(b.showName || ""));
+          });
+        }
+        return list;
+      }
+
+      function refreshMyListStats() {
+        const stats = document.getElementById("mylistStatsSection");
+        const elShows = document.getElementById("mylistStatShows");
+        const elUnw = document.getElementById("mylistStatUnwatched");
+        const elAvg = document.getElementById("mylistStatAvg");
+        if (!elShows || !elUnw || !elAvg) return;
+        const subs = myListState.subscriptions;
+        if (!subs.length) {
+          if (stats) stats.hidden = true;
+          return;
+        }
+        if (stats) stats.hidden = false;
+        let unwatched = 0;
+        let pctSum = 0;
+        let pctN = 0;
+        for (const s of subs) {
+          const p = myListProgressForShow(myListShowKey(s));
+          unwatched += p.open;
+          if (p.total > 0) {
+            pctSum += p.pct;
+            pctN++;
+          }
+        }
+        elShows.textContent = String(subs.length);
+        elUnw.textContent = String(unwatched);
+        elAvg.textContent = (pctN ? Math.round(pctSum / pctN) : 0) + "%";
+      }
+
+      function myListFormatNextLine(sub) {
+        const ne = sub.nextEpisode;
+        if (ne) {
+          if (ne.dateTba) return "Next: TBA · " + (ne.label || "");
+          return "Next: " + formatAirDate(ne.airdate, ne.airtime || "") + " · " + (ne.label || "");
+        }
+        const la = sub.lastAiredEpisode;
+        if (la) return "Last aired: " + formatAirDate(la.airdate, la.airtime || "") + " · " + (la.label || "");
+        return "";
+      }
+
+      async function myListEnsureShowMeta(sub) {
+        const sid = Number(sub.tvmazeShowId);
+        if (!Number.isFinite(sid) || sid < 1) return null;
+        if (myListState.showMetaCache.has(sid)) return myListState.showMetaCache.get(sid);
+        try {
+          const data = await api("/api/shows/" + encodeURIComponent(String(sid)) + "/details");
+          const meta = { network: data.show?.network || null, status: data.show?.status || null };
+          myListState.showMetaCache.set(sid, meta);
+          const row = myListState.subscriptions.find((x) => Number(x.tvmazeShowId) === sid);
+          if (row) {
+            row.network = meta.network;
+            row.showStatus = meta.status;
+          }
+          return meta;
+        } catch {
+          return null;
+        }
+      }
+
+      async function myListPatchWatchTask(userId, t, body) {
+        const row = await api(
+          "/api/users/" + encodeURIComponent(userId) + "/watch-tasks/" + encodeURIComponent(t.id),
+          { method: "PATCH", body: JSON.stringify(body) },
+        );
+        Object.assign(t, row);
+        const idx = myListState.tasks.findIndex((x) => x.id === t.id);
+        if (idx >= 0) myListState.tasks[idx] = { ...myListState.tasks[idx], ...row };
+        const tidx = tasksState.tasks.findIndex((x) => x.id === t.id);
+        if (tidx >= 0) tasksState.tasks[tidx] = { ...tasksState.tasks[tidx], ...row };
+        renderMyListHost(userId);
+        refreshMyListStats();
+        if (document.getElementById("tab-tasks")?.classList.contains("active")) {
+          renderTasksOpenHost(userId);
+          renderTasksCompletedSkipped(userId);
+          refreshTasksStatsFromState();
+        }
+      }
+
+      function myListCreateEpisodeRow(userId, t) {
+        const row = document.createElement("div");
+        row.className = "tasks-ep-row";
+        const bucket = taskUrgencyBucket(t.airdate);
+        if (bucket === "today" || bucket === "tomorrow") row.classList.add("tasks-ep-row--today");
+        if (bucket === "overdue") row.classList.add("tasks-ep-row--overdue");
+        if (bucket === "today" || bucket === "tomorrow") {
+          const nudge = document.createElement("span");
+          nudge.className = "tasks-ep-nudge";
+          nudge.textContent = "!";
+          nudge.title = "Airing soon";
+          row.appendChild(nudge);
+        }
+        const line = document.createElement("div");
+        line.className = "tasks-ep-line";
+        line.textContent = t.episodeLabel || "Episode";
+        row.appendChild(line);
+        const air = document.createElement("div");
+        air.className = "tasks-ep-air";
+        air.textContent = "Aired " + formatTaskAirLabel(t.airdate);
+        row.appendChild(air);
+        const actions = document.createElement("div");
+        actions.className = "tasks-ep-actions";
+        if (window.matchMedia("(min-width: 720px)").matches) actions.classList.add("tasks-ep-actions--icons");
+        const btnWatch = document.createElement("button");
+        btnWatch.type = "button";
+        btnWatch.dataset.action = "watched";
+        btnWatch.textContent = "Watched";
+        const btnSkip = document.createElement("button");
+        btnSkip.type = "button";
+        btnSkip.dataset.action = "skipped";
+        btnSkip.textContent = "Skip";
+        btnWatch.addEventListener("click", () => void myListPatchWatchTask(userId, t, { status: "watched" }));
+        btnSkip.addEventListener("click", () => void myListPatchWatchTask(userId, t, { status: "skipped" }));
+        actions.appendChild(btnWatch);
+        actions.appendChild(btnSkip);
+        row.appendChild(actions);
+        return row;
+      }
+
+      async function myListBatchPatch(userId, episodes, status) {
+        let n = 0;
+        for (const t of episodes) {
+          if (status === "watched" && t.completedAt) continue;
+          if (status === "skipped" && t.dismissedAt) continue;
+          if (!t.completedAt && !t.dismissedAt) {
+            try {
+              await myListPatchWatchTask(userId, t, { status });
+              n++;
+            } catch (e) {
+              showToast(e.message || "Could not update all");
+              break;
+            }
+          }
+        }
+        if (n > 0) showToast("Marked " + n + " episode" + (n === 1 ? "" : "s") + " as " + status);
+      }
+
+      function createMyListShowCard(userId, sub) {
+        const showKey = myListShowKey(sub);
+        const showId = Number(sub.tvmazeShowId);
+        const prog = myListProgressForShow(showKey);
+        const storageKey = myListCardStorageKey(showKey);
+        const expanded = myListState.cardExpanded.has(showKey) || sessionStorage.getItem(storageKey) === "1";
+        const card = document.createElement("article");
+        card.className = "tasks-show-card mylist-show-card";
+        card.dataset.showKey = showKey;
+        if (sub.bingeLater) card.classList.add("mylist-show-card--binge");
+        if (expanded) card.classList.add("is-expanded");
+
+        const head = document.createElement("button");
+        head.type = "button";
+        head.className = "tasks-show-head mylist-show-head";
+        head.setAttribute("aria-expanded", expanded ? "true" : "false");
+
+        const posterPh = document.createElement("span");
+        posterPh.className = "mylist-show-poster-ph";
+        posterPh.textContent = (sub.showName || "?").charAt(0).toUpperCase();
+        const imgUrl = sub.showImageUrl && String(sub.showImageUrl).trim();
+        if (imgUrl && /^https?:\/\//i.test(imgUrl)) {
+          const img = document.createElement("img");
+          img.className = "mylist-show-poster";
+          img.alt = "";
+          img.loading = "lazy";
+          img.decoding = "async";
+          img.src = imgUrl;
+          img.addEventListener("error", () => img.replaceWith(posterPh));
+          head.appendChild(img);
+        } else if (Number.isFinite(showId) && showId > 0) {
+          head.appendChild(posterPh);
+          void fetchTvmazeShowImageUrl(showId).then((url) => {
+            if (!url || !head.isConnected) return;
+            const img = document.createElement("img");
+            img.className = "mylist-show-poster";
+            img.alt = "";
+            img.loading = "lazy";
+            img.src = url;
+            posterPh.replaceWith(img);
+          });
+        } else {
+          head.appendChild(posterPh);
+        }
+
+        const meta = document.createElement("span");
+        meta.className = "tasks-show-meta mylist-show-meta";
+        const titleRow = document.createElement("span");
+        titleRow.className = "mylist-show-title-row";
+        const title = document.createElement("span");
+        title.className = "tasks-show-title mylist-show-title";
+        title.textContent = sub.showName || "Show";
+        titleRow.appendChild(title);
+        if (sub.bingeLater) {
+          const bb = document.createElement("span");
+          bb.className = "mylist-binge-badge";
+          bb.textContent = "Binge";
+          titleRow.appendChild(bb);
+        }
+        const subLine = document.createElement("span");
+        subLine.className = "tasks-show-sub mylist-show-sub";
+        subLine.textContent =
+          (prog.open > 0 ? prog.open + " unwatched episode" + (prog.open === 1 ? "" : "s") : "All caught up") +
+          (prog.total > 0 ? " · " + prog.watched + "/" + prog.total + " watched (" + prog.pct + "%)" : "");
+        const barWrap = document.createElement("div");
+        barWrap.className = "tasks-show-progress-wrap";
+        const bar = document.createElement("div");
+        bar.className = "tasks-show-progress-bar";
+        bar.style.width = prog.pct + "%";
+        barWrap.appendChild(bar);
+        const nextLine = document.createElement("span");
+        nextLine.className = "mylist-show-next";
+        nextLine.textContent = myListFormatNextLine(sub);
+        const chev = document.createElement("span");
+        chev.className = "tasks-show-chev mylist-show-chev";
+        chev.textContent = expanded ? "\u25bc" : "\u25b6";
+        meta.appendChild(titleRow);
+        meta.appendChild(subLine);
+        meta.appendChild(barWrap);
+        if (nextLine.textContent) meta.appendChild(nextLine);
+        head.appendChild(meta);
+        head.appendChild(chev);
+
+        const epsPanel = document.createElement("div");
+        epsPanel.className = "tasks-show-eps mylist-show-eps";
+        epsPanel.hidden = !expanded;
+        const showTasks = myListState.tasks
+          .filter((t) => taskShowKey(t) === showKey && !t.dismissedAt)
+          .sort((a, b) => String(b.airdate || "").localeCompare(String(a.airdate || "")));
+        if (showTasks.length) {
+          for (const t of showTasks.slice(0, 24)) epsPanel.appendChild(myListCreateEpisodeRow(userId, t));
+        } else {
+          const p = document.createElement("p");
+          p.className = "muted";
+          p.style.cssText = "margin:0.25rem 0;font-size:0.78rem";
+          p.textContent = "Episodes appear here when they air and enter your watch checklist.";
+          epsPanel.appendChild(p);
+        }
+        const openEps = showTasks.filter((t) => !t.completedAt && !t.dismissedAt);
+        const batch = document.createElement("div");
+        batch.className = "tasks-show-batch mylist-show-batch";
+        const btnWatch = document.createElement("button");
+        btnWatch.type = "button";
+        btnWatch.className = "secondary";
+        btnWatch.textContent = "Mark all watched";
+        btnWatch.addEventListener("click", (e) => {
+          e.stopPropagation();
+          void myListBatchPatch(userId, openEps, "watched");
+        });
+        const btnSkip = document.createElement("button");
+        btnSkip.type = "button";
+        btnSkip.className = "secondary";
+        btnSkip.textContent = "Mark all skipped";
+        btnSkip.addEventListener("click", (e) => {
+          e.stopPropagation();
+          void myListBatchPatch(userId, openEps, "skipped");
+        });
+        batch.appendChild(btnWatch);
+        batch.appendChild(btnSkip);
+
+        const footer = document.createElement("div");
+        footer.className = "mylist-show-footer";
+        const metaLine = document.createElement("p");
+        metaLine.className = "mylist-show-meta-line";
+        metaLine.textContent = "Loading show details…";
+        const ratingEl = document.createElement("span");
+        ratingEl.className = "mylist-show-rating";
+        const cnt = Number(sub.airAlertRatingCount) || 0;
+        const avg = sub.airAlertAvgRating != null ? Number(sub.airAlertAvgRating) : null;
+        if (cnt > 0 && avg != null) ratingEl.textContent = "★ " + avg.toFixed(1) + " (community)";
+        else ratingEl.hidden = true;
+        const discussBtn = document.createElement("button");
+        discussBtn.type = "button";
+        discussBtn.className = "secondary";
+        discussBtn.textContent = "Discuss";
+        discussBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (Number.isFinite(showId) && showId > 0) void openCommunityShowThread(showId, sub.showName);
+        });
+        const bingeLab = document.createElement("label");
+        bingeLab.className = "mylist-binge-toggle";
+        const bingeCb = document.createElement("input");
+        bingeCb.type = "checkbox";
+        bingeCb.checked = Boolean(sub.bingeLater);
+        bingeCb.addEventListener("change", async (e) => {
+          e.stopPropagation();
+          try {
+            await api("/api/subscriptions/" + encodeURIComponent(sub.id), {
+              method: "PATCH",
+              body: JSON.stringify({ bingeLater: bingeCb.checked }),
+            });
+            sub.bingeLater = bingeCb.checked;
+            card.classList.toggle("mylist-show-card--binge", bingeCb.checked);
+          } catch (err) {
+            bingeCb.checked = !bingeCb.checked;
+            showToast(err.message || "Could not update");
+          }
+        });
+        bingeLab.appendChild(bingeCb);
+        bingeLab.appendChild(document.createTextNode(" Binge mode"));
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "danger";
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          try {
+            await api("/api/subscriptions/" + encodeURIComponent(sub.id), { method: "DELETE" });
+            await loadSubs(userId);
+            loadRecommended(userId, { force: true });
+            loadTrendingShowsDeferred(userId);
+          } catch (err) {
+            showToast(err.message || "Could not remove");
+          }
+        });
+        footer.appendChild(metaLine);
+        footer.appendChild(ratingEl);
+        footer.appendChild(discussBtn);
+        footer.appendChild(bingeLab);
+        footer.appendChild(removeBtn);
+        void myListEnsureShowMeta(sub).then((m) => {
+          if (!metaLine.isConnected) return;
+          const parts = [];
+          if (m?.network) parts.push(m.network);
+          else if (sub.network) parts.push(sub.network);
+          if (showTasks.length) parts.push(showTasks.length + " checklist episode" + (showTasks.length === 1 ? "" : "s"));
+          metaLine.textContent = parts.length ? parts.join(" · ") : "—";
+        });
+
+        const toggle = () => {
+          const nowOpen = epsPanel.hidden;
+          epsPanel.hidden = !nowOpen;
+          batch.hidden = !nowOpen;
+          footer.hidden = !nowOpen;
+          head.setAttribute("aria-expanded", nowOpen ? "true" : "false");
+          chev.textContent = nowOpen ? "\u25bc" : "\u25b6";
+          card.classList.toggle("is-expanded", nowOpen);
+          if (nowOpen) {
+            myListState.cardExpanded.add(showKey);
+            sessionStorage.setItem(storageKey, "1");
+          } else {
+            myListState.cardExpanded.delete(showKey);
+            sessionStorage.setItem(storageKey, "0");
+          }
+        };
+        head.addEventListener("click", toggle);
+        batch.hidden = !expanded;
+        footer.hidden = !expanded;
+        card.appendChild(head);
+        card.appendChild(batch);
+        card.appendChild(epsPanel);
+        card.appendChild(footer);
+        return card;
+      }
+
+      function renderMyListHost(userId) {
+        const host = document.getElementById("mylistHost");
+        const filterEmpty = document.getElementById("mylistFilterEmpty");
+        const empty = document.getElementById("subsEmptyState");
+        if (!host) return;
+        const q = myListState.filter.trim().toLowerCase();
+        const all = myListState.subscriptions;
+        if (!all.length) {
+          host.innerHTML = "";
+          if (empty) empty.hidden = false;
+          if (filterEmpty) filterEmpty.hidden = true;
+          refreshMyListStats();
+          return;
+        }
+        if (empty) empty.hidden = true;
+        const filtered = all.filter((s) => myListMatchesFilter(s, q));
+        if (filterEmpty) {
+          filterEmpty.hidden = !q || filtered.length > 0;
+          if (q && !filtered.length) filterEmpty.textContent = 'No shows match "' + myListState.filter.trim() + '".';
+        }
+        const today = localCalendarTodayYmd();
+        const bySection = { airing: [], hiatus: [], ended: [] };
+        for (const s of myListSortedSubscriptions(filtered)) bySection[myListShowBucket(s, today)].push(s);
+        host.innerHTML = "";
+        for (const sectionId of MYLIST_SECTION_ORDER) {
+          const items = bySection[sectionId];
+          const meta = MYLIST_SECTION_META[sectionId];
+          const sectionOpen = myListState.sectionExpanded.has(sectionId);
+          const section = document.createElement("section");
+          section.className = "mylist-section mylist-section--" + sectionId;
+          const toggle = document.createElement("button");
+          toggle.type = "button";
+          toggle.className = "mylist-section-toggle";
+          toggle.setAttribute("aria-expanded", sectionOpen ? "true" : "false");
+          const headText = document.createElement("span");
+          headText.className = "mylist-section-head-text";
+          const titleEl = document.createElement("span");
+          titleEl.className = "mylist-section-title";
+          titleEl.textContent = meta.title;
+          const hintEl = document.createElement("span");
+          hintEl.className = "mylist-section-hint";
+          hintEl.textContent = meta.hint;
+          headText.appendChild(titleEl);
+          headText.appendChild(hintEl);
+          const chev = document.createElement("span");
+          chev.className = "mylist-section-chev";
+          chev.textContent = sectionOpen ? "\u25bc" : "\u25b6";
+          const count = document.createElement("span");
+          count.className = "mylist-section-count";
+          count.textContent = String(items.length);
+          toggle.appendChild(headText);
+          toggle.appendChild(chev);
+          toggle.appendChild(count);
+          const body = document.createElement("div");
+          body.className = "mylist-section-body" + (myListState.grid ? " mylist-section-body--grid" : "");
+          body.hidden = !sectionOpen;
+          if (!items.length) {
+            const p = document.createElement("p");
+            p.className = "mylist-section-empty muted";
+            const emptyCopy = {
+              airing: "No shows currently airing",
+              hiatus: "No shows on hiatus",
+              ended: "No ended shows on your list",
+            };
+            p.textContent = emptyCopy[sectionId] || "No shows in this group.";
+            body.appendChild(p);
+          } else {
+            for (const s of items) body.appendChild(createMyListShowCard(userId, s));
+          }
+          toggle.addEventListener("click", () => {
+            const open = body.hidden;
+            body.hidden = !open;
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+            chev.textContent = open ? "\u25bc" : "\u25b6";
+            if (open) myListState.sectionExpanded.add(sectionId);
+            else myListState.sectionExpanded.delete(sectionId);
+            saveMyListSectionExpanded();
+          });
+          section.appendChild(toggle);
+          section.appendChild(body);
+          host.appendChild(section);
+        }
+        refreshMyListStats();
+      }
+
+      function showMyListSkeleton(on) {
+        const sk = document.getElementById("mylistSkeleton");
+        const host = document.getElementById("mylistHost");
+        if (!sk) return;
+        if (on) {
+          sk.hidden = false;
+          sk.innerHTML = "";
+          for (let i = 0; i < 4; i++) {
+            const d = document.createElement("div");
+            d.className = "mylist-skeleton-card";
+            sk.appendChild(d);
+          }
+          if (host) host.innerHTML = "";
+        } else {
+          sk.hidden = true;
+          sk.innerHTML = "";
+        }
+      }
+
       let loadSubsInflight = null;
       async function loadSubs(userId, opts) {
         const skipSessionRefresh = opts && opts.skipSessionRefresh === true;
@@ -13743,123 +14752,37 @@
           return loadSubsInflight.promise;
         }
         const run = async () => {
-        const ul = document.getElementById("subs");
-        const empty = document.getElementById("subsEmptyState");
-        const { subscriptions } = await api("/api/users/" + userId + "/subscriptions");
-        if (!ul || !empty) return;
-        ul.innerHTML = "";
-        if (!subscriptions.length) {
-          empty.style.display = "block";
-          return;
-        }
-        empty.style.display = "none";
-        for (const s of subscriptions) {
-          const showId = Number(s.tvmazeShowId ?? s.tvmaze_show_id ?? s.showId);
-          const nextEpisode = s.nextEpisode ?? s.next_episode ?? null;
-          const lastAiredEpisode = s.lastAiredEpisode ?? s.last_aired_episode ?? null;
-          const li = document.createElement("li");
-          const left = document.createElement("div");
-          const titleBtn = document.createElement("button");
-          titleBtn.type = "button";
-          titleBtn.className = "show-link";
-          titleBtn.textContent = s.showName;
-          titleBtn.addEventListener("click", () => openShowDetails(showId));
-          left.appendChild(titleBtn);
-          const next = document.createElement("div");
-          next.className = "muted next-ep";
-          if (nextEpisode) {
-            const ne = nextEpisode;
-            if (ne.dateTba) {
-              next.textContent = "Next: date not announced yet · " + ne.label;
-            } else {
-              next.textContent =
-                "Next: " +
-                formatAirDate(ne.airdate, ne.airtime || "") +
-                " · " +
-                ne.label;
-            }
-          } else if (lastAiredEpisode) {
-            next.textContent =
-              "No upcoming date yet. Last in guide: " +
-              formatAirDate(lastAiredEpisode.airdate, lastAiredEpisode.airtime || "") +
-              " · " +
-              lastAiredEpisode.label;
-          } else {
-            next.textContent = Number.isFinite(showId)
-              ? "No episode dates in cache — open Settings (gear) and run Refresh all show data."
-              : "Show details unavailable from subscription payload. Please refresh the app/server.";
+        if (!document.getElementById("mylistHost")) return;
+        myListState.userId = userId;
+        showMyListSkeleton(true);
+        try {
+          const [subRes, taskRes] = await Promise.all([
+            api("/api/users/" + encodeURIComponent(userId) + "/subscriptions"),
+            api("/api/users/" + encodeURIComponent(userId) + "/watch-tasks"),
+          ]);
+          myListState.subscriptions = subRes.subscriptions || [];
+          myListState.tasks = taskRes.tasks || [];
+          tasksState.tasks = taskRes.tasks || [];
+          showMyListSkeleton(false);
+          renderMyListHost(userId);
+          const needMeta = myListState.subscriptions.filter(
+            (s) => Number(s.tvmazeShowId) > 0 && !s.showStatus,
+          );
+          if (needMeta.length) {
+            void Promise.all(needMeta.slice(0, 24).map((s) => myListEnsureShowMeta(s))).then(() => {
+              if (myListState.userId === userId) renderMyListHost(userId);
+            });
           }
-          left.appendChild(next);
-          const bingeLab = document.createElement("label");
-          bingeLab.className = "muted subs-binge-later";
-          const bingeCb = document.createElement("input");
-          bingeCb.type = "checkbox";
-          bingeCb.checked = Boolean(s.bingeLater);
-          bingeCb.title = "Mute air reminders and task nudges for this show; blur episode spoilers in Community until you turn this off.";
-          bingeCb.addEventListener("change", async () => {
-            try {
-              await api("/api/subscriptions/" + encodeURIComponent(s.id), {
-                method: "PATCH",
-                body: JSON.stringify({ bingeLater: bingeCb.checked }),
-              });
-            } catch (e) {
-              bingeCb.checked = !bingeCb.checked;
-              alert(e && e.message ? String(e.message) : "Could not update");
-            }
-          });
-          bingeLab.appendChild(bingeCb);
-          const bingeSpan = document.createElement("span");
-          bingeSpan.textContent = " Binge later (no spoilers until I’m caught up)";
-          bingeLab.appendChild(bingeSpan);
-          left.appendChild(bingeLab);
-          const engageRow = document.createElement("div");
-          engageRow.className = "subs-show-engage-row";
-          const ratingBlock = document.createElement("div");
-          const rawAvg = s.airAlertAvgRating;
-          const rawCnt = s.airAlertRatingCount;
-          const cnt = rawCnt != null && rawCnt !== "" ? Number(rawCnt) : 0;
-          const avg =
-            rawAvg != null && rawAvg !== "" && Number.isFinite(Number(rawAvg)) ? Number(rawAvg) : null;
-          if (cnt > 0 && avg != null) {
-            ratingBlock.className = "subs-airalert-rating";
-            const sc = document.createElement("span");
-            sc.className = "subs-airalert-score";
-            sc.setAttribute("aria-label", "AirAlert average " + avg.toFixed(1) + " of 5");
-            sc.textContent = "★ " + avg.toFixed(1);
-            const cc = document.createElement("span");
-            cc.className = "subs-airalert-count";
-            cc.textContent = "Based on " + cnt + (cnt === 1 ? " rating" : " ratings");
-            ratingBlock.appendChild(sc);
-            ratingBlock.appendChild(document.createTextNode(" "));
-            ratingBlock.appendChild(cc);
-          } else {
-            ratingBlock.className = "subs-airalert-rating subs-airalert-rating--empty";
-            ratingBlock.textContent = "Not rated yet";
+        } catch (e) {
+          showMyListSkeleton(false);
+          const host = document.getElementById("mylistHost");
+          if (host) {
+            host.innerHTML = "";
+            const p = document.createElement("p");
+            p.className = "msg err";
+            p.textContent = e.message || "Could not load your list";
+            host.appendChild(p);
           }
-          const discussBtn = document.createElement("button");
-          discussBtn.type = "button";
-          discussBtn.className = "secondary subs-discuss-btn";
-          discussBtn.textContent = "Discuss";
-          discussBtn.setAttribute("aria-label", "Open general discussion: " + String(s.showName || "show"));
-          discussBtn.addEventListener("click", () => {
-            if (!Number.isFinite(showId) || showId < 1) return;
-            void openCommunityShowThread(showId, s.showName);
-          });
-          engageRow.appendChild(ratingBlock);
-          engageRow.appendChild(discussBtn);
-          left.appendChild(engageRow);
-          const btn = document.createElement("button");
-          btn.className = "danger";
-          btn.textContent = "Remove";
-          btn.onclick = async () => {
-            await api("/api/subscriptions/" + s.id, { method: "DELETE" });
-            await loadSubs(userId);
-            loadRecommended(userId, { force: true });
-            loadTrendingShowsDeferred(userId);
-          };
-          li.appendChild(left);
-          li.appendChild(btn);
-          ul.appendChild(li);
         }
         if (!skipSessionRefresh) {
           try {
@@ -13881,6 +14804,64 @@
         } finally {
           if (loadSubsInflight && loadSubsInflight.promise === promise) loadSubsInflight = null;
         }
+      }
+
+      function initMyListShellControls() {
+        if (initMyListShellControls._wired) return;
+        initMyListShellControls._wired = true;
+        loadMyListPrefs();
+        document.getElementById("mylistExpandAllBtn")?.addEventListener("click", () => {
+          const uid = resolveUserId();
+          if (!uid) return;
+          myListState.cardExpanded.clear();
+          myListState.subscriptions.forEach((s) => {
+            const k = myListShowKey(s);
+            myListState.cardExpanded.add(k);
+            sessionStorage.setItem(myListCardStorageKey(k), "1");
+          });
+          renderMyListHost(uid);
+        });
+        document.getElementById("mylistCollapseAllBtn")?.addEventListener("click", () => {
+          const uid = resolveUserId();
+          if (!uid) return;
+          myListState.cardExpanded.clear();
+          myListState.subscriptions.forEach((s) =>
+            sessionStorage.setItem(myListCardStorageKey(myListShowKey(s)), "0"),
+          );
+          renderMyListHost(uid);
+        });
+        document.getElementById("mylistGridToggle")?.addEventListener("change", (e) => {
+          const uid = resolveUserId();
+          if (!uid) return;
+          myListState.grid = e.target.checked;
+          sessionStorage.setItem("mylist_view_mode", myListState.grid ? "grid" : "list");
+          syncMyListGridClass();
+          renderMyListHost(uid);
+        });
+        document.getElementById("mylistSortSelect")?.addEventListener("change", (e) => {
+          const uid = resolveUserId();
+          if (!uid) return;
+          myListState.sort = e.target.value || "recent";
+          sessionStorage.setItem("mylist_sort_by", myListState.sort);
+          renderMyListHost(uid);
+        });
+        const filterInp = document.getElementById("mylistFilterInput");
+        const filterClr = document.getElementById("mylistFilterClear");
+        filterInp?.addEventListener("input", () => {
+          const uid = resolveUserId();
+          if (!uid) return;
+          myListState.filter = filterInp.value;
+          if (filterClr) filterClr.hidden = !myListState.filter.trim();
+          renderMyListHost(uid);
+        });
+        filterClr?.addEventListener("click", () => {
+          const uid = resolveUserId();
+          if (!uid) return;
+          if (filterInp) filterInp.value = "";
+          myListState.filter = "";
+          filterClr.hidden = true;
+          renderMyListHost(uid);
+        });
       }
 
       let personFollowSearchTimer = null;
@@ -14532,27 +15513,6 @@
           epsPanel.appendChild(createTaskEpisodeRow(userId, ep, { sectionId, showKey }));
         }
 
-        const batch = document.createElement("div");
-        batch.className = "tasks-show-batch";
-        const btnAllWatch = document.createElement("button");
-        btnAllWatch.type = "button";
-        btnAllWatch.className = "secondary";
-        btnAllWatch.textContent = "Mark all watched";
-        btnAllWatch.addEventListener("click", (e) => {
-          e.stopPropagation();
-          void batchPatchTasks(userId, episodes, "watched");
-        });
-        const btnAllSkip = document.createElement("button");
-        btnAllSkip.type = "button";
-        btnAllSkip.className = "secondary";
-        btnAllSkip.textContent = "Mark all skipped";
-        btnAllSkip.addEventListener("click", (e) => {
-          e.stopPropagation();
-          void batchPatchTasks(userId, episodes, "skipped");
-        });
-        batch.appendChild(btnAllWatch);
-        batch.appendChild(btnAllSkip);
-
         const toggleShow = () => {
           const nowOpen = epsPanel.hidden;
           epsPanel.hidden = !nowOpen;
@@ -14570,7 +15530,6 @@
         head.addEventListener("click", toggleShow);
 
         card.appendChild(head);
-        card.appendChild(batch);
         card.appendChild(epsPanel);
         return card;
       }
@@ -22193,12 +23152,12 @@
           const followBtn = document.createElement("button");
           followBtn.type = "button";
           followBtn.id = "communityProfileFollowBtn";
-          followBtn.className = "community-profile-follow-btn";
+          followBtn.className = "community-profile-follow-btn aa-btn-gradient";
           followBtn.innerHTML = cmpProfileIconUserPlus() + "<span>Follow</span>";
           const dmBtn = document.createElement("button");
           dmBtn.type = "button";
           dmBtn.id = "communityMemberProfileDmBtn";
-          dmBtn.className = "cmp-profile-dm-btn";
+          dmBtn.className = "cmp-profile-dm-btn aa-btn-gradient";
           dmBtn.innerHTML = cmpProfileIconMail() + "<span>Direct message</span>";
           actionRow.appendChild(followBtn);
           actionRow.appendChild(dmBtn);
@@ -24015,6 +24974,7 @@
 
       function initShowsShellAfterMount() {
         wireFoldTogglesIn(document.getElementById("tab-shows"));
+        initMyListShellControls();
         const cta = document.getElementById("subsEmptyCta");
         if (cta && cta.dataset.aaEmptyCtaWired !== "1") {
           cta.dataset.aaEmptyCtaWired = "1";

@@ -5075,7 +5075,7 @@ app.get("/api/users/:userId/subscriptions", async (request, reply) => {
       `SELECT id, tvmaze_show_id AS tvmazeShowId, show_name AS showName,
               added_from AS addedFrom, created_at AS createdAt,
               community_episodes_behind AS communityEpisodesBehind,
-              binge_later AS bingeLaterRaw
+              binge_later AS bingeLaterRaw, show_image_url AS showImageUrl
        FROM show_subscriptions WHERE user_id = ? ORDER BY created_at DESC`,
     )
     .all(userId) as {
