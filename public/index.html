@@ -1286,7 +1286,7 @@
       #tab-messages .dm-inbox-page-root.panel-rail-cyan {
         position: relative;
         z-index: 0;
-        overflow: hidden;
+        overflow: visible;
         flex: 1 1 auto;
         min-height: 0;
         padding: 0;
@@ -1318,10 +1318,60 @@
         flex-direction: column;
         min-height: min(78dvh, 40rem);
         box-sizing: border-box;
-        margin-left: calc(-1 * var(--layout-pad-x));
-        margin-right: calc(-1 * var(--layout-pad-x));
-        width: calc(100% + 2 * var(--layout-pad-x));
-        max-width: 100vw;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+      }
+      /**
+       * Inbox is edge-to-edge on phones. `main` max-width + horizontal padding + overflow-x:hidden
+       * were clipping the negative-margin bleed and cutting off list dates / the + FAB.
+       */
+      @media (max-width: 767px) {
+        main:has(#tab-messages.tab-panel.active) {
+          max-width: none;
+          width: 100%;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        main:has(#tab-messages.tab-panel.active) .app-top {
+          margin-left: 0;
+          margin-right: 0;
+          padding-left: max(1.1rem, env(safe-area-inset-left, 0px));
+          padding-right: max(1.1rem, env(safe-area-inset-right, 0px));
+        }
+        main:has(#tab-messages.tab-panel.active) .app-top::after {
+          margin-left: calc(-1 * max(1.1rem, env(safe-area-inset-left, 0px)));
+          margin-right: calc(-1 * max(1.1rem, env(safe-area-inset-right, 0px)));
+        }
+        main:has(#tab-messages.tab-panel.active) .tab-nav {
+          padding-left: max(1.1rem, env(safe-area-inset-left, 0px));
+          padding-right: max(1.1rem, env(safe-area-inset-right, 0px));
+          box-sizing: border-box;
+        }
+        #tab-messages.tab-panel.active {
+          width: 100%;
+          max-width: none;
+        }
+        #tab-messages .dm-inbox-main > #dmInboxTitle {
+          padding-left: max(0.65rem, env(safe-area-inset-left, 0px));
+          padding-right: max(0.65rem, env(safe-area-inset-right, 0px));
+        }
+        #tab-messages .dm-inbox-hub-tabs {
+          margin-left: max(0.65rem, env(safe-area-inset-left, 0px));
+          margin-right: max(0.65rem, env(safe-area-inset-right, 0px));
+          padding-left: max(0.65rem, env(safe-area-inset-left, 0px));
+          padding-right: max(0.65rem, env(safe-area-inset-right, 0px));
+        }
+        #tab-messages .dm-inbox-thread-row {
+          padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+          padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+          box-sizing: border-box;
+        }
+        #tab-messages .dm-inbox-messages,
+        #tab-messages .dm-inbox-thread-view__composer {
+          padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+          padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+        }
       }
       #dmInboxListView[hidden],
       #dmInboxThreadView[hidden] {
@@ -7152,12 +7202,15 @@
       .dm-fab-layer {
         position: fixed;
         z-index: 45;
-        right: max(20px, env(safe-area-inset-right, 0px));
-        bottom: calc(max(20px, env(safe-area-inset-bottom, 0px)) + 3.5rem);
+        inset: auto;
+        right: max(1rem, env(safe-area-inset-right, 0px));
+        bottom: calc(max(1rem, env(safe-area-inset-bottom, 0px)) + 3.5rem);
         width: 3.75rem;
         height: 3.75rem;
+        max-width: calc(100vw - max(1rem, env(safe-area-inset-right, 0px)) - max(1rem, env(safe-area-inset-left, 0px)));
         pointer-events: none;
         display: none;
+        box-sizing: border-box;
       }
       body:has(#tab-messages.tab-panel.active) .dm-fab-layer {
         display: block;
@@ -23948,10 +24001,9 @@
       }
 
       function relocateDmFabToOverlayHost() {
-        const host = document.getElementById("aaOverlayHost");
         const fabLayer = document.getElementById("dmFabLayer");
         const fabMenu = document.getElementById("dmFabMenu");
-        if (!host) return;
+        const host = document.body;
         if (fabMenu && fabMenu.parentElement !== host) host.appendChild(fabMenu);
         if (fabLayer && fabLayer.parentElement !== host) host.appendChild(fabLayer);
       }
@@ -24068,6 +24120,7 @@
           disconnectCommunityThreadLiveWs();
         }
         if (name === "messages") {
+          relocateDmFabToOverlayHost();
           if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && hasFullSocialUiAccess(sessionMeSnapshot)) {
             ensureDmWebSocket();
             void renderDmInboxHub().then(() => syncDmInboxSplitLayout());
