@@ -5936,19 +5936,25 @@ app.get("/api/users/:userId/watch-tasks", async (request, reply) => {
   const limit = Number.isFinite(limitRaw) ? Math.min(500, Math.max(1, Math.floor(limitRaw))) : 120;
   const rows = db
     .prepare(
-      `SELECT id, tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId,
-              show_name AS showName, episode_label AS episodeLabel, airdate,
-              completed_at AS completedAt, dismissed_at AS dismissedAt,
-              nudge_sent_at AS nudgeSentAt, created_at AS createdAt
-       FROM watch_tasks WHERE user_id = ?
+      `SELECT wt.id, wt.tvmaze_show_id AS tvmazeShowId, wt.tvmaze_episode_id AS tvmazeEpisodeId,
+              wt.show_name AS showName, wt.episode_label AS episodeLabel, wt.airdate,
+              wt.completed_at AS completedAt, wt.dismissed_at AS dismissedAt,
+              wt.nudge_sent_at AS nudgeSentAt, wt.created_at AS createdAt,
+              cer.rating AS userRating
+       FROM watch_tasks wt
+       LEFT JOIN community_episode_ratings cer
+         ON cer.user_id = wt.user_id
+        AND cer.tvmaze_show_id = wt.tvmaze_show_id
+        AND cer.tvmaze_episode_id = wt.tvmaze_episode_id
+       WHERE wt.user_id = ?
        ORDER BY
          CASE
-           WHEN completed_at IS NULL AND dismissed_at IS NULL THEN 0
-           WHEN completed_at IS NOT NULL THEN 1
+           WHEN wt.completed_at IS NULL AND wt.dismissed_at IS NULL THEN 0
+           WHEN wt.completed_at IS NOT NULL THEN 1
            ELSE 2
          END,
-         airdate DESC,
-         created_at DESC
+         wt.airdate DESC,
+         wt.created_at DESC
        LIMIT ?`,
     )
     .all(userId, limit);
@@ -6053,10 +6059,16 @@ app.patch("/api/users/:userId/watch-tasks/:taskId", async (request, reply) => {
   }
   const row = db
     .prepare(
-      `SELECT id, tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId,
-              show_name AS showName, episode_label AS episodeLabel, airdate,
-              completed_at AS completedAt, dismissed_at AS dismissedAt, nudge_sent_at AS nudgeSentAt
-       FROM watch_tasks WHERE id = ? AND user_id = ?`,
+      `SELECT wt.id, wt.tvmaze_show_id AS tvmazeShowId, wt.tvmaze_episode_id AS tvmazeEpisodeId,
+              wt.show_name AS showName, wt.episode_label AS episodeLabel, wt.airdate,
+              wt.completed_at AS completedAt, wt.dismissed_at AS dismissedAt, wt.nudge_sent_at AS nudgeSentAt,
+              cer.rating AS userRating
+       FROM watch_tasks wt
+       LEFT JOIN community_episode_ratings cer
+         ON cer.user_id = wt.user_id
+        AND cer.tvmaze_show_id = wt.tvmaze_show_id
+        AND cer.tvmaze_episode_id = wt.tvmaze_episode_id
+       WHERE wt.id = ? AND wt.user_id = ?`,
     )
     .get(taskId, userId);
   return row;

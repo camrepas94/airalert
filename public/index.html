@@ -4402,6 +4402,212 @@
       .tasks-ep-actions button[data-action="skipped"]:hover {
         background: rgba(248, 113, 113, 0.15);
       }
+      /* My Shows — episode action states */
+      .tasks-ep-row--watched {
+        border-left: 3px solid rgba(34, 211, 238, 0.62);
+        background: linear-gradient(90deg, rgba(34, 211, 238, 0.07) 0%, rgba(0, 0, 0, 0.28) 28%);
+      }
+      .tasks-ep-row--skipped {
+        border-left: 3px solid rgba(192, 132, 252, 0.55);
+        background: linear-gradient(90deg, rgba(120, 60, 140, 0.1) 0%, rgba(0, 0, 0, 0.28) 28%);
+      }
+      .tasks-ep-row--needs-rating {
+        box-shadow:
+          inset 0 0 0 1px rgba(34, 211, 238, 0.22),
+          0 0 22px -6px rgba(34, 211, 238, 0.28);
+      }
+      .tasks-ep-action-block {
+        display: flex;
+        flex-direction: column;
+        gap: 0.32rem;
+        width: 100%;
+      }
+      .tasks-ep-status-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.28rem;
+        align-items: center;
+      }
+      .tasks-ep-status-pill {
+        display: inline-flex;
+        align-self: flex-start;
+        align-items: center;
+        gap: 0.2rem;
+        padding: 0.18rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        line-height: 1.2;
+        border: 1px solid rgba(130, 200, 255, 0.22);
+        background: rgba(8, 12, 26, 0.82);
+        color: rgba(226, 242, 255, 0.95);
+        box-shadow: 0 0 12px -4px rgba(34, 211, 238, 0.35);
+        transition:
+          opacity 0.2s ease,
+          box-shadow 0.2s ease,
+          border-color 0.2s ease;
+      }
+      .tasks-ep-status-pill--watched {
+        border-color: rgba(34, 211, 238, 0.42);
+        color: #cffafe;
+        box-shadow: 0 0 14px -2px rgba(34, 211, 238, 0.4);
+      }
+      .tasks-ep-status-pill--skipped {
+        border-color: rgba(192, 132, 252, 0.38);
+        color: #e9d5ff;
+        box-shadow: 0 0 12px -3px rgba(168, 85, 247, 0.35);
+      }
+      .tasks-ep-status-pill--rated {
+        border-color: rgba(253, 224, 71, 0.4);
+        color: #fef08a;
+        box-shadow: 0 0 14px -2px rgba(253, 224, 71, 0.28);
+      }
+      .tasks-ep-status-pill--waiting {
+        border-color: rgba(232, 121, 249, 0.38);
+        color: #f5d0fe;
+        animation: ep-waiting-pill-pulse 2.6s ease-in-out infinite;
+      }
+      @keyframes ep-waiting-pill-pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 10px -2px rgba(34, 211, 238, 0.35);
+        }
+        50% {
+          box-shadow: 0 0 16px 0 rgba(232, 121, 249, 0.35);
+        }
+      }
+      #tab-shows .tasks-ep-actions {
+        gap: 0.32rem;
+        border: none;
+        border-radius: 0;
+        overflow: visible;
+        background: transparent;
+      }
+      #tab-shows .tasks-ep-btn {
+        flex: 1 1 0;
+        min-height: 40px;
+        min-width: 0;
+        padding: 0.32rem 0.4rem;
+        border-radius: 10px;
+        border: 1px solid rgba(130, 200, 255, 0.16);
+        background: rgba(8, 12, 24, 0.88);
+        color: rgba(226, 242, 255, 0.92);
+        font-size: 0.66rem;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        touch-action: manipulation;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.22rem;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background 0.2s ease,
+          border-color 0.2s ease,
+          color 0.2s ease,
+          opacity 0.2s ease;
+      }
+      #tab-shows .tasks-ep-btn-icon {
+        font-size: 0.72rem;
+        line-height: 1;
+        opacity: 0.95;
+      }
+      #tab-shows .tasks-ep-btn--active.tasks-ep-btn[data-action="watched"] {
+        transform: scale(1.02);
+        color: #f8fbff;
+        font-weight: 800;
+        border-color: rgba(34, 211, 238, 0.5);
+        background: linear-gradient(180deg, rgba(34, 211, 238, 0.28) 0%, rgba(34, 211, 238, 0.1) 100%);
+        box-shadow:
+          0 0 0 1px rgba(34, 211, 238, 0.42) inset,
+          0 0 20px 2px rgba(34, 211, 238, 0.38),
+          0 0 40px -4px rgba(34, 211, 238, 0.2);
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+      }
+      #tab-shows .tasks-ep-btn--active.tasks-ep-btn[data-action="watched"] .tasks-ep-btn-icon {
+        animation: ep-check-pop 0.35s ease;
+      }
+      @keyframes ep-check-pop {
+        0% {
+          transform: scale(0.6);
+          opacity: 0.4;
+        }
+        70% {
+          transform: scale(1.15);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      #tab-shows .tasks-ep-btn--active.tasks-ep-btn[data-action="skipped"] {
+        transform: scale(1.02);
+        color: #f8fbff;
+        font-weight: 800;
+        border-color: rgba(167, 139, 250, 0.48);
+        background: linear-gradient(180deg, rgba(167, 139, 250, 0.3) 0%, rgba(124, 92, 255, 0.12) 100%);
+        box-shadow:
+          0 0 0 1px rgba(196, 181, 253, 0.42) inset,
+          0 0 20px 2px rgba(167, 139, 250, 0.38),
+          0 0 44px -4px rgba(124, 92, 255, 0.22);
+      }
+      #tab-shows .tasks-ep-btn--muted {
+        opacity: 0.42;
+        transform: scale(0.98);
+        box-shadow: none;
+        filter: saturate(0.65);
+      }
+      #tab-shows .tasks-ep-btn--muted:hover {
+        opacity: 0.58;
+      }
+      @media (hover: hover) {
+        #tab-shows .tasks-ep-btn:not(.tasks-ep-btn--muted):not(.tasks-ep-btn--active):hover {
+          transform: translateY(-1px);
+          border-color: rgba(34, 211, 238, 0.32);
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+        }
+      }
+      #tab-shows .tasks-ep-btn:active:not(:disabled) {
+        transform: scale(0.97);
+      }
+      #tab-shows .tasks-ep-btn--rate {
+        flex: 1.05 1 0;
+      }
+      #tab-shows .tasks-ep-btn--rate-pulse {
+        animation: ep-rate-neon-pulse 3.2s ease-in-out infinite;
+      }
+      @keyframes ep-rate-neon-pulse {
+        0%,
+        100% {
+          border-color: rgba(34, 211, 238, 0.45);
+          box-shadow:
+            0 0 0 1px rgba(34, 211, 238, 0.25) inset,
+            0 0 18px 0 rgba(34, 211, 238, 0.35);
+        }
+        33% {
+          border-color: rgba(168, 85, 247, 0.48);
+          box-shadow:
+            0 0 0 1px rgba(168, 85, 247, 0.28) inset,
+            0 0 20px 0 rgba(168, 85, 247, 0.38);
+        }
+        66% {
+          border-color: rgba(232, 121, 249, 0.45);
+          box-shadow:
+            0 0 0 1px rgba(232, 121, 249, 0.26) inset,
+            0 0 18px 0 rgba(232, 121, 249, 0.34);
+        }
+      }
+      #tab-shows .tasks-ep-btn--rated {
+        border-color: rgba(253, 224, 71, 0.42);
+        background: linear-gradient(180deg, rgba(253, 224, 71, 0.16) 0%, rgba(120, 90, 20, 0.12) 100%);
+        color: #fef9c3;
+        box-shadow: 0 0 16px -2px rgba(253, 224, 71, 0.28);
+        animation: none;
+      }
       @media (min-width: 720px) {
         .tasks-ep-actions--icons button {
           flex: 0 0 auto;
@@ -12384,9 +12590,6 @@
               <ul class="community-headlines-rail" id="communityHeadlinesRail" role="list" aria-label="Breaking news"></ul>
             </div>
 
-            <h3 class="community-subsection-heading community-subsection-heading--primary app-section-heading">Discussions</h3>
-            <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
-            <ul class="community-thread-list" id="communityThreadList"></ul>
             <div class="community-friends-activity-wrap" id="communityFriendsActivityWrap" hidden>
               <h3 class="community-subsection-heading app-section-heading">Friends Activity</h3>
               <p class="msg err" id="communityFriendsActivityErr" hidden role="alert"></p>
@@ -12403,7 +12606,8 @@
                 aria-label="Friends activity"
               ></ul>
             </div>
-            <h3 class="community-subsection-heading app-section-heading" id="communityGeneralHeading" hidden>General Discussion</h3>
+            <h3 class="community-subsection-heading app-section-heading" id="communityGeneralHeading" hidden>General discussion</h3>
+            <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
             <ul class="community-general-list" id="communityGeneralList"></ul>
           </div>
           <div class="community-thread-view hidden" id="communityThreadView">
@@ -14586,6 +14790,7 @@
         sectionExpanded: new Set(["airing", "hiatus", "ended"]),
         cardExpanded: new Set(),
         showMetaCache: new Map(),
+        episodeRatings: new Map(),
       };
 
       const POST_WATCH_REACTION_TAGS = [
@@ -14672,6 +14877,101 @@
 
       function myListCardStorageKey(showKey) {
         return "mylist-show-" + showKey;
+      }
+
+      function myListEpisodeRatingKey(showId, epId) {
+        return String(showId) + ":" + String(epId);
+      }
+
+      function syncMyListEpisodeRatingsFromTasks() {
+        myListState.episodeRatings.clear();
+        for (const t of myListState.tasks) {
+          const n = Number(t.userRating);
+          if (
+            Number.isFinite(n) &&
+            n >= 1 &&
+            n <= 5 &&
+            Number(t.tvmazeShowId) > 0 &&
+            Number(t.tvmazeEpisodeId) > 0
+          ) {
+            myListState.episodeRatings.set(
+              myListEpisodeRatingKey(t.tvmazeShowId, t.tvmazeEpisodeId),
+              n,
+            );
+          }
+        }
+      }
+
+      function getMyListEpisodeRating(t) {
+        const direct = Number(t.userRating);
+        if (Number.isFinite(direct) && direct >= 1 && direct <= 5) return direct;
+        const sid = Number(t.tvmazeShowId);
+        const eid = Number(t.tvmazeEpisodeId);
+        if (!Number.isInteger(sid) || sid < 1 || !Number.isInteger(eid) || eid < 1) return null;
+        const cached = myListState.episodeRatings.get(myListEpisodeRatingKey(sid, eid));
+        return cached != null ? cached : null;
+      }
+
+      function setMyListEpisodeRating(showId, epId, rating) {
+        const n = Number(rating);
+        if (!Number.isInteger(showId) || showId < 1 || !Number.isInteger(epId) || epId < 1) return;
+        if (!Number.isFinite(n) || n < 1 || n > 5) return;
+        myListState.episodeRatings.set(myListEpisodeRatingKey(showId, epId), n);
+        for (const t of myListState.tasks) {
+          if (Number(t.tvmazeShowId) === showId && Number(t.tvmazeEpisodeId) === epId) {
+            t.userRating = n;
+            break;
+          }
+        }
+      }
+
+      function myListEpisodeRowKind(t) {
+        if (t.completedAt) return "watched";
+        if (t.dismissedAt) return "skipped";
+        return "open";
+      }
+
+      function formatEpisodeRatingStars(n) {
+        const r = Math.min(5, Math.max(1, Math.round(Number(n) || 0)));
+        return "\u2605".repeat(r) + "\u2606".repeat(5 - r);
+      }
+
+      function myListOpenRateModalForTask(t) {
+        const sid = Number(t.tvmazeShowId);
+        const eid = Number(t.tvmazeEpisodeId);
+        if (!Number.isInteger(sid) || sid < 1 || !Number.isInteger(eid) || eid < 1) return;
+        openPostWatchReviewModal({
+          tvmazeShowId: sid,
+          tvmazeEpisodeId: eid,
+          showName: String(t.showName || ""),
+          episodeLabel: String(t.episodeLabel || ""),
+          initialRating: getMyListEpisodeRating(t),
+        });
+      }
+
+      function myListCreateEpActionBtn(action, kind) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.dataset.action = action;
+        btn.className = "tasks-ep-btn";
+        const isWatch = action === "watched";
+        const active = (isWatch && kind === "watched") || (!isWatch && kind === "skipped");
+        const muted = (isWatch && kind === "skipped") || (!isWatch && kind === "watched");
+        if (active) btn.classList.add("tasks-ep-btn--active");
+        if (muted) btn.classList.add("tasks-ep-btn--muted");
+        if (active) {
+          const icon = document.createElement("span");
+          icon.className = "tasks-ep-btn-icon";
+          icon.setAttribute("aria-hidden", "true");
+          icon.textContent = isWatch ? "\u2713" : "\u23ed";
+          btn.appendChild(icon);
+        }
+        const text = document.createElement("span");
+        text.className = "tasks-ep-btn-label";
+        text.textContent = isWatch ? "Watched" : "Skip";
+        btn.appendChild(text);
+        btn.setAttribute("aria-pressed", active ? "true" : "false");
+        return btn;
       }
 
       function loadMyListPrefs() {
@@ -14855,16 +15155,37 @@
         if (idx >= 0) myListState.tasks[idx] = { ...myListState.tasks[idx], ...row };
         const tidx = tasksState.tasks.findIndex((x) => x.id === t.id);
         if (tidx >= 0) tasksState.tasks[tidx] = { ...tasksState.tasks[tidx], ...row };
+        const r = Number(row.userRating);
+        if (
+          Number.isFinite(r) &&
+          r >= 1 &&
+          r <= 5 &&
+          Number(row.tvmazeShowId) > 0 &&
+          Number(row.tvmazeEpisodeId) > 0
+        ) {
+          setMyListEpisodeRating(row.tvmazeShowId, row.tvmazeEpisodeId, r);
+        }
         renderMyListHost(userId);
         refreshMyListStats();
       }
 
       function myListCreateEpisodeRow(userId, t) {
+        const kind = myListEpisodeRowKind(t);
+        const rating = getMyListEpisodeRating(t);
         const row = document.createElement("div");
         row.className = "tasks-ep-row";
+        row.dataset.taskId = t.id;
         const bucket = taskUrgencyBucket(t.airdate);
         if (bucket === "today" || bucket === "tomorrow") row.classList.add("tasks-ep-row--today");
         if (bucket === "overdue") row.classList.add("tasks-ep-row--overdue");
+        if (kind === "watched") {
+          row.classList.add("tasks-ep-row--watched");
+          if (accountIsRegistered(sessionMeSnapshot) && rating == null) {
+            row.classList.add("tasks-ep-row--needs-rating");
+          }
+        } else if (kind === "skipped") {
+          row.classList.add("tasks-ep-row--skipped");
+        }
         if (bucket === "today" || bucket === "tomorrow") {
           const nudge = document.createElement("span");
           nudge.className = "tasks-ep-nudge";
@@ -14880,45 +15201,74 @@
         air.className = "tasks-ep-air";
         air.textContent = "Aired " + formatTaskAirLabel(t.airdate);
         row.appendChild(air);
+
+        const actionBlock = document.createElement("div");
+        actionBlock.className = "tasks-ep-action-block";
+        if (kind !== "open") {
+          const pills = document.createElement("div");
+          pills.className = "tasks-ep-status-pills";
+          if (kind === "watched" && rating != null) {
+            const pill = document.createElement("span");
+            pill.className = "tasks-ep-status-pill tasks-ep-status-pill--rated";
+            pill.textContent = "\u2605 Rated " + rating + "/5";
+            pills.appendChild(pill);
+          } else if (kind === "watched") {
+            const pill = document.createElement("span");
+            pill.className = "tasks-ep-status-pill tasks-ep-status-pill--watched";
+            pill.textContent = "\u2713 Watched";
+            pills.appendChild(pill);
+            if (accountIsRegistered(sessionMeSnapshot)) {
+              const wait = document.createElement("span");
+              wait.className = "tasks-ep-status-pill tasks-ep-status-pill--waiting";
+              wait.textContent = "Waiting for rating";
+              pills.appendChild(wait);
+            }
+          } else {
+            const pill = document.createElement("span");
+            pill.className = "tasks-ep-status-pill tasks-ep-status-pill--skipped";
+            pill.textContent = "\u23ed Skipped";
+            pills.appendChild(pill);
+          }
+          actionBlock.appendChild(pills);
+        }
+
         const actions = document.createElement("div");
         actions.className = "tasks-ep-actions";
-        if (window.matchMedia("(min-width: 720px)").matches) actions.classList.add("tasks-ep-actions--icons");
-        const btnWatch = document.createElement("button");
-        btnWatch.type = "button";
-        btnWatch.dataset.action = "watched";
-        btnWatch.textContent = "Watched";
-        const btnSkip = document.createElement("button");
-        btnSkip.type = "button";
-        btnSkip.dataset.action = "skipped";
-        btnSkip.textContent = "Skip";
-        btnWatch.addEventListener("click", () => {
-          void (async () => {
-            await myListPatchWatchTask(userId, t, { status: "watched" });
-            const sub = myListState.subscriptions.find((s) => myListShowKey(s) === taskShowKey(t));
-            if (sub) myListOpenPostWatchIfRegistered(sub, t);
-          })();
-        });
-        btnSkip.addEventListener("click", () => void myListPatchWatchTask(userId, t, { status: "skipped" }));
-        const btnRate = document.createElement("button");
-        btnRate.type = "button";
-        btnRate.className = "secondary";
-        btnRate.textContent = "Rate";
-        btnRate.addEventListener("click", () => {
-          const sid = Number(t.tvmazeShowId);
-          const eid = Number(t.tvmazeEpisodeId);
-          if (Number.isInteger(sid) && sid > 0 && Number.isInteger(eid) && eid > 0) {
-            openPostWatchReviewModal({
-              tvmazeShowId: sid,
-              tvmazeEpisodeId: eid,
-              showName: String(t.showName || ""),
-              episodeLabel: String(t.episodeLabel || ""),
-            });
-          }
-        });
+        const btnWatch = myListCreateEpActionBtn("watched", kind);
+        const btnSkip = myListCreateEpActionBtn("skipped", kind);
+        if (kind !== "watched") {
+          btnWatch.addEventListener("click", () => {
+            void (async () => {
+              await myListPatchWatchTask(userId, t, { status: "watched" });
+              const sub = myListState.subscriptions.find((s) => myListShowKey(s) === taskShowKey(t));
+              if (sub) myListOpenPostWatchIfRegistered(sub, t);
+            })();
+          });
+        }
+        if (kind !== "skipped") {
+          btnSkip.addEventListener("click", () => void myListPatchWatchTask(userId, t, { status: "skipped" }));
+        }
         actions.appendChild(btnWatch);
         actions.appendChild(btnSkip);
-        if (accountIsRegistered(sessionMeSnapshot)) actions.appendChild(btnRate);
-        row.appendChild(actions);
+        if (accountIsRegistered(sessionMeSnapshot) && kind === "watched") {
+          const btnRate = document.createElement("button");
+          btnRate.type = "button";
+          btnRate.className = "tasks-ep-btn tasks-ep-btn--rate";
+          if (rating != null) {
+            btnRate.classList.add("tasks-ep-btn--rated");
+            btnRate.textContent = "Edit rating " + formatEpisodeRatingStars(rating);
+            btnRate.setAttribute("aria-label", "Edit your " + rating + " star rating");
+          } else {
+            btnRate.classList.add("tasks-ep-btn--rate-pulse");
+            btnRate.textContent = "Rate";
+            btnRate.setAttribute("aria-label", "Rate this episode");
+          }
+          btnRate.addEventListener("click", () => myListOpenRateModalForTask(t));
+          actions.appendChild(btnRate);
+        }
+        actionBlock.appendChild(actions);
+        row.appendChild(actionBlock);
+
         if (window.matchMedia("(max-width: 719px)").matches) {
           bindTaskEpisodeSwipe(row, userId, t, null);
         }
@@ -15053,7 +15403,7 @@
         epsPanel.className = "tasks-show-eps mylist-show-eps";
         epsPanel.hidden = !expanded;
         const showTasks = myListState.tasks
-          .filter((t) => taskShowKey(t) === showKey && !t.dismissedAt)
+          .filter((t) => taskShowKey(t) === showKey)
           .sort((a, b) => String(b.airdate || "").localeCompare(String(a.airdate || "")));
         if (showTasks.length) {
           const todayYmd = localCalendarTodayYmd();
@@ -15288,6 +15638,7 @@
           myListState.subscriptions = subRes.subscriptions || [];
           myListState.tasks = taskRes.tasks || [];
           myListState.analytics = analyticsRes;
+          syncMyListEpisodeRatingsFromTasks();
           tasksState.tasks = taskRes.tasks || [];
           showMyListSkeleton(false);
           renderMyListHost(userId);
@@ -15526,6 +15877,7 @@
       }
 
       function scheduleCommunityListSecondary() {
+        void loadFriendsActivity();
         deferAfterIdle(() => {
           void loadCommunityHeadlines();
         }, 2200);
@@ -15664,7 +16016,12 @@
           viewBtn.className = "friends-activity-action-btn";
           viewBtn.textContent = "View";
           viewBtn.addEventListener("click", () => {
-            openCommunityShowThread(it.tvmazeShowId, it.showName || "Show");
+            const sid = Number(it.tvmazeShowId);
+            if (!Number.isInteger(sid) || sid < 1) return;
+            const eid = Number(it.tvmazeEpisodeId);
+            const epDeep =
+              Number.isInteger(eid) && eid > 0 ? { episodeId: eid } : { episodeId: null };
+            void openCommunityThread(sid, it.showName || "Show", undefined, epDeep);
           });
           actions.appendChild(viewBtn);
           card.appendChild(actions);
@@ -15691,7 +16048,11 @@
           cta.addEventListener("click", () => openProfilePageSearch());
         }
         if (opts && opts.force) friendsActivityLoadedAt = 0;
-        if (Date.now() - friendsActivityLoadedAt < FRIENDS_ACTIVITY_TTL_MS && rail.childElementCount > 0) {
+        if (
+          !(opts && opts.force) &&
+          Date.now() - friendsActivityLoadedAt < FRIENDS_ACTIVITY_TTL_MS &&
+          rail.childElementCount > 0
+        ) {
           return;
         }
         if (errEl) {
@@ -15716,7 +16077,10 @@
             if (empty) {
               empty.hidden = false;
               const t = empty.querySelector(".community-friends-activity-empty-text");
-              if (t) t.textContent = "No recent activity from people you follow yet.";
+              if (t) {
+                t.textContent =
+                  "No recent activity from people you follow yet. Posts you make on your own account won't appear here — use a second account or ask a friend to post, then refresh Community.";
+              }
             }
             return;
           }
@@ -15757,20 +16121,18 @@
       }
 
       function renderCommunityThreadListsSkeleton() {
-        const listEl = document.getElementById("communityThreadList");
         const generalEl = document.getElementById("communityGeneralList");
         const generalHeading = document.getElementById("communityGeneralHeading");
         if (generalHeading) generalHeading.hidden = true;
-        if (generalEl) generalEl.innerHTML = "";
-        if (!listEl) return;
-        listEl.innerHTML = "";
+        if (!generalEl) return;
+        generalEl.innerHTML = "";
         for (let i = 0; i < 4; i++) {
           const li = document.createElement("li");
           li.setAttribute("aria-hidden", "true");
           li.innerHTML = '<div class="community-thread-skeleton-card"></div>';
-          listEl.appendChild(li);
+          generalEl.appendChild(li);
         }
-        listEl.setAttribute("aria-busy", "true");
+        generalEl.setAttribute("aria-busy", "true");
       }
 
       function renderCommunityPostFeedSkeleton(feed) {
@@ -16557,7 +16919,9 @@
           return;
         }
         postWatchReviewContext = ctx;
-        postWatchReviewSelectedRating = 0;
+        const initial = Number(ctx.initialRating);
+        postWatchReviewSelectedRating =
+          Number.isFinite(initial) && initial >= 1 && initial <= 5 ? initial : 0;
         postWatchReviewSelectedTags.clear();
         ensurePostWatchReviewStarsBound();
         ensurePostWatchReviewTagsBound();
@@ -16653,7 +17017,14 @@
           } else {
             showToast("Rating saved.");
           }
+          if (result && result.rating && result.rating.myRating != null) {
+            setMyListEpisodeRating(ctx.tvmazeShowId, ctx.tvmazeEpisodeId, result.rating.myRating);
+          } else if (hasRating) {
+            setMyListEpisodeRating(ctx.tvmazeShowId, ctx.tvmazeEpisodeId, postWatchReviewSelectedRating);
+          }
           closePostWatchReviewModal();
+          const uid = resolveUserId();
+          if (uid) renderMyListHost(uid);
           if (
             typeof communityState !== "undefined" &&
             communityState &&
@@ -21927,12 +22298,8 @@
       }
 
       function applyCommunityFilter() {
-        const trendingCards = document.querySelectorAll("#communityThreadList > li");
         const generalCards = document.querySelectorAll("#communityGeneralList > li");
         const generalHeading = document.getElementById("communityGeneralHeading");
-        trendingCards.forEach((li) => {
-          li.style.display = "";
-        });
         generalCards.forEach((li) => {
           li.style.display = "";
         });
@@ -22078,64 +22445,48 @@
       }
 
       async function loadCommunityThreads() {
-        const listEl = document.getElementById("communityThreadList");
         const generalEl = document.getElementById("communityGeneralList");
         const generalHeading = document.getElementById("communityGeneralHeading");
         const errEl = document.getElementById("communityThreadsErr");
-        if (!listEl) return;
+        if (!generalEl) return;
         if (errEl) {
           errEl.style.display = "none";
           errEl.textContent = "";
         }
-        if (!listEl.children.length && (!generalEl || !generalEl.children.length)) {
+        if (!generalEl.children.length) {
           renderCommunityThreadListsSkeleton();
         }
         try {
           const data = await api("/api/community/threads");
           const threads = data.threads || [];
-          const episodeThreads = [];
           const generalThreads = [];
           for (const th of threads) {
             if (th.threadKind === "general" || th.tvmazeEpisodeId == null) {
               generalThreads.push(th);
-            } else {
-              episodeThreads.push(th);
             }
           }
 
-          // ── Episode threads → horizontal carousel ──
-          listEl.removeAttribute("aria-busy");
-          listEl.innerHTML = "";
-          const episodeFrag = document.createDocumentFragment();
-          for (const th of episodeThreads) {
+          generalEl.removeAttribute("aria-busy");
+          generalEl.innerHTML = "";
+          if (generalHeading) generalHeading.hidden = generalThreads.length === 0;
+          const generalFrag = document.createDocumentFragment();
+          for (const th of generalThreads) {
             const li = document.createElement("li");
             const btn = document.createElement("button");
             btn.type = "button";
-            const isLive = th.episodeAirsToday === true;
-            const isHot = th.postCount > 50;
             btn.className = "community-thread-card community-thread-card--hero";
-            btn.dataset.threadKind = "episode";
-            if (isLive) btn.dataset.live = "1";
+            btn.dataset.threadKind = "general";
             const postLabel = th.postCount + " repl" + (th.postCount === 1 ? "y" : "ies");
             const timeAgo = th.lastPostAt ? formatCommunityRelativeTime(th.lastPostAt) : "";
-            const epTitle = escapeHtml(th.episodeLabel || "Episode");
-            const epTag = th.airdate ? " \u00b7 " + (isLive ? "Aired Tonight" : escapeHtml(String(th.airdate))) : "";
-
-            const trendBadge = isHot
-              ? '<span class="community-thread-badge-hot" style="font-size:0.62rem;padding:0.2rem 0.5rem">\u{1F525} Trending Now</span>'
-              : (isLive ? '<span class="community-thread-new-ep-badge" style="font-size:0.62rem;padding:0.2rem 0.5rem;background:rgba(255,64,129,0.2);border:1px solid rgba(255,64,129,0.35);border-radius:6px;color:#ff80ab">\u{1F534} New Episode</span>' : '');
-            const liveBadge = isLive
-              ? '<span style="font-size:0.62rem;padding:0.2rem 0.5rem;border-radius:6px;background:rgba(0,230,118,0.15);border:1px solid rgba(0,230,118,0.3);color:#69f0ae;font-weight:700">\u{1F7E2} ' + th.postCount + ' live</span>'
-              : '';
 
             btn.innerHTML =
               '<div class="community-thread-card-hero" role="presentation">' +
               '<div class="community-thread-card-scrim" aria-hidden="true"></div>' +
-              '<div class="community-thread-card-badges">' + trendBadge + liveBadge + '</div>' +
+              '<div class="community-thread-card-badges"></div>' +
               '<div class="community-thread-card-hero-inner">' +
-              '<div class="community-thread-ep-show">' + escapeHtml(th.showName || "Show") + epTag + '</div>' +
-              '<div class="community-thread-ep-title" style="font-size:0.84rem;margin:0;line-height:1.28">' + epTitle + '</div>' +
-              '<div class="community-thread-footer" style="margin-top:0.22rem">' +
+              '<div class="community-thread-ep-show">' + escapeHtml(th.showName || "Show") + '</div>' +
+              '<div class="community-thread-ep-title" style="font-size:0.92rem;margin:0;line-height:1.3">General discussion</div>' +
+              '<div class="community-thread-footer" style="margin-top:0.35rem">' +
               '<span class="community-thread-footer-stat">\u{1F4AC} ' + postLabel + '</span>' +
               (timeAgo ? '<span class="community-thread-footer-stat">\u{1F552} ' + timeAgo + '</span>' : '') +
               '<span style="margin-left:auto"><span class="community-thread-card-join">Join</span></span>' +
@@ -22145,61 +22496,17 @@
             applyCommunityThreadHeroArt(btn.querySelector(".community-thread-card-hero"), th.tvmazeShowId, th.showImageUrl);
 
             btn.addEventListener("click", () =>
-              openCommunityThread(th.tvmazeShowId, th.showName, th.postCount, {
-                episodeId: th.tvmazeEpisodeId,
-              }),
+              openCommunityThread(th.tvmazeShowId, th.showName, th.postCount, { episodeId: null }),
             );
             li.appendChild(btn);
-            episodeFrag.appendChild(li);
+            generalFrag.appendChild(li);
           }
-          listEl.appendChild(episodeFrag);
-
-          // ── General threads → horizontal scrolling cards ──
-          if (generalEl) {
-            generalEl.innerHTML = "";
-            if (generalHeading) generalHeading.hidden = generalThreads.length === 0;
-            const generalFrag = document.createDocumentFragment();
-            for (const th of generalThreads) {
-              const li = document.createElement("li");
-              const btn = document.createElement("button");
-              btn.type = "button";
-              btn.className = "community-thread-card community-thread-card--hero";
-              btn.dataset.threadKind = "general";
-              const postLabel = th.postCount + " repl" + (th.postCount === 1 ? "y" : "ies");
-              const timeAgo = th.lastPostAt ? formatCommunityRelativeTime(th.lastPostAt) : "";
-
-              btn.innerHTML =
-                '<div class="community-thread-card-hero" role="presentation">' +
-                '<div class="community-thread-card-scrim" aria-hidden="true"></div>' +
-                '<div class="community-thread-card-badges"></div>' +
-                '<div class="community-thread-card-hero-inner">' +
-                '<div class="community-thread-ep-show">' + escapeHtml(th.showName || "Show") + '</div>' +
-                '<div class="community-thread-ep-title" style="font-size:0.92rem;margin:0;line-height:1.3">General discussion</div>' +
-                '<div class="community-thread-footer" style="margin-top:0.35rem">' +
-                '<span class="community-thread-footer-stat">\u{1F4AC} ' + postLabel + '</span>' +
-                (timeAgo ? '<span class="community-thread-footer-stat">\u{1F552} ' + timeAgo + '</span>' : '') +
-                '<span style="margin-left:auto"><span class="community-thread-card-join">Join</span></span>' +
-                '</div>' +
-                '</div></div>';
-
-              applyCommunityThreadHeroArt(btn.querySelector(".community-thread-card-hero"), th.tvmazeShowId, th.showImageUrl);
-
-              btn.addEventListener("click", () =>
-                openCommunityThread(th.tvmazeShowId, th.showName, th.postCount, { episodeId: null }),
-              );
-              li.appendChild(btn);
-              generalFrag.appendChild(li);
-            }
-            generalEl.appendChild(generalFrag);
-          }
+          generalEl.appendChild(generalFrag);
 
           applyCommunityFilter();
         } catch (e) {
-          if (listEl) {
-            listEl.innerHTML = "";
-            listEl.removeAttribute("aria-busy");
-          }
-          if (generalEl) generalEl.innerHTML = "";
+          generalEl.innerHTML = "";
+          generalEl.removeAttribute("aria-busy");
           if (generalHeading) generalHeading.hidden = true;
           if (errEl) {
             errEl.textContent = e.message || "Could not load threads";
@@ -22356,22 +22663,12 @@
       }
 
       function hasActiveCommunityReplyTarget() {
-        if (!isValidCommunityReplyParentPostId(communityReplyToPostId)) return false;
-        const { label, preview, un } = communityReplyDisplayContext();
-        return Boolean(label || preview || un);
+        return isValidCommunityReplyParentPostId(communityReplyToPostId);
       }
 
-      /** Drop orphan reply ids so the reply strip never shows with an empty “Replying to”. */
+      /** Drop invalid reply ids only (keep target when post id is set). */
       function normalizeCommunityReplyState() {
         if (!isValidCommunityReplyParentPostId(communityReplyToPostId)) {
-          communityReplyToPostId = null;
-          communityReplyToUsername = null;
-          communityReplyTargetLabel = null;
-          communityReplyTargetPreview = null;
-          return;
-        }
-        const { label, preview, un } = communityReplyDisplayContext();
-        if (!label && !preview && !un) {
           communityReplyToPostId = null;
           communityReplyToUsername = null;
           communityReplyTargetLabel = null;
@@ -23913,7 +24210,7 @@
                 fs.followerCount = (fs.followerCount || 0) + 1;
               }
               cmpProfileSetSocialStats(fs.followerCount, fs.followingCount);
-              if (communityState.view === "list") void loadFriendsActivity({ force: true });
+              void loadFriendsActivity({ force: true });
             } catch (e) {
               showToast(e.message || "Could not update follow");
             }
@@ -26218,6 +26515,12 @@
         setupCommunityCatchUpPanelDeferred();
         wireDeferredCommunityTabPanel();
         wireCommunityNewThreadFab();
+        if (communityState.view === "list") {
+          void loadFriendsActivity();
+          void loadCommunityThreads().then(() => {
+            scheduleCommunityListSecondary();
+          });
+        }
       }
 
       function wireCommunityNewThreadFab() {
@@ -26430,6 +26733,7 @@
             onceKey: "tab:community",
           });
           if (communityState.view === "list") {
+            void loadFriendsActivity({ force: true });
             void loadCommunityThreads().then(() => {
               scheduleCommunityListSecondary();
             });

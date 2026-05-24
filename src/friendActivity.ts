@@ -112,8 +112,8 @@ export function recordFriendActivity(input: RecordFriendActivityInput): void {
       threadPostId,
       rating,
     );
-  } catch {
-    /* best-effort */
+  } catch (err) {
+    console.error("[friend-activity] record failed:", err);
   }
 }
 
