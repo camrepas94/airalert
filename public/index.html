@@ -1396,6 +1396,7 @@
         }
         #tab-community .community-headlines-rail,
         #tab-community .community-thread-list,
+        #tab-community .community-friends-activity-rail,
         #tab-community .community-general-list {
           margin-left: calc(-1 * max(0.75rem, env(safe-area-inset-left, 0px)));
           margin-right: calc(-1 * max(0.75rem, env(safe-area-inset-right, 0px)));
@@ -4373,6 +4374,271 @@
       #tab-tasks.tasks-tab--compact .tasks-show-sub--detail {
         display: none;
       }
+      /* My Shows — unified dashboard */
+      .myshows-page-root {
+        padding-bottom: 1.25rem;
+      }
+      .myshows-page-title {
+        margin: 0 0 0.65rem;
+        font-size: 1.05rem;
+      }
+      .myshows-analytics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.4rem;
+        margin-bottom: 0.65rem;
+      }
+      @media (min-width: 720px) {
+        .myshows-analytics {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+      .myshows-stat-card {
+        padding: 0.45rem 0.5rem 0.5rem;
+        border-radius: 10px;
+        border: 1px solid rgba(130, 200, 255, 0.16);
+        background: linear-gradient(145deg, rgba(8, 12, 28, 0.88), rgba(14, 10, 32, 0.82));
+        box-shadow: 0 0 18px -10px rgba(34, 211, 238, 0.35);
+        min-height: 58px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.12rem;
+      }
+      .myshows-stat-card--wide {
+        grid-column: 1 / -1;
+      }
+      .myshows-stat-icon {
+        font-size: 0.72rem;
+        opacity: 0.75;
+      }
+      .myshows-stat-value {
+        font-size: 1.05rem;
+        font-weight: 800;
+        line-height: 1.1;
+        color: #f8fafc;
+      }
+      .myshows-stat-label {
+        font-size: 0.58rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: rgba(148, 163, 184, 0.95);
+      }
+      .myshows-stat-sub {
+        font-size: 0.62rem;
+        color: rgba(186, 230, 253, 0.75);
+        line-height: 1.25;
+      }
+      .myshows-week-wrap {
+        margin-bottom: 0.65rem;
+      }
+      .myshows-week-nav {
+        display: flex;
+        gap: 0.35rem;
+        margin-bottom: 0.35rem;
+        justify-content: flex-end;
+      }
+      .myshows-week-btn {
+        min-height: 34px;
+        padding: 0.25rem 0.55rem;
+        font-size: 0.72rem;
+      }
+      .myshows-week-strip {
+        display: flex;
+        gap: 0.35rem;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .myshows-week-strip::-webkit-scrollbar {
+        display: none;
+      }
+      .myshows-week-day {
+        flex: 0 0 min(4.5rem, 22vw);
+        min-height: 52px;
+        padding: 0.35rem 0.4rem;
+        border-radius: 10px;
+        border: 1px solid rgba(130, 200, 255, 0.14);
+        background: rgba(6, 10, 24, 0.55);
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        text-align: center;
+        touch-action: manipulation;
+      }
+      .myshows-week-day.is-active {
+        border-color: rgba(168, 85, 247, 0.45);
+        box-shadow: 0 0 16px rgba(168, 85, 247, 0.2);
+        background: linear-gradient(145deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.14));
+      }
+      .myshows-week-day-label {
+        display: block;
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: rgba(148, 163, 184, 0.95);
+      }
+      .myshows-week-day-count {
+        display: block;
+        font-size: 1rem;
+        font-weight: 800;
+        margin-top: 0.15rem;
+      }
+      .myshows-continue-wrap {
+        margin-bottom: 0.75rem;
+      }
+      .myshows-continue-title {
+        margin: 0 0 0.4rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(186, 230, 253, 0.9);
+      }
+      .myshows-continue-rail {
+        list-style: none;
+        margin: 0;
+        padding: 0 0 0.2rem;
+        display: flex;
+        gap: 0.45rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .myshows-continue-rail > li {
+        flex: 0 0 min(200px, 78vw);
+      }
+      .myshows-continue-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        padding: 0.5rem 0.55rem;
+        border-radius: 10px;
+        border: 1px solid rgba(130, 200, 255, 0.16);
+        background: rgba(8, 12, 26, 0.85);
+        min-height: 88px;
+      }
+      .myshows-continue-show {
+        font-size: 0.78rem;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .myshows-continue-ep {
+        font-size: 0.68rem;
+        color: rgba(148, 163, 184, 0.95);
+      }
+      .myshows-continue-actions {
+        display: flex;
+        gap: 0.3rem;
+        margin-top: auto;
+      }
+      .myshows-continue-actions button {
+        flex: 1;
+        min-height: 34px;
+        font-size: 0.65rem;
+        padding: 0.2rem 0.35rem;
+      }
+      .myshows-toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 4;
+        margin-bottom: 0.55rem;
+        padding: 0.35rem 0 0.45rem;
+        background: linear-gradient(180deg, rgba(6, 8, 18, 0.97) 70%, rgba(6, 8, 18, 0));
+        backdrop-filter: blur(8px);
+      }
+      .myshows-segments {
+        display: flex;
+        gap: 0.28rem;
+        overflow-x: auto;
+        padding-bottom: 0.35rem;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .myshows-segments::-webkit-scrollbar {
+        display: none;
+      }
+      .myshows-segment {
+        flex: 0 0 auto;
+        min-height: 36px;
+        padding: 0.28rem 0.55rem;
+        border-radius: 999px;
+        border: 1px solid rgba(130, 200, 255, 0.18);
+        background: rgba(6, 10, 24, 0.65);
+        color: rgba(226, 232, 240, 0.9);
+        font-size: 0.68rem;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        touch-action: manipulation;
+        white-space: nowrap;
+      }
+      .myshows-segment.is-active {
+        border-color: rgba(34, 211, 238, 0.45);
+        color: #fff;
+        background: linear-gradient(125deg, rgba(34, 211, 238, 0.22), rgba(168, 85, 247, 0.2));
+        box-shadow: 0 0 14px rgba(34, 211, 238, 0.15);
+      }
+      .myshows-toolbar-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        align-items: center;
+        margin-bottom: 0.35rem;
+      }
+      .myshows-search-wrap {
+        flex: 1 1 140px;
+        margin-bottom: 0;
+      }
+      .myshows-toolbar-tools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+      }
+      .myshows-toggle .tasks-view-toggle-label {
+        font-size: 0.65rem;
+      }
+      #tab-shows.myshows-tab--compact .tasks-show-sub,
+      #tab-shows.myshows-tab--compact .mylist-show-next {
+        display: none;
+      }
+      #tab-shows.myshows-tab--compact .tasks-ep-air {
+        font-size: 0.62rem;
+      }
+      .myshows-ep-group-title {
+        margin: 0.35rem 0 0.2rem;
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: rgba(148, 163, 184, 0.95);
+      }
+      .post-watch-tags-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin: 0.5rem 0 0.65rem;
+      }
+      .post-watch-tag-btn {
+        min-height: 34px;
+        padding: 0.25rem 0.55rem;
+        border-radius: 999px;
+        border: 1px solid rgba(130, 200, 255, 0.22);
+        background: rgba(6, 10, 24, 0.55);
+        color: rgba(226, 232, 240, 0.92);
+        font-size: 0.72rem;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+      }
+      .post-watch-tag-btn.is-selected {
+        border-color: rgba(168, 85, 247, 0.5);
+        background: rgba(168, 85, 247, 0.18);
+        color: #fff;
+      }
       /* My List — card layout aligned with Tasks */
       .mylist-page-root {
         padding-bottom: 1.5rem;
@@ -7087,6 +7353,221 @@
         font-size: 0.78rem;
         margin: 0.1rem 0 0.15rem;
       }
+      .community-friends-activity-wrap {
+        margin: 0.35rem 0 0.85rem;
+      }
+      .community-friends-activity-wrap .community-subsection-heading {
+        margin-bottom: 0.45rem;
+      }
+      .community-friends-activity-empty {
+        text-align: center;
+        padding: 0.85rem 0.65rem 1rem;
+        border-radius: 12px;
+        border: 1px dashed rgba(130, 200, 255, 0.22);
+        background: rgba(6, 10, 24, 0.45);
+      }
+      .community-friends-activity-empty-text {
+        margin: 0 0 0.65rem;
+        font-size: 0.84rem;
+      }
+      .community-friends-activity-cta {
+        min-height: 44px;
+        padding-left: 1.1rem;
+        padding-right: 1.1rem;
+      }
+      .community-friends-activity-rail {
+        list-style: none;
+        margin: 0;
+        padding: 0 0 0.35rem;
+        display: flex;
+        flex-direction: row;
+        gap: 0.55rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .community-friends-activity-rail::-webkit-scrollbar {
+        display: none;
+      }
+      .community-friends-activity-rail > li {
+        flex: 0 0 min(292px, 88vw);
+        min-width: min(292px, 88vw);
+        max-width: 310px;
+        scroll-snap-align: start;
+      }
+      @keyframes friends-activity-in {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .friends-activity-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        padding: 0.55rem 0.6rem 0.6rem;
+        border-radius: 12px;
+        border: 1px solid rgba(130, 200, 255, 0.16);
+        background: linear-gradient(145deg, rgba(8, 12, 26, 0.92), rgba(14, 10, 28, 0.88));
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+        animation: friends-activity-in 0.28s ease both;
+        min-height: 118px;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.15s ease;
+      }
+      .friends-activity-card:hover {
+        border-color: rgba(34, 211, 238, 0.32);
+        box-shadow: 0 6px 22px rgba(34, 211, 238, 0.1);
+        transform: translateY(-1px);
+      }
+      .friends-activity-card--live {
+        border-color: rgba(168, 85, 247, 0.38);
+        box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.15), 0 6px 20px rgba(168, 85, 247, 0.12);
+      }
+      .friends-activity-card--live .friends-activity-type-icon::after {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        border: 2px solid rgba(168, 85, 247, 0.55);
+        animation: friends-activity-pulse 1.6s ease infinite;
+      }
+      @keyframes friends-activity-pulse {
+        0%,
+        100% {
+          opacity: 0.35;
+          transform: scale(0.92);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.08);
+        }
+      }
+      .friends-activity-card-head {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        min-width: 0;
+      }
+      .friends-activity-avatar,
+      .friends-activity-avatar-ph {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        object-fit: cover;
+        border: 1px solid rgba(130, 200, 255, 0.2);
+      }
+      .friends-activity-avatar-ph {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: rgba(186, 230, 253, 0.55);
+        background: linear-gradient(145deg, rgba(34, 211, 238, 0.14), rgba(168, 85, 247, 0.12));
+      }
+      .friends-activity-user-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .friends-activity-username {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #f8fafc;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .friends-activity-time {
+        display: block;
+        font-size: 0.66rem;
+        color: rgba(148, 163, 184, 0.95);
+      }
+      .friends-activity-type-icon {
+        position: relative;
+        flex-shrink: 0;
+        width: 1.35rem;
+        height: 1.35rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        line-height: 1;
+      }
+      .friends-activity-body {
+        display: flex;
+        gap: 0.45rem;
+        align-items: flex-start;
+        min-width: 0;
+      }
+      .friends-activity-poster,
+      .friends-activity-poster-ph {
+        width: 52px;
+        flex-shrink: 0;
+        aspect-ratio: 16 / 9;
+        border-radius: 6px;
+        object-fit: cover;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(130, 200, 255, 0.12);
+      }
+      .friends-activity-poster-ph {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: rgba(186, 230, 253, 0.45);
+      }
+      .friends-activity-copy {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.76rem;
+        line-height: 1.35;
+        color: rgba(226, 232, 240, 0.95);
+        margin: 0;
+      }
+      .friends-activity-copy strong {
+        color: #f8fafc;
+        font-weight: 700;
+      }
+      .friends-activity-actions {
+        display: flex;
+        gap: 0.35rem;
+        margin-top: 0.1rem;
+      }
+      .friends-activity-action-btn {
+        flex: 1;
+        min-height: 36px;
+        padding: 0.28rem 0.45rem;
+        border-radius: 999px;
+        border: 1px solid rgba(79, 195, 247, 0.28);
+        background: rgba(79, 195, 247, 0.1);
+        color: #7dd3fc;
+        font-size: 0.68rem;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .friends-activity-action-btn:hover {
+        background: rgba(79, 195, 247, 0.18);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .friends-activity-card {
+          animation: none;
+        }
+        .friends-activity-card--live .friends-activity-type-icon::after {
+          animation: none;
+        }
+      }
       /* ── Show News ── */
       .community-show-news-panel {
         margin: 0 0 0.65rem;
@@ -7561,31 +8042,20 @@
         justify-content: center;
         flex-shrink: 0;
       }
-      /* ── Follow button ── */
+      /* ── Follow button (visual: .aa-btn-gradient; .following is state-only) ── */
       .community-profile-follow-bar {
         display: flex;
         gap: 0.5rem;
         margin-top: 0.5rem;
         align-items: center;
       }
-      .community-profile-follow-btn {
-        padding: 0.4rem 0.85rem;
-        border-radius: 999px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        cursor: pointer;
-        border: 1px solid rgba(79, 195, 247, 0.35);
-        background: rgba(79, 195, 247, 0.1);
-        color: #4fc3f7;
-        transition: all 0.15s ease;
-        min-height: 38px;
-      }
-      .community-profile-follow-btn:hover {
-        background: rgba(79, 195, 247, 0.2);
-      }
-      .community-profile-follow-btn.following {
-        background: rgba(79, 195, 247, 0.2);
-        border-color: rgba(79, 195, 247, 0.5);
+      .community-profile-follow-btn.aa-btn-gradient,
+      .community-profile-follow-btn.aa-btn-gradient:hover,
+      .community-profile-follow-btn.aa-btn-gradient.following {
+        border: none;
+        color: #fff;
+        background: linear-gradient(125deg, #22d3ee 0%, #a855f7 50%, #ec4899 100%);
+        box-shadow: 0 0 22px rgba(168, 85, 247, 0.38), 0 4px 18px rgba(34, 211, 238, 0.12);
       }
       .community-profile-follow-stats {
         font-size: 0.74rem;
@@ -7952,9 +8422,9 @@
       }
       .community-thread-list::-webkit-scrollbar { display: none; }
       .community-thread-list > li {
-        flex: 0 0 min(300px, 85vw);
-        min-width: min(300px, 85vw);
-        max-width: 320px;
+        flex: 0 0 min(268px, 82vw);
+        min-width: min(268px, 82vw);
+        max-width: 288px;
       }
       .community-general-list {
         list-style: none;
@@ -7971,9 +8441,9 @@
       }
       .community-general-list::-webkit-scrollbar { display: none; }
       .community-general-list > li {
-        flex: 0 0 min(300px, 85vw);
-        min-width: min(300px, 85vw);
-        max-width: 320px;
+        flex: 0 0 min(268px, 82vw);
+        min-width: min(268px, 82vw);
+        max-width: 288px;
       }
       .community-thread-card {
         width: 100%;
@@ -8003,7 +8473,7 @@
       .community-thread-card--hero {
         position: relative;
         display: block;
-        min-height: 272px;
+        min-height: 158px;
         padding: 0;
       }
       .community-thread-card-hero {
@@ -8049,11 +8519,11 @@
         left: 0;
         right: 0;
         bottom: 0;
-        padding: 0.65rem 0.85rem 0.75rem;
+        padding: 0.5rem 0.65rem 0.58rem;
         z-index: 2;
         display: flex;
         flex-direction: column;
-        gap: 0.15rem;
+        gap: 0.1rem;
       }
       .community-thread-card--hero .community-thread-ep-show {
         color: rgba(255, 255, 255, 0.88);
@@ -9369,12 +9839,20 @@
         color: rgba(148, 163, 184, 0.9);
       }
       .cmp-profile-quick-actions {
+        position: relative;
+        z-index: 1;
         margin-bottom: 1.5rem;
       }
       .cmp-profile-action-row {
         display: flex;
         gap: 0.5rem;
         margin-bottom: 0.5rem;
+      }
+      .cmp-profile-action-row--self {
+        display: block;
+      }
+      .cmp-profile-action-row--self .aa-btn-gradient {
+        width: 100%;
       }
       .cmp-profile-action-row .aa-btn-gradient {
         flex: 1 1 0;
@@ -11628,34 +12106,10 @@
               aria-selected="false"
               data-tab="shows"
               id="tabBtnShows"
-              aria-label="My List"
-              title="My List"
+              aria-label="My Shows"
+              title="My Shows"
             >
-              <span class="tab-label">My List</span>
-            </button>
-            <button
-              type="button"
-              class="tab-btn"
-              role="tab"
-              aria-selected="false"
-              data-tab="guide"
-              id="tabBtnGuide"
-              aria-label="My week TV guide"
-              title="My week"
-            >
-              <span class="tab-label">My week</span>
-            </button>
-            <button
-              type="button"
-              class="tab-btn"
-              role="tab"
-              aria-selected="false"
-              data-tab="tasks"
-              id="tabBtnTasks"
-              aria-label="Tasks"
-              title="Tasks"
-            >
-              <span class="tab-label">Tasks</span>
+              <span class="tab-label">My Shows</span>
             </button>
             <button
               type="button"
@@ -11865,59 +12319,70 @@
 
       <template id="tpl-shell-tab-shows">
         <div class="app-shell-mounted" data-app-shell-mounted="shows">
-        <section class="panel-rail-blue mylist-page-root" aria-label="My List">
-          <div class="mylist-header-row">
-            <h2 class="mylist-heading app-section-heading">My List</h2>
-            <div class="mylist-header-tools">
-              <button type="button" class="tasks-tool-btn" id="mylistExpandAllBtn" title="Expand all shows">Expand all</button>
-              <button type="button" class="tasks-tool-btn" id="mylistCollapseAllBtn" title="Collapse all shows">Collapse all</button>
-              <label class="tasks-view-toggle">
-                <span class="tasks-view-toggle-label">Grid view</span>
-                <input type="checkbox" id="mylistGridToggle" aria-label="Grid view" />
-              </label>
+        <section class="panel-rail-blue myshows-page-root mylist-page-root" aria-label="My Shows">
+          <h2 class="myshows-page-title app-section-heading">My Shows</h2>
+          <div class="myshows-analytics" id="myshowsAnalytics" aria-live="polite" hidden></div>
+          <div class="myshows-week-wrap" id="myshowsWeekWrap" hidden>
+            <div class="myshows-week-nav">
+              <button type="button" class="secondary myshows-week-btn" id="myshowsWeekPrev" title="Previous week">←</button>
+              <button type="button" class="secondary myshows-week-btn" id="myshowsWeekToday" title="This week">Today</button>
+              <button type="button" class="secondary myshows-week-btn" id="myshowsWeekNext" title="Next week">→</button>
+            </div>
+            <div class="myshows-week-strip" id="myshowsWeekStrip" role="tablist" aria-label="Week days"></div>
+          </div>
+          <div class="myshows-continue-wrap" id="myshowsContinueWrap" hidden>
+            <h3 class="myshows-continue-title">Continue watching</h3>
+            <ul class="myshows-continue-rail" id="myshowsContinueRail" role="list"></ul>
+          </div>
+          <div class="myshows-toolbar" id="myshowsToolbar">
+            <div class="myshows-segments" id="myshowsSegments" role="tablist" aria-label="Filter shows">
+              <button type="button" class="myshows-segment is-active" data-segment="all" role="tab" aria-selected="true">All</button>
+              <button type="button" class="myshows-segment" data-segment="airing_today" role="tab">Airing today</button>
+              <button type="button" class="myshows-segment" data-segment="upcoming" role="tab">Upcoming</button>
+              <button type="button" class="myshows-segment" data-segment="continue" role="tab">Continue</button>
+              <button type="button" class="myshows-segment" data-segment="completed" role="tab">Completed</button>
+              <button type="button" class="myshows-segment" data-segment="skipped" role="tab">Skipped</button>
+              <button type="button" class="myshows-segment" data-segment="recent" role="tab">Recent</button>
+            </div>
+            <div class="myshows-toolbar-row">
+              <div class="mylist-search-wrap myshows-search-wrap">
+                <span class="mylist-search-icon" aria-hidden="true">⌕</span>
+                <input
+                  type="search"
+                  id="mylistFilterInput"
+                  class="mylist-search-input"
+                  placeholder="Search shows…"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <button type="button" class="mylist-search-clear" id="mylistFilterClear" hidden aria-label="Clear search">×</button>
+              </div>
               <label class="mylist-sort-wrap">
                 <span class="visually-hidden">Sort by</span>
                 <select id="mylistSortSelect" class="mylist-sort-select" aria-label="Sort by">
                   <option value="recent">Recently aired</option>
-                  <option value="az">A-Z</option>
+                  <option value="az">Alphabetical</option>
+                  <option value="least_watched">Most behind</option>
                   <option value="most_watched">Most watched</option>
-                  <option value="least_watched">Least watched</option>
-                  <option value="genre">By genre</option>
-                  <option value="network">By network</option>
+                  <option value="rating">Highest rated</option>
                   <option value="added">Date added</option>
                 </select>
               </label>
+              <label class="tasks-view-toggle myshows-toggle">
+                <span class="tasks-view-toggle-label">Compact</span>
+                <input type="checkbox" id="myshowsCompactToggle" aria-label="Compact mode" />
+              </label>
+              <label class="tasks-view-toggle myshows-toggle">
+                <span class="tasks-view-toggle-label">Hide watched</span>
+                <input type="checkbox" id="myshowsHideWatchedToggle" aria-label="Hide watched episodes" />
+              </label>
+            </div>
+            <div class="myshows-toolbar-tools">
+              <button type="button" class="tasks-tool-btn" id="mylistExpandAllBtn" title="Expand all shows">Expand all</button>
+              <button type="button" class="tasks-tool-btn" id="mylistCollapseAllBtn" title="Collapse all shows">Collapse all</button>
             </div>
           </div>
-          <div class="mylist-search-wrap">
-            <span class="mylist-search-icon" aria-hidden="true">⌕</span>
-            <input
-              type="search"
-              id="mylistFilterInput"
-              class="mylist-search-input"
-              placeholder="Filter your shows…"
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <button type="button" class="mylist-search-clear" id="mylistFilterClear" hidden aria-label="Clear filter">×</button>
-          </div>
-          <div class="tasks-stats-section mylist-stats-section" id="mylistStatsSection" aria-live="polite" hidden>
-            <div class="tasks-stats-grid mylist-stats-grid">
-              <div class="tasks-stat-card">
-                <span class="tasks-stat-value" id="mylistStatShows">0</span>
-                <span class="tasks-stat-label">Shows</span>
-              </div>
-              <div class="tasks-stat-card">
-                <span class="tasks-stat-value" id="mylistStatUnwatched">0</span>
-                <span class="tasks-stat-label">Unwatched episodes</span>
-              </div>
-              <div class="tasks-stat-card">
-                <span class="tasks-stat-value" id="mylistStatAvg">0%</span>
-                <span class="tasks-stat-label">Avg completion</span>
-              </div>
-            </div>
-          </div>
-          <div id="mylistHost" class="mylist-host" aria-live="polite"></div>
+          <div id="mylistHost" class="mylist-host myshows-host" aria-live="polite"></div>
           <div id="mylistFilterEmpty" class="mylist-filter-empty muted" hidden>No shows match your filter.</div>
           <div id="subsEmptyState" class="empty-state-card" hidden>
             <div class="empty-state-icon" aria-hidden="true">📺</div>
@@ -12072,6 +12537,22 @@
             <h3 class="community-subsection-heading community-subsection-heading--primary app-section-heading">Discussions</h3>
             <p class="err" id="communityThreadsErr" style="display: none; margin: 0 0 0.75rem"></p>
             <ul class="community-thread-list" id="communityThreadList"></ul>
+            <div class="community-friends-activity-wrap" id="communityFriendsActivityWrap" hidden>
+              <h3 class="community-subsection-heading app-section-heading">Friends Activity</h3>
+              <p class="msg err" id="communityFriendsActivityErr" hidden role="alert"></p>
+              <div class="community-friends-activity-empty" id="communityFriendsActivityEmpty" hidden>
+                <p class="muted community-friends-activity-empty-text">Follow users to see their activity</p>
+                <button type="button" class="secondary community-friends-activity-cta" id="communityFriendsActivityCta">
+                  Find people
+                </button>
+              </div>
+              <ul
+                class="community-friends-activity-rail"
+                id="communityFriendsActivityRail"
+                role="list"
+                aria-label="Friends activity"
+              ></ul>
+            </div>
             <h3 class="community-subsection-heading app-section-heading" id="communityGeneralHeading" hidden>General Discussion</h3>
             <ul class="community-general-list" id="communityGeneralList"></ul>
           </div>
@@ -15100,6 +15581,208 @@
         deferAfterIdle(() => {
           void loadCommunityHeadlines();
         }, 2200);
+      }
+
+      let friendsActivityLoadedAt = 0;
+      const FRIENDS_ACTIVITY_TTL_MS = 60000;
+
+      function friendsActivityTypeIcon(type) {
+        const map = {
+          rating: "\u2605",
+          episode_watched: "\u2713",
+          thread_joined: "\u{1F4AC}",
+          thread_reply: "\u21A9",
+          thread_post: "\u2728",
+        };
+        return map[type] || "\u2022";
+      }
+
+      function friendsActivityDisplayName(it) {
+        if (it.displayName && String(it.displayName).trim()) return String(it.displayName).trim();
+        if (it.username && String(it.username).trim()) return "@" + String(it.username).trim();
+        return "Someone";
+      }
+
+      function friendsActivityMessageHtml(it) {
+        const name = escapeHtml(friendsActivityDisplayName(it));
+        const show = it.showName && String(it.showName).trim() ? escapeHtml(String(it.showName).trim()) : "a show";
+        const ep =
+          it.episodeLabel && String(it.episodeLabel).trim() ? escapeHtml(String(it.episodeLabel).trim()) : "";
+        switch (it.activityType) {
+          case "rating":
+            return (
+              "<strong>" +
+              name +
+              "</strong> gave " +
+              show +
+              " " +
+              (it.rating || 0) +
+              " star" +
+              (Number(it.rating) === 1 ? "" : "s")
+            );
+          case "episode_watched":
+            return ep
+              ? "<strong>" + name + "</strong> watched " + ep + " of " + show
+              : "<strong>" + name + "</strong> watched an episode of " + show;
+          case "thread_joined":
+            return "<strong>" + name + "</strong> joined the " + show + " thread";
+          case "thread_reply":
+            return "<strong>" + name + "</strong> replied in " + show;
+          case "thread_post":
+            return "<strong>" + name + "</strong> started a discussion about " + show;
+          default:
+            return "<strong>" + name + "</strong> was active";
+        }
+      }
+
+      function buildFriendsActivityCard(it, index) {
+        const li = document.createElement("li");
+        const card = document.createElement("article");
+        card.className = "friends-activity-card";
+        const created = it.createdAt ? new Date(it.createdAt).getTime() : NaN;
+        if (Number.isFinite(created) && Date.now() - created < 5 * 60 * 1000) {
+          card.classList.add("friends-activity-card--live");
+        }
+        card.style.animationDelay = Math.min(index * 0.04, 0.32) + "s";
+
+        const head = document.createElement("div");
+        head.className = "friends-activity-card-head";
+
+        if (it.avatarDataUrl && String(it.avatarDataUrl).trim()) {
+          const av = document.createElement("img");
+          av.className = "friends-activity-avatar";
+          av.alt = "";
+          av.loading = "lazy";
+          av.decoding = "async";
+          av.src = String(it.avatarDataUrl);
+          head.appendChild(av);
+        } else {
+          const avPh = document.createElement("span");
+          avPh.className = "friends-activity-avatar-ph";
+          avPh.textContent = friendsActivityDisplayName(it).charAt(0).toUpperCase();
+          head.appendChild(avPh);
+        }
+
+        const userMeta = document.createElement("span");
+        userMeta.className = "friends-activity-user-meta";
+        const userBtn = document.createElement("button");
+        userBtn.type = "button";
+        userBtn.className = "friends-activity-username";
+        userBtn.style.cssText = "border:none;background:transparent;padding:0;font:inherit;color:inherit;cursor:pointer;text-align:left;width:100%";
+        userBtn.textContent = friendsActivityDisplayName(it);
+        userBtn.addEventListener("click", () => void openCommunityMemberProfile(it.userId));
+        const time = document.createElement("span");
+        time.className = "friends-activity-time";
+        time.textContent = formatCommunityRelativeTime(it.createdAt);
+        userMeta.appendChild(userBtn);
+        userMeta.appendChild(time);
+        head.appendChild(userMeta);
+
+        const typeIcon = document.createElement("span");
+        typeIcon.className = "friends-activity-type-icon";
+        typeIcon.setAttribute("aria-hidden", "true");
+        typeIcon.textContent = friendsActivityTypeIcon(it.activityType);
+        head.appendChild(typeIcon);
+
+        const body = document.createElement("div");
+        body.className = "friends-activity-body";
+        const posterUrl = it.showImageUrl && String(it.showImageUrl).trim();
+        if (posterUrl && /^https?:\/\//i.test(posterUrl)) {
+          const img = document.createElement("img");
+          img.className = "friends-activity-poster";
+          img.alt = "";
+          img.loading = "lazy";
+          img.decoding = "async";
+          img.src = posterUrl;
+          body.appendChild(img);
+        } else if (it.showName) {
+          const ph = document.createElement("span");
+          ph.className = "friends-activity-poster-ph";
+          ph.textContent = String(it.showName).charAt(0).toUpperCase();
+          body.appendChild(ph);
+        }
+        const copy = document.createElement("p");
+        copy.className = "friends-activity-copy";
+        copy.innerHTML = friendsActivityMessageHtml(it);
+        body.appendChild(copy);
+        card.appendChild(head);
+        card.appendChild(body);
+
+        if (it.tvmazeShowId) {
+          const actions = document.createElement("div");
+          actions.className = "friends-activity-actions";
+          const viewBtn = document.createElement("button");
+          viewBtn.type = "button";
+          viewBtn.className = "friends-activity-action-btn";
+          viewBtn.textContent = "View";
+          viewBtn.addEventListener("click", () => {
+            openCommunityShowThread(it.tvmazeShowId, it.showName || "Show");
+          });
+          actions.appendChild(viewBtn);
+          card.appendChild(actions);
+        }
+
+        li.appendChild(card);
+        return li;
+      }
+
+      async function loadFriendsActivity(opts) {
+        const wrap = document.getElementById("communityFriendsActivityWrap");
+        const rail = document.getElementById("communityFriendsActivityRail");
+        const empty = document.getElementById("communityFriendsActivityEmpty");
+        const errEl = document.getElementById("communityFriendsActivityErr");
+        const cta = document.getElementById("communityFriendsActivityCta");
+        if (!wrap || !rail) return;
+        if (!accountIsRegistered(sessionMeSnapshot) || !hasFullSocialUiAccess(sessionMeSnapshot)) {
+          wrap.hidden = true;
+          return;
+        }
+        wrap.hidden = false;
+        if (cta && cta.dataset.aaWired !== "1") {
+          cta.dataset.aaWired = "1";
+          cta.addEventListener("click", () => openProfilePageSearch());
+        }
+        if (opts && opts.force) friendsActivityLoadedAt = 0;
+        if (Date.now() - friendsActivityLoadedAt < FRIENDS_ACTIVITY_TTL_MS && rail.childElementCount > 0) {
+          return;
+        }
+        if (errEl) {
+          errEl.hidden = true;
+          errEl.textContent = "";
+        }
+        if (empty) empty.hidden = true;
+        rail.innerHTML = "";
+        try {
+          const data = await api("/api/community/friends-activity?limit=24");
+          friendsActivityLoadedAt = Date.now();
+          const items = data.items || [];
+          if ((data.followingCount || 0) === 0) {
+            if (empty) {
+              empty.hidden = false;
+              const t = empty.querySelector(".community-friends-activity-empty-text");
+              if (t) t.textContent = "Follow users to see their activity";
+            }
+            return;
+          }
+          if (!items.length) {
+            if (empty) {
+              empty.hidden = false;
+              const t = empty.querySelector(".community-friends-activity-empty-text");
+              if (t) t.textContent = "No recent activity from people you follow yet.";
+            }
+            return;
+          }
+          const frag = document.createDocumentFragment();
+          for (let i = 0; i < items.length; i++) {
+            frag.appendChild(buildFriendsActivityCard(items[i], i));
+          }
+          rail.appendChild(frag);
+        } catch (e) {
+          if (errEl) {
+            errEl.hidden = false;
+            errEl.textContent = e.message || "Could not load friends activity";
+          }
+        }
       }
 
       function renderWeekGuideSkeleton(grid) {
@@ -18239,6 +18922,10 @@
         adminUiEpoch++;
         const epoch = adminUiEpoch;
         sessionMeSnapshot = me;
+        if (me && me.id) {
+          appUserId = me.id;
+          safeLocalStorageSet(LS_USER, me.id);
+        }
         if (!userIsDbAdmin(me)) removeAdminUiFromDom();
         syncInboxChromeFromMe(me);
         if (me && accountIsRegistered(me) && me.id) {
@@ -20693,6 +21380,7 @@
         const tv = document.getElementById("communityThreadView");
         if (lv) lv.classList.remove("hidden");
         if (tv) tv.classList.add("hidden");
+        void loadFriendsActivity();
         void loadCommunityThreads().then(() => {
           scheduleCommunityListSecondary();
         });
@@ -21456,8 +22144,8 @@
               '<div class="community-thread-card-badges">' + trendBadge + liveBadge + '</div>' +
               '<div class="community-thread-card-hero-inner">' +
               '<div class="community-thread-ep-show">' + escapeHtml(th.showName || "Show") + epTag + '</div>' +
-              '<div class="community-thread-ep-title" style="font-size:0.92rem;margin:0;line-height:1.3">' + epTitle + '</div>' +
-              '<div class="community-thread-footer" style="margin-top:0.35rem">' +
+              '<div class="community-thread-ep-title" style="font-size:0.84rem;margin:0;line-height:1.28">' + epTitle + '</div>' +
+              '<div class="community-thread-footer" style="margin-top:0.22rem">' +
               '<span class="community-thread-footer-stat">\u{1F4AC} ' + postLabel + '</span>' +
               (timeAgo ? '<span class="community-thread-footer-stat">\u{1F552} ' + timeAgo + '</span>' : '') +
               '<span style="margin-left:auto"><span class="community-thread-card-join">Join</span></span>' +
@@ -23154,29 +23842,37 @@
         });
       }
 
-      async function wireCmpProfileQuickActions(userId, label, selfId) {
+      async function wireCmpProfileQuickActions(userId, label) {
         const followBtn = document.getElementById("communityProfileFollowBtn");
         const dmBtn = document.getElementById("communityMemberProfileDmBtn");
         const dmHint = document.getElementById("profilePageMemberDmHint");
         const quick = document.getElementById("communityProfileQuickActions");
+        const actionRow = quick && quick.querySelector(".cmp-profile-action-row");
         if (!quick) return;
-        const isSelf = Boolean(selfId && userId === selfId);
-        if (!selfId && !isSelf) {
+        const viewerId = resolveViewerUserId();
+        const isSelf = cmpProfileIsSelf(userId);
+        if (!viewerId && !isSelf) {
           quick.hidden = true;
           return;
         }
         quick.hidden = false;
+        if (actionRow) actionRow.classList.toggle("cmp-profile-action-row--self", isSelf);
         if (isSelf) {
           if (dmBtn) dmBtn.hidden = true;
           if (dmHint) dmHint.hidden = true;
           if (followBtn) {
             followBtn.hidden = false;
+            followBtn.disabled = false;
             followBtn.textContent = "Edit Profile";
             followBtn.classList.remove("following");
-            followBtn.onclick = () => openAppProfileModal();
+            followBtn.onclick = (e) => {
+              e.preventDefault();
+              openAppProfileModal();
+            };
           }
           return;
         }
+        if (dmBtn) dmBtn.hidden = false;
         if (dmBtn && dmHint) {
           if (accountKind(sessionMeSnapshot) === "guest") {
             dmBtn.hidden = true;
@@ -23227,6 +23923,7 @@
                 fs.followerCount = (fs.followerCount || 0) + 1;
               }
               cmpProfileSetSocialStats(fs.followerCount, fs.followingCount);
+              if (communityState.view === "list") void loadFriendsActivity({ force: true });
             } catch (e) {
               showToast(e.message || "Could not update follow");
             }
@@ -23259,14 +23956,13 @@
         try {
           const d = await api("/api/community/users/" + encodeURIComponent(userId) + "/profile");
           const label = communityAuthorLabelFromPublicProfile(d);
-          const selfId = sessionMeSnapshot && sessionMeSnapshot.id;
+          const isSelf = cmpProfileIsSelf(userId);
           if (heading) {
-            heading.textContent =
-              selfId && userId === selfId
-                ? "Your profile"
-                : label === "Member"
-                  ? "Member profile"
-                  : label + "'s profile";
+            heading.textContent = isSelf
+              ? "Your profile"
+              : label === "Member"
+                ? "Member profile"
+                : label + "'s profile";
           }
 
           const inner = document.createElement("div");
@@ -23419,7 +24115,7 @@
           inner.appendChild(aboutSec);
 
           const vc = d.viewerCompatibility;
-          if (vc && typeof vc.percent === "number" && Number.isFinite(vc.percent)) {
+          if (!isSelf && vc && typeof vc.percent === "number" && Number.isFinite(vc.percent)) {
             const who = uname ? "@" + uname : label;
             const compatSec = document.createElement("section");
             compatSec.className = "cmp-profile-section";
@@ -23681,7 +24377,7 @@
             );
           }
 
-          if (selfId && userId !== selfId) {
+          if (!isSelf) {
             const modSec = document.createElement("section");
             modSec.className = "cmp-profile-section";
             modSec.appendChild(cmpProfileSectionTitle("Moderation"));
@@ -23719,7 +24415,7 @@
           cmpProfileHydrateWatchingPosters(watchHost);
           tab.dataset.profileLabel = label;
           await wireCmpProfileSocialStats(userId);
-          await wireCmpProfileQuickActions(userId, label, selfId);
+          await wireCmpProfileQuickActions(userId, label);
         } catch (e) {
           body.innerHTML = "";
           if (errEl) {
@@ -23859,6 +24555,19 @@
 
       function resolveUserId() {
         return appUserId || safeLocalStorageGet(LS_USER);
+      }
+
+      /** Logged-in viewer id: session first, then cached local id. */
+      function resolveViewerUserId() {
+        if (sessionMeSnapshot && sessionMeSnapshot.id) return String(sessionMeSnapshot.id);
+        const local = resolveUserId();
+        return local ? String(local) : null;
+      }
+
+      function cmpProfileIsSelf(profileUserId) {
+        const viewer = resolveViewerUserId();
+        if (!viewer || profileUserId == null || profileUserId === "") return false;
+        return String(viewer) === String(profileUserId);
       }
 
       function showAddedActivationToast(countAfter) {
@@ -25406,6 +26115,7 @@
             showToast("Posted");
             await loadCommunityThreadPosts();
             await loadCommunityThreads();
+            void loadFriendsActivity({ force: true });
           } catch (e) {
             if (msg) {
               msg.textContent = e.message || "Could not post";
@@ -27884,8 +28594,12 @@
           } else if (action === "log-in") {
             openAccountPromptLoginModal({ entryPoint: "account_menu" });
           } else if (action === "your-profile") {
-            const uid = resolveUserId();
-            if (uid) void openCommunityMemberProfile(uid);
+            const uid = resolveViewerUserId();
+            if (!uid) {
+              showToast("Sign in to view your profile");
+              return;
+            }
+            void openCommunityMemberProfile(uid);
           } else if (action === "search-username") {
             openProfilePageSearch();
           } else if (action === "sign-out") {

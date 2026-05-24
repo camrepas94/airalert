@@ -761,6 +761,25 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_user_follows_followed ON user_follows(followed_id);
 `);
 
+/* ── Friend activity feed (social events from followed users) ── */
+db.exec(`
+  CREATE TABLE IF NOT EXISTS friend_activity_events (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    activity_type TEXT NOT NULL,
+    tvmaze_show_id INTEGER,
+    show_name TEXT,
+    show_image_url TEXT,
+    tvmaze_episode_id INTEGER,
+    episode_label TEXT,
+    thread_post_id TEXT,
+    rating INTEGER,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_friend_activity_user_created ON friend_activity_events(user_id, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_friend_activity_created ON friend_activity_events(created_at DESC);
+`);
+
 /* ── Reply threading: add parent_post_id + tag to community_posts ── */
 const cpCols = new Set(
   (db.prepare(`PRAGMA table_info(community_posts)`).all() as { name: string }[]).map((r) => r.name),

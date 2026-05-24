@@ -24,6 +24,13 @@ import {
 } from "./tvmaze.js";
 import { computePopularOnAiralert } from "./popularOnAiralert.js";
 import {
+  countUserShowPosts,
+  getFriendsActivityFeed,
+  recordCommunityPostActivity,
+  recordFriendActivity,
+} from "./friendActivity.js";
+import { getMyShowsAnalytics } from "./myShowsAnalytics.js";
+import {
   calendarDatePlusDays,
   normalizeEpisodeAirdate,
   safeTodayInTimeZone,
@@ -3585,6 +3592,16 @@ app.get("/api/users/:userId/follow-status", async (request, reply) => {
   return { following: !!isFollowing, followerCount, followingCount };
 });
 
+app.get("/api/community/friends-activity", async (request, reply) => {
+  const viewerId = sessionRegisteredUserId(request, reply);
+  if (!viewerId) return;
+  if (!assertFullSocialAccess(reply, viewerId)) return;
+  const before = (request.query as { before?: string }).before?.trim() || null;
+  const limitRaw = Number((request.query as { limit?: string }).limit);
+  const limit = Number.isFinite(limitRaw) ? limitRaw : undefined;
+  return getFriendsActivityFeed(viewerId, { limit, before });
+});
+
 type FollowListUserRow = {
   id: string;
   username: string | null;
@@ -5915,6 +5932,8 @@ app.get("/api/users/:userId/watch-tasks", async (request, reply) => {
     return { error: "User not found" };
   }
   if (!assertSelfOrAdmin(request, reply, userId)) return;
+  const limitRaw = Number((request.query as { limit?: string }).limit);
+  const limit = Number.isFinite(limitRaw) ? Math.min(500, Math.max(1, Math.floor(limitRaw))) : 120;
   const rows = db
     .prepare(
       `SELECT id, tvmaze_show_id AS tvmazeShowId, tvmaze_episode_id AS tvmazeEpisodeId,
@@ -5930,10 +5949,21 @@ app.get("/api/users/:userId/watch-tasks", async (request, reply) => {
          END,
          airdate DESC,
          created_at DESC
-       LIMIT 120`,
+       LIMIT ?`,
     )
-    .all(userId);
+    .all(userId, limit);
   return { tasks: rows };
+});
+
+app.get("/api/users/:userId/my-shows-analytics", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
+  return getMyShowsAnalytics(userId);
 });
 
 app.patch("/api/users/:userId/watch-tasks/:taskId", async (request, reply) => {
@@ -6002,10 +6032,23 @@ app.patch("/api/users/:userId/watch-tasks/:taskId", async (request, reply) => {
   if (markedWatched) {
     insertAnalyticsEvent(request, {
       name: "engagement.episode_marked_watched",
-      sourceScreen: "tasks",
+      sourceScreen: "my_shows",
       targetType: "episode",
       targetId: String(task.tvmazeEpisodeId),
       metadata: { tvmazeShowId: task.tvmazeShowId },
+    });
+    const taskRow = db
+      .prepare(
+        `SELECT show_name AS showName, episode_label AS episodeLabel FROM watch_tasks WHERE id = ? AND user_id = ?`,
+      )
+      .get(taskId, userId) as { showName: string; episodeLabel: string } | undefined;
+    recordFriendActivity({
+      userId,
+      activityType: "episode_watched",
+      tvmazeShowId: task.tvmazeShowId,
+      showName: taskRow?.showName || null,
+      tvmazeEpisodeId: task.tvmazeEpisodeId,
+      episodeLabel: taskRow?.episodeLabel || null,
     });
   }
   const row = db
@@ -6978,6 +7021,20 @@ app.put("/api/community/episode-ratings", async (request, reply) => {
        rating = excluded.rating,
        updated_at = excluded.updated_at`,
   ).run(uid, showId, ep, rating);
+  const showRow = db.prepare(`SELECT show_name AS showName FROM show_subscriptions WHERE user_id = ? AND tvmaze_show_id = ? LIMIT 1`).get(uid, showId) as
+    | { showName: string }
+    | undefined;
+  recordFriendActivity({
+    userId: uid,
+    activityType: "rating",
+    tvmazeShowId: showId,
+    showName: showRow?.showName || null,
+    tvmazeEpisodeId: ep,
+    episodeLabel: label,
+    rating,
+  });
+  clearAIProfileCache(uid);
+  bustRecommendedShowsCacheForUser(uid);
   insertAnalyticsEvent(request, {
     name: "engagement.rating_submitted",
     sourceScreen: "community",
@@ -7015,12 +7072,21 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
     tvmazeEpisodeId?: number;
     rating?: number | null;
     reviewText?: string | null;
+    reactionTags?: string[] | null;
+    isSpoiler?: boolean;
   };
   const showId = Number(body.tvmazeShowId);
   const ep = Number(body.tvmazeEpisodeId);
   const ratingRaw = body.rating;
   const reviewRaw = typeof body.reviewText === "string" ? body.reviewText : "";
   const reviewTrim = reviewRaw.trim().slice(0, 4000);
+  const reactionTags = Array.isArray(body.reactionTags)
+    ? body.reactionTags
+        .map((t) => (typeof t === "string" ? t.trim().slice(0, 40) : ""))
+        .filter(Boolean)
+        .slice(0, 8)
+    : [];
+  const isSpoiler = body.isSpoiler === true;
 
   if (!Number.isInteger(showId) || showId < 1 || !Number.isInteger(ep) || ep < 1) {
     reply.code(400);
@@ -7058,7 +7124,7 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
   }
   const hasRating = ratingNum != null;
 
-  if (!hasRating && !reviewTrim) {
+  if (!hasRating && !reviewTrim && !reactionTags.length) {
     reply.code(400);
     logEvent(request, {
       event: "community.review.submit",
@@ -7071,7 +7137,7 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
       tvmazeShowId: showId,
       tvmazeEpisodeId: ep,
     });
-    return { error: "Provide a rating and/or a written review" };
+    return { error: "Provide a rating, reaction tags, and/or a written review" };
   }
 
   /** Same-episode: stop accidental double-submit / UI retry bursts; distinct episodes use separate keys. */
@@ -7160,12 +7226,38 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
       avgRating: agg.a != null ? Math.round(Number(agg.a) * 100) / 100 : null,
       ratingCount: Number(agg.c) || 0,
     };
+    const showRow = db
+      .prepare(`SELECT show_name AS showName FROM show_subscriptions WHERE user_id = ? AND tvmaze_show_id = ? LIMIT 1`)
+      .get(uid, showId) as { showName: string } | undefined;
+    recordFriendActivity({
+      userId: uid,
+      activityType: "rating",
+      tvmazeShowId: showId,
+      showName: showRow?.showName || null,
+      tvmazeEpisodeId: ep,
+      episodeLabel: label,
+      rating: ratingNum,
+    });
+    clearAIProfileCache(uid);
+    bustRecommendedShowsCacheForUser(uid);
   }
 
   let postFormatted: ReturnType<typeof formatCommunityPost> | null = null;
   let postUpdated = false;
 
-  if (reviewTrim) {
+  const tagsLine =
+    reactionTags.length > 0
+      ? `<p><strong>Reactions:</strong> ${reactionTags
+          .map((t) =>
+            String(t)
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;"),
+          )
+          .join(" · ")}</p>`
+      : "";
+
+  if (reviewTrim || reactionTags.length > 0) {
     const stored = db
       .prepare(
         `SELECT rating FROM community_episode_ratings WHERE user_id = ? AND tvmaze_show_id = ? AND tvmaze_episode_id = ?`,
@@ -7186,7 +7278,7 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
       .filter((x) => stripHtml(x).length > 0)
       .map((line) => `<p>${line}</p>`)
       .join("");
-    const bodyHtml = ratingLine + paras;
+    const bodyHtml = ratingLine + tagsLine + paras;
     if (!stripHtml(bodyHtml)) {
       reply.code(400);
       logEvent(request, {
@@ -7241,7 +7333,7 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
         db.prepare(
           `INSERT INTO community_posts (id, user_id, tvmaze_show_id, show_name, tvmaze_episode_id, episode_label, body_html, is_spoiler, parent_post_id, tag)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        ).run(id, uid, showId, showName, ep, label, bodyHtml, 0, null, "episode_review");
+        ).run(id, uid, showId, showName, ep, label, bodyHtml, isSpoiler ? 1 : 0, null, "episode_review");
       }
     });
     tx();
@@ -7458,11 +7550,31 @@ app.post("/api/community/posts", async (request, reply) => {
   const parentPostId = typeof body.parentPostId === "string" && body.parentPostId.trim() ? body.parentPostId.trim() : null;
   const allowedTags = ["theory", "spoiler-free", "hot-take"];
   const tag = typeof body.tag === "string" && allowedTags.includes(body.tag) ? body.tag : null;
+  const priorPostsOnShow = countUserShowPosts(uid, tvmazeShowId);
+  const subImgRow = db
+    .prepare(`SELECT show_image_url AS url FROM show_subscriptions WHERE user_id = ? AND tvmaze_show_id = ? LIMIT 1`)
+    .get(uid, tvmazeShowId) as { url: string | null } | undefined;
+  const showImageUrl =
+    subImgRow?.url && String(subImgRow.url).trim()
+      ? String(subImgRow.url).trim()
+      : showDetail.image?.original ?? showDetail.image?.medium ?? null;
 
   db.prepare(
     `INSERT INTO community_posts (id, user_id, tvmaze_show_id, show_name, tvmaze_episode_id, episode_label, body_html, is_spoiler, parent_post_id, tag)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(id, uid, tvmazeShowId, showName, tvmazeEpisodeId, episodeLabel, bodyHtml, isSpoiler, parentPostId, tag);
+
+  recordCommunityPostActivity(
+    uid,
+    tvmazeShowId,
+    showName,
+    showImageUrl,
+    parentPostId,
+    id,
+    tvmazeEpisodeId,
+    episodeLabel,
+    priorPostsOnShow,
+  );
 
   const author = db
     .prepare(`SELECT display_name, username FROM users WHERE id = ?`)
