@@ -12316,6 +12316,18 @@
               class="tab-btn"
               role="tab"
               aria-selected="false"
+              data-tab="guide"
+              id="tabBtnGuide"
+              aria-label="My week"
+              title="My week"
+            >
+              <span class="tab-label">My week</span>
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              role="tab"
+              aria-selected="false"
               data-tab="community"
               id="tabBtnCommunity"
               aria-label="Community"
@@ -12513,7 +12525,7 @@
         class="tab-panel app-shell-surface"
         data-shell-lazy-root="tasks"
         role="tabpanel"
-        aria-labelledby="tabBtnTasks"
+        aria-label="Watch checklist"
         data-app-shell="tasks"
       ></div>
 
@@ -26816,7 +26828,7 @@
       }
 
       function setTab(name) {
-        if (name === "tasks" || name === "guide") name = "shows";
+        if (name === "tasks") name = "shows";
         if (name === "admin" && !userIsDbAdmin(sessionMeSnapshot)) {
           name = "add";
         }
@@ -26863,6 +26875,10 @@
             void loadPersonFollows(id);
             setupPersonFollowSearch(id);
           }
+        }
+        if (name === "guide") {
+          const id = resolveUserId();
+          if (id) void loadWeekGuide(id);
         }
         if (name === "profile") {
           syncUsernameSearchChrome();
