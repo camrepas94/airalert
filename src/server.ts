@@ -7325,8 +7325,8 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
     const tx = db.transaction(() => {
       if (existing) {
         db.prepare(
-          `UPDATE community_posts SET body_html = ?, edited_at = datetime('now'), edited_by_user_id = ?, show_name = ?, episode_label = ? WHERE id = ?`,
-        ).run(bodyHtml, uid, showName, label, existing.id);
+          `UPDATE community_posts SET body_html = ?, is_spoiler = ?, edited_at = datetime('now'), edited_by_user_id = ?, show_name = ?, episode_label = ? WHERE id = ?`,
+        ).run(bodyHtml, isSpoiler ? 1 : 0, uid, showName, label, existing.id);
         postUpdated = true;
       } else {
         const id = uuidv4();

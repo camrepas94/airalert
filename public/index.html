@@ -1347,7 +1347,10 @@
       @media (max-width: 767px) {
         main:has(#tab-messages.tab-panel.active),
         main:has(#tab-community.tab-panel.active),
-        main:has(#tab-profile.tab-panel.active) {
+        main:has(#tab-profile.tab-panel.active),
+        main:has(#tab-add.tab-panel.active),
+        main:has(#tab-shows.tab-panel.active),
+        main:has(#tab-admin.tab-panel.active) {
           max-width: none;
           width: 100%;
           padding-left: 0;
@@ -1355,7 +1358,10 @@
         }
         main:has(#tab-messages.tab-panel.active) .app-top,
         main:has(#tab-community.tab-panel.active) .app-top,
-        main:has(#tab-profile.tab-panel.active) .app-top {
+        main:has(#tab-profile.tab-panel.active) .app-top,
+        main:has(#tab-add.tab-panel.active) .app-top,
+        main:has(#tab-shows.tab-panel.active) .app-top,
+        main:has(#tab-admin.tab-panel.active) .app-top {
           margin-left: 0;
           margin-right: 0;
           padding-left: max(1.1rem, env(safe-area-inset-left, 0px));
@@ -1363,31 +1369,79 @@
         }
         main:has(#tab-messages.tab-panel.active) .app-top::after,
         main:has(#tab-community.tab-panel.active) .app-top::after,
-        main:has(#tab-profile.tab-panel.active) .app-top::after {
+        main:has(#tab-profile.tab-panel.active) .app-top::after,
+        main:has(#tab-add.tab-panel.active) .app-top::after,
+        main:has(#tab-shows.tab-panel.active) .app-top::after,
+        main:has(#tab-admin.tab-panel.active) .app-top::after {
           margin-left: calc(-1 * max(1.1rem, env(safe-area-inset-left, 0px)));
           margin-right: calc(-1 * max(1.1rem, env(safe-area-inset-right, 0px)));
         }
         main:has(#tab-messages.tab-panel.active) .tab-nav,
         main:has(#tab-community.tab-panel.active) .tab-nav,
-        main:has(#tab-profile.tab-panel.active) .tab-nav {
+        main:has(#tab-profile.tab-panel.active) .tab-nav,
+        main:has(#tab-add.tab-panel.active) .tab-nav,
+        main:has(#tab-shows.tab-panel.active) .tab-nav,
+        main:has(#tab-admin.tab-panel.active) .tab-nav {
           padding-left: max(1.1rem, env(safe-area-inset-left, 0px));
           padding-right: max(1.1rem, env(safe-area-inset-right, 0px));
+          box-sizing: border-box;
+          width: 100%;
+        }
+        main:has(#tab-add.tab-panel.active) .tab-rail,
+        main:has(#tab-shows.tab-panel.active) .tab-rail,
+        main:has(#tab-community.tab-panel.active) .tab-rail,
+        main:has(#tab-admin.tab-panel.active) .tab-rail {
+          width: 100%;
           box-sizing: border-box;
         }
         #tab-messages.tab-panel.active,
         #tab-community.tab-panel.active,
-        #tab-profile.tab-panel.active {
+        #tab-profile.tab-panel.active,
+        #tab-add.tab-panel.active,
+        #tab-shows.tab-panel.active,
+        #tab-admin.tab-panel.active {
           width: 100%;
           max-width: none;
           box-sizing: border-box;
         }
         #tab-community section.panel-rail-cyan.community-root,
-        #tab-profile section.panel-rail-cyan.profile-page-root {
+        #tab-profile section.panel-rail-cyan.profile-page-root,
+        #tab-shows section.panel-rail-cyan.myshows-page-root,
+        #tab-shows section.panel-rail-magenta.person-follows-section {
           padding: 0;
           margin: 0;
           border: none;
           border-radius: 0;
           box-shadow: none;
+        }
+        #tab-shows .myshows-page-title,
+        #tab-shows .myshows-analytics,
+        #tab-shows .myshows-week-wrap,
+        #tab-shows .myshows-continue-wrap,
+        #tab-shows .myshows-toolbar,
+        #tab-shows .mylist-host,
+        #tab-shows .mylist-filter-empty,
+        #tab-shows #subsEmptyState {
+          padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+          padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+          box-sizing: border-box;
+        }
+        #tab-add.tab-panel.active {
+          padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+          padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+          box-sizing: border-box;
+        }
+        #tab-add .search-shell,
+        #tab-add section.trending-section.panel-rail-cyan,
+        #tab-add section.recommended-section.panel-rail-magenta,
+        #tab-add section.starter-picks-section.panel-rail-cyan,
+        #tab-add section.add-show-shelf-section,
+        #tab-add .onboarding-mission-strip--embed {
+          margin-left: 0;
+          margin-right: 0;
+          width: 100%;
+          max-width: none;
+          box-sizing: border-box;
         }
         #tab-community .community-list-view {
           padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
@@ -4544,11 +4598,18 @@
       .myshows-toolbar {
         position: sticky;
         top: 0;
-        z-index: 4;
+        z-index: 6;
         margin-bottom: 0.55rem;
         padding: 0.35rem 0 0.45rem;
         background: linear-gradient(180deg, rgba(6, 8, 18, 0.97) 70%, rgba(6, 8, 18, 0));
         backdrop-filter: blur(8px);
+        pointer-events: auto;
+      }
+      .myshows-toolbar button,
+      .myshows-toolbar input,
+      .myshows-toolbar select,
+      .myshows-toolbar label {
+        pointer-events: auto;
       }
       .myshows-segments {
         display: flex;
@@ -12147,7 +12208,7 @@
             </div>
             <h2 class="discover-hero__title" id="discoverHeroTitle">Find your next obsession</h2>
             <p class="discover-hero__lead">
-              Search shows you love to personalize recommendations, tasks, and Community — the more you add, the smarter AirAlert gets.
+              Search shows you love to personalize recommendations, My Shows tracking, and Community — the more you add, the smarter AirAlert gets.
             </p>
             <p class="discover-hero__hint muted">Search your comfort show, current obsession, or guilty pleasure</p>
           </header>
@@ -13027,24 +13088,30 @@
           aria-modal="true"
           aria-labelledby="postWatchReviewTitle"
         >
-          <h3 id="postWatchReviewTitle" class="community-modal-title">Rate this episode?</h3>
-          <p class="muted" id="postWatchReviewLead" style="margin: 0 0 0.65rem; font-size: 0.86rem; line-height: 1.45">
-            Would you like to rate this episode out of 5? You can also leave an optional review for the Community.
+          <h3 id="postWatchReviewTitle" class="community-modal-title">Episode review</h3>
+          <p class="muted" id="postWatchReviewLead" style="margin: 0 0 0.5rem; font-size: 0.84rem; line-height: 1.4">
+            Rate, react, and share with Community — or skip for now.
           </p>
           <p class="post-watch-review-ep" id="postWatchReviewEpLine"></p>
           <div class="post-watch-star-row" id="postWatchReviewStars" role="radiogroup" aria-label="Episode rating"></div>
-          <label for="postWatchReviewText" class="post-watch-review-label">Review (optional)</label>
+          <p class="post-watch-review-label" style="margin: 0.55rem 0 0.25rem">Quick reactions</p>
+          <div class="post-watch-tags-row" id="postWatchReviewTags" role="group" aria-label="Reaction tags"></div>
+          <label for="postWatchReviewText" class="post-watch-review-label">What did you think? (optional)</label>
           <textarea
             id="postWatchReviewText"
-            rows="4"
+            rows="3"
             maxlength="4000"
             placeholder="What did you think?"
             autocomplete="off"
           ></textarea>
+          <label class="community-spoiler-label" style="margin-top: 0.45rem">
+            <input type="checkbox" id="postWatchReviewSpoiler" />
+            Mark review as spoiler
+          </label>
           <p class="msg err" id="postWatchReviewErr" style="display: none; margin: 0.35rem 0 0"></p>
           <div class="community-modal-actions" style="margin-top: 0.75rem">
-            <button type="button" id="postWatchReviewSubmitBtn">Submit</button>
-            <button type="button" class="secondary" id="postWatchReviewSkipBtn">Skip for now</button>
+            <button type="button" class="aa-btn-gradient" id="postWatchReviewSubmitBtn">Save review</button>
+            <button type="button" class="secondary" id="postWatchReviewSkipBtn">Skip review</button>
           </div>
         </div>
       </div>
@@ -14722,10 +14789,230 @@
         filter: "",
         sort: "recent",
         grid: false,
+        segment: "all",
+        analytics: null,
+        weekDayFilter: null,
+        compact: false,
+        hideWatched: false,
         sectionExpanded: new Set(["airing", "hiatus", "ended"]),
         cardExpanded: new Set(),
         showMetaCache: new Map(),
       };
+
+      const POST_WATCH_REACTION_TAGS = [
+        "Amazing",
+        "Emotional",
+        "Slow",
+        "Chaotic",
+        "Funny",
+        "Boring",
+        "Best episode yet",
+      ];
+
+      function syncMyShowsChrome() {
+        const tab = document.getElementById("tab-shows");
+        if (tab) {
+          tab.classList.toggle("myshows-tab--compact", myListState.compact);
+          tab.classList.toggle("mylist-tab--grid", myListState.grid);
+        }
+        const compactT = document.getElementById("myshowsCompactToggle");
+        if (compactT) compactT.checked = myListState.compact;
+        const hideT = document.getElementById("myshowsHideWatchedToggle");
+        if (hideT) hideT.checked = myListState.hideWatched;
+      }
+
+      function renderMyShowsAnalytics(a) {
+        const host = document.getElementById("myshowsAnalytics");
+        if (!host) return;
+        if (!a) {
+          host.hidden = true;
+          return;
+        }
+        host.hidden = false;
+        const cards = [
+          { icon: "📺", value: a.showsWatching, label: "Shows watching" },
+          { icon: "✓", value: a.episodesWatched, label: "Episodes watched" },
+          { icon: "◎", value: a.episodesRemaining, label: "Remaining" },
+          { icon: "📅", value: a.episodesThisWeek, label: "This week" },
+          { icon: "⏭", value: a.skippedEpisodes, label: "Skipped" },
+          {
+            icon: "★",
+            value: a.averageRating != null ? String(a.averageRating) : "—",
+            label: "Avg rating",
+          },
+          { icon: "⏱", value: a.totalHoursWatched + "h", label: "Hours watched" },
+          { icon: "🔥", value: a.streakDays, label: "Streak", sub: a.streakLabel, wide: true },
+        ];
+        host.innerHTML = "";
+        for (const c of cards) {
+          const el = document.createElement("div");
+          el.className = "myshows-stat-card" + (c.wide ? " myshows-stat-card--wide" : "");
+          el.innerHTML =
+            '<span class="myshows-stat-icon" aria-hidden="true">' +
+            c.icon +
+            "</span>" +
+            '<span class="myshows-stat-value">' +
+            escapeHtml(String(c.value)) +
+            "</span>" +
+            '<span class="myshows-stat-label">' +
+            escapeHtml(c.label) +
+            "</span>" +
+            (c.sub ? '<span class="myshows-stat-sub">' + escapeHtml(c.sub) + "</span>" : "");
+          host.appendChild(el);
+        }
+      }
+
+      function myShowsContinueShows() {
+        const out = [];
+        for (const sub of myListState.subscriptions) {
+          const key = myListShowKey(sub);
+          const open = myListState.tasks
+            .filter((t) => taskShowKey(t) === key && !t.completedAt && !t.dismissedAt)
+            .sort((a, b) => String(a.airdate || "").localeCompare(String(b.airdate || "")));
+          if (!open.length) continue;
+          out.push({ sub, next: open[0], remaining: open.length });
+        }
+        out.sort((a, b) => String(a.next.airdate || "").localeCompare(String(b.next.airdate || "")));
+        return out.slice(0, 12);
+      }
+
+      function renderMyShowsContinue(userId) {
+        const wrap = document.getElementById("myshowsContinueWrap");
+        const rail = document.getElementById("myshowsContinueRail");
+        if (!wrap || !rail) return;
+        const items = myShowsContinueShows();
+        if (!items.length) {
+          wrap.hidden = true;
+          rail.innerHTML = "";
+          return;
+        }
+        wrap.hidden = false;
+        rail.innerHTML = "";
+        for (const it of items) {
+          const li = document.createElement("li");
+          const card = document.createElement("div");
+          card.className = "myshows-continue-card";
+          const show = document.createElement("span");
+          show.className = "myshows-continue-show";
+          show.textContent = it.sub.showName || "Show";
+          const ep = document.createElement("span");
+          ep.className = "myshows-continue-ep";
+          ep.textContent =
+            (it.next.episodeLabel || "Episode") +
+            " · " +
+            it.remaining +
+            " left";
+          const actions = document.createElement("div");
+          actions.className = "myshows-continue-actions";
+          const watchBtn = document.createElement("button");
+          watchBtn.type = "button";
+          watchBtn.className = "aa-btn-gradient";
+          watchBtn.textContent = "Watched";
+          watchBtn.addEventListener("click", () => {
+            void (async () => {
+              await myListPatchWatchTask(userId, it.next, { status: "watched" });
+              myListOpenPostWatchIfRegistered(it.sub, it.next);
+            })();
+          });
+          const skipBtn = document.createElement("button");
+          skipBtn.type = "button";
+          skipBtn.className = "secondary";
+          skipBtn.textContent = "Skip";
+          skipBtn.addEventListener("click", () => void myListPatchWatchTask(userId, it.next, { status: "skipped" }));
+          actions.appendChild(watchBtn);
+          actions.appendChild(skipBtn);
+          card.appendChild(show);
+          card.appendChild(ep);
+          card.appendChild(actions);
+          li.appendChild(card);
+          rail.appendChild(li);
+        }
+      }
+
+      function myListOpenPostWatchIfRegistered(sub, task) {
+        if (!accountIsRegistered(sessionMeSnapshot)) return;
+        const sid = Number(task.tvmazeShowId || sub.tvmazeShowId);
+        const eid = Number(task.tvmazeEpisodeId);
+        if (!Number.isInteger(sid) || sid < 1 || !Number.isInteger(eid) || eid < 1) return;
+        openPostWatchReviewModal({
+          tvmazeShowId: sid,
+          tvmazeEpisodeId: eid,
+          showName: String(task.showName || sub.showName || ""),
+          episodeLabel: String(task.episodeLabel || ""),
+        });
+      }
+
+      async function renderMyShowsWeekStrip(userId) {
+        const wrap = document.getElementById("myshowsWeekWrap");
+        const strip = document.getElementById("myshowsWeekStrip");
+        if (!wrap || !strip) return;
+        try {
+          const qs = weekGuideWeekStart ? "?weekStart=" + encodeURIComponent(weekGuideWeekStart) : "";
+          const data = await api("/api/users/" + encodeURIComponent(userId) + "/week-guide" + qs);
+          weekGuideWeekStart = data.weekStart;
+          wrap.hidden = false;
+          strip.innerHTML = "";
+          for (const day of data.days || []) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "myshows-week-day";
+            btn.dataset.date = day.date;
+            btn.setAttribute("role", "tab");
+            if (myListState.weekDayFilter === day.date) btn.classList.add("is-active");
+            btn.innerHTML =
+              '<span class="myshows-week-day-label">' +
+              escapeHtml(day.weekdayLabel || "") +
+              "</span>" +
+              '<span class="myshows-week-day-count">' +
+              (day.episodes?.length || 0) +
+              "</span>";
+            btn.addEventListener("click", () => {
+              myListState.weekDayFilter = myListState.weekDayFilter === day.date ? null : day.date;
+              renderMyListHost(userId);
+              void renderMyShowsWeekStrip(userId);
+            });
+            strip.appendChild(btn);
+          }
+        } catch {
+          wrap.hidden = true;
+        }
+      }
+
+      function myShowsMatchesSegment(sub, segment, today) {
+        const key = myListShowKey(sub);
+        const prog = myListProgressForShow(key);
+        const openTasks = myListState.tasks.filter((t) => taskShowKey(t) === key && !t.completedAt && !t.dismissedAt);
+        const skippedTasks = myListState.tasks.filter((t) => taskShowKey(t) === key && t.dismissedAt);
+        const recentCutoff = calendarDatePlusDaysClient(today, -7);
+        const recentWatched = myListState.tasks.some(
+          (t) =>
+            taskShowKey(t) === key &&
+            t.completedAt &&
+            String(t.completedAt).slice(0, 10) >= recentCutoff,
+        );
+        if (segment === "all") return true;
+        if (segment === "airing_today") {
+          return openTasks.some((t) => taskUrgencyBucket(t.airdate) === "today");
+        }
+        if (segment === "upcoming") {
+          const next = sub.nextEpisode?.airdate ? String(sub.nextEpisode.airdate).slice(0, 10) : "";
+          return next && next > today;
+        }
+        if (segment === "continue") return prog.open > 0;
+        if (segment === "completed") return prog.total > 0 && prog.open === 0;
+        if (segment === "skipped") return skippedTasks.length > 0;
+        if (segment === "recent") return recentWatched;
+        return true;
+      }
+
+      function myShowsMatchesWeekDay(sub) {
+        if (!myListState.weekDayFilter) return true;
+        const key = myListShowKey(sub);
+        const day = myListState.weekDayFilter;
+        return myListState.tasks.some(
+          (t) => taskShowKey(t) === key && String(t.airdate || "").slice(0, 10) === day,
+        );
+      }
 
       function myListShowKey(sub) {
         const sid = Number(sub.tvmazeShowId);
@@ -14748,7 +15035,10 @@
         }
         myListState.sort = sessionStorage.getItem("mylist_sort_by") || "recent";
         myListState.grid = sessionStorage.getItem("mylist_view_mode") === "grid";
-        syncMyListGridClass();
+        myListState.compact = sessionStorage.getItem("myshows_compact") === "1";
+        myListState.hideWatched = sessionStorage.getItem("myshows_hide_watched") === "1";
+        myListState.segment = sessionStorage.getItem("myshows_segment") || "all";
+        syncMyShowsChrome();
         const sortSel = document.getElementById("mylistSortSelect");
         if (sortSel) sortSel.value = myListState.sort;
       }
@@ -14762,10 +15052,7 @@
       }
 
       function syncMyListGridClass() {
-        const tab = document.getElementById("tab-shows");
-        if (tab) tab.classList.toggle("mylist-tab--grid", myListState.grid);
-        const toggle = document.getElementById("mylistGridToggle");
-        if (toggle) toggle.checked = myListState.grid;
+        syncMyShowsChrome();
       }
 
       function myListDaysBetween(a, b) {
@@ -14833,6 +15120,12 @@
           list.sort((a, b) => String(a.showName || "").localeCompare(String(b.showName || "")));
         } else if (sort === "added") {
           list.sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+        } else if (sort === "rating") {
+          list.sort(
+            (a, b) =>
+              (Number(b.airAlertAvgRating) || 0) - (Number(a.airAlertAvgRating) || 0) ||
+              String(a.showName || "").localeCompare(String(b.showName || "")),
+          );
         } else {
           list.sort((a, b) => {
             const la = a.lastAiredEpisode?.airdate || a.nextEpisode?.airdate || "";
@@ -14913,11 +15206,6 @@
         if (tidx >= 0) tasksState.tasks[tidx] = { ...tasksState.tasks[tidx], ...row };
         renderMyListHost(userId);
         refreshMyListStats();
-        if (document.getElementById("tab-tasks")?.classList.contains("active")) {
-          renderTasksOpenHost(userId);
-          renderTasksCompletedSkipped(userId);
-          refreshTasksStatsFromState();
-        }
       }
 
       function myListCreateEpisodeRow(userId, t) {
@@ -14952,12 +15240,68 @@
         btnSkip.type = "button";
         btnSkip.dataset.action = "skipped";
         btnSkip.textContent = "Skip";
-        btnWatch.addEventListener("click", () => void myListPatchWatchTask(userId, t, { status: "watched" }));
+        btnWatch.addEventListener("click", () => {
+          void (async () => {
+            await myListPatchWatchTask(userId, t, { status: "watched" });
+            const sub = myListState.subscriptions.find((s) => myListShowKey(s) === taskShowKey(t));
+            if (sub) myListOpenPostWatchIfRegistered(sub, t);
+          })();
+        });
         btnSkip.addEventListener("click", () => void myListPatchWatchTask(userId, t, { status: "skipped" }));
+        const btnRate = document.createElement("button");
+        btnRate.type = "button";
+        btnRate.className = "secondary";
+        btnRate.textContent = "Rate";
+        btnRate.addEventListener("click", () => {
+          const sid = Number(t.tvmazeShowId);
+          const eid = Number(t.tvmazeEpisodeId);
+          if (Number.isInteger(sid) && sid > 0 && Number.isInteger(eid) && eid > 0) {
+            openPostWatchReviewModal({
+              tvmazeShowId: sid,
+              tvmazeEpisodeId: eid,
+              showName: String(t.showName || ""),
+              episodeLabel: String(t.episodeLabel || ""),
+            });
+          }
+        });
         actions.appendChild(btnWatch);
         actions.appendChild(btnSkip);
+        if (accountIsRegistered(sessionMeSnapshot)) actions.appendChild(btnRate);
         row.appendChild(actions);
+        if (window.matchMedia("(max-width: 719px)").matches) {
+          bindTaskEpisodeSwipe(row, userId, t, null);
+        }
         return row;
+      }
+
+      function myListEpisodesGrouped(showTasks, today) {
+        const todayEps = [];
+        const weekEps = [];
+        const olderEps = [];
+        const weekEnd = calendarDatePlusDaysClient(today, 7);
+        for (const t of showTasks) {
+          const d = String(t.airdate || "").slice(0, 10);
+          if (!d) {
+            olderEps.push(t);
+            continue;
+          }
+          if (d === today || taskUrgencyBucket(t.airdate) === "today") todayEps.push(t);
+          else if (d > today && d <= weekEnd) weekEps.push(t);
+          else olderEps.push(t);
+        }
+        return { todayEps, weekEps, olderEps };
+      }
+
+      function myListAppendEpisodeGroup(panel, userId, title, episodes) {
+        if (!episodes.length) return;
+        const h = document.createElement("p");
+        h.className = "myshows-ep-group-title";
+        h.textContent = title;
+        panel.appendChild(h);
+        for (const t of episodes) {
+          if (myListState.hideWatched && t.completedAt) continue;
+          panel.appendChild(myListCreateEpisodeRow(userId, t));
+        }
       }
 
       async function myListBatchPatch(userId, episodes, status) {
@@ -14987,7 +15331,6 @@
         const card = document.createElement("article");
         card.className = "tasks-show-card mylist-show-card";
         card.dataset.showKey = showKey;
-        if (sub.bingeLater) card.classList.add("mylist-show-card--binge");
         if (expanded) card.classList.add("is-expanded");
 
         const head = document.createElement("button");
@@ -15031,12 +15374,6 @@
         title.className = "tasks-show-title mylist-show-title";
         title.textContent = sub.showName || "Show";
         titleRow.appendChild(title);
-        if (sub.bingeLater) {
-          const bb = document.createElement("span");
-          bb.className = "mylist-binge-badge";
-          bb.textContent = "Binge";
-          titleRow.appendChild(bb);
-        }
         const subLine = document.createElement("span");
         subLine.className = "tasks-show-sub mylist-show-sub";
         subLine.textContent =
@@ -15068,7 +15405,11 @@
           .filter((t) => taskShowKey(t) === showKey && !t.dismissedAt)
           .sort((a, b) => String(b.airdate || "").localeCompare(String(a.airdate || "")));
         if (showTasks.length) {
-          for (const t of showTasks.slice(0, 24)) epsPanel.appendChild(myListCreateEpisodeRow(userId, t));
+          const todayYmd = localCalendarTodayYmd();
+          const grouped = myListEpisodesGrouped(showTasks, todayYmd);
+          myListAppendEpisodeGroup(epsPanel, userId, "Today", grouped.todayEps);
+          myListAppendEpisodeGroup(epsPanel, userId, "This week", grouped.weekEps);
+          myListAppendEpisodeGroup(epsPanel, userId, "Older episodes", grouped.olderEps);
         } else {
           const p = document.createElement("p");
           p.className = "muted";
@@ -15117,27 +15458,6 @@
           e.stopPropagation();
           if (Number.isFinite(showId) && showId > 0) void openCommunityShowThread(showId, sub.showName);
         });
-        const bingeLab = document.createElement("label");
-        bingeLab.className = "mylist-binge-toggle";
-        const bingeCb = document.createElement("input");
-        bingeCb.type = "checkbox";
-        bingeCb.checked = Boolean(sub.bingeLater);
-        bingeCb.addEventListener("change", async (e) => {
-          e.stopPropagation();
-          try {
-            await api("/api/subscriptions/" + encodeURIComponent(sub.id), {
-              method: "PATCH",
-              body: JSON.stringify({ bingeLater: bingeCb.checked }),
-            });
-            sub.bingeLater = bingeCb.checked;
-            card.classList.toggle("mylist-show-card--binge", bingeCb.checked);
-          } catch (err) {
-            bingeCb.checked = !bingeCb.checked;
-            showToast(err.message || "Could not update");
-          }
-        });
-        bingeLab.appendChild(bingeCb);
-        bingeLab.appendChild(document.createTextNode(" Binge mode"));
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
         removeBtn.className = "danger";
@@ -15156,7 +15476,6 @@
         footer.appendChild(metaLine);
         footer.appendChild(ratingEl);
         footer.appendChild(discussBtn);
-        footer.appendChild(bingeLab);
         footer.appendChild(removeBtn);
         void myListEnsureShowMeta(sub).then((m) => {
           if (!metaLine.isConnected) return;
@@ -15208,12 +15527,25 @@
           return;
         }
         if (empty) empty.hidden = true;
-        const filtered = all.filter((s) => myListMatchesFilter(s, q));
-        if (filterEmpty) {
-          filterEmpty.hidden = !q || filtered.length > 0;
-          if (q && !filtered.length) filterEmpty.textContent = 'No shows match "' + myListState.filter.trim() + '".';
-        }
         const today = localCalendarTodayYmd();
+        const filtered = all
+          .filter((s) => myListMatchesFilter(s, q))
+          .filter((s) => myShowsMatchesSegment(s, myListState.segment, today))
+          .filter((s) => myShowsMatchesWeekDay(s));
+        renderMyShowsAnalytics(myListState.analytics);
+        renderMyShowsContinue(userId);
+        syncMyShowsSegmentUi();
+        if (filterEmpty) {
+          const noMatch = filtered.length === 0;
+          filterEmpty.hidden = !noMatch;
+          if (noMatch) {
+            if (q) filterEmpty.textContent = 'No shows match "' + myListState.filter.trim() + '".';
+            else if (myListState.segment !== "all")
+              filterEmpty.textContent = "No shows match this filter.";
+            else if (myListState.weekDayFilter) filterEmpty.textContent = "Nothing scheduled on this day.";
+            else filterEmpty.textContent = "No shows to display.";
+          }
+        }
         const bySection = { airing: [], hiatus: [], ended: [] };
         for (const s of myListSortedSubscriptions(filtered)) bySection[myListShowBucket(s, today)].push(s);
         host.innerHTML = "";
@@ -15232,11 +15564,7 @@
           const titleEl = document.createElement("span");
           titleEl.className = "mylist-section-title";
           titleEl.textContent = meta.title;
-          const hintEl = document.createElement("span");
-          hintEl.className = "mylist-section-hint";
-          hintEl.textContent = meta.hint;
           headText.appendChild(titleEl);
-          headText.appendChild(hintEl);
           const chev = document.createElement("span");
           chev.className = "mylist-section-chev";
           chev.textContent = sectionOpen ? "\u25bc" : "\u25b6";
@@ -15308,14 +15636,17 @@
         myListState.userId = userId;
         showMyListSkeleton(true);
         try {
-          const [subRes, taskRes] = await Promise.all([
+          const [subRes, taskRes, analyticsRes] = await Promise.all([
             api("/api/users/" + encodeURIComponent(userId) + "/subscriptions"),
-            api("/api/users/" + encodeURIComponent(userId) + "/watch-tasks"),
+            api("/api/users/" + encodeURIComponent(userId) + "/watch-tasks?limit=500"),
+            api("/api/users/" + encodeURIComponent(userId) + "/my-shows-analytics"),
           ]);
           myListState.subscriptions = subRes.subscriptions || [];
           myListState.tasks = taskRes.tasks || [];
+          myListState.analytics = analyticsRes;
           tasksState.tasks = taskRes.tasks || [];
           showMyListSkeleton(false);
+          void renderMyShowsWeekStrip(userId);
           renderMyListHost(userId);
           const needMeta = myListState.subscriptions.filter(
             (s) => Number(s.tvmazeShowId) > 0 && !s.showStatus,
@@ -15358,60 +15689,130 @@
         }
       }
 
-      function initMyListShellControls() {
-        if (initMyListShellControls._wired) return;
-        initMyListShellControls._wired = true;
-        loadMyListPrefs();
-        document.getElementById("mylistExpandAllBtn")?.addEventListener("click", () => {
-          const uid = resolveUserId();
-          if (!uid) return;
-          myListState.cardExpanded.clear();
-          myListState.subscriptions.forEach((s) => {
-            const k = myListShowKey(s);
-            myListState.cardExpanded.add(k);
-            sessionStorage.setItem(myListCardStorageKey(k), "1");
-          });
-          renderMyListHost(uid);
+      function syncMyShowsSegmentUi() {
+        const root = document.getElementById("tab-shows");
+        if (!root) return;
+        const seg = myListState.segment || "all";
+        root.querySelectorAll("#myshowsSegments .myshows-segment").forEach((b) => {
+          const on = b.getAttribute("data-segment") === seg;
+          b.classList.toggle("is-active", on);
+          b.setAttribute("aria-selected", on ? "true" : "false");
         });
-        document.getElementById("mylistCollapseAllBtn")?.addEventListener("click", () => {
-          const uid = resolveUserId();
-          if (!uid) return;
-          myListState.cardExpanded.clear();
-          myListState.subscriptions.forEach((s) =>
-            sessionStorage.setItem(myListCardStorageKey(myListShowKey(s)), "0"),
-          );
-          renderMyListHost(uid);
-        });
-        document.getElementById("mylistGridToggle")?.addEventListener("change", (e) => {
-          const uid = resolveUserId();
-          if (!uid) return;
-          myListState.grid = e.target.checked;
-          sessionStorage.setItem("mylist_view_mode", myListState.grid ? "grid" : "list");
-          syncMyListGridClass();
-          renderMyListHost(uid);
-        });
-        document.getElementById("mylistSortSelect")?.addEventListener("change", (e) => {
-          const uid = resolveUserId();
-          if (!uid) return;
-          myListState.sort = e.target.value || "recent";
-          sessionStorage.setItem("mylist_sort_by", myListState.sort);
-          renderMyListHost(uid);
-        });
+        const sortSel = document.getElementById("mylistSortSelect");
+        if (sortSel && sortSel.value !== myListState.sort) sortSel.value = myListState.sort;
         const filterInp = document.getElementById("mylistFilterInput");
+        if (filterInp && filterInp.value !== myListState.filter) filterInp.value = myListState.filter;
         const filterClr = document.getElementById("mylistFilterClear");
-        filterInp?.addEventListener("input", () => {
+        if (filterClr) filterClr.hidden = !String(myListState.filter || "").trim();
+        syncMyShowsChrome();
+      }
+
+      async function myShowsShiftWeek(deltaDays) {
+        const uid = resolveUserId();
+        if (!uid) return;
+        if (!weekGuideWeekStart) await renderMyShowsWeekStrip(uid);
+        if (!weekGuideWeekStart) return;
+        weekGuideWeekStart = calendarDatePlusDaysClient(weekGuideWeekStart, deltaDays);
+        await renderMyShowsWeekStrip(uid);
+        renderMyListHost(uid);
+      }
+
+      /** Event delegation on #tab-shows so controls work after lazy-mount. */
+      function initMyListShellControls() {
+        const root = document.getElementById("tab-shows");
+        if (!root || root.dataset.myshowsControlsWired === "1") return;
+        root.dataset.myshowsControlsWired = "1";
+        loadMyListPrefs();
+
+        root.addEventListener("click", (e) => {
           const uid = resolveUserId();
           if (!uid) return;
-          myListState.filter = filterInp.value;
-          if (filterClr) filterClr.hidden = !myListState.filter.trim();
-          renderMyListHost(uid);
+
+          const segBtn = e.target.closest(".myshows-segment");
+          if (segBtn && segBtn.closest("#myshowsSegments")) {
+            myListState.segment = segBtn.getAttribute("data-segment") || "all";
+            sessionStorage.setItem("myshows_segment", myListState.segment);
+            syncMyShowsSegmentUi();
+            renderMyListHost(uid);
+            return;
+          }
+
+          if (e.target.closest("#mylistFilterClear")) {
+            const filterInp = document.getElementById("mylistFilterInput");
+            if (filterInp) filterInp.value = "";
+            myListState.filter = "";
+            syncMyShowsSegmentUi();
+            renderMyListHost(uid);
+            return;
+          }
+
+          if (e.target.closest("#mylistExpandAllBtn")) {
+            myListState.cardExpanded.clear();
+            myListState.subscriptions.forEach((s) => {
+              const k = myListShowKey(s);
+              myListState.cardExpanded.add(k);
+              sessionStorage.setItem(myListCardStorageKey(k), "1");
+            });
+            renderMyListHost(uid);
+            return;
+          }
+
+          if (e.target.closest("#mylistCollapseAllBtn")) {
+            myListState.cardExpanded.clear();
+            myListState.subscriptions.forEach((s) =>
+              sessionStorage.setItem(myListCardStorageKey(myListShowKey(s)), "0"),
+            );
+            renderMyListHost(uid);
+            return;
+          }
+
+          if (e.target.closest("#myshowsWeekPrev")) {
+            void myShowsShiftWeek(-7);
+            return;
+          }
+          if (e.target.closest("#myshowsWeekNext")) {
+            void myShowsShiftWeek(7);
+            return;
+          }
+          if (e.target.closest("#myshowsWeekToday")) {
+            weekGuideWeekStart = null;
+            myListState.weekDayFilter = null;
+            void renderMyShowsWeekStrip(uid).then(() => renderMyListHost(uid));
+          }
         });
-        filterClr?.addEventListener("click", () => {
+
+        root.addEventListener("change", (e) => {
           const uid = resolveUserId();
           if (!uid) return;
-          if (filterInp) filterInp.value = "";
-          myListState.filter = "";
-          filterClr.hidden = true;
+          const t = e.target;
+          if (!t || !root.contains(t)) return;
+          if (t.id === "mylistSortSelect") {
+            myListState.sort = t.value || "recent";
+            sessionStorage.setItem("mylist_sort_by", myListState.sort);
+            renderMyListHost(uid);
+            return;
+          }
+          if (t.id === "myshowsCompactToggle") {
+            myListState.compact = t.checked;
+            sessionStorage.setItem("myshows_compact", myListState.compact ? "1" : "0");
+            syncMyShowsChrome();
+            renderMyListHost(uid);
+            return;
+          }
+          if (t.id === "myshowsHideWatchedToggle") {
+            myListState.hideWatched = t.checked;
+            sessionStorage.setItem("myshows_hide_watched", myListState.hideWatched ? "1" : "0");
+            renderMyListHost(uid);
+          }
+        });
+
+        root.addEventListener("input", (e) => {
+          const uid = resolveUserId();
+          if (!uid) return;
+          const t = e.target;
+          if (!t || t.id !== "mylistFilterInput") return;
+          myListState.filter = t.value;
+          syncMyShowsSegmentUi();
           renderMyListHost(uid);
         });
       }
@@ -16524,8 +16925,10 @@
 
       let postWatchReviewContext = null;
       let postWatchReviewSelectedRating = 0;
+      const postWatchReviewSelectedTags = new Set();
       let postWatchReviewLastFocus = null;
       let postWatchReviewStarsBound = false;
+      let postWatchReviewTagsBound = false;
 
       function ensurePostWatchReviewStarsBound() {
         if (postWatchReviewStarsBound) return;
@@ -16581,6 +16984,26 @@
         });
       }
 
+      function ensurePostWatchReviewTagsBound() {
+        if (postWatchReviewTagsBound) return;
+        const host = document.getElementById("postWatchReviewTags");
+        if (!host) return;
+        postWatchReviewTagsBound = true;
+        for (const tag of POST_WATCH_REACTION_TAGS) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "post-watch-tag-btn";
+          b.dataset.tag = tag;
+          b.textContent = tag;
+          b.addEventListener("click", () => {
+            if (postWatchReviewSelectedTags.has(tag)) postWatchReviewSelectedTags.delete(tag);
+            else postWatchReviewSelectedTags.add(tag);
+            b.classList.toggle("is-selected", postWatchReviewSelectedTags.has(tag));
+          });
+          host.appendChild(b);
+        }
+      }
+
       function openPostWatchReviewModal(ctx) {
         if (sessionMeSnapshot && accountIsRegistered(sessionMeSnapshot) && !hasFullSocialUiAccess(sessionMeSnapshot)) {
           showUnlockSocialToast();
@@ -16588,8 +17011,13 @@
         }
         postWatchReviewContext = ctx;
         postWatchReviewSelectedRating = 0;
+        postWatchReviewSelectedTags.clear();
         ensurePostWatchReviewStarsBound();
+        ensurePostWatchReviewTagsBound();
         updatePostWatchStarUi();
+        document.querySelectorAll("#postWatchReviewTags .post-watch-tag-btn").forEach((b) => {
+          b.classList.remove("is-selected");
+        });
         const epLine = document.getElementById("postWatchReviewEpLine");
         if (epLine) {
           epLine.textContent =
@@ -16597,6 +17025,8 @@
         }
         const ta = document.getElementById("postWatchReviewText");
         if (ta) ta.value = "";
+        const sp = document.getElementById("postWatchReviewSpoiler");
+        if (sp) sp.checked = false;
         const err = document.getElementById("postWatchReviewErr");
         if (err) {
           err.style.display = "none";
@@ -16641,10 +17071,11 @@
         const review = (reviewRaw && reviewRaw.value ? reviewRaw.value : "").trim();
         const hasRating = postWatchReviewSelectedRating >= 1 && postWatchReviewSelectedRating <= 5;
         const hasReview = review.length > 0;
-        if (!hasRating && !hasReview) {
+        const hasTags = postWatchReviewSelectedTags.size > 0;
+        if (!hasRating && !hasReview && !hasTags) {
           if (errEl) {
             errEl.style.display = "block";
-            errEl.textContent = "Choose a star rating, write a short review, or tap Skip for now.";
+            errEl.textContent = "Choose stars, a reaction, or a note — or tap Skip review.";
           }
           return;
         }
@@ -16656,6 +17087,7 @@
         const btnOrigText = btn ? btn.textContent : "Submit";
         if (btn) { btn.disabled = true; btn.textContent = "Saving\u2026"; }
         try {
+          const spoilerEl = document.getElementById("postWatchReviewSpoiler");
           const result = await api("/api/community/post-watch-review", {
             method: "POST",
             body: JSON.stringify({
@@ -16663,6 +17095,8 @@
               tvmazeEpisodeId: ctx.tvmazeEpisodeId,
               rating: hasRating ? postWatchReviewSelectedRating : null,
               reviewText: hasReview ? review : null,
+              reactionTags: hasTags ? [...postWatchReviewSelectedTags] : null,
+              isSpoiler: Boolean(spoilerEl && spoilerEl.checked),
             }),
           });
           if (hasReview && result && result.postUpdated) {
@@ -16721,7 +17155,10 @@
         const openEmpty = document.getElementById("tasksOpenEmpty");
         const foldBtn = document.getElementById("foldTasksCompletedBtn");
         const foldSkipBtn = document.getElementById("foldTasksSkippedBtn");
-        if (!host || !ulDone || !ulSkip || !empty) return;
+        if (!host || !ulDone || !ulSkip || !empty) {
+          await loadSubs(userId, { skipSessionRefresh: true });
+          return;
+        }
         tasksState.userId = userId;
         tasksState.compact = sessionStorage.getItem("tasksViewCompact") === "1";
         syncTasksCompactClass();
@@ -16778,7 +17215,7 @@
         loadStarterPicksDeferred(id);
         const rList = document.getElementById("recommendedList");
         if (rList) rList.innerHTML = "";
-        if (getActiveTabName() === "tasks") await loadTasks(id);
+        if (getActiveTabName() === "shows") await loadSubs(id);
         try {
           const me = await api("/api/users/me");
           applyMeToUI(me);
@@ -23934,16 +24371,21 @@
       }
 
       async function openCommunityMemberProfile(userId) {
+        if (!userId) return;
         const tab = document.getElementById("tab-profile");
-        const body = document.getElementById("profilePageMemberBody");
-        const errEl = document.getElementById("profilePageMemberErr");
-        const heading = document.getElementById("profilePageMemberHeading");
-        if (!tab || !body) return;
+        if (!tab) return;
         closeHeaderMenus();
         profilePageState.view = "member";
         profilePageState.userId = userId;
         setTab("profile");
         syncProfilePageViews();
+        const body = document.getElementById("profilePageMemberBody");
+        const errEl = document.getElementById("profilePageMemberErr");
+        const heading = document.getElementById("profilePageMemberHeading");
+        if (!body) {
+          showToast("Could not open profile");
+          return;
+        }
         if (errEl) {
           errEl.textContent = "";
           errEl.style.display = "none";
@@ -25878,6 +26320,7 @@
       function initShowsShellAfterMount() {
         wireFoldTogglesIn(document.getElementById("tab-shows"));
         initMyListShellControls();
+        syncMyShowsSegmentUi();
         const cta = document.getElementById("subsEmptyCta");
         if (cta && cta.dataset.aaEmptyCtaWired !== "1") {
           cta.dataset.aaEmptyCtaWired = "1";
@@ -26372,6 +26815,7 @@
       }
 
       function setTab(name) {
+        if (name === "tasks" || name === "guide") name = "shows";
         if (name === "admin" && !userIsDbAdmin(sessionMeSnapshot)) {
           name = "add";
         }
@@ -26413,23 +26857,14 @@
             loadRecommendedDeferred(id);
           }
         }
-        if (name === "tasks") {
-          trackAnalyticsEvent("activation.tasks_opened", {}, { sourceScreen: "tasks", onceKey: "tab:tasks" });
-          const id = resolveUserId();
-          if (id) loadTasks(id);
-        }
         if (name === "shows") {
+          trackAnalyticsEvent("activation.my_shows_opened", {}, { sourceScreen: "shows", onceKey: "tab:shows" });
           const id = resolveUserId();
           if (id) {
             void loadSubs(id);
             void loadPersonFollows(id);
             setupPersonFollowSearch(id);
           }
-        }
-        if (name === "guide") {
-          trackAnalyticsEvent("activation.my_week_opened", {}, { sourceScreen: "guide", onceKey: "tab:guide" });
-          const id = resolveUserId();
-          if (id) void loadWeekGuide(id);
         }
         if (name === "profile") {
           syncUsernameSearchChrome();
@@ -27522,7 +27957,7 @@
         wireDiscoveryChips(userId);
         loadStarterPicksDeferred(userId);
         loadRecommendedDeferred(userId);
-        if (getActiveTabName() === "tasks") await loadTasks(userId);
+        if (getActiveTabName() === "shows") await loadSubs(userId);
         updateContextualTipsVisibility(getActiveTabName());
       }
 
@@ -27686,7 +28121,7 @@
         wireDiscoveryChips(userId);
         loadStarterPicksDeferred(userId);
         renderRecentChips();
-        if (getActiveTabName() === "tasks") void loadTasks(userId);
+        if (getActiveTabName() === "shows") void loadSubs(userId);
         updateContextualTipsVisibility("add");
 
         try {
@@ -28743,7 +29178,7 @@
           loadTrendingShowsDeferred(id);
           const rListOut = document.getElementById("recommendedList");
           if (rListOut) rListOut.innerHTML = "";
-          if (getActiveTabName() === "tasks") await loadTasks(id);
+          if (getActiveTabName() === "shows") await loadSubs(id);
           showToast("Signed out");
         });
 
@@ -28771,7 +29206,7 @@
             applyMeToUI(me);
             await loadUser(id);
             await loadSubs(id);
-            if (getActiveTabName() === "tasks") await loadTasks(id);
+            if (getActiveTabName() === "shows") await loadSubs(id);
             showToast("Account deleted");
           } catch (e) {
             const accountErr = document.getElementById("accountErr");
@@ -28873,6 +29308,7 @@
           });
         }
 
+        initMyListShellControls();
         bootCheckpoint("complete");
         try {
           window.__AIRALERT_APP_READY__ = true;
