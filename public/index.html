@@ -1415,10 +1415,8 @@
           box-shadow: none;
         }
         #tab-shows .myshows-page-title,
-        #tab-shows .myshows-analytics,
-        #tab-shows .myshows-week-wrap,
-        #tab-shows .myshows-continue-wrap,
-        #tab-shows .myshows-toolbar,
+        #tab-shows .myshows-stats-fold,
+        #tab-shows .myshows-tools,
         #tab-shows .mylist-host,
         #tab-shows .mylist-filter-empty,
         #tab-shows #subsEmptyState {
@@ -4436,11 +4434,23 @@
         margin: 0 0 0.65rem;
         font-size: 1.05rem;
       }
+      .myshows-stats-fold {
+        margin-bottom: 0.5rem;
+      }
+      .myshows-stats-fold .fold-toggle {
+        margin-bottom: 0.35rem;
+      }
       .myshows-analytics {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0.4rem;
         margin-bottom: 0.65rem;
+      }
+      .myshows-tools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        margin-bottom: 0.55rem;
       }
       @media (min-width: 720px) {
         .myshows-analytics {
@@ -4482,185 +4492,6 @@
         font-size: 0.62rem;
         color: rgba(186, 230, 253, 0.75);
         line-height: 1.25;
-      }
-      .myshows-week-wrap {
-        margin-bottom: 0.65rem;
-      }
-      .myshows-week-nav {
-        display: flex;
-        gap: 0.35rem;
-        margin-bottom: 0.35rem;
-        justify-content: flex-end;
-      }
-      .myshows-week-btn {
-        min-height: 34px;
-        padding: 0.25rem 0.55rem;
-        font-size: 0.72rem;
-      }
-      .myshows-week-strip {
-        display: flex;
-        gap: 0.35rem;
-        overflow-x: auto;
-        padding-bottom: 0.25rem;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-      }
-      .myshows-week-strip::-webkit-scrollbar {
-        display: none;
-      }
-      .myshows-week-day {
-        flex: 0 0 min(4.5rem, 22vw);
-        min-height: 52px;
-        padding: 0.35rem 0.4rem;
-        border-radius: 10px;
-        border: 1px solid rgba(130, 200, 255, 0.14);
-        background: rgba(6, 10, 24, 0.55);
-        color: inherit;
-        font: inherit;
-        cursor: pointer;
-        text-align: center;
-        touch-action: manipulation;
-      }
-      .myshows-week-day.is-active {
-        border-color: rgba(168, 85, 247, 0.45);
-        box-shadow: 0 0 16px rgba(168, 85, 247, 0.2);
-        background: linear-gradient(145deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.14));
-      }
-      .myshows-week-day-label {
-        display: block;
-        font-size: 0.62rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: rgba(148, 163, 184, 0.95);
-      }
-      .myshows-week-day-count {
-        display: block;
-        font-size: 1rem;
-        font-weight: 800;
-        margin-top: 0.15rem;
-      }
-      .myshows-continue-wrap {
-        margin-bottom: 0.75rem;
-      }
-      .myshows-continue-title {
-        margin: 0 0 0.4rem;
-        font-size: 0.78rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: rgba(186, 230, 253, 0.9);
-      }
-      .myshows-continue-rail {
-        list-style: none;
-        margin: 0;
-        padding: 0 0 0.2rem;
-        display: flex;
-        gap: 0.45rem;
-        overflow-x: auto;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-      }
-      .myshows-continue-rail > li {
-        flex: 0 0 min(200px, 78vw);
-      }
-      .myshows-continue-card {
-        display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
-        padding: 0.5rem 0.55rem;
-        border-radius: 10px;
-        border: 1px solid rgba(130, 200, 255, 0.16);
-        background: rgba(8, 12, 26, 0.85);
-        min-height: 88px;
-      }
-      .myshows-continue-show {
-        font-size: 0.78rem;
-        font-weight: 700;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .myshows-continue-ep {
-        font-size: 0.68rem;
-        color: rgba(148, 163, 184, 0.95);
-      }
-      .myshows-continue-actions {
-        display: flex;
-        gap: 0.3rem;
-        margin-top: auto;
-      }
-      .myshows-continue-actions button {
-        flex: 1;
-        min-height: 34px;
-        font-size: 0.65rem;
-        padding: 0.2rem 0.35rem;
-      }
-      .myshows-toolbar {
-        position: sticky;
-        top: 0;
-        z-index: 6;
-        margin-bottom: 0.55rem;
-        padding: 0.35rem 0 0.45rem;
-        background: linear-gradient(180deg, rgba(6, 8, 18, 0.97) 70%, rgba(6, 8, 18, 0));
-        backdrop-filter: blur(8px);
-        pointer-events: auto;
-      }
-      .myshows-toolbar button,
-      .myshows-toolbar input,
-      .myshows-toolbar select,
-      .myshows-toolbar label {
-        pointer-events: auto;
-      }
-      .myshows-segments {
-        display: flex;
-        gap: 0.28rem;
-        overflow-x: auto;
-        padding-bottom: 0.35rem;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-      }
-      .myshows-segments::-webkit-scrollbar {
-        display: none;
-      }
-      .myshows-segment {
-        flex: 0 0 auto;
-        min-height: 36px;
-        padding: 0.28rem 0.55rem;
-        border-radius: 999px;
-        border: 1px solid rgba(130, 200, 255, 0.18);
-        background: rgba(6, 10, 24, 0.65);
-        color: rgba(226, 232, 240, 0.9);
-        font-size: 0.68rem;
-        font-weight: 700;
-        font-family: inherit;
-        cursor: pointer;
-        touch-action: manipulation;
-        white-space: nowrap;
-      }
-      .myshows-segment.is-active {
-        border-color: rgba(34, 211, 238, 0.45);
-        color: #fff;
-        background: linear-gradient(125deg, rgba(34, 211, 238, 0.22), rgba(168, 85, 247, 0.2));
-        box-shadow: 0 0 14px rgba(34, 211, 238, 0.15);
-      }
-      .myshows-toolbar-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-        align-items: center;
-        margin-bottom: 0.35rem;
-      }
-      .myshows-search-wrap {
-        flex: 1 1 140px;
-        margin-bottom: 0;
-      }
-      .myshows-toolbar-tools {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.3rem;
-      }
-      .myshows-toggle .tasks-view-toggle-label {
-        font-size: 0.65rem;
       }
       #tab-shows.myshows-tab--compact .tasks-show-sub,
       #tab-shows.myshows-tab--compact .mylist-show-next {
@@ -12382,66 +12213,24 @@
         <div class="app-shell-mounted" data-app-shell-mounted="shows">
         <section class="panel-rail-blue myshows-page-root mylist-page-root" aria-label="My Shows">
           <h2 class="myshows-page-title app-section-heading">My Shows</h2>
-          <div class="myshows-analytics" id="myshowsAnalytics" aria-live="polite" hidden></div>
-          <div class="myshows-week-wrap" id="myshowsWeekWrap" hidden>
-            <div class="myshows-week-nav">
-              <button type="button" class="secondary myshows-week-btn" id="myshowsWeekPrev" title="Previous week">←</button>
-              <button type="button" class="secondary myshows-week-btn" id="myshowsWeekToday" title="This week">Today</button>
-              <button type="button" class="secondary myshows-week-btn" id="myshowsWeekNext" title="Next week">→</button>
+          <div class="myshows-stats-fold" id="myshowsStatsFold" hidden>
+            <button
+              type="button"
+              class="fold-toggle fold-toggle-cyan myshows-stats-toggle"
+              id="myshowsStatsToggleBtn"
+              aria-expanded="false"
+              aria-controls="myshowsStatsBody"
+            >
+              <span class="fold-title"><span class="app-section-heading">Your stats</span></span>
+              <span class="fold-chev" aria-hidden="true">▼</span>
+            </button>
+            <div class="fold-body" id="myshowsStatsBody" hidden>
+              <div class="myshows-analytics" id="myshowsAnalytics" aria-live="polite"></div>
             </div>
-            <div class="myshows-week-strip" id="myshowsWeekStrip" role="tablist" aria-label="Week days"></div>
           </div>
-          <div class="myshows-continue-wrap" id="myshowsContinueWrap" hidden>
-            <h3 class="myshows-continue-title">Continue watching</h3>
-            <ul class="myshows-continue-rail" id="myshowsContinueRail" role="list"></ul>
-          </div>
-          <div class="myshows-toolbar" id="myshowsToolbar">
-            <div class="myshows-segments" id="myshowsSegments" role="tablist" aria-label="Filter shows">
-              <button type="button" class="myshows-segment is-active" data-segment="all" role="tab" aria-selected="true">All</button>
-              <button type="button" class="myshows-segment" data-segment="airing_today" role="tab">Airing today</button>
-              <button type="button" class="myshows-segment" data-segment="upcoming" role="tab">Upcoming</button>
-              <button type="button" class="myshows-segment" data-segment="continue" role="tab">Continue</button>
-              <button type="button" class="myshows-segment" data-segment="completed" role="tab">Completed</button>
-              <button type="button" class="myshows-segment" data-segment="skipped" role="tab">Skipped</button>
-              <button type="button" class="myshows-segment" data-segment="recent" role="tab">Recent</button>
-            </div>
-            <div class="myshows-toolbar-row">
-              <div class="mylist-search-wrap myshows-search-wrap">
-                <span class="mylist-search-icon" aria-hidden="true">⌕</span>
-                <input
-                  type="search"
-                  id="mylistFilterInput"
-                  class="mylist-search-input"
-                  placeholder="Search shows…"
-                  autocomplete="off"
-                  spellcheck="false"
-                />
-                <button type="button" class="mylist-search-clear" id="mylistFilterClear" hidden aria-label="Clear search">×</button>
-              </div>
-              <label class="mylist-sort-wrap">
-                <span class="visually-hidden">Sort by</span>
-                <select id="mylistSortSelect" class="mylist-sort-select" aria-label="Sort by">
-                  <option value="recent">Recently aired</option>
-                  <option value="az">Alphabetical</option>
-                  <option value="least_watched">Most behind</option>
-                  <option value="most_watched">Most watched</option>
-                  <option value="rating">Highest rated</option>
-                  <option value="added">Date added</option>
-                </select>
-              </label>
-              <label class="tasks-view-toggle myshows-toggle">
-                <span class="tasks-view-toggle-label">Compact</span>
-                <input type="checkbox" id="myshowsCompactToggle" aria-label="Compact mode" />
-              </label>
-              <label class="tasks-view-toggle myshows-toggle">
-                <span class="tasks-view-toggle-label">Hide watched</span>
-                <input type="checkbox" id="myshowsHideWatchedToggle" aria-label="Hide watched episodes" />
-              </label>
-            </div>
-            <div class="myshows-toolbar-tools">
-              <button type="button" class="tasks-tool-btn" id="mylistExpandAllBtn" title="Expand all shows">Expand all</button>
-              <button type="button" class="tasks-tool-btn" id="mylistCollapseAllBtn" title="Collapse all shows">Collapse all</button>
-            </div>
+          <div class="myshows-tools" id="myshowsTools">
+            <button type="button" class="tasks-tool-btn" id="mylistExpandAllBtn" title="Expand all shows">Expand all</button>
+            <button type="button" class="tasks-tool-btn" id="mylistCollapseAllBtn" title="Collapse all shows">Collapse all</button>
           </div>
           <div id="mylistHost" class="mylist-host myshows-host" aria-live="polite"></div>
           <div id="mylistFilterEmpty" class="mylist-filter-empty muted" hidden>No shows match your filter.</div>
@@ -14822,13 +14611,14 @@
       }
 
       function renderMyShowsAnalytics(a) {
+        const fold = document.getElementById("myshowsStatsFold");
         const host = document.getElementById("myshowsAnalytics");
         if (!host) return;
         if (!a) {
-          host.hidden = true;
+          if (fold) fold.hidden = true;
           return;
         }
-        host.hidden = false;
+        if (fold) fold.hidden = false;
         const cards = [
           { icon: "📺", value: a.showsWatching, label: "Shows watching" },
           { icon: "✓", value: a.episodesWatched, label: "Episodes watched" },
@@ -14862,73 +14652,6 @@
         }
       }
 
-      function myShowsContinueShows() {
-        const out = [];
-        for (const sub of myListState.subscriptions) {
-          const key = myListShowKey(sub);
-          const open = myListState.tasks
-            .filter((t) => taskShowKey(t) === key && !t.completedAt && !t.dismissedAt)
-            .sort((a, b) => String(a.airdate || "").localeCompare(String(b.airdate || "")));
-          if (!open.length) continue;
-          out.push({ sub, next: open[0], remaining: open.length });
-        }
-        out.sort((a, b) => String(a.next.airdate || "").localeCompare(String(b.next.airdate || "")));
-        return out.slice(0, 12);
-      }
-
-      function renderMyShowsContinue(userId) {
-        const wrap = document.getElementById("myshowsContinueWrap");
-        const rail = document.getElementById("myshowsContinueRail");
-        if (!wrap || !rail) return;
-        const items = myShowsContinueShows();
-        if (!items.length) {
-          wrap.hidden = true;
-          rail.innerHTML = "";
-          return;
-        }
-        wrap.hidden = false;
-        rail.innerHTML = "";
-        for (const it of items) {
-          const li = document.createElement("li");
-          const card = document.createElement("div");
-          card.className = "myshows-continue-card";
-          const show = document.createElement("span");
-          show.className = "myshows-continue-show";
-          show.textContent = it.sub.showName || "Show";
-          const ep = document.createElement("span");
-          ep.className = "myshows-continue-ep";
-          ep.textContent =
-            (it.next.episodeLabel || "Episode") +
-            " · " +
-            it.remaining +
-            " left";
-          const actions = document.createElement("div");
-          actions.className = "myshows-continue-actions";
-          const watchBtn = document.createElement("button");
-          watchBtn.type = "button";
-          watchBtn.className = "aa-btn-gradient";
-          watchBtn.textContent = "Watched";
-          watchBtn.addEventListener("click", () => {
-            void (async () => {
-              await myListPatchWatchTask(userId, it.next, { status: "watched" });
-              myListOpenPostWatchIfRegistered(it.sub, it.next);
-            })();
-          });
-          const skipBtn = document.createElement("button");
-          skipBtn.type = "button";
-          skipBtn.className = "secondary";
-          skipBtn.textContent = "Skip";
-          skipBtn.addEventListener("click", () => void myListPatchWatchTask(userId, it.next, { status: "skipped" }));
-          actions.appendChild(watchBtn);
-          actions.appendChild(skipBtn);
-          card.appendChild(show);
-          card.appendChild(ep);
-          card.appendChild(actions);
-          li.appendChild(card);
-          rail.appendChild(li);
-        }
-      }
-
       function myListOpenPostWatchIfRegistered(sub, task) {
         if (!accountIsRegistered(sessionMeSnapshot)) return;
         const sid = Number(task.tvmazeShowId || sub.tvmazeShowId);
@@ -14940,78 +14663,6 @@
           showName: String(task.showName || sub.showName || ""),
           episodeLabel: String(task.episodeLabel || ""),
         });
-      }
-
-      async function renderMyShowsWeekStrip(userId) {
-        const wrap = document.getElementById("myshowsWeekWrap");
-        const strip = document.getElementById("myshowsWeekStrip");
-        if (!wrap || !strip) return;
-        try {
-          const qs = weekGuideWeekStart ? "?weekStart=" + encodeURIComponent(weekGuideWeekStart) : "";
-          const data = await api("/api/users/" + encodeURIComponent(userId) + "/week-guide" + qs);
-          weekGuideWeekStart = data.weekStart;
-          wrap.hidden = false;
-          strip.innerHTML = "";
-          for (const day of data.days || []) {
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "myshows-week-day";
-            btn.dataset.date = day.date;
-            btn.setAttribute("role", "tab");
-            if (myListState.weekDayFilter === day.date) btn.classList.add("is-active");
-            btn.innerHTML =
-              '<span class="myshows-week-day-label">' +
-              escapeHtml(day.weekdayLabel || "") +
-              "</span>" +
-              '<span class="myshows-week-day-count">' +
-              (day.episodes?.length || 0) +
-              "</span>";
-            btn.addEventListener("click", () => {
-              myListState.weekDayFilter = myListState.weekDayFilter === day.date ? null : day.date;
-              renderMyListHost(userId);
-              void renderMyShowsWeekStrip(userId);
-            });
-            strip.appendChild(btn);
-          }
-        } catch {
-          wrap.hidden = true;
-        }
-      }
-
-      function myShowsMatchesSegment(sub, segment, today) {
-        const key = myListShowKey(sub);
-        const prog = myListProgressForShow(key);
-        const openTasks = myListState.tasks.filter((t) => taskShowKey(t) === key && !t.completedAt && !t.dismissedAt);
-        const skippedTasks = myListState.tasks.filter((t) => taskShowKey(t) === key && t.dismissedAt);
-        const recentCutoff = calendarDatePlusDaysClient(today, -7);
-        const recentWatched = myListState.tasks.some(
-          (t) =>
-            taskShowKey(t) === key &&
-            t.completedAt &&
-            String(t.completedAt).slice(0, 10) >= recentCutoff,
-        );
-        if (segment === "all") return true;
-        if (segment === "airing_today") {
-          return openTasks.some((t) => taskUrgencyBucket(t.airdate) === "today");
-        }
-        if (segment === "upcoming") {
-          const next = sub.nextEpisode?.airdate ? String(sub.nextEpisode.airdate).slice(0, 10) : "";
-          return next && next > today;
-        }
-        if (segment === "continue") return prog.open > 0;
-        if (segment === "completed") return prog.total > 0 && prog.open === 0;
-        if (segment === "skipped") return skippedTasks.length > 0;
-        if (segment === "recent") return recentWatched;
-        return true;
-      }
-
-      function myShowsMatchesWeekDay(sub) {
-        if (!myListState.weekDayFilter) return true;
-        const key = myListShowKey(sub);
-        const day = myListState.weekDayFilter;
-        return myListState.tasks.some(
-          (t) => taskShowKey(t) === key && String(t.airdate || "").slice(0, 10) === day,
-        );
       }
 
       function myListShowKey(sub) {
@@ -15037,10 +14688,10 @@
         myListState.grid = sessionStorage.getItem("mylist_view_mode") === "grid";
         myListState.compact = sessionStorage.getItem("myshows_compact") === "1";
         myListState.hideWatched = sessionStorage.getItem("myshows_hide_watched") === "1";
-        myListState.segment = sessionStorage.getItem("myshows_segment") || "all";
+        myListState.segment = "all";
+        myListState.filter = "";
+        myListState.weekDayFilter = null;
         syncMyShowsChrome();
-        const sortSel = document.getElementById("mylistSortSelect");
-        if (sortSel) sortSel.value = myListState.sort;
       }
 
       function saveMyListSectionExpanded() {
@@ -15528,22 +15179,15 @@
         }
         if (empty) empty.hidden = true;
         const today = localCalendarTodayYmd();
-        const filtered = all
-          .filter((s) => myListMatchesFilter(s, q))
-          .filter((s) => myShowsMatchesSegment(s, myListState.segment, today))
-          .filter((s) => myShowsMatchesWeekDay(s));
+        const filtered = all.filter((s) => myListMatchesFilter(s, q));
         renderMyShowsAnalytics(myListState.analytics);
-        renderMyShowsContinue(userId);
-        syncMyShowsSegmentUi();
         if (filterEmpty) {
           const noMatch = filtered.length === 0;
           filterEmpty.hidden = !noMatch;
           if (noMatch) {
-            if (q) filterEmpty.textContent = 'No shows match "' + myListState.filter.trim() + '".';
-            else if (myListState.segment !== "all")
-              filterEmpty.textContent = "No shows match this filter.";
-            else if (myListState.weekDayFilter) filterEmpty.textContent = "Nothing scheduled on this day.";
-            else filterEmpty.textContent = "No shows to display.";
+            filterEmpty.textContent = q
+              ? 'No shows match "' + myListState.filter.trim() + '".'
+              : "No shows to display.";
           }
         }
         const bySection = { airing: [], hiatus: [], ended: [] };
@@ -15646,7 +15290,6 @@
           myListState.analytics = analyticsRes;
           tasksState.tasks = taskRes.tasks || [];
           showMyListSkeleton(false);
-          void renderMyShowsWeekStrip(userId);
           renderMyListHost(userId);
           const needMeta = myListState.subscriptions.filter(
             (s) => Number(s.tvmazeShowId) > 0 && !s.showStatus,
@@ -15689,34 +15332,6 @@
         }
       }
 
-      function syncMyShowsSegmentUi() {
-        const root = document.getElementById("tab-shows");
-        if (!root) return;
-        const seg = myListState.segment || "all";
-        root.querySelectorAll("#myshowsSegments .myshows-segment").forEach((b) => {
-          const on = b.getAttribute("data-segment") === seg;
-          b.classList.toggle("is-active", on);
-          b.setAttribute("aria-selected", on ? "true" : "false");
-        });
-        const sortSel = document.getElementById("mylistSortSelect");
-        if (sortSel && sortSel.value !== myListState.sort) sortSel.value = myListState.sort;
-        const filterInp = document.getElementById("mylistFilterInput");
-        if (filterInp && filterInp.value !== myListState.filter) filterInp.value = myListState.filter;
-        const filterClr = document.getElementById("mylistFilterClear");
-        if (filterClr) filterClr.hidden = !String(myListState.filter || "").trim();
-        syncMyShowsChrome();
-      }
-
-      async function myShowsShiftWeek(deltaDays) {
-        const uid = resolveUserId();
-        if (!uid) return;
-        if (!weekGuideWeekStart) await renderMyShowsWeekStrip(uid);
-        if (!weekGuideWeekStart) return;
-        weekGuideWeekStart = calendarDatePlusDaysClient(weekGuideWeekStart, deltaDays);
-        await renderMyShowsWeekStrip(uid);
-        renderMyListHost(uid);
-      }
-
       /** Event delegation on #tab-shows so controls work after lazy-mount. */
       function initMyListShellControls() {
         const root = document.getElementById("tab-shows");
@@ -15727,24 +15342,6 @@
         root.addEventListener("click", (e) => {
           const uid = resolveUserId();
           if (!uid) return;
-
-          const segBtn = e.target.closest(".myshows-segment");
-          if (segBtn && segBtn.closest("#myshowsSegments")) {
-            myListState.segment = segBtn.getAttribute("data-segment") || "all";
-            sessionStorage.setItem("myshows_segment", myListState.segment);
-            syncMyShowsSegmentUi();
-            renderMyListHost(uid);
-            return;
-          }
-
-          if (e.target.closest("#mylistFilterClear")) {
-            const filterInp = document.getElementById("mylistFilterInput");
-            if (filterInp) filterInp.value = "";
-            myListState.filter = "";
-            syncMyShowsSegmentUi();
-            renderMyListHost(uid);
-            return;
-          }
 
           if (e.target.closest("#mylistExpandAllBtn")) {
             myListState.cardExpanded.clear();
@@ -15763,57 +15360,7 @@
               sessionStorage.setItem(myListCardStorageKey(myListShowKey(s)), "0"),
             );
             renderMyListHost(uid);
-            return;
           }
-
-          if (e.target.closest("#myshowsWeekPrev")) {
-            void myShowsShiftWeek(-7);
-            return;
-          }
-          if (e.target.closest("#myshowsWeekNext")) {
-            void myShowsShiftWeek(7);
-            return;
-          }
-          if (e.target.closest("#myshowsWeekToday")) {
-            weekGuideWeekStart = null;
-            myListState.weekDayFilter = null;
-            void renderMyShowsWeekStrip(uid).then(() => renderMyListHost(uid));
-          }
-        });
-
-        root.addEventListener("change", (e) => {
-          const uid = resolveUserId();
-          if (!uid) return;
-          const t = e.target;
-          if (!t || !root.contains(t)) return;
-          if (t.id === "mylistSortSelect") {
-            myListState.sort = t.value || "recent";
-            sessionStorage.setItem("mylist_sort_by", myListState.sort);
-            renderMyListHost(uid);
-            return;
-          }
-          if (t.id === "myshowsCompactToggle") {
-            myListState.compact = t.checked;
-            sessionStorage.setItem("myshows_compact", myListState.compact ? "1" : "0");
-            syncMyShowsChrome();
-            renderMyListHost(uid);
-            return;
-          }
-          if (t.id === "myshowsHideWatchedToggle") {
-            myListState.hideWatched = t.checked;
-            sessionStorage.setItem("myshows_hide_watched", myListState.hideWatched ? "1" : "0");
-            renderMyListHost(uid);
-          }
-        });
-
-        root.addEventListener("input", (e) => {
-          const uid = resolveUserId();
-          if (!uid) return;
-          const t = e.target;
-          if (!t || t.id !== "mylistFilterInput") return;
-          myListState.filter = t.value;
-          syncMyShowsSegmentUi();
-          renderMyListHost(uid);
         });
       }
 
@@ -17133,10 +16680,16 @@
         const modal = document.getElementById("postWatchReviewModal");
         if (!modal || modal.dataset.aaShellWired === "1") return;
         modal.dataset.aaShellWired = "1";
-        document.getElementById("postWatchReviewSkipBtn")?.addEventListener("click", () => closePostWatchReviewModal());
-        document.getElementById("postWatchReviewSubmitBtn")?.addEventListener("click", () => void submitPostWatchReviewFromModal());
-        document.querySelectorAll("[data-close-post-watch-review]").forEach((el) => {
-          el.addEventListener("click", () => closePostWatchReviewModal());
+        modal.addEventListener("click", (e) => {
+          if (e.target.closest("#postWatchReviewSkipBtn") || e.target.closest("[data-close-post-watch-review]")) {
+            e.preventDefault();
+            closePostWatchReviewModal();
+            return;
+          }
+          if (e.target.closest("#postWatchReviewSubmitBtn")) {
+            e.preventDefault();
+            void submitPostWatchReviewFromModal();
+          }
         });
         document.addEventListener("keydown", (e) => {
           if (e.key !== "Escape") return;
@@ -26319,8 +25872,8 @@
 
       function initShowsShellAfterMount() {
         wireFoldTogglesIn(document.getElementById("tab-shows"));
+        setupPostWatchReviewModalWiring();
         initMyListShellControls();
-        syncMyShowsSegmentUi();
         const cta = document.getElementById("subsEmptyCta");
         if (cta && cta.dataset.aaEmptyCtaWired !== "1") {
           cta.dataset.aaEmptyCtaWired = "1";
@@ -27806,6 +27359,7 @@
       })();
 
       wireFoldTogglesIn(document);
+      setupPostWatchReviewModalWiring();
 
       document.getElementById("onboardingMissionAddShowsBtn")?.addEventListener("click", () => {
         setTab("add");
