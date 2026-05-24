@@ -1,6 +1,8 @@
 const BASE = "https://api.tvmaze.com";
 const PREV_EP_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
+const CATALOG_PAGE_CACHE_TTL_MS = 30 * 60 * 1000;
 const previousEpisodeAirdateCache = new Map<number, { value: string | null; expiresAt: number }>();
+const catalogPageCache = new Map<number, { rows: TvmazeShowListItem[]; expiresAt: number }>();
 
 export type TvmazeShowSearch = {
   score?: number;
@@ -150,13 +152,23 @@ export async function searchShowsPlain(query: string): Promise<TvmazeShowSearch[
 }
 
 export async function fetchShowsCatalogPage(page: number): Promise<TvmazeShowListItem[]> {
+  const now = Date.now();
+  const cached = catalogPageCache.get(page);
+  if (cached && cached.expiresAt > now) return cached.rows;
+
   const res = await fetch(`${BASE}/shows?page=${page}`);
-  if (res.status === 404) return [];
+  if (res.status === 404) {
+    const empty: TvmazeShowListItem[] = [];
+    catalogPageCache.set(page, { rows: empty, expiresAt: now + CATALOG_PAGE_CACHE_TTL_MS });
+    return empty;
+  }
   if (!res.ok) {
     throw new Error(`Catalog page ${page} request failed (${res.status}): ${res.statusText}`);
   }
   const rows = (await res.json()) as TvmazeShowListItem[];
-  return Array.isArray(rows) ? rows : [];
+  const out = Array.isArray(rows) ? rows : [];
+  catalogPageCache.set(page, { rows: out, expiresAt: now + CATALOG_PAGE_CACHE_TTL_MS });
+  return out;
 }
 
 /**

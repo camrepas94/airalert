@@ -153,7 +153,17 @@ type RecommendedShowsPayload = { shows: RecommendedShowHit[]; queriesUsed: strin
 const recommendedShowsCache = new Map<string, { expiresAt: number; payload: RecommendedShowsPayload }>();
 const recommendedShowsInflight = new Map<string, Promise<RecommendedShowsPayload>>();
 
+/** In-process cache for `/trending-shows` (catalog scan + episode airdates). */
+const TRENDING_SHOWS_CACHE_TTL_MS = 8 * 60 * 1000;
+type TrendingShowsPayload = { shows: RecommendedShowHit[] };
+const trendingShowsCache = new Map<string, { expiresAt: number; payload: TrendingShowsPayload }>();
+const trendingShowsInflight = new Map<string, Promise<TrendingShowsPayload>>();
+
 function recommendedShowsCacheKey(userId: string, sortedIds: number[]): string {
+  return userId + "|" + sortedIds.join(",");
+}
+
+function trendingShowsCacheKey(userId: string, sortedIds: number[]): string {
   return userId + "|" + sortedIds.join(",");
 }
 
@@ -165,6 +175,21 @@ function bustRecommendedShowsCacheForUser(userId: string) {
   for (const k of recommendedShowsInflight.keys()) {
     if (k.startsWith(prefix)) recommendedShowsInflight.delete(k);
   }
+}
+
+function bustTrendingShowsCacheForUser(userId: string) {
+  const prefix = userId + "|";
+  for (const k of trendingShowsCache.keys()) {
+    if (k.startsWith(prefix)) trendingShowsCache.delete(k);
+  }
+  for (const k of trendingShowsInflight.keys()) {
+    if (k.startsWith(prefix)) trendingShowsInflight.delete(k);
+  }
+}
+
+function bustAddShowsShelfCachesForUser(userId: string) {
+  bustRecommendedShowsCacheForUser(userId);
+  bustTrendingShowsCacheForUser(userId);
 }
 
 const GOOGLE_OAUTH_STATE_COOKIE = "airalert_google_oauth";
@@ -3380,7 +3405,7 @@ app.post("/api/admin/users/:userId/subscriptions", async (request, reply) => {
     }
     throw e;
   }
-  bustRecommendedShowsCacheForUser(userId);
+  bustAddShowsShelfCachesForUser(userId);
   let episodesCached = 0;
   try {
     episodesCached = await refreshShowEpisodes(show.id);
@@ -3411,7 +3436,7 @@ app.delete("/api/admin/subscriptions/:subscriptionId", async (request, reply) =>
     return { error: "Not found" };
   }
   db.prepare(`DELETE FROM show_subscriptions WHERE id = ?`).run(subscriptionId);
-  bustRecommendedShowsCacheForUser(row.userId);
+  bustAddShowsShelfCachesForUser(row.userId);
   return { ok: true };
 });
 
@@ -5001,15 +5026,22 @@ app.get("/api/shows/discover", async (request, reply) => {
   return { shows, discoveryKey: key };
 });
 
+const POPULAR_ON_AIRALERT_CACHE_TTL_MS = 2 * 60 * 1000;
+const popularOnAiralertCache = new Map<string, { expiresAt: number; payload: Awaited<ReturnType<typeof computePopularOnAiralert>> }>();
+
 /** Add Shows — “Popular on AirAlert”: Bayesian-smoothed AirAlert ratings first, add-count tie-break (see `popularOnAiralert.ts`). */
 app.get("/api/shows/popular-on-airalert", async (request, reply) => {
   const excludeUserId = (request.query as { excludeUserId?: string }).excludeUserId?.trim() ?? "";
   const limitRaw = Number((request.query as { limit?: string }).limit);
   const limit = Number.isFinite(limitRaw) ? Math.min(100, Math.max(1, Math.floor(limitRaw))) : 12;
+  const cacheKey = (excludeUserId || "_") + "|" + limit;
+  const hit = popularOnAiralertCache.get(cacheKey);
+  if (hit && hit.expiresAt > Date.now()) return hit.payload;
   const out = await computePopularOnAiralert({
     excludeUserId: excludeUserId ? excludeUserId : null,
     limit,
   });
+  popularOnAiralertCache.set(cacheKey, { expiresAt: Date.now() + POPULAR_ON_AIRALERT_CACHE_TTL_MS, payload: out });
   return out;
 });
 
@@ -5480,9 +5512,32 @@ app.get("/api/users/:userId/trending-shows", async (request, reply) => {
     .prepare(`SELECT tvmaze_show_id AS id FROM show_subscriptions WHERE user_id = ?`)
     .all(userId) as { id: number }[];
   const ids = rows.map((r) => Number(r.id)).filter((n) => Number.isInteger(n) && n > 0);
+  const idsSorted = [...ids].sort((a, b) => a - b);
+  const cacheKey = trendingShowsCacheKey(userId, idsSorted);
   try {
-    const shows = await computeTrendingShows(ids, userId);
-    return { shows };
+    const hit = trendingShowsCache.get(cacheKey);
+    if (hit && hit.expiresAt > Date.now()) {
+      return hit.payload;
+    }
+    let inflight = trendingShowsInflight.get(cacheKey);
+    if (!inflight) {
+      inflight = computeTrendingShows(ids, userId)
+        .then((shows) => {
+          trendingShowsInflight.delete(cacheKey);
+          const payload: TrendingShowsPayload = { shows };
+          trendingShowsCache.set(cacheKey, {
+            expiresAt: Date.now() + TRENDING_SHOWS_CACHE_TTL_MS,
+            payload,
+          });
+          return payload;
+        })
+        .catch((err) => {
+          trendingShowsInflight.delete(cacheKey);
+          throw err;
+        });
+      trendingShowsInflight.set(cacheKey, inflight);
+    }
+    return await inflight;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     app.log.error(err, "trending-shows failed");
@@ -5538,7 +5593,7 @@ app.post("/api/users/:userId/subscriptions", async (request, reply) => {
     app.log.warn({ err, showId: show.id }, "refreshShowEpisodes after subscribe failed");
   }
   clearAIProfileCache(userId);
-  bustRecommendedShowsCacheForUser(userId);
+  bustAddShowsShelfCachesForUser(userId);
   const showCountAfterAdd = (
     db.prepare(`SELECT COUNT(*) AS c FROM show_subscriptions WHERE user_id = ?`).get(userId) as { c: number }
   ).c;
@@ -5642,7 +5697,7 @@ app.delete("/api/subscriptions/:subscriptionId", async (request, reply) => {
   if (!assertSelfOrAdmin(request, reply, sub.user_id)) return;
   db.prepare(`DELETE FROM show_subscriptions WHERE id = ?`).run(subscriptionId);
   clearAIProfileCache(sub.user_id);
-  bustRecommendedShowsCacheForUser(sub.user_id);
+  bustAddShowsShelfCachesForUser(sub.user_id);
   return { ok: true };
 });
 
@@ -7046,7 +7101,7 @@ app.put("/api/community/episode-ratings", async (request, reply) => {
     rating,
   });
   clearAIProfileCache(uid);
-  bustRecommendedShowsCacheForUser(uid);
+  bustAddShowsShelfCachesForUser(uid);
   insertAnalyticsEvent(request, {
     name: "engagement.rating_submitted",
     sourceScreen: "community",
@@ -7251,7 +7306,7 @@ app.post("/api/community/post-watch-review", async (request, reply) => {
       rating: ratingNum,
     });
     clearAIProfileCache(uid);
-    bustRecommendedShowsCacheForUser(uid);
+    bustAddShowsShelfCachesForUser(uid);
   }
 
   let postFormatted: ReturnType<typeof formatCommunityPost> | null = null;

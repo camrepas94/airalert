@@ -1211,6 +1211,56 @@ export async function computeRecommendedShows(
 
 // ─── Trending shows ──────────────────────────────────────────────────────────
 
+/** Shared TVMaze catalog scan for trending (genre-agnostic); reused across users for ~12 min. */
+const TRENDING_CATALOG_POOL_TTL_MS = 12 * 60 * 1000;
+const TRENDING_CATALOG_PAGE_RANGES: [number, number][] = [
+  [0, 28],
+  [32, 58],
+  [62, 88],
+  [92, 118],
+];
+let trendingCatalogPoolCache: {
+  expiresAt: number;
+  matches: Map<number, { show: TvmazeShowListItem; trendScore: number }>;
+} | null = null;
+let trendingCatalogPoolInflight: Promise<
+  Map<number, { show: TvmazeShowListItem; trendScore: number }>
+> | null = null;
+
+async function getSharedTrendingCatalogPool(): Promise<
+  Map<number, { show: TvmazeShowListItem; trendScore: number }>
+> {
+  const now = Date.now();
+  if (trendingCatalogPoolCache && trendingCatalogPoolCache.expiresAt > now) {
+    return trendingCatalogPoolCache.matches;
+  }
+  if (!trendingCatalogPoolInflight) {
+    trendingCatalogPoolInflight = scanShowsCatalogForTrending(new Map(), new Set(), {
+      pageRanges: TRENDING_CATALOG_PAGE_RANGES,
+      concurrency: 10,
+    })
+      .then((matches) => {
+        trendingCatalogPoolInflight = null;
+        trendingCatalogPoolCache = {
+          expiresAt: Date.now() + TRENDING_CATALOG_POOL_TTL_MS,
+          matches,
+        };
+        return matches;
+      })
+      .catch((err) => {
+        trendingCatalogPoolInflight = null;
+        throw err;
+      });
+  }
+  return trendingCatalogPoolInflight;
+}
+
+/** Bust shared trending catalog (e.g. after deploy); per-user caches live in server.ts. */
+export function clearTrendingCatalogPoolCache(): void {
+  trendingCatalogPoolCache = null;
+  trendingCatalogPoolInflight = null;
+}
+
 /**
  * Up to **25** **streaming** (TVMaze `webChannel`), **running** shows: personalized by genre,
  * network, and show-type overlap with the user's subscriptions, with guardrails against
@@ -1242,20 +1292,14 @@ export async function computeTrendingShows(
     }
   }
 
-  const catalogMatches = await scanShowsCatalogForTrending(userGenreWeights, subSet, {
-    pageRanges: [
-      [0, 45],
-      [48, 100],
-      [115, 185],
-    ],
-    concurrency: 8,
-  });
+  const catalogMatches = await getSharedTrendingCatalogPool();
 
   type ScoredEntry = { show: TvmazeShowListItem; trendScore: number };
   const rescored: ScoredEntry[] = [];
 
   for (const [, entry] of catalogMatches) {
     const show = entry.show;
+    if (subSet.has(show.id)) continue;
     let score = entry.trendScore;
 
     if (

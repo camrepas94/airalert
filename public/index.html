@@ -1406,20 +1406,45 @@
         }
         #tab-community section.panel-rail-cyan.community-root,
         #tab-profile section.panel-rail-cyan.profile-page-root,
-        #tab-shows section.panel-rail-cyan.myshows-page-root,
+        #tab-shows section.panel-rail-blue.myshows-page-root,
         #tab-shows section.panel-rail-magenta.person-follows-section {
           padding: 0;
           margin: 0;
           border: none;
           border-radius: 0;
           box-shadow: none;
+          background: transparent;
         }
         #tab-shows .myshows-page-title,
         #tab-shows .myshows-stats-fold,
         #tab-shows .myshows-tools,
-        #tab-shows .mylist-host,
         #tab-shows .mylist-filter-empty,
-        #tab-shows #subsEmptyState {
+        #tab-shows #subsEmptyState,
+        #tab-shows .mylist-skeleton-host,
+        #tab-shows .person-follows-section .fold-toggle,
+        #tab-shows .person-follows-section .fold-body {
+          padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+          padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+          box-sizing: border-box;
+        }
+        #tab-shows .mylist-host {
+          width: 100%;
+          max-width: none;
+          padding-left: 0;
+          padding-right: 0;
+          box-sizing: border-box;
+        }
+        #tab-shows .mylist-host .mylist-section {
+          width: 100%;
+          max-width: none;
+          margin-left: 0;
+          margin-right: 0;
+          border-radius: 0;
+          border-left: none;
+          border-right: none;
+        }
+        #tab-shows .mylist-host .mylist-section-toggle,
+        #tab-shows .mylist-host .mylist-section-body {
           padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
           padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
           box-sizing: border-box;
@@ -4208,6 +4233,9 @@
         background: rgba(6, 10, 22, 0.72);
         overflow: hidden;
       }
+      #tab-shows .tasks-show-card {
+        background: rgba(6, 10, 22, 0.38);
+      }
       .tasks-show-card--today {
         box-shadow: 0 2px 14px -4px rgba(34, 211, 238, 0.35);
         border-color: rgba(34, 211, 238, 0.28);
@@ -4632,9 +4660,10 @@
       #tab-tasks.tasks-tab--compact .tasks-show-sub--detail {
         display: none;
       }
-      /* My Shows — unified dashboard */
+      /* My Shows — unified dashboard (transparent shell; galaxy shows through like Community) */
       .myshows-page-root {
         padding-bottom: 1.25rem;
+        background: transparent;
       }
       .myshows-page-title {
         margin: 0 0 0.65rem;
@@ -4836,8 +4865,14 @@
       .mylist-section {
         border-radius: 12px;
         border: 1px solid rgba(130, 200, 255, 0.1);
-        background: rgba(4, 8, 18, 0.45);
+        background: rgba(4, 8, 18, 0.22);
         overflow: hidden;
+      }
+      #tab-shows .mylist-host .mylist-section {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        background: rgba(4, 8, 18, 0.18);
       }
       .mylist-section--airing {
         border-color: rgba(34, 211, 238, 0.28);
@@ -7164,6 +7199,70 @@
         box-shadow: none;
         overflow: visible;
         contain: layout;
+      }
+      #tab-shows {
+        position: relative;
+        isolation: isolate;
+      }
+      #tab-shows.tab-panel.active {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        box-sizing: border-box;
+      }
+      #tab-shows .app-shell-mounted {
+        width: 100%;
+        max-width: none;
+      }
+      #tab-shows section.panel-rail-blue.myshows-page-root,
+      #tab-shows section.panel-rail-magenta.person-follows-section {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: none;
+        padding: 0;
+        margin: 0 0 0.5rem;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        box-shadow: none;
+        overflow: visible;
+      }
+      #tab-shows .myshows-page-title,
+      #tab-shows .myshows-stats-fold,
+      #tab-shows .myshows-tools,
+      #tab-shows .mylist-filter-empty,
+      #tab-shows #subsEmptyState,
+      #tab-shows .mylist-skeleton-host,
+      #tab-shows .person-follows-section .fold-toggle,
+      #tab-shows .person-follows-section .fold-body {
+        padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+        padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+        box-sizing: border-box;
+      }
+      #tab-shows .mylist-host {
+        width: 100%;
+        max-width: none;
+        padding-left: 0;
+        padding-right: 0;
+      }
+      #tab-shows .mylist-host .mylist-section {
+        width: 100%;
+        max-width: none;
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+      }
+      #tab-shows .mylist-host .mylist-section-toggle,
+      #tab-shows .mylist-host .mylist-section-body {
+        padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+        padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+        box-sizing: border-box;
       }
       /**
        * Scroll perf (same issue as Community): `backdrop-filter` on many stacked `<section>` panels
@@ -9962,6 +10061,9 @@
         justify-content: center;
         gap: 0.45rem;
         touch-action: manipulation;
+      }
+      .cmp-profile-action-row .aa-btn-gradient[hidden] {
+        display: none !important;
       }
       .profile-follow-list-modal.utility-modal-panel {
         max-width: 22rem;
@@ -15468,8 +15570,9 @@
           try {
             await api("/api/subscriptions/" + encodeURIComponent(sub.id), { method: "DELETE" });
             await loadSubs(userId);
+            aaTrendingClientCache = null;
             loadRecommended(userId, { force: true });
-            loadTrendingShowsDeferred(userId);
+            void loadTrendingShows(userId, { force: true });
           } catch (err) {
             showToast(err.message || "Could not remove");
           }
@@ -15869,11 +15972,28 @@
         }
       }
 
+      let addShowsShelfPrefetchUser = null;
+      let addShowsShelfPrefetchAt = 0;
+
+      function prefetchAddShowsShelves(userId) {
+        if (userId == null) return;
+        void loadStarterPicksRow(userId);
+        void loadRecommended(userId);
+        void loadTrendingShows(userId);
+      }
+
+      function loadAddShowsShelvesDeferred(userId) {
+        if (userId == null) return;
+        const now = Date.now();
+        if (addShowsShelfPrefetchUser === userId && now - addShowsShelfPrefetchAt < 4000) return;
+        addShowsShelfPrefetchUser = userId;
+        addShowsShelfPrefetchAt = now;
+        deferAfterIdle(() => prefetchAddShowsShelves(userId), 120);
+      }
+
       function loadTrendingShowsDeferred(userId) {
         if (userId == null) return;
-        deferAfterIdle(() => {
-          void loadTrendingShows(userId);
-        }, 2200);
+        loadAddShowsShelvesDeferred(userId);
       }
 
       function scheduleCommunityListSecondary() {
@@ -17134,9 +17254,10 @@
         appUserId = id;
         await loadUser(id);
         await loadSubs(id);
-        loadTrendingShowsDeferred(id);
+        aaRecommendedClientCache = null;
+        aaTrendingClientCache = null;
+        loadAddShowsShelvesDeferred(id);
         wireDiscoveryChips(id);
-        loadStarterPicksDeferred(id);
         const rList = document.getElementById("recommendedList");
         if (rList) rList.innerHTML = "";
         if (getActiveTabName() === "shows") await loadSubs(id);
@@ -20561,7 +20682,9 @@
       let recommendedLoadRequestId = 0;
       /** Client-side cache for recommended shelf (avoids duplicate fetches when revisiting Add Shows). */
       const AA_RECOMMENDED_CLIENT_TTL_MS = 50_000;
+      const AA_TRENDING_CLIENT_TTL_MS = 5 * 60 * 1000;
       let aaRecommendedClientCache = null;
+      let aaTrendingClientCache = null;
       let trendingLoadRequestId = 0;
       let starterPicksLoadRequestId = 0;
       let appUserId = null;
@@ -24145,7 +24268,7 @@
         quick.hidden = false;
         if (actionRow) actionRow.classList.toggle("cmp-profile-action-row--self", isSelf);
         if (isSelf) {
-          if (dmBtn) dmBtn.hidden = true;
+          if (dmBtn) dmBtn.remove();
           if (dmHint) dmHint.hidden = true;
           if (followBtn) {
             followBtn.hidden = false;
@@ -24343,19 +24466,21 @@
           quick.id = "communityProfileQuickActions";
           quick.className = "cmp-profile-quick-actions cmp-profile-section";
           const actionRow = document.createElement("div");
-          actionRow.className = "cmp-profile-action-row";
+          actionRow.className = "cmp-profile-action-row" + (isSelf ? " cmp-profile-action-row--self" : "");
           const followBtn = document.createElement("button");
           followBtn.type = "button";
           followBtn.id = "communityProfileFollowBtn";
           followBtn.className = "community-profile-follow-btn aa-btn-gradient";
-          followBtn.textContent = "Follow";
-          const dmBtn = document.createElement("button");
-          dmBtn.type = "button";
-          dmBtn.id = "communityMemberProfileDmBtn";
-          dmBtn.className = "cmp-profile-dm-btn aa-btn-gradient";
-          dmBtn.textContent = "Direct message";
+          followBtn.textContent = isSelf ? "Edit Profile" : "Follow";
           actionRow.appendChild(followBtn);
-          actionRow.appendChild(dmBtn);
+          if (!isSelf) {
+            const dmBtn = document.createElement("button");
+            dmBtn.type = "button";
+            dmBtn.id = "communityMemberProfileDmBtn";
+            dmBtn.className = "cmp-profile-dm-btn aa-btn-gradient";
+            dmBtn.textContent = "Direct message";
+            actionRow.appendChild(dmBtn);
+          }
           quick.appendChild(actionRow);
           inner.appendChild(quick);
 
@@ -24957,9 +25082,7 @@
 
       function loadStarterPicksDeferred(userId) {
         if (userId == null) return;
-        deferAfterIdle(() => {
-          void loadStarterPicksRow(userId);
-        }, 600);
+        loadAddShowsShelvesDeferred(userId);
       }
 
       function appendSearchResultCard(box, s, userId, err, addedFrom) {
@@ -25095,8 +25218,9 @@
           if (subsAfter > subsBefore) {
             showAddedActivationToast(subsAfter);
           }
+          aaTrendingClientCache = null;
           loadRecommended(uid, { force: true });
-          loadTrendingShowsDeferred(uid);
+          void loadTrendingShows(uid, { force: true });
           if (addedFrom === "starter_pack") void loadStarterPicksRow(uid);
           subBtn.textContent = useTrendingStack ? "Added" : "Added";
           subBtn.classList.add("btn-subscribe-inline--done");
@@ -25116,9 +25240,7 @@
 
       function loadRecommendedDeferred(userId) {
         if (userId == null) return;
-        deferAfterIdle(() => {
-          void loadRecommended(userId);
-        }, 1000);
+        loadAddShowsShelvesDeferred(userId);
       }
 
       function rafAppendRecommendedCards(box, shows, userId, errEl, reqId, onDone) {
@@ -25226,7 +25348,8 @@
         }
       }
 
-      async function loadTrendingShows(userId) {
+      async function loadTrendingShows(userId, opts) {
+        const force = !!(opts && opts.force);
         const box = document.getElementById("trendingList");
         const errEl = document.getElementById("trendingErr");
         const loading = document.getElementById("trendingLoading");
@@ -25235,11 +25358,33 @@
         const reqId = ++trendingLoadRequestId;
         errEl.textContent = "";
         errEl.classList.remove("err");
+        if (
+          !force &&
+          aaTrendingClientCache &&
+          aaTrendingClientCache.userId === userId &&
+          Date.now() - aaTrendingClientCache.at < AA_TRENDING_CLIENT_TTL_MS
+        ) {
+          if (loading) loading.hidden = true;
+          if (trendingSec) trendingSec.setAttribute("aria-busy", "true");
+          const shows = aaTrendingClientCache.payload.shows || [];
+          box.innerHTML = "";
+          if (!shows.length) {
+            box.innerHTML =
+              "<p class=\"muted\" style=\"margin:0;font-size:0.88rem\">Subscribe to a few shows first — we’ll match popular titles to your genres.</p>";
+          } else {
+            for (const s of shows) {
+              appendSearchResultCard(box, s, userId, errEl, "trending");
+            }
+          }
+          if (trendingSec) trendingSec.removeAttribute("aria-busy");
+          return;
+        }
         if (loading) loading.hidden = false;
         if (trendingSec) trendingSec.setAttribute("aria-busy", "true");
         renderSearchSkeleton(box, 5);
         try {
           const data = await api("/api/users/" + encodeURIComponent(userId) + "/trending-shows");
+          aaTrendingClientCache = { userId, at: Date.now(), payload: data };
           if (reqId !== trendingLoadRequestId) return;
           const shows = data.shows || [];
           if (!shows.length) {
@@ -26708,10 +26853,7 @@
         if (name === "add") {
           renderRecentChips();
           const id = resolveUserId();
-          if (id) {
-            loadTrendingShowsDeferred(id);
-            loadRecommendedDeferred(id);
-          }
+          if (id) loadAddShowsShelvesDeferred(id);
         }
         if (name === "shows") {
           trackAnalyticsEvent("activation.my_shows_opened", {}, { sourceScreen: "shows", onceKey: "tab:shows" });
@@ -27811,10 +27953,8 @@
           void loadPersonFollows(userId);
           setupPersonFollowSearch(userId);
         }, 2400);
-        loadTrendingShowsDeferred(userId);
+        loadAddShowsShelvesDeferred(userId);
         wireDiscoveryChips(userId);
-        loadStarterPicksDeferred(userId);
-        loadRecommendedDeferred(userId);
         if (getActiveTabName() === "shows") await loadSubs(userId);
         updateContextualTipsVisibility(getActiveTabName());
       }
@@ -27974,10 +28114,8 @@
           void loadPersonFollows(userId);
           setupPersonFollowSearch(userId);
         }, 2400);
-        loadTrendingShowsDeferred(userId);
-        loadRecommendedDeferred(userId);
+        loadAddShowsShelvesDeferred(userId);
         wireDiscoveryChips(userId);
-        loadStarterPicksDeferred(userId);
         renderRecentChips();
         if (getActiveTabName() === "shows") void loadSubs(userId);
         updateContextualTipsVisibility("add");
@@ -29033,7 +29171,9 @@
           }
           await loadUser(id);
           await loadSubs(id);
-          loadTrendingShowsDeferred(id);
+          aaRecommendedClientCache = null;
+          aaTrendingClientCache = null;
+          loadAddShowsShelvesDeferred(id);
           const rListOut = document.getElementById("recommendedList");
           if (rListOut) rListOut.innerHTML = "";
           if (getActiveTabName() === "shows") await loadSubs(id);

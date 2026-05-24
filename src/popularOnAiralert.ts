@@ -209,39 +209,57 @@ export async function computePopularOnAiralert(opts: {
   const ids = top.map((t) => t.id);
   const lastAiredById = await fetchPreviousEpisodeAirdates(ids);
 
+  const subMetaById = new Map<number, { name: string; image: string | null }>();
+  if (ids.length > 0) {
+    const placeholders = ids.map(() => "?").join(",");
+    const metaRows = db
+      .prepare(
+        `SELECT tvmaze_show_id AS id, show_name, show_image_url
+         FROM show_subscriptions
+         WHERE tvmaze_show_id IN (${placeholders})`,
+      )
+      .all(...ids) as { id: number; show_name: string; show_image_url: string | null }[];
+    for (const r of metaRows) {
+      const id = Number(r.id);
+      if (!Number.isInteger(id) || id < 1) continue;
+      const name = r.show_name?.trim() || "";
+      const image = r.show_image_url?.trim() || null;
+      const prev = subMetaById.get(id);
+      if (!prev) {
+        subMetaById.set(id, { name, image });
+        continue;
+      }
+      if (!prev.name && name) prev.name = name;
+      if (!prev.image && image) prev.image = image;
+    }
+  }
+
   const fetched = await Promise.all(
     top.map(async (row) => {
       const id = row.id;
-      let name = "";
+      const cached = subMetaById.get(id);
+      let name = cached?.name?.trim() || "";
       let network: string | null = null;
       let premiered: string | null = null;
-      let image: string | null = null;
+      let image = cached?.image?.trim() || null;
       let genres: string[] = [];
       let summary: string | null = null;
 
-      try {
-        const d = await fetchShow(id);
-        name = d.name?.trim() || "";
-        network = d.network?.name ?? d.webChannel?.name ?? null;
-        premiered = d.premiered ?? null;
-        image = d.image?.medium ?? null;
-        const rawG = d.genres;
-        genres = Array.isArray(rawG)
-          ? rawG.map((x) => String(x)).filter((x) => x.length > 0).slice(0, 6)
-          : [];
-        summary = plainSummaryHtml(d.summary ?? null);
-      } catch {
-        const nameRow = db
-          .prepare(
-            `SELECT show_name, show_image_url
-             FROM show_subscriptions
-             WHERE tvmaze_show_id = ?
-             ORDER BY datetime(created_at) DESC
-             LIMIT 1`,
-          )
-          .get(id) as { show_name: string; show_image_url: string | null } | undefined;
-        name = nameRow?.show_name?.trim() || "Show " + id;
-        image = nameRow?.show_image_url?.trim() || null;
+      if (!(name && image)) {
+        try {
+          const d = await fetchShow(id);
+          name = d.name?.trim() || name || "";
+          network = d.network?.name ?? d.webChannel?.name ?? null;
+          premiered = d.premiered ?? null;
+          image = d.image?.medium ?? image;
+          const rawG = d.genres;
+          genres = Array.isArray(rawG)
+            ? rawG.map((x) => String(x)).filter((x) => x.length > 0).slice(0, 6)
+            : [];
+          summary = plainSummaryHtml(d.summary ?? null);
+        } catch {
+          /* keep subscription cache */
+        }
       }
 
       if (!name) name = "Show " + id;
