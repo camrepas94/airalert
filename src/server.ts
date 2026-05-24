@@ -2692,6 +2692,7 @@ async function buildPublicProfileWatchStats(userId: string): Promise<{
     showName: string;
     nextEpisodeLabel: string;
     nextAirdate: string | null;
+    showImageUrl: string | null;
   }[];
 }> {
   const { episodesCompleted, showsTracked } = getWatchSummaryCounts(userId);
@@ -2733,15 +2734,31 @@ async function buildPublicProfileWatchStats(userId: string): Promise<{
     }
   }
 
-  const currentlyWatching = [...byShow.values()]
+  const watchingSlice = [...byShow.values()]
     .sort((a, b) => cmpAirdateStrings(b.airdate, a.airdate))
-    .slice(0, 8)
-    .map((x) => ({
-      tvmazeShowId: x.tvmazeShowId,
-      showName: x.showName,
-      nextEpisodeLabel: x.episodeLabel,
-      nextAirdate: x.airdate != null && String(x.airdate).trim() ? String(x.airdate).trim() : null,
-    }));
+    .slice(0, 8);
+  const watchingShowIds = watchingSlice.map((x) => x.tvmazeShowId).filter((id) => Number.isInteger(id) && id > 0);
+  const showImageById = new Map<number, string | null>();
+  if (watchingShowIds.length > 0) {
+    const ph = watchingShowIds.map(() => "?").join(", ");
+    const imgRows = db
+      .prepare(
+        `SELECT tvmaze_show_id AS sid, show_image_url AS url
+         FROM show_subscriptions WHERE user_id = ? AND tvmaze_show_id IN (${ph})`,
+      )
+      .all(userId, ...watchingShowIds) as { sid: number; url: string | null }[];
+    for (const row of imgRows) {
+      const url = row.url != null && String(row.url).trim() ? String(row.url).trim() : null;
+      showImageById.set(Number(row.sid), url);
+    }
+  }
+  const currentlyWatching = watchingSlice.map((x) => ({
+    tvmazeShowId: x.tvmazeShowId,
+    showName: x.showName,
+    nextEpisodeLabel: x.episodeLabel,
+    nextAirdate: x.airdate != null && String(x.airdate).trim() ? String(x.airdate).trim() : null,
+    showImageUrl: showImageById.get(x.tvmazeShowId) ?? null,
+  }));
 
   const genreMap = await topGenresForAdminUsers([userId]);
   const topGenres = genreMap.get(userId) ?? [];
@@ -3551,12 +3568,77 @@ app.delete("/api/users/:userId/follow", async (request, reply) => {
 
 app.get("/api/users/:userId/follow-status", async (request, reply) => {
   const viewerId = sessionUserIdFromRequest(request);
-  if (!viewerId) return { following: false, followerCount: 0, followingCount: 0 };
   const { userId } = request.params as { userId: string };
-  const isFollowing = db.prepare(`SELECT 1 FROM user_follows WHERE follower_id = ? AND followed_id = ?`).get(viewerId, userId);
+  const exists = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!exists) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
   const followerCount = (db.prepare(`SELECT COUNT(*) as c FROM user_follows WHERE followed_id = ?`).get(userId) as { c: number }).c;
   const followingCount = (db.prepare(`SELECT COUNT(*) as c FROM user_follows WHERE follower_id = ?`).get(userId) as { c: number }).c;
+  if (!viewerId) {
+    return { following: false, followerCount, followingCount };
+  }
+  const isFollowing = db
+    .prepare(`SELECT 1 FROM user_follows WHERE follower_id = ? AND followed_id = ?`)
+    .get(viewerId, userId);
   return { following: !!isFollowing, followerCount, followingCount };
+});
+
+type FollowListUserRow = {
+  id: string;
+  username: string | null;
+  displayName: string | null;
+  avatarDataUrl: string | null;
+};
+
+function followListUsersForProfile(userId: string, kind: "followers" | "following", limit: number): FollowListUserRow[] {
+  if (kind === "followers") {
+    return db
+      .prepare(
+        `SELECT u.id, u.username, u.display_name AS displayName, u.avatar_data_url AS avatarDataUrl
+         FROM user_follows uf
+         INNER JOIN users u ON u.id = uf.follower_id
+         WHERE uf.followed_id = ?
+         ORDER BY datetime(uf.created_at) DESC
+         LIMIT ?`,
+      )
+      .all(userId, limit) as FollowListUserRow[];
+  }
+  return db
+    .prepare(
+      `SELECT u.id, u.username, u.display_name AS displayName, u.avatar_data_url AS avatarDataUrl
+       FROM user_follows uf
+       INNER JOIN users u ON u.id = uf.followed_id
+       WHERE uf.follower_id = ?
+       ORDER BY datetime(uf.created_at) DESC
+       LIMIT ?`,
+    )
+    .all(userId, limit) as FollowListUserRow[];
+}
+
+app.get("/api/users/:userId/followers", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const exists = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!exists) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const limitRaw = Number((request.query as { limit?: string }).limit);
+  const limit = Number.isFinite(limitRaw) ? Math.min(100, Math.max(1, Math.floor(limitRaw))) : 50;
+  return { users: followListUsersForProfile(userId, "followers", limit) };
+});
+
+app.get("/api/users/:userId/following", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const exists = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!exists) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const limitRaw = Number((request.query as { limit?: string }).limit);
+  const limit = Number.isFinite(limitRaw) ? Math.min(100, Math.max(1, Math.floor(limitRaw))) : 50;
+  return { users: followListUsersForProfile(userId, "following", limit) };
 });
 
 /* ── Google News RSS for top followed shows ────────────── */

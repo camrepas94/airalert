@@ -1972,6 +1972,25 @@
         margin: 0;
         min-width: 0;
       }
+      button.dm-inbox-dm-header-block {
+        border: none;
+        background: transparent;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        text-align: left;
+        padding: 0.15rem 0.35rem 0.15rem 0;
+        border-radius: 10px;
+        touch-action: manipulation;
+        transition: background 0.15s ease;
+      }
+      button.dm-inbox-dm-header-block:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.06);
+      }
+      button.dm-inbox-dm-header-block:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
       .dm-inbox-dm-header-name {
         font-size: 1rem;
         font-weight: 700;
@@ -3786,19 +3805,6 @@
       .aa-btn-gradient:active:not(:disabled) {
         transform: translateY(0) scale(1);
       }
-      .aa-btn-gradient.following {
-        background: linear-gradient(
-          125deg,
-          rgba(34, 211, 238, 0.22) 0%,
-          rgba(168, 85, 247, 0.28) 50%,
-          rgba(236, 72, 153, 0.22) 100%
-        );
-        box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.45), 0 0 20px rgba(168, 85, 247, 0.22);
-        color: #f8fafc;
-      }
-      .aa-btn-gradient.following:hover:not(:disabled) {
-        filter: brightness(1.08);
-      }
       ul {
         list-style: none;
         padding: 0;
@@ -5315,52 +5321,23 @@
       #tab-add section.add-show-shelf-section#starterPicksSection {
         margin-top: 1.05rem;
       }
-      .add-show-shelf-head {
-        margin-bottom: 0.55rem;
-      }
-      .recommended-shelf-title.section-header-highlight {
-        margin-bottom: 0.28rem;
-      }
       .recommended-shelf-sub {
-        margin: 0;
+        margin: 0 0 0.55rem;
         font-size: 0.84rem;
         line-height: 1.45;
-      }
-      .recommended-shelf-teaser {
-        margin: 0 0 0.55rem;
-        font-size: 0.8rem;
-        line-height: 1.45;
-        max-width: 40rem;
       }
       .recommended-shelf-scroll {
         margin-top: 0.15rem;
       }
-      .starter-picks-head {
-        margin-bottom: 0.55rem;
-      }
-      .starter-picks-title.section-header-highlight {
-        margin-bottom: 0.28rem;
-      }
-      .starter-picks-sub {
-        margin: 0;
-        font-size: 0.84rem;
-        line-height: 1.45;
-      }
       .starter-picks-scroll {
         margin-top: 0.15rem;
       }
-      .trending-fold-head {
+      .add-show-shelf-fold-head {
         margin-bottom: 0.3rem;
       }
-      .trending-fold-head .fold-toggle {
+      .add-show-shelf-fold-head .fold-toggle {
         width: 100%;
         margin-bottom: 0;
-      }
-      .trending-fold-teaser {
-        margin: 0 0 0.55rem;
-        font-size: 0.8rem;
-        line-height: 1.45;
-        max-width: 40rem;
       }
       .search-card {
         border: 1px solid rgba(130, 200, 255, 0.14);
@@ -9316,6 +9293,61 @@
         flex-direction: column;
         gap: 0.2rem;
       }
+      .cmp-profile-hero-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.5rem 0.75rem;
+        flex-wrap: wrap;
+      }
+      .cmp-profile-social-stats {
+        display: flex;
+        gap: 0.35rem;
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+      .cmp-profile-stat-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 4.35rem;
+        min-height: 44px;
+        padding: 0.32rem 0.5rem;
+        border-radius: 10px;
+        border: 1px solid rgba(130, 200, 255, 0.22);
+        background: rgba(6, 10, 24, 0.55);
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        touch-action: manipulation;
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 0 20px -8px rgba(34, 211, 238, 0.15);
+        transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+      }
+      .cmp-profile-stat-btn:hover:not(:disabled) {
+        border-color: rgba(34, 211, 238, 0.45);
+        background: rgba(34, 211, 238, 0.1);
+        transform: translateY(-1px);
+        box-shadow: 0 0 18px rgba(34, 211, 238, 0.12);
+      }
+      .cmp-profile-stat-btn:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .cmp-profile-stat-value {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #f8fafc;
+        line-height: 1.15;
+      }
+      .cmp-profile-stat-label {
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: rgba(148, 163, 184, 0.95);
+        margin-top: 0.08rem;
+      }
       .cmp-profile-display-name {
         margin: 0;
         font-size: 1.5rem;
@@ -9323,6 +9355,8 @@
         letter-spacing: -0.02em;
         line-height: 1.2;
         color: #f8fafc;
+        flex: 1 1 auto;
+        min-width: 0;
       }
       .cmp-profile-username {
         margin: 0;
@@ -9353,24 +9387,18 @@
         gap: 0.45rem;
         touch-action: manipulation;
       }
-      .cmp-profile-action-row .aa-btn-gradient svg {
-        width: 1.05rem;
-        height: 1.05rem;
-        flex-shrink: 0;
+      .profile-follow-list-modal.utility-modal-panel {
+        max-width: 22rem;
+        width: min(100%, 22rem);
       }
-      .cmp-profile-follow-counts {
-        margin: 0;
-        font-size: 0.8rem;
-        color: rgba(148, 163, 184, 0.95);
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        flex-wrap: wrap;
+      .profile-follow-list-body {
+        max-height: min(60vh, 22rem);
+        overflow-y: auto;
+        padding: 0.35rem 0.15rem 0.5rem;
       }
-      .cmp-profile-follow-counts svg {
-        width: 0.9rem;
-        height: 0.9rem;
-        opacity: 0.75;
+      .profile-follow-list-body .community-find-friend-row {
+        width: 100%;
+        margin-bottom: 0.35rem;
       }
       .cmp-profile-about-card {
         padding: 1rem;
@@ -11667,7 +11695,7 @@
             <p class="discover-hero__lead">
               Search shows you love to personalize recommendations, tasks, and Community — the more you add, the smarter AirAlert gets.
             </p>
-            <p class="discover-hero__hint muted">Try your comfort show, your current obsession, and one guilty pleasure.</p>
+            <p class="discover-hero__hint muted">Search your comfort show, current obsession, or guilty pleasure</p>
           </header>
           <div id="onboardingMissionStrip" class="onboarding-mission-strip onboarding-mission-strip--embed" hidden>
             <div class="onboarding-mission-strip__top">
@@ -11744,48 +11772,63 @@
           aria-labelledby="starterPicksHeading"
           id="starterPicksSection"
         >
-          <div class="starter-picks-head add-show-shelf-head">
-            <h2 class="section-header-highlight starter-picks-title" id="starterPicksHeading"><span class="app-section-heading">Popular on AirAlert</span></h2>
-            <p class="starter-picks-sub muted" id="starterPicksSub">Shows AirAlert users add — tap to add yours</p>
+          <div class="add-show-shelf-fold-head">
+            <button
+              type="button"
+              class="fold-toggle fold-toggle-cyan"
+              id="foldStarterPicksBtn"
+              aria-expanded="true"
+              aria-controls="foldStarterPicksBody"
+            >
+              <span class="fold-title" id="starterPicksHeading"><span class="app-section-heading">Popular on AirAlert</span></span>
+              <span class="fold-chev" aria-hidden="true">▼</span>
+            </button>
           </div>
-          <div class="trending-scroll-wrap starter-picks-scroll">
-            <div class="trending-scroll search-results" id="starterPicksList"></div>
+          <div class="fold-body" id="foldStarterPicksBody">
+            <p class="msg err" id="starterPicksErr" hidden></p>
+            <div class="trending-scroll-wrap starter-picks-scroll">
+              <div class="trending-scroll search-results" id="starterPicksList"></div>
+            </div>
           </div>
-          <p class="msg err" id="starterPicksErr" hidden></p>
         </section>
 
         <section class="recommended-section panel-rail-magenta add-show-shelf-section" aria-labelledby="recommendedHeading">
-          <div class="recommended-shelf-head add-show-shelf-head">
-            <h2 class="section-header-highlight recommended-shelf-title" id="recommendedHeading"><span class="app-section-heading">Recommended for you</span></h2>
-            <p class="recommended-shelf-sub muted" id="recommendedHint" hidden></p>
+          <div class="add-show-shelf-fold-head">
+            <button
+              type="button"
+              class="fold-toggle fold-toggle-magenta"
+              id="foldRecommendedBtn"
+              aria-expanded="true"
+              aria-controls="foldRecommendedBody"
+            >
+              <span class="fold-title" id="recommendedHeading"><span class="app-section-heading">Recommended for you</span></span>
+              <span class="fold-chev" aria-hidden="true">▼</span>
+            </button>
           </div>
-          <p class="recommended-shelf-teaser muted">
-            Picks scored from your subscribed shows’ genres — add more shows to tune suggestions.
-          </p>
-          <p class="search-loading" id="recommendedLoading" hidden aria-hidden="true">Suggestions</p>
-          <p class="msg err" id="recommendedErr"></p>
-          <div class="trending-scroll-wrap recommended-shelf-scroll">
-            <div class="trending-scroll search-results" id="recommendedList"></div>
+          <div class="fold-body" id="foldRecommendedBody">
+            <p class="recommended-shelf-sub muted" id="recommendedHint" hidden></p>
+            <p class="search-loading" id="recommendedLoading" hidden aria-hidden="true">Suggestions</p>
+            <p class="msg err" id="recommendedErr"></p>
+            <div class="trending-scroll-wrap recommended-shelf-scroll">
+              <div class="trending-scroll search-results" id="recommendedList"></div>
+            </div>
           </div>
         </section>
 
-        <section class="trending-section panel-rail-cyan" aria-labelledby="trendingHeading">
-          <div class="trending-fold-head">
+        <section class="trending-section panel-rail-cyan add-show-shelf-section" aria-labelledby="trendingHeading">
+          <div class="add-show-shelf-fold-head">
             <button
               type="button"
               class="fold-toggle fold-toggle-cyan"
               id="foldTrendingBtn"
-              aria-expanded="false"
+              aria-expanded="true"
               aria-controls="foldTrendingBody"
             >
-              <span class="fold-title" id="trendingHeading"><span class="app-section-heading">Trending fan favorites</span></span>
+              <span class="fold-title" id="trendingHeading"><span class="app-section-heading">Trending Online</span></span>
               <span class="fold-chev" aria-hidden="true">▼</span>
             </button>
           </div>
-          <p class="trending-fold-teaser muted">
-            Popular picks from shows people are adding — expand to browse and add to your list.
-          </p>
-          <div class="fold-body" id="foldTrendingBody" hidden>
+          <div class="fold-body" id="foldTrendingBody">
             <p class="search-loading" id="trendingLoading" hidden aria-hidden="true">Trending</p>
             <p class="msg err" id="trendingErr"></p>
             <div class="trending-scroll-wrap">
@@ -12350,10 +12393,16 @@
                     <path d="M15 6l-6 6 6 6"/>
                   </svg>
                 </button>
-                <div id="dmInboxDmHeaderBlock" class="dm-inbox-dm-header-block" hidden>
+                <button
+                  type="button"
+                  id="dmInboxDmHeaderBlock"
+                  class="dm-inbox-dm-header-block"
+                  hidden
+                  aria-label="View profile"
+                >
                   <div id="dmInboxDmHeaderAvatarHost" aria-hidden="true"></div>
                   <span id="dmInboxDmHeaderName" class="dm-inbox-dm-header-name"></span>
-                </div>
+                </button>
                 <button
                   type="button"
                   id="dmInboxGroupTitleBtn"
@@ -12583,6 +12632,28 @@
             </p>
             <p class="err" id="communityMemberProfileErr" style="display: none; margin-top: 0.5rem"></p>
           </div>
+        </div>
+      </div>
+
+      <div
+        id="profileFollowListModal"
+        class="modal-backdrop utility-modal-backdrop"
+        hidden
+        aria-hidden="true"
+      >
+        <div
+          class="modal-panel utility-modal-panel profile-follow-list-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="profileFollowListHeading"
+        >
+          <div class="utility-modal-head">
+            <div class="utility-modal-head-text">
+              <h3 id="profileFollowListHeading">Followers</h3>
+            </div>
+            <button type="button" class="secondary" id="profileFollowListClose" aria-label="Close">×</button>
+          </div>
+          <div class="modal-body-scroll profile-follow-list-body" id="profileFollowListBody"></div>
         </div>
       </div>
 
@@ -17694,7 +17765,10 @@
         setDmChatHeaderMode(false);
         const dmBlock = document.getElementById("dmInboxDmHeaderBlock");
         const avatarHost = document.getElementById("dmInboxDmHeaderAvatarHost");
-        if (dmBlock) dmBlock.hidden = false;
+        if (dmBlock) {
+          dmBlock.hidden = false;
+          dmBlock.disabled = true;
+        }
         if (avatarHost) avatarHost.innerHTML = "";
         if (headerName) headerName.textContent = titleLabel || "Chat";
         if (host) host.classList.remove("dm-inbox-messages--group");
@@ -17714,6 +17788,11 @@
             } else {
               headerName.textContent = titleLabel || "Chat";
             }
+          }
+          if (dmBlock) {
+            const profileLab = headerName ? headerName.textContent : titleLabel || "member";
+            dmBlock.setAttribute("aria-label", "View profile of " + profileLab);
+            dmBlock.disabled = !dmInboxActivePeerUserId;
           }
           if (avatarHost && dmInboxActivePeerUserId) {
             avatarHost.innerHTML = "";
@@ -22963,18 +23042,141 @@
         return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>';
       }
 
+      function cmpProfileWatchingPosterImg(url) {
+        const img = document.createElement("img");
+        img.alt = "";
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.src = url;
+        return img;
+      }
+
+      function cmpProfileSetSocialStats(followerCount, followingCount) {
+        const fc = document.getElementById("communityProfileFollowerCount");
+        const fg = document.getElementById("communityProfileFollowingCount");
+        if (fc) fc.textContent = String(Number(followerCount) || 0);
+        if (fg) fg.textContent = String(Number(followingCount) || 0);
+      }
+
+      function cmpProfileRenderFollowUserList(container, users) {
+        if (!container) return;
+        container.innerHTML = "";
+        if (!users || !users.length) return;
+        for (const u of users) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "community-find-friend-row";
+          const un = u.username && String(u.username).trim() ? "@" + String(u.username).trim() : "—";
+          const dn = u.displayName && String(u.displayName).trim() ? String(u.displayName).trim() : "";
+          btn.innerHTML =
+            "<span class=\"community-find-friend-row-main\">" +
+            "<span class=\"community-find-friend-row-user\">" +
+            escapeHtml(un) +
+            "</span>" +
+            (dn ? "<span class=\"community-find-friend-row-dn\">" + escapeHtml(dn) + "</span>" : "") +
+            "</span>";
+          btn.addEventListener("click", () => {
+            closeProfileFollowListModal();
+            void openCommunityMemberProfile(u.id);
+          });
+          container.appendChild(btn);
+        }
+      }
+
+      function closeProfileFollowListModal() {
+        const modal = document.getElementById("profileFollowListModal");
+        if (!modal) return;
+        modal.classList.remove("open");
+        modal.hidden = true;
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      async function openProfileFollowListModal(profileUserId, kind) {
+        const modal = document.getElementById("profileFollowListModal");
+        const heading = document.getElementById("profileFollowListHeading");
+        const body = document.getElementById("profileFollowListBody");
+        if (!modal || !heading || !body || !profileUserId) return;
+        closeHeaderMenus();
+        heading.textContent = kind === "following" ? "Following" : "Followers";
+        body.innerHTML = "<p class=\"community-find-friend-status\">Loading…</p>";
+        modal.hidden = false;
+        modal.setAttribute("aria-hidden", "false");
+        modal.classList.add("open");
+        try {
+          const path =
+            kind === "following"
+              ? "/api/users/" + encodeURIComponent(profileUserId) + "/following"
+              : "/api/users/" + encodeURIComponent(profileUserId) + "/followers";
+          const data = await api(path);
+          body.innerHTML = "";
+          const users = data.users || [];
+          if (!users.length) {
+            const p = document.createElement("p");
+            p.className = "community-find-friend-status";
+            p.textContent = kind === "following" ? "Not following anyone yet." : "No followers yet.";
+            body.appendChild(p);
+            return;
+          }
+          cmpProfileRenderFollowUserList(body, users);
+        } catch (e) {
+          body.innerHTML = "";
+          const p = document.createElement("p");
+          p.className = "msg err";
+          p.textContent = e.message || "Could not load list";
+          body.appendChild(p);
+        }
+      }
+
+      async function wireCmpProfileSocialStats(userId) {
+        if (!userId) return;
+        try {
+          const fs = await api("/api/users/" + encodeURIComponent(userId) + "/follow-status");
+          cmpProfileSetSocialStats(fs.followerCount, fs.followingCount);
+        } catch {
+          cmpProfileSetSocialStats(0, 0);
+        }
+      }
+
+      function cmpProfileHydrateWatchingPosters(host) {
+        if (!host || !host.isConnected) return;
+        host.querySelectorAll(".cmp-profile-watching-tile-ph").forEach((ph) => {
+          const cached = ph.dataset.posterUrl;
+          if (cached && /^https?:\/\//i.test(cached)) {
+            ph.replaceWith(cmpProfileWatchingPosterImg(cached));
+            return;
+          }
+          const sid = Number(ph.dataset.posterSid);
+          if (!Number.isFinite(sid) || sid < 1) return;
+          void fetchTvmazeShowImageUrl(sid).then((url) => {
+            if (!url || !ph.isConnected) return;
+            ph.replaceWith(cmpProfileWatchingPosterImg(url));
+          });
+        });
+      }
+
       async function wireCmpProfileQuickActions(userId, label, selfId) {
         const followBtn = document.getElementById("communityProfileFollowBtn");
-        const followCounts = document.getElementById("communityProfileFollowCounts");
         const dmBtn = document.getElementById("communityMemberProfileDmBtn");
         const dmHint = document.getElementById("profilePageMemberDmHint");
         const quick = document.getElementById("communityProfileQuickActions");
         if (!quick) return;
-        if (userId === selfId || !selfId) {
+        const isSelf = Boolean(selfId && userId === selfId);
+        if (!selfId && !isSelf) {
           quick.hidden = true;
           return;
         }
         quick.hidden = false;
+        if (isSelf) {
+          if (dmBtn) dmBtn.hidden = true;
+          if (dmHint) dmHint.hidden = true;
+          if (followBtn) {
+            followBtn.hidden = false;
+            followBtn.textContent = "Edit Profile";
+            followBtn.classList.remove("following");
+            followBtn.onclick = () => openAppProfileModal();
+          }
+          return;
+        }
         if (dmBtn && dmHint) {
           if (accountKind(sessionMeSnapshot) === "guest") {
             dmBtn.hidden = true;
@@ -22999,61 +23201,32 @@
             };
           }
         }
-        if (!followBtn || !followCounts) return;
+        if (!followBtn) return;
         if (!accountIsRegistered(sessionMeSnapshot) || !hasFullSocialUiAccess(sessionMeSnapshot)) {
           followBtn.hidden = true;
-          try {
-            const fs = await api("/api/users/" + encodeURIComponent(userId) + "/follow-status");
-            followCounts.textContent =
-              (fs.followerCount || 0) +
-              " follower" +
-              (fs.followerCount === 1 ? "" : "s") +
-              " \u00b7 " +
-              (fs.followingCount || 0) +
-              " following";
-          } catch {
-            followCounts.textContent = "";
-          }
           return;
         }
         followBtn.hidden = false;
         try {
           const fs = await api("/api/users/" + encodeURIComponent(userId) + "/follow-status");
-          followBtn.innerHTML =
-            cmpProfileIconUserPlus() + "<span>" + (fs.following ? "Following" : "Follow") + "</span>";
+          cmpProfileSetSocialStats(fs.followerCount, fs.followingCount);
+          followBtn.textContent = fs.following ? "Following" : "Follow";
           followBtn.classList.toggle("following", !!fs.following);
-          followCounts.innerHTML =
-            cmpProfileIconUserPlus() +
-            "<span>" +
-            (fs.followerCount || 0) +
-            " follower" +
-            (fs.followerCount === 1 ? "" : "s") +
-            " \u00b7 " +
-            (fs.followingCount || 0) +
-            " following</span>";
           followBtn.onclick = async () => {
             const isFollowing = followBtn.classList.contains("following");
             try {
               if (isFollowing) {
                 await api("/api/users/" + encodeURIComponent(userId) + "/follow", { method: "DELETE" });
-                followBtn.innerHTML = cmpProfileIconUserPlus() + "<span>Follow</span>";
+                followBtn.textContent = "Follow";
                 followBtn.classList.remove("following");
                 fs.followerCount = Math.max(0, (fs.followerCount || 0) - 1);
               } else {
                 await api("/api/users/" + encodeURIComponent(userId) + "/follow", { method: "POST", body: "{}" });
-                followBtn.innerHTML = cmpProfileIconUserPlus() + "<span>Following</span>";
+                followBtn.textContent = "Following";
                 followBtn.classList.add("following");
                 fs.followerCount = (fs.followerCount || 0) + 1;
               }
-              followCounts.innerHTML =
-                cmpProfileIconUserPlus() +
-                "<span>" +
-                fs.followerCount +
-                " follower" +
-                (fs.followerCount === 1 ? "" : "s") +
-                " \u00b7 " +
-                (fs.followingCount || 0) +
-                " following</span>";
+              cmpProfileSetSocialStats(fs.followerCount, fs.followingCount);
             } catch (e) {
               showToast(e.message || "Could not update follow");
             }
@@ -23087,7 +23260,14 @@
           const d = await api("/api/community/users/" + encodeURIComponent(userId) + "/profile");
           const label = communityAuthorLabelFromPublicProfile(d);
           const selfId = sessionMeSnapshot && sessionMeSnapshot.id;
-          if (heading) heading.textContent = label === "Member" ? "Member profile" : label + "'s profile";
+          if (heading) {
+            heading.textContent =
+              selfId && userId === selfId
+                ? "Your profile"
+                : label === "Member"
+                  ? "Member profile"
+                  : label + "'s profile";
+          }
 
           const inner = document.createElement("div");
           inner.className = "community-member-profile-inner";
@@ -23126,10 +23306,37 @@
           hero.appendChild(memberAvatarOuter);
           const heroText = document.createElement("div");
           heroText.className = "cmp-profile-hero-text";
+          const heroTop = document.createElement("div");
+          heroTop.className = "cmp-profile-hero-top";
           const hName = document.createElement("h2");
           hName.className = "cmp-profile-display-name";
           hName.textContent = label;
-          heroText.appendChild(hName);
+          heroTop.appendChild(hName);
+          const statsWrap = document.createElement("div");
+          statsWrap.className = "cmp-profile-social-stats";
+          statsWrap.id = "communityProfileSocialStats";
+          const followersBtn = document.createElement("button");
+          followersBtn.type = "button";
+          followersBtn.className = "cmp-profile-stat-btn";
+          followersBtn.id = "communityProfileFollowersBtn";
+          followersBtn.setAttribute("aria-label", "View followers");
+          followersBtn.innerHTML =
+            '<span class="cmp-profile-stat-value" id="communityProfileFollowerCount">0</span>' +
+            '<span class="cmp-profile-stat-label">Followers</span>';
+          followersBtn.addEventListener("click", () => void openProfileFollowListModal(userId, "followers"));
+          const followingBtn = document.createElement("button");
+          followingBtn.type = "button";
+          followingBtn.className = "cmp-profile-stat-btn";
+          followingBtn.id = "communityProfileFollowingBtn";
+          followingBtn.setAttribute("aria-label", "View following");
+          followingBtn.innerHTML =
+            '<span class="cmp-profile-stat-value" id="communityProfileFollowingCount">0</span>' +
+            '<span class="cmp-profile-stat-label">Following</span>';
+          followingBtn.addEventListener("click", () => void openProfileFollowListModal(userId, "following"));
+          statsWrap.appendChild(followersBtn);
+          statsWrap.appendChild(followingBtn);
+          heroTop.appendChild(statsWrap);
+          heroText.appendChild(heroTop);
           const uname = d.username && String(d.username).trim();
           if (uname) {
             const hUser = document.createElement("p");
@@ -23153,19 +23360,15 @@
           followBtn.type = "button";
           followBtn.id = "communityProfileFollowBtn";
           followBtn.className = "community-profile-follow-btn aa-btn-gradient";
-          followBtn.innerHTML = cmpProfileIconUserPlus() + "<span>Follow</span>";
+          followBtn.textContent = "Follow";
           const dmBtn = document.createElement("button");
           dmBtn.type = "button";
           dmBtn.id = "communityMemberProfileDmBtn";
           dmBtn.className = "cmp-profile-dm-btn aa-btn-gradient";
-          dmBtn.innerHTML = cmpProfileIconMail() + "<span>Direct message</span>";
+          dmBtn.textContent = "Direct message";
           actionRow.appendChild(followBtn);
           actionRow.appendChild(dmBtn);
           quick.appendChild(actionRow);
-          const followCounts = document.createElement("p");
-          followCounts.id = "communityProfileFollowCounts";
-          followCounts.className = "cmp-profile-follow-counts";
-          quick.appendChild(followCounts);
           inner.appendChild(quick);
 
           const aboutSec = document.createElement("section");
@@ -23396,18 +23599,16 @@
                 const ph = document.createElement("div");
                 ph.className = "cmp-profile-watching-tile-ph";
                 ph.textContent = showName.charAt(0).toUpperCase();
-                tile.appendChild(ph);
-                if (it.tvmazeShowId) {
-                  void fetchTvmazeShowImageUrl(it.tvmazeShowId).then((url) => {
-                    if (!url || !tile.isConnected) return;
-                    const img = document.createElement("img");
-                    img.alt = "";
-                    img.loading = "lazy";
-                    img.decoding = "async";
-                    img.src = url;
-                    ph.replaceWith(img);
-                  });
+                const posterUrl =
+                  it.showImageUrl != null && String(it.showImageUrl).trim()
+                    ? String(it.showImageUrl).trim()
+                    : "";
+                if (posterUrl && /^https?:\/\//i.test(posterUrl)) {
+                  ph.dataset.posterUrl = posterUrl;
+                } else if (it.tvmazeShowId) {
+                  ph.dataset.posterSid = String(it.tvmazeShowId);
                 }
+                tile.appendChild(ph);
                 const overlay = document.createElement("div");
                 overlay.className = "cmp-profile-watching-overlay";
                 const t = document.createElement("span");
@@ -23427,6 +23628,7 @@
                 grid.appendChild(tile);
               }
               watchHost.appendChild(grid);
+              cmpProfileHydrateWatchingPosters(watchHost);
               if (shelf.length > WATCHING_INITIAL) {
                 const expandBtn = document.createElement("button");
                 expandBtn.type = "button";
@@ -23514,7 +23716,9 @@
 
           body.innerHTML = "";
           body.appendChild(inner);
+          cmpProfileHydrateWatchingPosters(watchHost);
           tab.dataset.profileLabel = label;
+          await wireCmpProfileSocialStats(userId);
           await wireCmpProfileQuickActions(userId, label, selfId);
         } catch (e) {
           body.innerHTML = "";
@@ -23714,7 +23918,6 @@
       async function loadStarterPicksRow(userId) {
         const box = document.getElementById("starterPicksList");
         const errEl = document.getElementById("starterPicksErr");
-        const subEl = document.getElementById("starterPicksSub");
         if (!box || !errEl) return;
         const reqId = ++starterPicksLoadRequestId;
         errEl.textContent = "";
@@ -23729,15 +23932,6 @@
           if (reqId !== starterPicksLoadRequestId) return;
           const merged = data.shows || [];
           const shelfState = data.shelfState || "ok";
-          if (subEl) {
-            if (shelfState === "early") {
-              subEl.textContent = "Growing on AirAlert — popular with early users · tap to add";
-            } else if (shelfState === "empty") {
-              subEl.textContent = "When people start adding shows, favorites appear here";
-            } else {
-              subEl.textContent = "Top-rated by AirAlert users — adoption breaks ties · tap to add";
-            }
-          }
           box.innerHTML = "";
           if (!merged.length) {
             errEl.textContent =
@@ -25453,6 +25647,11 @@
         wireDmInboxSendAndInput();
         document.getElementById("dmInboxBackBtn")?.addEventListener("click", () => {
           void goBackToDmInboxListFromThread();
+        });
+        document.getElementById("dmInboxDmHeaderBlock")?.addEventListener("click", () => {
+          const peerId = dmInboxActivePeerUserId;
+          if (!peerId) return;
+          void openCommunityMemberProfile(peerId);
         });
         syncDmInboxComposeFab();
       }
@@ -27685,7 +27884,8 @@
           } else if (action === "log-in") {
             openAccountPromptLoginModal({ entryPoint: "account_menu" });
           } else if (action === "your-profile") {
-            openAppProfileModal();
+            const uid = resolveUserId();
+            if (uid) void openCommunityMemberProfile(uid);
           } else if (action === "search-username") {
             openProfilePageSearch();
           } else if (action === "sign-out") {
@@ -27699,6 +27899,10 @@
         document.getElementById("appProfileClose")?.addEventListener("click", () => closeAppProfileModal());
         document.getElementById("appProfileModal")?.addEventListener("click", (e) => {
           if (e.target.id === "appProfileModal") closeAppProfileModal();
+        });
+        document.getElementById("profileFollowListClose")?.addEventListener("click", () => closeProfileFollowListModal());
+        document.getElementById("profileFollowListModal")?.addEventListener("click", (e) => {
+          if (e.target.id === "profileFollowListModal") closeProfileFollowListModal();
         });
         document.getElementById("legalDocumentClose")?.addEventListener("click", () => closeLegalDocumentModal());
         document.getElementById("legalDocumentModal")?.addEventListener("click", (e) => {
