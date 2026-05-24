@@ -9,7 +9,10 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "node --test test/admin-gate.mjs && tsx --test test/breakingNewsDedupe.test.ts",
-    "logo:transparent": "node scripts/make-logo-transparent.mjs"
+    "logo:transparent": "node scripts/make-logo-transparent.mjs",
+    "icons:extract": "node scripts/extract-tv-from-logo.mjs",
+    "icons:render": "node scripts/render-app-icons.mjs",
+    "icons:build": "node scripts/extract-tv-from-logo.mjs && node scripts/render-app-icons.mjs"
   },
   "engines": {
     "node": ">=20"

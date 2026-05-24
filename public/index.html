@@ -29,9 +29,15 @@
       })();
     </script>
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="AirAlert" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="AirAlert" />
     <meta name="theme-color" content="#03051a" />
-    <link rel="icon" href="/app-icon.png" type="image/png" />
-    <link rel="apple-touch-icon" href="/app-icon.png" />
+    <link rel="icon" href="/app-icon-192.png?v=2" sizes="192x192" type="image/png" />
+    <link rel="icon" href="/app-icon-512.png?v=2" sizes="512x512" type="image/png" />
+    <link rel="apple-touch-icon" href="/app-icon-180.png?v=2" sizes="180x180" />
+    <link rel="apple-touch-icon" href="/app-icon-192.png?v=2" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/app-icon-512.png?v=2" sizes="512x512" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="stylesheet" href="/legal/legal-doc-prose.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1341,7 +1347,7 @@
         margin: 0;
       }
       /**
-       * Inbox + Community are edge-to-edge on phones. `main` max-width + horizontal padding
+       * Inbox, Community, My Shows, My week, etc.: edge-to-edge on phones. `main` max-width + horizontal padding
        * + overflow-x:hidden were clipping content and cutting off rails / FABs.
        */
       @media (max-width: 767px) {
@@ -1350,6 +1356,7 @@
         main:has(#tab-profile.tab-panel.active),
         main:has(#tab-add.tab-panel.active),
         main:has(#tab-shows.tab-panel.active),
+        main:has(#tab-guide.tab-panel.active),
         main:has(#tab-admin.tab-panel.active) {
           max-width: none;
           width: 100%;
@@ -1361,6 +1368,7 @@
         main:has(#tab-profile.tab-panel.active) .app-top,
         main:has(#tab-add.tab-panel.active) .app-top,
         main:has(#tab-shows.tab-panel.active) .app-top,
+        main:has(#tab-guide.tab-panel.active) .app-top,
         main:has(#tab-admin.tab-panel.active) .app-top {
           margin-left: 0;
           margin-right: 0;
@@ -1372,6 +1380,7 @@
         main:has(#tab-profile.tab-panel.active) .app-top::after,
         main:has(#tab-add.tab-panel.active) .app-top::after,
         main:has(#tab-shows.tab-panel.active) .app-top::after,
+        main:has(#tab-guide.tab-panel.active) .app-top::after,
         main:has(#tab-admin.tab-panel.active) .app-top::after {
           margin-left: calc(-1 * max(1.1rem, env(safe-area-inset-left, 0px)));
           margin-right: calc(-1 * max(1.1rem, env(safe-area-inset-right, 0px)));
@@ -1381,6 +1390,7 @@
         main:has(#tab-profile.tab-panel.active) .tab-nav,
         main:has(#tab-add.tab-panel.active) .tab-nav,
         main:has(#tab-shows.tab-panel.active) .tab-nav,
+        main:has(#tab-guide.tab-panel.active) .tab-nav,
         main:has(#tab-admin.tab-panel.active) .tab-nav {
           padding-left: max(1.1rem, env(safe-area-inset-left, 0px));
           padding-right: max(1.1rem, env(safe-area-inset-right, 0px));
@@ -1389,6 +1399,7 @@
         }
         main:has(#tab-add.tab-panel.active) .tab-rail,
         main:has(#tab-shows.tab-panel.active) .tab-rail,
+        main:has(#tab-guide.tab-panel.active) .tab-rail,
         main:has(#tab-community.tab-panel.active) .tab-rail,
         main:has(#tab-admin.tab-panel.active) .tab-rail {
           width: 100%;
@@ -1399,6 +1410,7 @@
         #tab-profile.tab-panel.active,
         #tab-add.tab-panel.active,
         #tab-shows.tab-panel.active,
+        #tab-guide.tab-panel.active,
         #tab-admin.tab-panel.active {
           width: 100%;
           max-width: none;
@@ -1407,7 +1419,8 @@
         #tab-community section.panel-rail-cyan.community-root,
         #tab-profile section.panel-rail-cyan.profile-page-root,
         #tab-shows section.panel-rail-blue.myshows-page-root,
-        #tab-shows section.panel-rail-magenta.person-follows-section {
+        #tab-shows section.panel-rail-magenta.person-follows-section,
+        #tab-guide section.panel-rail-guide {
           padding: 0;
           margin: 0;
           border: none;
@@ -1445,6 +1458,14 @@
         }
         #tab-shows .mylist-host .mylist-section-toggle,
         #tab-shows .mylist-host .mylist-section-body {
+          padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+          padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+          box-sizing: border-box;
+        }
+        #tab-guide .week-guide-head,
+        #tab-guide .week-guide-empty-banner,
+        #tab-guide #weekGuideErr,
+        #tab-guide .week-guide-grid {
           padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
           padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
           box-sizing: border-box;
@@ -7264,6 +7285,44 @@
         padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
         box-sizing: border-box;
       }
+      #tab-guide {
+        position: relative;
+        isolation: isolate;
+      }
+      #tab-guide.tab-panel.active {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        box-sizing: border-box;
+      }
+      #tab-guide .app-shell-mounted {
+        width: 100%;
+        max-width: none;
+      }
+      #tab-guide section.panel-rail-guide {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: none;
+        padding: 0;
+        margin: 0 0 0.5rem;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        box-shadow: none;
+        overflow: visible;
+      }
+      #tab-guide .week-guide-head,
+      #tab-guide .week-guide-empty-banner,
+      #tab-guide #weekGuideErr,
+      #tab-guide .week-guide-grid {
+        padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+        padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+        box-sizing: border-box;
+      }
       /**
        * Scroll perf (same issue as Community): `backdrop-filter` on many stacked `<section>` panels
        * forces expensive recomposites while `.main-scroll` moves. Use opaque fills here instead.
@@ -12086,9 +12145,9 @@
             <h1 class="brand-heading">
               <img
                 class="brand-logo"
-                src="/logo.png?v=aa-header-1"
-                width="1916"
-                height="821"
+                src="/brand-icon.svg?v=aa-tv-5"
+                width="1024"
+                height="1024"
                 alt="AirAlert"
                 decoding="async"
               />

@@ -9088,6 +9088,27 @@ app.get("/logo.svg", async (_req, reply) => reply.redirect("/logo.png", 302));
 app.get("/app-icon.png", async (_req, reply) =>
   sendPublicBinaryFile(reply, "app-icon.png", "image/png", "public, max-age=86400"),
 );
+app.get("/app-icon-180.png", async (_req, reply) =>
+  sendPublicBinaryFile(reply, "app-icon-180.png", "image/png", "public, max-age=86400"),
+);
+app.get("/app-icon-192.png", async (_req, reply) =>
+  sendPublicBinaryFile(reply, "app-icon-192.png", "image/png", "public, max-age=86400"),
+);
+app.get("/app-icon-512.png", async (_req, reply) =>
+  sendPublicBinaryFile(reply, "app-icon-512.png", "image/png", "public, max-age=86400"),
+);
+app.get("/app-icon-1024.png", async (_req, reply) =>
+  sendPublicBinaryFile(reply, "app-icon-1024.png", "image/png", "public, max-age=86400"),
+);
+app.get("/brand-icon.svg", async (_req, reply) =>
+  sendPublicUtf8File(reply, "brand-icon.svg", "image/svg+xml", "public, max-age=86400"),
+);
+app.get("/brand-tv-from-logo.png", async (_req, reply) =>
+  sendPublicBinaryFile(reply, "brand-tv-from-logo.png", "image/png", "public, max-age=86400"),
+);
+app.get("/brand-icon-bg.svg", async (_req, reply) =>
+  sendPublicUtf8File(reply, "brand-icon-bg.svg", "image/svg+xml", "public, max-age=86400"),
+);
 app.get("/app-icon.svg", async (_req, reply) => reply.redirect("/app-icon.png", 302));
 
 app.get("/galaxy-inspiration-bg.png", async (_req, reply) => {
