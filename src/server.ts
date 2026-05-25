@@ -9141,6 +9141,9 @@ app.get("/support.html", async (_req, reply) =>
   sendPublicUtf8File(reply, "support.html", "text/html", "no-store, max-age=0"),
 );
 /** Help center guides (linked from `support.html`; explicit routes — no generic static middleware). */
+app.get("/social-hub.css", async (_req, reply) =>
+  sendPublicUtf8File(reply, "social-hub.css", "text/css", "public, max-age=300"),
+);
 app.get("/guides.css", async (_req, reply) =>
   sendPublicUtf8File(reply, "guides.css", "text/css", "public, max-age=300"),
 );

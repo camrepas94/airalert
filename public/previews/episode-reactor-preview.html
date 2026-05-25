@@ -1,0 +1,2336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Social Features — Design Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0a0f;
+      --card: #0a0a0f;
+      --text: #f4f7fc;
+      --muted: #8a9bb8;
+      --cyan: #22d3ee;
+      --purple: #a855f7;
+      --magenta: #e879f9;
+      --blue: #5b9cff;
+      --border: rgba(130, 200, 255, 0.14);
+      --gradient-border: linear-gradient(135deg, rgba(34, 211, 238, 0.55), rgba(168, 85, 247, 0.45));
+      --font: "Inter", system-ui, sans-serif;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font);
+      background: #050508;
+      color: var(--text);
+      min-height: 100%;
+    }
+
+    /* Preview chrome — not part of final app */
+    .preview-banner {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.45rem 0.75rem;
+      background: linear-gradient(90deg, rgba(168, 85, 247, 0.35), rgba(34, 211, 238, 0.25));
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .preview-banner span { opacity: 0.92; }
+    .preview-state-btns {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .preview-state-btns button {
+      font: inherit;
+      font-size: 0.62rem;
+      font-weight: 600;
+      padding: 0.2rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      cursor: pointer;
+    }
+    .preview-state-btns button.active {
+      border-color: var(--cyan);
+      background: rgba(34, 211, 238, 0.15);
+    }
+
+    .app-frame {
+      max-width: 430px;
+      margin: 0 auto;
+      height: calc(100vh - 1.85rem);
+      display: flex;
+      flex-direction: column;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 0%, rgba(168, 85, 247, 0.12), transparent 55%),
+        radial-gradient(ellipse 70% 45% at 90% 15%, rgba(34, 211, 238, 0.1), transparent 50%),
+        var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Top-level social navigation */
+    .social-top-nav {
+      display: flex;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(5, 5, 8, 0.96);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .social-nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
+      padding: 0.55rem 0.2rem 0.5rem;
+      border: none;
+      background: none;
+      color: #6b7a94;
+      font: inherit;
+      font-size: 0.58rem;
+      font-weight: 650;
+      line-height: 1.15;
+      cursor: pointer;
+      position: relative;
+      text-align: center;
+      transition: color 0.2s;
+      min-width: 0;
+    }
+    .social-nav-item.active { color: var(--cyan); }
+    .social-nav-item.active[data-section="watch"] { color: #ff6b7a; }
+    .social-nav-item.active[data-section="watch"]::after { background: #ff4757; box-shadow: 0 0 12px rgba(255, 71, 87, 0.55); }
+    .social-nav-item.active[data-section="diary"] { color: var(--magenta); }
+    .social-nav-item.active[data-section="diary"]::after { background: var(--magenta); box-shadow: 0 0 12px rgba(232, 121, 249, 0.45); }
+    .social-nav-item.active[data-section="news"] { color: #fbbf24; }
+    .social-nav-item.active[data-section="news"]::after { background: #fbbf24; box-shadow: 0 0 12px rgba(251, 191, 36, 0.45); }
+    .social-nav-item::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 12%;
+      right: 12%;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: transparent;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .social-nav-item.active::after {
+      background: var(--cyan);
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.55);
+    }
+    .social-nav-icon {
+      font-size: 1rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .social-nav-label {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* AirAlert app chrome — Community tab replacement context */
+    .aa-app-chrome {
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(130, 200, 255, 0.12);
+      background: rgba(5, 5, 8, 0.98);
+    }
+    .aa-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.45rem 0.75rem 0.35rem;
+    }
+    .aa-logo {
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      background: linear-gradient(105deg, #b8e8ff, var(--cyan) 40%, var(--magenta));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .aa-header-icons {
+      display: flex;
+      gap: 0.35rem;
+      font-size: 0.72rem;
+      opacity: 0.85;
+    }
+    .aa-header-icons span {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      border: 1px solid rgba(130, 200, 255, 0.15);
+      background: rgba(6, 10, 24, 0.55);
+    }
+    .aa-main-tabs {
+      display: flex;
+      gap: 0.25rem;
+      padding: 0 0.65rem 0.45rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .aa-main-tabs::-webkit-scrollbar { display: none; }
+    .aa-main-tab {
+      flex-shrink: 0;
+      padding: 0.38rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      font-weight: 650;
+      color: var(--muted);
+      border: 1px solid transparent;
+      background: transparent;
+      white-space: nowrap;
+    }
+    .aa-main-tab.active {
+      color: #fff;
+      border-color: rgba(34, 211, 238, 0.35);
+      background: rgba(34, 211, 238, 0.12);
+      box-shadow: 0 0 16px -6px rgba(34, 211, 238, 0.35);
+    }
+    .aa-chrome-note {
+      margin: 0;
+      padding: 0.35rem 0.75rem 0.45rem;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(251, 191, 36, 0.85);
+      border-top: 1px dashed rgba(251, 191, 36, 0.2);
+      background: rgba(251, 191, 36, 0.04);
+    }
+
+    /* Breaking News — gossip digest */
+    .community-replace-banner {
+      margin: 0.45rem 0 0.55rem;
+      padding: 0.45rem 0.65rem;
+      border-radius: 10px;
+      border: 1px solid rgba(251, 191, 36, 0.2);
+      background: rgba(251, 191, 36, 0.05);
+      font-size: 0.68rem;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+    .community-replace-banner strong { color: #fbbf24; }
+    .gossip-page-head {
+      margin: 0.25rem 0 0.65rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .gossip-page-head h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      background: linear-gradient(105deg, #fde68a, #fbbf24 45%, #f97316);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .gossip-page-head p {
+      margin: 0;
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-align: right;
+      line-height: 1.35;
+    }
+    .gossip-hero {
+      display: block;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      min-height: 200px;
+      margin-bottom: 0.75rem;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 24px -8px rgba(251, 191, 36, 0.2);
+      text-decoration: none;
+      color: inherit;
+    }
+    .gossip-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+    }
+    .gossip-hero-scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(2,3,10,0.55) 45%, rgba(2,3,10,0.96) 100%);
+    }
+    .gossip-hero-body {
+      position: relative;
+      z-index: 1;
+      padding: 1rem 0.85rem 0.85rem;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .gossip-hero-chip {
+      align-self: flex-start;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      background: rgba(255, 71, 87, 0.85);
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.45rem;
+      animation: livePulse 1.4s ease-in-out infinite;
+    }
+    .gossip-hero-show {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 0.25rem;
+    }
+    .gossip-hero-title {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+      line-height: 1.25;
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+    .gossip-hero-meta {
+      margin-top: 0.4rem;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .gossip-trending {
+      display: flex;
+      gap: 0.35rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.65rem;
+      scrollbar-width: none;
+    }
+    .gossip-trending::-webkit-scrollbar { display: none; }
+    .gossip-trend-chip {
+      flex-shrink: 0;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      background: rgba(251, 191, 36, 0.08);
+      color: #fde68a;
+      font-size: 0.68rem;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+    .gossip-section-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0.65rem 0 0.45rem;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #fbbf24;
+    }
+    .gossip-section-label span {
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    .gossip-feed {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+    .gossip-item {
+      display: flex;
+      gap: 0.65rem;
+      padding: 0.65rem;
+      border-radius: 14px;
+      border: 1px solid rgba(130, 200, 255, 0.12);
+      background: rgba(6, 10, 24, 0.6);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .gossip-item:active {
+      border-color: rgba(251, 191, 36, 0.35);
+      background: rgba(251, 191, 36, 0.06);
+    }
+    .gossip-item--hot {
+      border-color: rgba(255, 71, 87, 0.25);
+      background: rgba(255, 71, 87, 0.04);
+    }
+    .gossip-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: linear-gradient(160deg, rgba(34, 211, 238, 0.2), rgba(168, 85, 247, 0.25));
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .gossip-item-body { min-width: 0; flex: 1; }
+    .gossip-item-top {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.2rem;
+    }
+    .gossip-item-show {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--cyan);
+    }
+    .gossip-item-badge {
+      font-size: 0.55rem;
+      font-weight: 800;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      background: rgba(255, 71, 87, 0.2);
+      color: #ff9aa2;
+      letter-spacing: 0.04em;
+    }
+    .gossip-item-badge--new {
+      background: rgba(34, 211, 238, 0.15);
+      color: var(--cyan);
+    }
+    .gossip-item-title {
+      margin: 0;
+      font-size: 0.92rem;
+      font-weight: 700;
+      line-height: 1.35;
+      color: #fff;
+    }
+    .gossip-item-excerpt {
+      margin: 0.25rem 0 0;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .gossip-item-meta {
+      margin-top: 0.3rem;
+      font-size: 0.65rem;
+      color: rgba(138, 155, 184, 0.9);
+    }
+    .gossip-item-meta strong { color: #fbbf24; font-weight: 600; }
+    .gossip-divider {
+      height: 1px;
+      margin: 0.75rem 0;
+      background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.2), transparent);
+    }
+    .gossip-load-more {
+      width: 100%;
+      margin: 0.75rem 0 0.25rem;
+      padding: 0.6rem;
+      border-radius: 12px;
+      border: 1px dashed rgba(251, 191, 36, 0.35);
+      background: rgba(251, 191, 36, 0.05);
+      color: #fde68a;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .social-section {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      flex-direction: column;
+    }
+    .social-section.active { display: flex; }
+
+    /* Sub-navigation (For You / Live Now / My Diary etc.) */
+    .section-subnav {
+      flex-shrink: 0;
+      padding: 0.55rem 0.75rem 0.45rem;
+      background: linear-gradient(180deg, rgba(5, 5, 8, 0.97) 0%, rgba(5, 5, 8, 0.85) 100%);
+    }
+    .content-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 0.75rem calc(5.5rem + var(--safe-bottom));
+    }
+    #sectionReactor .content-scroll {
+      scroll-snap-type: y proximity;
+    }
+
+    /* Pull to refresh */
+    .ptr-indicator {
+      position: absolute;
+      top: calc(7.5rem + var(--safe-top));
+      left: 50%;
+      transform: translateX(-50%) translateY(-120%);
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      background: rgba(10, 12, 24, 0.92);
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--muted);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.35s ease, opacity 0.25s ease;
+    }
+    .ptr-indicator.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .ptr-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(34, 211, 238, 0.25);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Sticky sub-tabs */
+    .feed-header {
+      position: static;
+      z-index: 1;
+      padding: 0;
+      background: transparent;
+      backdrop-filter: none;
+    }
+    .feed-tabs {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.25rem;
+      border-radius: 14px;
+      background: rgba(6, 10, 22, 0.75);
+      border: 1px solid var(--border);
+    }
+    .feed-tab {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 650;
+      padding: 0.55rem 0.35rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
+    }
+    .feed-tab.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(168, 85, 247, 0.16));
+      box-shadow: 0 0 20px -6px rgba(34, 211, 238, 0.35);
+    }
+
+    .feed-panel { display: none; }
+    .feed-panel.active { display: block; }
+
+    /* Post card */
+    .post-card {
+      position: relative;
+      scroll-snap-align: start;
+      margin-bottom: 12px;
+      padding: 16px;
+      border-radius: 16px;
+      background: var(--card);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 40px -12px rgba(34, 211, 238, 0.08);
+    }
+    .post-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      padding: 1px;
+      background: var(--gradient-border);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .show-context {
+      display: flex;
+      gap: 0.65rem;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+    }
+    .show-poster {
+      width: 60px;
+      height: 90px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: linear-gradient(160deg, rgba(34, 211, 238, 0.25), rgba(168, 85, 247, 0.3));
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .show-meta { min-width: 0; flex: 1; }
+    .show-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: #fff;
+    }
+    .show-ep {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.2rem;
+      font-size: 0.78rem;
+      color: var(--cyan);
+      font-weight: 600;
+    }
+    .spoiler-badge {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.4rem;
+      border-radius: 6px;
+      background: rgba(255, 123, 134, 0.18);
+      color: #ff9aa2;
+      border: 1px solid rgba(255, 123, 134, 0.35);
+    }
+
+    .post-author {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.55rem;
+    }
+    .post-author strong { color: var(--cyan); font-weight: 600; }
+    .post-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.25), rgba(168, 85, 247, 0.2), transparent);
+      margin-bottom: 0.65rem;
+    }
+    .post-body {
+      font-size: 0.92rem;
+      line-height: 1.55;
+      margin: 0 0 0.75rem;
+      word-break: break-word;
+    }
+    .post-body.collapsed {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .read-more {
+      background: none;
+      border: none;
+      color: var(--cyan);
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0;
+      margin: -0.35rem 0 0.65rem;
+      cursor: pointer;
+    }
+    .post-media {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 0.75rem;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+    }
+
+    /* Reactions bar */
+    .reactions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 0.75rem;
+    }
+    .reaction-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.35rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(130, 200, 255, 0.15);
+      background: rgba(6, 10, 24, 0.65);
+      font: inherit;
+      font-size: 0.78rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s, transform 0.1s;
+    }
+    .reaction-btn:active { transform: scale(0.96); }
+    .reaction-btn.selected {
+      border-color: rgba(34, 211, 238, 0.55);
+      background: rgba(34, 211, 238, 0.12);
+      color: #fff;
+      box-shadow: 0 0 16px rgba(34, 211, 238, 0.35);
+    }
+    .reaction-btn.bookmark.selected {
+      border-color: rgba(232, 121, 249, 0.55);
+      background: rgba(232, 121, 249, 0.12);
+      box-shadow: 0 0 16px rgba(232, 121, 249, 0.3);
+    }
+
+    /* Top reply */
+    .top-reply {
+      padding: 0.65rem 0.75rem;
+      border-radius: 12px;
+      background: rgba(6, 10, 24, 0.55);
+      border: 1px solid rgba(130, 200, 255, 0.1);
+      margin-bottom: 0.65rem;
+    }
+    .top-reply-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    .top-reply-text {
+      margin: 0 0 0.45rem;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .top-reply-text strong { color: var(--cyan); }
+    .top-reply-actions {
+      display: flex;
+      gap: 0.75rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .top-reply-actions button {
+      background: none;
+      border: none;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      padding: 0;
+    }
+    .view-replies {
+      background: none;
+      border: none;
+      font: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--purple);
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 0.55rem;
+    }
+
+    .add-reaction {
+      width: 100%;
+      padding: 0.55rem;
+      border-radius: 10px;
+      border: 1px dashed rgba(34, 211, 238, 0.3);
+      background: rgba(34, 211, 238, 0.04);
+      color: var(--cyan);
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Spoiler overlay */
+    .spoiler-card .post-content-hidden { filter: blur(8px); user-select: none; pointer-events: none; }
+    .spoiler-overlay {
+      position: absolute;
+      inset: 16px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 0.35rem;
+      padding: 1.25rem;
+      background: rgba(5, 5, 12, 0.88);
+      border: 1px solid rgba(255, 123, 134, 0.35);
+      cursor: pointer;
+      z-index: 5;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .spoiler-overlay.revealed {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.02);
+    }
+    .spoiler-overlay h3 {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #ff9aa2;
+      letter-spacing: 0.08em;
+    }
+    .spoiler-overlay p {
+      margin: 0;
+      font-size: 0.78rem;
+      color: var(--muted);
+      max-width: 240px;
+      line-height: 1.45;
+    }
+
+    /* Skeleton */
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skeleton-card {
+      margin-bottom: 12px;
+      padding: 16px;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid rgba(130, 200, 255, 0.08);
+    }
+    .skel {
+      border-radius: 8px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.1), rgba(255,255,255,0.04));
+      background-size: 200% 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+    }
+    .skel-row { display: flex; gap: 0.65rem; margin-bottom: 0.75rem; }
+    .skel-poster { width: 60px; height: 90px; flex-shrink: 0; }
+    .skel-lines { flex: 1; display: flex; flex-direction: column; gap: 0.4rem; }
+    .skel-line { height: 0.75rem; }
+    .skel-line.w60 { width: 60%; }
+    .skel-line.w80 { width: 80%; }
+    .skel-line.w40 { width: 40%; }
+
+    /* Empty / error / end states */
+    .state-card {
+      text-align: center;
+      padding: 2.5rem 1.25rem;
+      border-radius: 16px;
+      background: rgba(6, 10, 24, 0.55);
+      border: 1px dashed rgba(130, 200, 255, 0.2);
+      margin: 1rem 0;
+    }
+    .state-card .emoji { font-size: 2.5rem; margin-bottom: 0.65rem; }
+    .state-card h2 { margin: 0 0 0.45rem; font-size: 1rem; }
+    .state-card p { margin: 0; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+    .state-card button {
+      margin-top: 1rem;
+      padding: 0.55rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid var(--cyan);
+      background: rgba(34, 211, 238, 0.12);
+      color: #fff;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* FAB */
+    .fab-compose {
+      position: fixed;
+      bottom: calc(1.25rem + var(--safe-bottom));
+      right: max(1rem, calc(50% - 215px + 1rem));
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: #fff;
+      font-size: 1.65rem;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(34, 211, 238, 0.35), 0 4px 16px rgba(168, 85, 247, 0.25);
+      z-index: 150;
+      transition: transform 0.15s;
+    }
+    .fab-compose:active { transform: scale(0.94); }
+
+    /* Composer modal */
+    .composer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .composer-backdrop.open { display: flex; }
+    .composer-sheet {
+      width: 100%;
+      max-width: 430px;
+      max-height: 92vh;
+      background: #0e1018;
+      border-radius: 20px 20px 0 0;
+      border-top: 1px solid rgba(34, 211, 238, 0.25);
+      padding: 1rem 1rem calc(1rem + var(--safe-bottom));
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .composer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.85rem;
+    }
+    .composer-header button {
+      background: none;
+      border: none;
+      font: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .composer-header .post-btn {
+      color: #fff;
+      font-weight: 700;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+    }
+    .composer-header .post-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .composer-textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(6, 10, 24, 0.65);
+      color: var(--text);
+      font: inherit;
+      font-size: 0.92rem;
+      padding: 0.75rem;
+      line-height: 1.5;
+    }
+    .composer-textarea:focus {
+      outline: none;
+      border-color: rgba(34, 211, 238, 0.45);
+      box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.12);
+    }
+    .composer-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin: 0.75rem 0;
+    }
+    .composer-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 0.65rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(6, 10, 24, 0.45);
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+    .composer-option input[type="checkbox"] {
+      accent-color: var(--cyan);
+    }
+    .char-count {
+      text-align: right;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .char-count.warn { color: #ff9aa2; }
+    .composer-suggest {
+      margin-top: 0.65rem;
+      padding: 0.65rem;
+      border-radius: 10px;
+      background: rgba(34, 211, 238, 0.06);
+      border: 1px solid rgba(34, 211, 238, 0.15);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .composer-suggest strong { color: var(--cyan); }
+
+    /* Algorithm legend (preview only) */
+    .algo-legend {
+      margin: 0.75rem 0 1rem;
+      padding: 0.75rem;
+      border-radius: 12px;
+      background: rgba(168, 85, 247, 0.08);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      font-size: 0.68rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .algo-legend summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--magenta);
+      margin-bottom: 0.35rem;
+    }
+
+    /* ── Watch Party ── */
+    .wp-panel { display: none; }
+    .wp-panel.active { display: block; }
+    .party-card {
+      margin-bottom: 12px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--card);
+      border: 1px solid rgba(130, 200, 255, 0.14);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+    }
+    .party-banner {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      display: block;
+      background: linear-gradient(135deg, rgba(255, 71, 87, 0.2), rgba(168, 85, 247, 0.25));
+    }
+    .party-body { padding: 14px 16px 16px; }
+    .party-live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #ff6b7a;
+      margin-bottom: 0.25rem;
+    }
+    .party-live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff4757;
+      animation: livePulse 1.2s ease-in-out infinite;
+    }
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+    .party-title { margin: 0; font-size: 1rem; font-weight: 700; line-height: 1.3; }
+    .party-ep-title { margin: 0.2rem 0 0.65rem; font-size: 0.82rem; color: var(--muted); }
+    .party-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 0.85rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.85rem;
+    }
+    .party-meta strong { color: var(--cyan); font-weight: 600; }
+    .btn-gradient {
+      width: 100%;
+      padding: 0.65rem;
+      border: none;
+      border-radius: 12px;
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      box-shadow: 0 4px 20px rgba(34, 211, 238, 0.25);
+      margin-bottom: 0.5rem;
+    }
+    .party-actions {
+      display: flex;
+      gap: 0.45rem;
+    }
+    .party-actions button {
+      flex: 1;
+      padding: 0.45rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(6, 10, 24, 0.55);
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .party-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+    .party-row .show-poster { width: 56px; height: 84px; }
+
+    /* Live chat overlay */
+    .live-chat-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 400;
+      background: var(--bg);
+      display: none;
+      flex-direction: column;
+      max-width: 430px;
+      margin: 0 auto;
+      left: 0;
+      right: 0;
+    }
+    .live-chat-overlay.open { display: flex; }
+    .chat-header {
+      flex-shrink: 0;
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(5, 5, 8, 0.95);
+    }
+    .chat-header-top {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+    .chat-exit {
+      background: none;
+      border: none;
+      color: var(--cyan);
+      font: inherit;
+      font-size: 0.82rem;
+      cursor: pointer;
+      padding: 0;
+    }
+    .chat-header-title { flex: 1; font-size: 0.85rem; font-weight: 700; }
+    .chat-live-count {
+      font-size: 0.72rem;
+      color: #ff6b7a;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .chat-ep-sub { font-size: 0.72rem; color: var(--muted); margin: 0; }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.65rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+    .chat-msg {
+      padding: 0.55rem 0.65rem;
+      border-radius: 12px;
+      background: rgba(6, 10, 24, 0.65);
+      border: 1px solid rgba(130, 200, 255, 0.1);
+    }
+    .chat-msg-author { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.25rem; }
+    .chat-msg-author strong { color: var(--cyan); }
+    .chat-msg-body { margin: 0; font-size: 0.85rem; line-height: 1.45; }
+    .chat-msg-actions { font-size: 0.68rem; color: var(--muted); margin-top: 0.35rem; display: flex; gap: 0.65rem; }
+    .chat-system {
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--muted);
+      padding: 0.35rem 0;
+    }
+    .chat-system span {
+      padding: 0 0.75rem;
+      background: rgba(6, 10, 24, 0.5);
+      border-radius: 999px;
+    }
+    .chat-highlight {
+      border-color: rgba(251, 191, 36, 0.45);
+      background: rgba(251, 191, 36, 0.06);
+    }
+    .chat-highlight .chat-highlight-label {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: #fbbf24;
+      margin-bottom: 0.25rem;
+    }
+    .chat-mod {
+      border-color: rgba(34, 211, 238, 0.35);
+    }
+    .chat-mod-badge {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: var(--cyan);
+      margin-left: 0.35rem;
+    }
+    .highlight-vote {
+      margin: 0.5rem 0.75rem;
+      padding: 0.65rem;
+      border-radius: 12px;
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.25);
+      font-size: 0.75rem;
+    }
+    .highlight-vote button {
+      margin-top: 0.45rem;
+      width: 100%;
+      padding: 0.45rem;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #fbbf24, #f97316);
+      color: #1a1000;
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+    .jump-latest {
+      position: absolute;
+      bottom: 5.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--cyan);
+      background: rgba(10, 12, 24, 0.92);
+      color: var(--cyan);
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+    }
+    .jump-latest.visible { display: block; }
+    .chat-composer {
+      flex-shrink: 0;
+      padding: 0.55rem 0.75rem calc(0.55rem + var(--safe-bottom));
+      border-top: 1px solid var(--border);
+      background: rgba(5, 5, 8, 0.98);
+    }
+    .chat-input-row {
+      display: flex;
+      gap: 0.45rem;
+      margin-bottom: 0.45rem;
+    }
+    .chat-input {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(6, 10, 24, 0.65);
+      color: var(--text);
+      font: inherit;
+      font-size: 0.85rem;
+      padding: 0.55rem 0.65rem;
+    }
+    .chat-send {
+      padding: 0.55rem 0.85rem;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+    .chat-emoji-bar {
+      display: flex;
+      gap: 0.35rem;
+      font-size: 1.1rem;
+    }
+    .chat-emoji-bar button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.15rem;
+      font-size: 1.1rem;
+    }
+
+    /* Replay mini preview */
+    .replay-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 0.75rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .replay-scrub {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+    .replay-scrub-fill {
+      width: 30%;
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+    }
+
+    /* ── Show Diary ── */
+    .diary-panel { display: none; }
+    .diary-panel.active { display: block; }
+    .month-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0.5rem 0 0.65rem;
+    }
+    .month-header button {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.85rem;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+    }
+    .month-header h2 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+      margin-bottom: 0.75rem;
+    }
+    .cal-dow {
+      text-align: center;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 0.25rem 0;
+      letter-spacing: 0.04em;
+    }
+    .cal-day {
+      min-height: 58px;
+      padding: 0.2rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: rgba(6, 10, 24, 0.35);
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .cal-day:hover, .cal-day.has-entries:hover {
+      border-color: rgba(34, 211, 238, 0.35);
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.15);
+    }
+    .cal-day.today {
+      background: linear-gradient(180deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.08));
+      border-color: rgba(34, 211, 238, 0.25);
+    }
+    .cal-day.empty-day { background: rgba(6, 10, 24, 0.2); border-style: dashed; border-color: rgba(130, 200, 255, 0.08); }
+    .cal-day-num {
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.15rem;
+    }
+    .cal-day.today .cal-day-num { color: var(--cyan); }
+    .cal-mini-poster {
+      width: 100%;
+      aspect-ratio: 2/3;
+      max-height: 28px;
+      border-radius: 3px;
+      object-fit: cover;
+      margin-bottom: 0.1rem;
+      background: linear-gradient(160deg, rgba(34, 211, 238, 0.2), rgba(168, 85, 247, 0.25));
+    }
+    .cal-stars { font-size: 0.45rem; line-height: 1; letter-spacing: -0.05em; }
+    .week-summary {
+      padding: 0.65rem 0.75rem;
+      border-radius: 12px;
+      background: rgba(6, 10, 24, 0.55);
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+    .week-summary strong { color: #fff; }
+    .stat-cards { display: flex; flex-direction: column; gap: 0.65rem; }
+    .stat-card {
+      padding: 1rem;
+      border-radius: 14px;
+      background: rgba(6, 10, 24, 0.55);
+      border: 1px solid var(--border);
+    }
+    .stat-card h3 { margin: 0 0 0.35rem; font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+    .stat-card .stat-value { margin: 0; font-size: 1.35rem; font-weight: 800; color: #fff; }
+    .stat-card .stat-sub { margin: 0.2rem 0 0; font-size: 0.72rem; color: var(--muted); }
+    .stat-chart {
+      height: 80px;
+      margin-top: 0.65rem;
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(34, 211, 238, 0.08), transparent);
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      padding: 0.35rem;
+    }
+    .stat-bar {
+      flex: 1;
+      border-radius: 3px 3px 0 0;
+      background: linear-gradient(180deg, var(--cyan), var(--purple));
+      min-height: 8px;
+    }
+    .list-card {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.85rem;
+      border-radius: 14px;
+      background: rgba(6, 10, 24, 0.55);
+      border: 1px solid var(--border);
+      margin-bottom: 0.65rem;
+      cursor: pointer;
+    }
+    .list-thumb-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .list-thumb-grid img { width: 100%; height: 100%; object-fit: cover; }
+    .list-card h3 { margin: 0 0 0.2rem; font-size: 0.88rem; }
+    .list-card p { margin: 0; font-size: 0.72rem; color: var(--muted); line-height: 1.4; }
+
+    /* Diary day detail overlay */
+    .diary-detail-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 350;
+      background: var(--bg);
+      display: none;
+      flex-direction: column;
+      max-width: 430px;
+      margin: 0 auto;
+      left: 0;
+      right: 0;
+    }
+    .diary-detail-overlay.open { display: flex; }
+    .diary-detail-header {
+      flex-shrink: 0;
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .diary-detail-header button {
+      background: none;
+      border: none;
+      color: var(--cyan);
+      font: inherit;
+      font-size: 0.82rem;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 0.35rem;
+    }
+    .diary-detail-header h2 { margin: 0; font-size: 1rem; }
+    .diary-detail-header p { margin: 0.15rem 0 0; font-size: 0.78rem; color: var(--muted); }
+    .diary-detail-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem;
+    }
+    .diary-entry-card {
+      padding: 16px;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid rgba(130, 200, 255, 0.14);
+      margin-bottom: 0.75rem;
+    }
+    .diary-entry-card .show-poster { width: 80px; height: 120px; }
+    .diary-stars { font-size: 1rem; margin: 0.5rem 0; letter-spacing: 0.1em; }
+    .diary-review {
+      font-size: 0.85rem;
+      line-height: 1.55;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 0.65rem;
+      margin: 0.65rem 0;
+    }
+    .diary-tags { font-size: 0.72rem; color: var(--purple); margin-bottom: 0.65rem; }
+    .diary-entry-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 0.65rem;
+    }
+    .diary-entry-btns {
+      display: flex;
+      gap: 0.45rem;
+    }
+    .diary-entry-btns button {
+      flex: 1;
+      padding: 0.45rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(6, 10, 24, 0.55);
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.72rem;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="preview-banner">
+    <span>⚡ Social preview — not in app</span>
+    <div class="preview-state-btns">
+      <button type="button" data-state="feed" class="active">Feed</button>
+      <button type="button" data-state="loading">Loading</button>
+      <button type="button" data-state="empty">Empty</button>
+      <button type="button" data-state="error">Error</button>
+      <button type="button" data-state="caught-up">Caught up</button>
+    </div>
+  </div>
+
+  <div class="app-frame">
+    <div class="aa-app-chrome" aria-label="AirAlert app shell preview">
+      <div class="aa-header">
+        <span class="aa-logo">AirAlert</span>
+        <div class="aa-header-icons"><span>⚙</span><span>👤</span><span>✉</span><span>🔔</span></div>
+      </div>
+      <nav class="aa-main-tabs" aria-label="Main app tabs">
+        <span class="aa-main-tab">Add Shows</span>
+        <span class="aa-main-tab">My Shows</span>
+        <span class="aa-main-tab">My week</span>
+        <span class="aa-main-tab active">Community</span>
+        <span class="aa-main-tab">Admin</span>
+      </nav>
+      <p class="aa-chrome-note">Preview: Community tab → 4-section social hub ↓</p>
+    </div>
+
+    <nav class="social-top-nav" aria-label="Social sections">
+      <button type="button" class="social-nav-item active" data-section="reactor">
+        <span class="social-nav-icon">📱</span>
+        <span class="social-nav-label">Episode Reactor</span>
+      </button>
+      <button type="button" class="social-nav-item" data-section="watch">
+        <span class="social-nav-icon">🔴</span>
+        <span class="social-nav-label">Watch Party</span>
+      </button>
+      <button type="button" class="social-nav-item" data-section="diary">
+        <span class="social-nav-icon">📔</span>
+        <span class="social-nav-label">Show Diary</span>
+      </button>
+      <button type="button" class="social-nav-item" data-section="news">
+        <span class="social-nav-icon">📰</span>
+        <span class="social-nav-label">Breaking News</span>
+      </button>
+    </nav>
+
+    <section id="sectionReactor" class="social-section active" aria-label="Episode Reactor">
+      <div class="ptr-indicator" id="ptrIndicator">
+        <div class="ptr-spinner"></div>
+        <span>Refreshing feed…</span>
+      </div>
+
+      <header class="section-subnav feed-header">
+        <nav class="feed-tabs" role="tablist" aria-label="Feed type">
+          <button type="button" class="feed-tab active" role="tab" aria-selected="true" data-feed="for-you">🔥 For You</button>
+          <button type="button" class="feed-tab" role="tab" aria-selected="false" data-feed="following">👥 Following</button>
+          <button type="button" class="feed-tab" role="tab" aria-selected="false" data-feed="trending">⭐ Trending</button>
+        </nav>
+      </header>
+
+      <div class="content-scroll" id="feedScroll">
+      <!-- FEED STATE -->
+      <div id="viewFeed">
+        <div class="feed-panel active" data-panel="for-you">
+          <details class="algo-legend">
+            <summary>Preview: For You algorithm weights</summary>
+            Watchlist 40% · Watched (7d) 30% · Trending velocity 20% · Following 10%. Reactions 2× likes; bookmarks 5×; quotes 100pts.
+          </details>
+
+          <article class="post-card" data-post="1">
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/rhobh/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">The Real Housewives of Beverly Hills</h2>
+                <div class="show-ep">S14E8 · Reunion Part 2</div>
+              </div>
+            </div>
+            <div class="post-author"><strong>@kylefan22</strong> · 23m ago</div>
+            <div class="post-divider"></div>
+            <p class="post-body">Kyle saying "I've never lied to any of you" while the entire cast is side-eyeing her is PEAK television. I screamed at my phone 😭</p>
+            <div class="reactions-bar">
+              <button type="button" class="reaction-btn" data-emoji="😱"><span>😱</span> 23</button>
+              <button type="button" class="reaction-btn selected" data-emoji="😭"><span>😭</span> 45</button>
+              <button type="button" class="reaction-btn" data-emoji="😂"><span>😂</span> 67</button>
+              <button type="button" class="reaction-btn" data-emoji="🔥"><span>🔥</span> 12</button>
+              <button type="button" class="reaction-btn" data-emoji="👑"><span>👑</span> 8</button>
+              <button type="button" class="reaction-btn" data-emoji="🚩"><span>🚩</span> 3</button>
+              <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 89</button>
+              <button type="button" class="reaction-btn bookmark" data-emoji="🔖"><span>🔖</span> 5</button>
+            </div>
+            <div class="top-reply">
+              <div class="top-reply-label">💭 Top reply</div>
+              <p class="top-reply-text"><strong>@suttonsays</strong> "The side-eye cam alone deserves an Emmy"</p>
+              <div class="top-reply-actions">
+                <span>❤️ 12</span>
+                <button type="button">↩️ Reply</button>
+                <button type="button">Quote</button>
+              </div>
+            </div>
+            <button type="button" class="view-replies">View all 89 replies</button>
+            <button type="button" class="add-reaction">➕ Add your reaction</button>
+          </article>
+
+          <article class="post-card spoiler-card" data-post="2">
+            <div class="spoiler-overlay" id="spoilerOverlay">
+              <h3>⚠️ SPOILER ALERT ⚠️</h3>
+              <p>The Valley · S3E9</p>
+              <p>Tap to reveal spoiler<br />(This content discusses plot details)</p>
+            </div>
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/valley/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">The Valley</h2>
+                <div class="show-ep">S3E9 <span class="spoiler-badge">Spoiler</span></div>
+              </div>
+            </div>
+            <div class="post-content-hidden" id="spoilerContent">
+              <div class="post-author"><strong>@valleywatch</strong> · 1h ago</div>
+              <div class="post-divider"></div>
+              <p class="post-body">I CANNOT believe Janet went to Michelle first instead of Danny. That conversation at the end completely changed how I see their whole arc this season. Michelle's face said everything.</p>
+              <div class="reactions-bar">
+                <button type="button" class="reaction-btn" data-emoji="😱"><span>😱</span> 156</button>
+                <button type="button" class="reaction-btn" data-emoji="😭"><span>😭</span> 89</button>
+                <button type="button" class="reaction-btn" data-emoji="🔥"><span>🔥</span> 234</button>
+                <button type="button" class="reaction-btn" data-emoji="🚩"><span>🚩</span> 41</button>
+                <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 312</button>
+                <button type="button" class="reaction-btn bookmark" data-emoji="🔖"><span>🔖</span> 28</button>
+              </div>
+            </div>
+            <button type="button" class="add-reaction" style="margin-top:0.65rem">➕ Add your reaction</button>
+          </article>
+
+          <article class="post-card" data-post="3">
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/summer/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">Summer House</h2>
+                <div class="show-ep">S8E5</div>
+              </div>
+            </div>
+            <div class="post-author"><strong>@hamptonslife</strong> · 3h ago</div>
+            <div class="post-divider"></div>
+            <p class="post-body collapsed" id="longPost">Okay I need to unpack this because what happened at the pool party was genuinely unhinged. First Carl shows up uninvited which is already a red flag, then Lindsay starts going OFF about the guest list like she owns the house (she doesn't??), and then Paige just sits there eating a salad like she's watching a nature documentary. The producer zoom on Kyle's face when Lindsay said "I don't trust anyone here" — that was a CHOICE. And don't even get me started on the confessional where she tries to rewrite history from last season. I'm team nobody at this point but I'm still watching every second.</p>
+            <button type="button" class="read-more" data-target="longPost">Read more</button>
+            <img class="post-media" src="https://picsum.photos/seed/poolparty/800/450" alt="Scene still" loading="lazy" />
+            <div class="reactions-bar">
+              <button type="button" class="reaction-btn" data-emoji="😂"><span>😂</span> 412</button>
+              <button type="button" class="reaction-btn" data-emoji="🔥"><span>🔥</span> 198</button>
+              <button type="button" class="reaction-btn" data-emoji="🚩"><span>🚩</span> 67</button>
+              <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 156</button>
+              <button type="button" class="reaction-btn bookmark selected" data-emoji="🔖"><span>🔖</span> 34</button>
+            </div>
+            <div class="top-reply">
+              <div class="top-reply-label">💭 Top reply</div>
+              <p class="top-reply-text"><strong>@bravo_insider</strong> "Paige and the salad is my Roman empire"</p>
+              <div class="top-reply-actions"><span>❤️ 89</span><button type="button">↩️ Reply</button></div>
+            </div>
+            <button type="button" class="view-replies">View all 156 replies</button>
+            <button type="button" class="add-reaction">➕ Add your reaction</button>
+          </article>
+
+          <article class="post-card" data-post="4">
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/below/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">Below Deck Mediterranean</h2>
+                <div class="show-ep">S9E12</div>
+              </div>
+            </div>
+            <div class="post-author"><strong>@yachtlife</strong> · 5h ago</div>
+            <div class="post-divider"></div>
+            <p class="post-body">Captain Sandy's speech about leadership had me in tears. Best episode of the season, no debate.</p>
+            <div class="reactions-bar">
+              <button type="button" class="reaction-btn" data-emoji="😭"><span>😭</span> 78</button>
+              <button type="button" class="reaction-btn" data-emoji="👑"><span>👑</span> 145</button>
+              <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 42</button>
+            </div>
+            <button type="button" class="add-reaction">➕ Add your reaction</button>
+          </article>
+        </div>
+
+        <div class="feed-panel" data-panel="following">
+          <details class="algo-legend">
+            <summary>Preview: Following feed</summary>
+            Chronological from followed users. No algorithm. Grouped by episode when multiple posts share a show.
+          </details>
+          <article class="post-card">
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/vander/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">Vanderpump Rules</h2>
+                <div class="show-ep">S11E14</div>
+              </div>
+            </div>
+            <div class="post-author"><strong>@jojobinks</strong> · 45m ago · Following</div>
+            <div class="post-divider"></div>
+            <p class="post-body">Scheana's confessional about "choosing peace" while actively stirring the pot is so on brand I can't even be mad.</p>
+            <div class="reactions-bar">
+              <button type="button" class="reaction-btn" data-emoji="😂"><span>😂</span> 12</button>
+              <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 4</button>
+            </div>
+            <button type="button" class="add-reaction">➕ Add your reaction</button>
+          </article>
+          <article class="post-card">
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/vander/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">Vanderpump Rules</h2>
+                <div class="show-ep">S11E14 · 2 more posts</div>
+              </div>
+            </div>
+            <div class="post-author"><strong>@realitytea</strong> · 2h ago · Following</div>
+            <div class="post-divider"></div>
+            <p class="post-body">The Tom / Raquel tension this episode was UNCOMFORTABLE. Grouped with 2 other posts about this episode.</p>
+            <button type="button" class="view-replies">View 2 related posts</button>
+          </article>
+        </div>
+
+        <div class="feed-panel" data-panel="trending">
+          <details class="algo-legend">
+            <summary>Preview: Trending feed</summary>
+            Last 24h only. Ranked by engagement velocity. Min 50 engagements. Refreshes every 5 min.
+          </details>
+          <article class="post-card">
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/love/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">Love Is Blind</h2>
+                <div class="show-ep">S8E10 · 🔥 Trending #1</div>
+              </div>
+            </div>
+            <div class="post-author"><strong>@podcastqueen</strong> · 38m ago · 847 engagements/hr</div>
+            <div class="post-divider"></div>
+            <p class="post-body">THE REVEAL. I am not okay. This is why we watch.</p>
+            <div class="reactions-bar">
+              <button type="button" class="reaction-btn selected" data-emoji="😱"><span>😱</span> 1.2k</button>
+              <button type="button" class="reaction-btn" data-emoji="🔥"><span>🔥</span> 890</button>
+              <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 534</button>
+            </div>
+            <button type="button" class="add-reaction">➕ Add your reaction</button>
+          </article>
+        </div>
+      </div>
+
+      <!-- LOADING STATE -->
+      <div id="viewLoading" hidden>
+        <div class="skeleton-card"><div class="skel-row"><div class="skel skel-poster"></div><div class="skel-lines"><div class="skel skel-line w80"></div><div class="skel skel-line w60"></div><div class="skel skel-line w40"></div></div></div><div class="skel skel-line w80" style="height:0.65rem;margin-bottom:0.4rem"></div><div class="skel skel-line" style="height:3rem;margin-bottom:0.5rem"></div><div class="skel skel-line w60"></div></div>
+        <div class="skeleton-card"><div class="skel-row"><div class="skel skel-poster"></div><div class="skel-lines"><div class="skel skel-line w80"></div><div class="skel skel-line w60"></div></div></div><div class="skel skel-line" style="height:2.5rem;margin-top:0.5rem"></div></div>
+        <div class="skeleton-card"><div class="skel-row"><div class="skel skel-poster"></div><div class="skel-lines"><div class="skel skel-line w80"></div><div class="skel skel-line w40"></div></div></div><div class="skel skel-line" style="height:2rem;margin-top:0.5rem"></div></div>
+      </div>
+
+      <!-- EMPTY STATES -->
+      <div id="viewEmpty" hidden>
+        <div class="state-card" data-empty="for-you">
+          <div class="emoji">📺</div>
+          <h2>Nothing in your feed yet</h2>
+          <p>Add shows to your list to see episode discussions tailored for you.</p>
+        </div>
+      </div>
+
+      <!-- ERROR STATE -->
+      <div id="viewError" hidden>
+        <div class="state-card">
+          <div class="emoji">📡</div>
+          <h2>Can't load posts</h2>
+          <p>Check your connection and try again.</p>
+          <button type="button" id="retryBtn">Tap to retry</button>
+        </div>
+      </div>
+
+      <!-- CAUGHT UP -->
+      <div id="viewCaughtUp" hidden>
+        <article class="post-card">
+          <p class="post-body" style="margin:0">Last post in feed…</p>
+        </article>
+        <div class="state-card">
+          <div class="emoji">🎉</div>
+          <h2>You're all caught up!</h2>
+          <p>Check back later for new episode reactions.</p>
+        </div>
+      </div>
+      </div>
+
+      <button type="button" class="fab-compose" id="fabCompose" aria-label="Create post">➕</button>
+    </section>
+
+    <!-- ═══ WATCH PARTY LIVE ═══ -->
+    <section id="sectionWatch" class="social-section" aria-label="Watch Party Live">
+      <header class="section-subnav">
+        <nav class="feed-tabs" role="tablist" aria-label="Watch party lobby">
+          <button type="button" class="feed-tab active" data-wp="live">🔴 Live Now</button>
+          <button type="button" class="feed-tab" data-wp="upcoming">📅 Upcoming</button>
+          <button type="button" class="feed-tab" data-wp="past">📼 Past</button>
+        </nav>
+      </header>
+      <div class="content-scroll" id="watchScroll">
+        <div class="wp-panel active" data-wp-panel="live">
+          <details class="algo-legend"><summary>Preview: Live Now lobby</summary>Sorted by viewer count. Auto-refresh every 30s. Tap Join to open live chat.</details>
+          <article class="party-card">
+            <img class="party-banner" src="https://picsum.photos/seed/valleylive/800/450" alt="" loading="lazy" />
+            <div class="party-body">
+              <div class="party-live-badge"><span class="party-live-dot"></span> LIVE: The Valley · S3E9</div>
+              <p class="party-ep-title">"The Confrontation"</p>
+              <div class="party-meta">
+                <span>👥 234 watching live</span>
+                <span>⏱️ Started 12 min ago</span>
+                <span>👤 Host: <strong>@valleywatch</strong></span>
+              </div>
+              <button type="button" class="btn-gradient" id="joinLiveChat">Join Live Chat</button>
+              <div class="party-actions">
+                <button type="button">Share</button>
+                <button type="button">Set Reminder for Next Week</button>
+              </div>
+            </div>
+          </article>
+          <article class="party-card">
+            <img class="party-banner" src="https://picsum.photos/seed/rhoblive/800/450" alt="" loading="lazy" />
+            <div class="party-body">
+              <div class="party-live-badge"><span class="party-live-dot"></span> LIVE: RHOBH · S14E8</div>
+              <p class="party-ep-title">Reunion Part 2</p>
+              <div class="party-meta">
+                <span>👥 156 watching live</span>
+                <span>⏱️ Started 28 min ago</span>
+                <span>👤 Host: <strong>@bravohost</strong></span>
+              </div>
+              <button type="button" class="btn-gradient join-live-btn">Join Live Chat</button>
+              <div class="party-actions"><button type="button">Share</button><button type="button">Set Reminder</button></div>
+            </div>
+          </article>
+        </div>
+        <div class="wp-panel" data-wp-panel="upcoming">
+          <details class="algo-legend"><summary>Preview: Upcoming parties</summary>Sorted by air time (next 24h). Reminder + I'm Watching actions.</details>
+          <article class="party-card">
+            <div class="party-body">
+              <div class="party-row">
+                <img class="show-poster" src="https://picsum.photos/seed/summer/120/180" alt="" loading="lazy" />
+                <div>
+                  <h3 class="party-title">Summer House · S8E6</h3>
+                  <p class="party-ep-title">📅 Tonight at 9:00 PM ET</p>
+                  <p class="party-ep-title">⏰ Starts in 1h 23m</p>
+                </div>
+              </div>
+              <div class="party-meta">
+                <span>👥 47 marked "I'm watching"</span>
+                <span>👤 Hosted by <strong>@hamptonslife</strong></span>
+              </div>
+              <button type="button" class="btn-gradient">Set Reminder</button>
+              <div class="party-actions"><button type="button">Mark: I'm Watching</button><button type="button">Share</button></div>
+            </div>
+          </article>
+        </div>
+        <div class="wp-panel" data-wp-panel="past">
+          <details class="algo-legend"><summary>Preview: Past parties + replay</summary>Archived parties with message counts and top highlight timestamps.</details>
+          <article class="party-card">
+            <div class="party-body">
+              <div class="party-row">
+                <img class="show-poster" src="https://picsum.photos/seed/valley/120/180" alt="" loading="lazy" />
+                <div>
+                  <h3 class="party-title">The Valley · S3E8</h3>
+                  <p class="party-ep-title">📼 Aired May 19 at 9:00 PM</p>
+                  <p class="party-ep-title">👥 342 participants · 1,234 messages</p>
+                </div>
+              </div>
+              <p class="party-ep-title">🔥 Top Highlight: "The confrontation" at 12:34</p>
+              <button type="button" class="btn-gradient" id="viewReplay">View Replay</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SHOW DIARY ═══ -->
+    <section id="sectionDiary" class="social-section" aria-label="Show Diary">
+      <header class="section-subnav">
+        <nav class="feed-tabs" role="tablist" aria-label="Diary sections">
+          <button type="button" class="feed-tab active" data-diary="calendar">📔 My Diary</button>
+          <button type="button" class="feed-tab" data-diary="stats">📊 Stats</button>
+          <button type="button" class="feed-tab" data-diary="lists">🎬 Lists</button>
+        </nav>
+      </header>
+      <div class="content-scroll" id="diaryScroll">
+        <div class="diary-panel active" data-diary-panel="calendar">
+          <div class="month-header">
+            <button type="button" aria-label="Previous month">‹</button>
+            <h2>MAY 2026</h2>
+            <button type="button" aria-label="Next month">›</button>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-dow">MON</div><div class="cal-dow">TUE</div><div class="cal-dow">WED</div><div class="cal-dow">THU</div><div class="cal-dow">FRI</div><div class="cal-dow">SAT</div><div class="cal-dow">SUN</div>
+            <div class="cal-day empty-day"><div class="cal-day-num">1</div></div>
+            <div class="cal-day empty-day"><div class="cal-day-num">2</div></div>
+            <div class="cal-day has-entries" data-day="3"><div class="cal-day-num">3</div><img class="cal-mini-poster" src="https://picsum.photos/seed/v1/40/60" alt="" /><div class="cal-stars">⭐⭐</div></div>
+            <div class="cal-day has-entries diary-day" data-day="10"><div class="cal-day-num">10</div><img class="cal-mini-poster" src="https://picsum.photos/seed/valley/40/60" alt="" /><div class="cal-stars">⭐⭐⭐⭐</div></div>
+            <div class="cal-day has-entries"><div class="cal-day-num">11</div><img class="cal-mini-poster" src="https://picsum.photos/seed/summer/40/60" alt="" /><div class="cal-stars">⭐⭐⭐</div></div>
+            <div class="cal-day today has-entries"><div class="cal-day-num">24</div><img class="cal-mini-poster" src="https://picsum.photos/seed/rhobh/40/60" alt="" /><div class="cal-stars">⭐⭐⭐</div></div>
+          </div>
+          <div class="week-summary"><strong>This week:</strong> 11 episodes · ⭐ 4.2 avg rating<br />Most watched: <strong>The Valley</strong> (3 episodes)</div>
+        </div>
+        <div class="diary-panel" data-diary-panel="stats">
+          <div class="stat-cards">
+            <div class="stat-card"><h3>🎬 Total Episodes Watched</h3><p class="stat-value">1,234</p><p class="stat-sub">Across 42 shows</p></div>
+            <div class="stat-card"><h3>⭐ Average Rating</h3><p class="stat-value">4.2</p><p class="stat-sub">Based on 1,234 ratings</p></div>
+            <div class="stat-card"><h3>📺 Watch Time</h3><p class="stat-value">523 hrs</p><p class="stat-sub">That's 21.8 days!</p>
+              <div class="stat-chart"><div class="stat-bar" style="height:45%"></div><div class="stat-bar" style="height:70%"></div><div class="stat-bar" style="height:55%"></div><div class="stat-bar" style="height:90%"></div><div class="stat-bar" style="height:60%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="diary-panel" data-diary-panel="lists">
+          <article class="list-card">
+            <div class="list-thumb-grid">
+              <img src="https://picsum.photos/seed/l1/60/60" alt="" /><img src="https://picsum.photos/seed/l2/60/60" alt="" />
+              <img src="https://picsum.photos/seed/l3/60/60" alt="" /><img src="https://picsum.photos/seed/l4/60/60" alt="" />
+            </div>
+            <div><h3>Best Reality TV Moments</h3><p>By @jojobinks · 12 episodes · Updated 2 days ago</p><p>👍 45 likes · 💬 8 comments</p></div>
+          </article>
+          <article class="list-card">
+            <div class="list-thumb-grid">
+              <img src="https://picsum.photos/seed/l5/60/60" alt="" /><img src="https://picsum.photos/seed/l6/60/60" alt="" />
+              <img src="https://picsum.photos/seed/l7/60/60" alt="" /><img src="https://picsum.photos/seed/l8/60/60" alt="" />
+            </div>
+            <div><h3>Episodes That Made Me Cry</h3><p>By @jojobinks · 8 episodes · Private</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ BREAKING NEWS — gossip digest ═══ -->
+    <section id="sectionNews" class="social-section" aria-label="Breaking News">
+      <div class="content-scroll" id="newsScroll">
+        <p class="community-replace-banner">
+          <strong>Gossip hub.</strong> Your shows, cast drama, and TV tea — pulled from your watchlist.
+        </p>
+
+        <div class="gossip-page-head">
+          <h2>Today's Tea &#9749;</h2>
+          <p>Updated 3 min ago<br />12 stories</p>
+        </div>
+
+        <a href="#" class="gossip-hero" onclick="return false">
+          <div class="gossip-hero-bg" style="background-image:url(https://picsum.photos/seed/valleynews/800/480)"></div>
+          <div class="gossip-hero-scrim"></div>
+          <div class="gossip-hero-body">
+            <span class="gossip-hero-chip">🔴 BREAKING</span>
+            <span class="gossip-hero-show">The Valley &middot; S3E9</span>
+            <h3 class="gossip-hero-title">Michelle confronts the entire cast at dinner &mdash; &ldquo;I said what I said&rdquo;</h3>
+            <p class="gossip-hero-meta">Variety &middot; 12m ago &middot; 847 reactions</p>
+          </div>
+        </a>
+
+        <div class="gossip-trending" aria-label="Trending topics">
+          <span class="gossip-trend-chip">#ValleyDrama</span>
+          <span class="gossip-trend-chip">#RHOBHReunion</span>
+          <span class="gossip-trend-chip">#ScheanaSaysWhat</span>
+          <span class="gossip-trend-chip">#SummerHouseChaos</span>
+          <span class="gossip-trend-chip">#BravoTea</span>
+        </div>
+
+        <h3 class="gossip-section-label">Latest headlines <span>From your shows</span></h3>
+        <ul class="gossip-feed">
+          <li>
+            <a href="#" class="gossip-item gossip-item--hot" onclick="return false">
+              <img class="gossip-thumb" src="https://picsum.photos/seed/rhobnews/144/144" alt="" loading="lazy" />
+              <div class="gossip-item-body">
+                <div class="gossip-item-top">
+                  <span class="gossip-item-show">RHOBH</span>
+                  <span class="gossip-item-badge">HOT</span>
+                </div>
+                <p class="gossip-item-title">Reunion part 2 trailer drops &mdash; Andy promises &ldquo;no one is safe&rdquo;</p>
+                <p class="gossip-item-excerpt">Kyle, Garcelle, and Sutton all featured in the explosive 90-second preview that aired during WWHL.</p>
+                <p class="gossip-item-meta"><strong>Bravo TV</strong> &middot; 45m ago</p>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="gossip-item" onclick="return false">
+              <img class="gossip-thumb" src="https://picsum.photos/seed/libnews/144/144" alt="" loading="lazy" />
+              <div class="gossip-item-body">
+                <div class="gossip-item-top">
+                  <span class="gossip-item-show">Love Is Blind</span>
+                  <span class="gossip-item-badge gossip-item-badge--new">NEW</span>
+                </div>
+                <p class="gossip-item-title">Season 9 reunion date confirmed &mdash; Netflix drops first look</p>
+                <p class="gossip-item-excerpt">All couples from the pods will face the couch together for the first time since filming wrapped.</p>
+                <p class="gossip-item-meta"><strong>Deadline</strong> &middot; 1h ago</p>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="gossip-item" onclick="return false">
+              <img class="gossip-thumb" src="https://picsum.photos/seed/summergossip/144/144" alt="" loading="lazy" />
+              <div class="gossip-item-body">
+                <div class="gossip-item-top"><span class="gossip-item-show">Summer House</span></div>
+                <p class="gossip-item-title">Lindsay&rsquo;s pool party meltdown clip hits 12M TikTok views overnight</p>
+                <p class="gossip-item-excerpt">&ldquo;Paige eating a salad while chaos erupts&rdquo; is now the most-shared reality TV moment of the week.</p>
+                <p class="gossip-item-meta"><strong>Page Six</strong> &middot; 2h ago</p>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="gossip-item" onclick="return false">
+              <img class="gossip-thumb" src="https://picsum.photos/seed/vander/144/144" alt="" loading="lazy" />
+              <div class="gossip-item-body">
+                <div class="gossip-item-top"><span class="gossip-item-show">Vanderpump Rules</span></div>
+                <p class="gossip-item-title">Scheana addresses &ldquo;peacekeeper&rdquo; edit in Instagram live: &ldquo;That&rsquo;s not the full story&rdquo;</p>
+                <p class="gossip-item-meta"><strong>Us Weekly</strong> &middot; 3h ago</p>
+              </div>
+            </a>
+          </li>
+        </ul>
+
+        <div class="gossip-divider"></div>
+
+        <h3 class="gossip-section-label">Industry &amp; casting <span>Broader TV news</span></h3>
+        <ul class="gossip-feed">
+          <li>
+            <a href="#" class="gossip-item" onclick="return false">
+              <img class="gossip-thumb" src="https://picsum.photos/seed/bravospin/144/144" alt="" loading="lazy" />
+              <div class="gossip-item-body">
+                <div class="gossip-item-top"><span class="gossip-item-show">Bravo</span></div>
+                <p class="gossip-item-title">Bravo expands Vanderpump universe with two new spinoffs</p>
+                <p class="gossip-item-excerpt">A restaurant docuseries and reunion roadshow are in development for 2027.</p>
+                <p class="gossip-item-meta"><strong>Entertainment Weekly</strong> &middot; 4h ago</p>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="gossip-item" onclick="return false">
+              <img class="gossip-thumb" src="https://picsum.photos/seed/below/144/144" alt="" loading="lazy" />
+              <div class="gossip-item-body">
+                <div class="gossip-item-top"><span class="gossip-item-show">Below Deck Med</span></div>
+                <p class="gossip-item-title">Captain Sandy&rsquo;s S9 speech sparks Emmy buzz among critics</p>
+                <p class="gossip-item-excerpt">Trade publications call the leadership moment &ldquo;one of reality TV&rsquo;s best this year.&rdquo;</p>
+                <p class="gossip-item-meta"><strong>Hollywood Reporter</strong> &middot; 5h ago</p>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="gossip-item" onclick="return false">
+              <img class="gossip-thumb" src="https://picsum.photos/seed/housewives/144/144" alt="" loading="lazy" />
+              <div class="gossip-item-body">
+                <div class="gossip-item-top"><span class="gossip-item-show">RHOC</span></div>
+                <p class="gossip-item-title">New housewife rumored for Season 19 &mdash; source says &ldquo;major shake-up&rdquo;</p>
+                <p class="gossip-item-meta"><strong>Reality Blurred</strong> &middot; 6h ago</p>
+              </div>
+            </a>
+          </li>
+        </ul>
+
+        <button type="button" class="gossip-load-more">Load more headlines</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Live chat overlay -->
+  <div class="live-chat-overlay" id="liveChatOverlay" aria-label="Live watch party chat">
+    <header class="chat-header">
+      <div class="chat-header-top">
+        <button type="button" class="chat-exit" id="exitLiveChat">← Exit</button>
+        <span class="chat-header-title">The Valley S3E9</span>
+        <span class="chat-live-count"><span class="party-live-dot"></span> 156 live</span>
+      </div>
+      <p class="chat-ep-sub">Episode: "The Confrontation"</p>
+    </header>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg chat-mod">
+        <div class="chat-msg-author"><strong>@moderator</strong><span class="chat-mod-badge">🛡️ MOD</span> · 30s ago</div>
+        <p class="chat-msg-body">Welcome everyone! Episode starting soon!</p>
+      </div>
+      <div class="chat-system"><span>──────── Commercial break ────────</span></div>
+      <div class="chat-msg">
+        <div class="chat-msg-author"><strong>@kylefan22</strong> · 12s ago</div>
+        <p class="chat-msg-body">OMG DID SHE JUST SAY THAT?! 😱</p>
+        <div class="chat-msg-actions"><span>❤️ 12</span><button type="button">💬 Reply</button></div>
+      </div>
+      <div class="chat-msg chat-highlight">
+        <div class="chat-highlight-label">🔥 HIGHLIGHT MOMENT</div>
+        <p class="chat-msg-body"><strong>@mod:</strong> "The confrontation scene!" at 12:34</p>
+        <div class="chat-msg-actions">👍 89 votes</div>
+      </div>
+      <div class="chat-msg">
+        <div class="chat-msg-author"><strong>@valleywatch</strong> · 2s ago</div>
+        <p class="chat-msg-body">MICHELLE'S FACE I AM SCREAMING</p>
+        <div class="chat-msg-actions"><span>❤️ 34</span><button type="button">💬 Reply</button></div>
+      </div>
+    </div>
+    <button type="button" class="jump-latest" id="jumpLatest">Jump to latest ↓</button>
+    <div class="highlight-vote">
+      ⚡ Something epic just happened?<br />
+      <button type="button">Vote This as Highlight 🔥</button>
+      <div style="margin-top:0.35rem;color:var(--muted)">Current timestamp: 12:34 · 23 users voted</div>
+    </div>
+    <div class="replay-bar" id="replayBar" hidden>
+      <span>⏮</span><span>⏸</span><span>⏯</span><span>⏭</span>
+      <div class="replay-scrub"><div class="replay-scrub-fill"></div></div>
+      <span>12:34 / 42:00</span>
+    </div>
+    <footer class="chat-composer">
+      <div class="chat-input-row">
+        <input type="text" class="chat-input" placeholder="Type your reaction…" />
+        <button type="button" class="chat-send">Send</button>
+      </div>
+      <div class="chat-emoji-bar">
+        <button type="button">😱</button><button type="button">😭</button><button type="button">😂</button>
+        <button type="button">🔥</button><button type="button">👑</button><button type="button">🚩</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Diary day detail -->
+  <div class="diary-detail-overlay" id="diaryDetailOverlay">
+    <header class="diary-detail-header">
+      <button type="button" id="closeDiaryDetail">← Back to Calendar</button>
+      <h2>May 10, 2026</h2>
+      <p>Friday</p>
+    </header>
+    <div class="diary-detail-scroll">
+      <article class="diary-entry-card">
+        <div class="show-context">
+          <img class="show-poster" src="https://picsum.photos/seed/valley/120/180" alt="" loading="lazy" />
+          <div class="show-meta">
+            <h2 class="show-title">The Valley · S3E9</h2>
+            <div class="show-ep">"The Confrontation"</div>
+            <div class="show-ep">Watched at 9:34 PM</div>
+          </div>
+        </div>
+        <div class="diary-stars">⭐⭐⭐⭐</div>
+        <p class="diary-review">"Holy shit this episode!! The way Sarah confronted Mike at dinner with everyone watching was PEAK reality TV. I rewound that scene three times. 10/10 drama."</p>
+        <p class="diary-tags">#confrontation #realitytv #peak</p>
+        <div class="diary-entry-actions">🔥 34 likes · 💬 12 comments · 🔁 5 shares</div>
+        <div class="diary-entry-btns">
+          <button type="button">Edit Entry</button>
+          <button type="button">Delete</button>
+          <button type="button">Share to Feed</button>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <!-- Composer -->
+  <div class="composer-backdrop" id="composerBackdrop" role="dialog" aria-modal="true" aria-label="Create post">
+    <div class="composer-sheet">
+      <div class="composer-header">
+        <button type="button" id="composerCancel">✕ Cancel</button>
+        <span style="font-weight:700;font-size:0.9rem">New reaction</span>
+        <button type="button" class="post-btn" id="composerPost" disabled>Post</button>
+      </div>
+      <textarea class="composer-textarea" id="composerText" maxlength="280" placeholder="What's your take?"></textarea>
+      <div class="composer-options">
+        <label class="composer-option">🎬 Tag show/episode (optional)<br /><span style="color:var(--muted);font-size:0.72rem">Search shows…</span></label>
+        <label class="composer-option">📸 Add image (optional)</label>
+        <label class="composer-option"><input type="checkbox" id="spoilerCheck" /> ⚠️ Mark as spoiler</label>
+      </div>
+      <div class="char-count" id="charCount">0/280</div>
+      <div class="composer-suggest" id="composerSuggest" hidden>
+        ⚠️ <strong>The Valley S3E9</strong> aired recently — mark as spoiler?
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const sections = {
+        reactor: document.getElementById("sectionReactor"),
+        watch: document.getElementById("sectionWatch"),
+        diary: document.getElementById("sectionDiary"),
+        news: document.getElementById("sectionNews"),
+      };
+      const previewBtns = document.querySelector(".preview-state-btns");
+      const fab = document.getElementById("fabCompose");
+
+      document.querySelectorAll(".social-nav-item").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const key = btn.dataset.section;
+          document.querySelectorAll(".social-nav-item").forEach((b) => b.classList.toggle("active", b === btn));
+          Object.entries(sections).forEach(([k, el]) => {
+            if (el) el.classList.toggle("active", k === key);
+          });
+          if (previewBtns) previewBtns.style.display = key === "reactor" ? "" : "none";
+          if (fab) fab.style.display = key === "reactor" ? "" : "none";
+        });
+      });
+
+      function bindSubTabs(container, tabAttr, panelAttr, panelClass) {
+        if (!container) return;
+        const tabs = container.querySelectorAll(".feed-tab");
+        const panels = container.querySelectorAll("." + panelClass);
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            const val = tab.dataset[tabAttr];
+            tabs.forEach((t) => {
+              t.classList.toggle("active", t === tab);
+              t.setAttribute("aria-selected", t === tab ? "true" : "false");
+            });
+            panels.forEach((p) => p.classList.toggle("active", p.dataset[panelAttr] === val));
+          });
+        });
+      }
+      bindSubTabs(sections.reactor, "feed", "panel", "feed-panel");
+      bindSubTabs(sections.watch, "wp", "wpPanel", "wp-panel");
+      bindSubTabs(sections.diary, "diary", "diaryPanel", "diary-panel");
+
+      document.querySelectorAll(".reaction-btn:not(.bookmark)").forEach((btn) => {
+        btn.addEventListener("click", () => btn.classList.toggle("selected"));
+      });
+      document.querySelectorAll(".reaction-btn.bookmark").forEach((btn) => {
+        btn.addEventListener("click", () => btn.classList.toggle("selected"));
+      });
+
+      document.querySelectorAll(".read-more").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const el = document.getElementById(btn.dataset.target);
+          if (el) { el.classList.remove("collapsed"); btn.hidden = true; }
+        });
+      });
+
+      const spoilerOverlay = document.getElementById("spoilerOverlay");
+      if (spoilerOverlay) {
+        spoilerOverlay.addEventListener("click", () => {
+          spoilerOverlay.classList.add("revealed");
+          document.getElementById("spoilerContent")?.classList.remove("post-content-hidden");
+        });
+      }
+
+      const views = {
+        feed: document.getElementById("viewFeed"),
+        loading: document.getElementById("viewLoading"),
+        empty: document.getElementById("viewEmpty"),
+        error: document.getElementById("viewError"),
+        "caught-up": document.getElementById("viewCaughtUp"),
+      };
+      document.querySelectorAll(".preview-state-btns button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".preview-state-btns button").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          Object.entries(views).forEach(([k, el]) => { if (el) el.hidden = k !== btn.dataset.state; });
+          if (fab) fab.style.display = btn.dataset.state === "feed" ? "" : "none";
+        });
+      });
+
+      const ptr = document.getElementById("ptrIndicator");
+      const scroll = document.getElementById("feedScroll");
+      let ptrStart = 0;
+      scroll?.addEventListener("touchstart", (e) => { ptrStart = e.touches[0].clientY; }, { passive: true });
+      scroll?.addEventListener("touchmove", (e) => {
+        if (scroll.scrollTop === 0 && e.touches[0].clientY > ptrStart + 60) ptr?.classList.add("visible");
+      }, { passive: true });
+      scroll?.addEventListener("touchend", () => {
+        if (ptr?.classList.contains("visible")) setTimeout(() => ptr.classList.remove("visible"), 1200);
+      });
+
+      const liveChat = document.getElementById("liveChatOverlay");
+      const replayBar = document.getElementById("replayBar");
+      const highlightVote = document.querySelector(".highlight-vote");
+      function openLiveChat(replay) {
+        liveChat?.classList.add("open");
+        if (replayBar) replayBar.hidden = !replay;
+        if (highlightVote) highlightVote.hidden = !!replay;
+      }
+      function closeLiveChat() {
+        liveChat?.classList.remove("open");
+      }
+      document.getElementById("joinLiveChat")?.addEventListener("click", () => openLiveChat(false));
+      document.querySelectorAll(".join-live-btn").forEach((b) => b.addEventListener("click", () => openLiveChat(false)));
+      document.getElementById("viewReplay")?.addEventListener("click", () => openLiveChat(true));
+      document.getElementById("exitLiveChat")?.addEventListener("click", closeLiveChat);
+
+      const chatMessages = document.getElementById("chatMessages");
+      const jumpLatest = document.getElementById("jumpLatest");
+      chatMessages?.addEventListener("scroll", () => {
+        if (!jumpLatest || !chatMessages) return;
+        const atBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < 80;
+        jumpLatest.classList.toggle("visible", !atBottom);
+      });
+      jumpLatest?.addEventListener("click", () => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        jumpLatest.classList.remove("visible");
+      });
+
+      const diaryOverlay = document.getElementById("diaryDetailOverlay");
+      document.querySelectorAll(".diary-day").forEach((day) => {
+        day.addEventListener("click", () => diaryOverlay?.classList.add("open"));
+      });
+      document.getElementById("closeDiaryDetail")?.addEventListener("click", () => diaryOverlay?.classList.remove("open"));
+
+      const backdrop = document.getElementById("composerBackdrop");
+      const textarea = document.getElementById("composerText");
+      const postBtn = document.getElementById("composerPost");
+      const charCount = document.getElementById("charCount");
+      const suggest = document.getElementById("composerSuggest");
+
+      function openComposer() { backdrop.classList.add("open"); textarea.focus(); }
+      function closeComposer() { backdrop.classList.remove("open"); }
+
+      fab?.addEventListener("click", openComposer);
+      document.getElementById("composerCancel")?.addEventListener("click", closeComposer);
+      backdrop?.addEventListener("click", (e) => { if (e.target === backdrop) closeComposer(); });
+
+      textarea?.addEventListener("input", () => {
+        const len = textarea.value.length;
+        charCount.textContent = len + "/280";
+        charCount.classList.toggle("warn", len > 260);
+        postBtn.disabled = len < 10;
+        suggest.hidden = len < 5;
+      });
+
+      postBtn?.addEventListener("click", () => {
+        closeComposer();
+        alert("Preview only — post would submit here.");
+      });
+
+      document.getElementById("retryBtn")?.addEventListener("click", () => {
+        document.querySelector('[data-state="feed"]')?.click();
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,461 @@
+<div class="community-list-view social-hub" id="communityListView" data-social-section="reactor">
+<nav class="social-top-nav" aria-label="Social sections">
+      <button type="button" class="social-nav-item active" data-section="reactor">
+        <span class="social-nav-icon">📱</span>
+        <span class="social-nav-label">Episode Reactor</span>
+      </button>
+      <button type="button" class="social-nav-item" data-section="watch">
+        <span class="social-nav-icon">🔴</span>
+        <span class="social-nav-label">Watch Party</span>
+      </button>
+      <button type="button" class="social-nav-item" data-section="diary">
+        <span class="social-nav-icon">📔</span>
+        <span class="social-nav-label">Show Diary</span>
+      </button>
+      <button type="button" class="social-nav-item" data-section="news">
+        <span class="social-nav-icon">📰</span>
+        <span class="social-nav-label">Breaking News</span>
+      </button>
+    </nav>
+<section id="sectionReactor" class="social-section active" aria-label="Episode Reactor">
+      <div class="ptr-indicator" id="ptrIndicator">
+        <div class="ptr-spinner"></div>
+        <span>Refreshing feed…</span>
+      </div>
+
+      <header class="section-subnav feed-header">
+        <nav class="feed-tabs" role="tablist" aria-label="Feed type">
+          <button type="button" class="feed-tab active" role="tab" aria-selected="true" data-feed="for-you">🔥 For You</button>
+          <button type="button" class="feed-tab" role="tab" aria-selected="false" data-feed="following">👥 Following</button>
+          <button type="button" class="feed-tab" role="tab" aria-selected="false" data-feed="trending">⭐ Trending</button>
+        </nav>
+      </header>
+
+      <div class="content-scroll" id="feedScroll">
+      <!-- FEED STATE -->
+      <div id="viewFeed">
+        <div class="feed-panel active" data-panel="for-you">
+          <h3 class="reactor-discussions-heading" id="communityGeneralHeading">Show discussions</h3>
+          <p class="reactor-discussions-err err" id="communityThreadsErr" style="display: none"></p>
+          <ul class="community-general-list social-reactor-threads" id="communityGeneralList" aria-busy="true"></ul>
+          <article class="post-card" data-post="1">
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/rhobh/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">The Real Housewives of Beverly Hills</h2>
+                <div class="show-ep">S14E8 · Reunion Part 2</div>
+              </div>
+            </div>
+            <div class="post-author"><strong>@kylefan22</strong> · 23m ago</div>
+            <div class="post-divider"></div>
+            <p class="post-body">Kyle saying "I've never lied to any of you" while the entire cast is side-eyeing her is PEAK television. I screamed at my phone 😭</p>
+            <div class="reactions-bar">
+              <button type="button" class="reaction-btn" data-emoji="😱"><span>😱</span> 23</button>
+              <button type="button" class="reaction-btn selected" data-emoji="😭"><span>😭</span> 45</button>
+              <button type="button" class="reaction-btn" data-emoji="😂"><span>😂</span> 67</button>
+              <button type="button" class="reaction-btn" data-emoji="🔥"><span>🔥</span> 12</button>
+              <button type="button" class="reaction-btn" data-emoji="👑"><span>👑</span> 8</button>
+              <button type="button" class="reaction-btn" data-emoji="🚩"><span>🚩</span> 3</button>
+              <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 89</button>
+              <button type="button" class="reaction-btn bookmark" data-emoji="🔖"><span>🔖</span> 5</button>
+            </div>
+            <div class="top-reply">
+              <div class="top-reply-label">💭 Top reply</div>
+              <p class="top-reply-text"><strong>@suttonsays</strong> "The side-eye cam alone deserves an Emmy"</p>
+              <div class="top-reply-actions">
+                <span>❤️ 12</span>
+                <button type="button">↩️ Reply</button>
+                <button type="button">Quote</button>
+              </div>
+            </div>
+            <button type="button" class="view-replies">View all 89 replies</button>
+            <button type="button" class="add-reaction">➕ Add your reaction</button>
+          </article>
+
+          <article class="post-card spoiler-card" data-post="2">
+            <div class="spoiler-overlay" id="spoilerOverlay">
+              <h3>⚠️ SPOILER ALERT ⚠️</h3>
+              <p>The Valley · S3E9</p>
+              <p>Tap to reveal spoiler<br />(This content discusses plot details)</p>
+            </div>
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/valley/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">The Valley</h2>
+                <div class="show-ep">S3E9 <span class="spoiler-badge">Spoiler</span></div>
+              </div>
+            </div>
+            <div class="post-content-hidden" id="spoilerContent">
+              <div class="post-author"><strong>@valleywatch</strong> · 1h ago</div>
+              <div class="post-divider"></div>
+              <p class="post-body">I CANNOT believe Janet went to Michelle first instead of Danny. That conversation at the end completely changed how I see their whole arc this season. Michelle's face said everything.</p>
+              <div class="reactions-bar">
+                <button type="button" class="reaction-btn" data-emoji="😱"><span>😱</span> 156</button>
+                <button type="button" class="reaction-btn" data-emoji="😭"><span>😭</span> 89</button>
+                <button type="button" class="reaction-btn" data-emoji="🔥"><span>🔥</span> 234</button>
+                <button type="button" class="reaction-btn" data-emoji="🚩"><span>🚩</span> 41</button>
+                <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 312</button>
+                <button type="button" class="reaction-btn bookmark" data-emoji="🔖"><span>🔖</span> 28</button>
+              </div>
+            </div>
+            <button type="button" class="add-reaction" style="margin-top:0.65rem">➕ Add your reaction</button>
+          </article>
+
+          <article class="post-card" data-post="3">
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/summer/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">Summer House</h2>
+                <div class="show-ep">S8E5</div>
+              </div>
+            </div>
+            <div class="post-author"><strong>@hamptonslife</strong> · 3h ago</div>
+            <div class="post-divider"></div>
+            <p class="post-body collapsed" id="longPost">Okay I need to unpack this because what happened at the pool party was genuinely unhinged. First Carl shows up uninvited which is already a red flag, then Lindsay starts going OFF about the guest list like she owns the house (she doesn't??), and then Paige just sits there eating a salad like she's watching a nature documentary. The producer zoom on Kyle's face when Lindsay said "I don't trust anyone here" — that was a CHOICE. And don't even get me started on the confessional where she tries to rewrite history from last season. I'm team nobody at this point but I'm still watching every second.</p>
+            <button type="button" class="read-more" data-target="longPost">Read more</button>
+            <img class="post-media" src="https://picsum.photos/seed/poolparty/800/450" alt="Scene still" loading="lazy" />
+            <div class="reactions-bar">
+              <button type="button" class="reaction-btn" data-emoji="😂"><span>😂</span> 412</button>
+              <button type="button" class="reaction-btn" data-emoji="🔥"><span>🔥</span> 198</button>
+              <button type="button" class="reaction-btn" data-emoji="🚩"><span>🚩</span> 67</button>
+              <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 156</button>
+              <button type="button" class="reaction-btn bookmark selected" data-emoji="🔖"><span>🔖</span> 34</button>
+            </div>
+            <div class="top-reply">
+              <div class="top-reply-label">💭 Top reply</div>
+              <p class="top-reply-text"><strong>@bravo_insider</strong> "Paige and the salad is my Roman empire"</p>
+              <div class="top-reply-actions"><span>❤️ 89</span><button type="button">↩️ Reply</button></div>
+            </div>
+            <button type="button" class="view-replies">View all 156 replies</button>
+            <button type="button" class="add-reaction">➕ Add your reaction</button>
+          </article>
+
+          <article class="post-card" data-post="4">
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/below/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">Below Deck Mediterranean</h2>
+                <div class="show-ep">S9E12</div>
+              </div>
+            </div>
+            <div class="post-author"><strong>@yachtlife</strong> · 5h ago</div>
+            <div class="post-divider"></div>
+            <p class="post-body">Captain Sandy's speech about leadership had me in tears. Best episode of the season, no debate.</p>
+            <div class="reactions-bar">
+              <button type="button" class="reaction-btn" data-emoji="😭"><span>😭</span> 78</button>
+              <button type="button" class="reaction-btn" data-emoji="👑"><span>👑</span> 145</button>
+              <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 42</button>
+            </div>
+            <button type="button" class="add-reaction">➕ Add your reaction</button>
+          </article>
+        </div>
+
+        <div class="feed-panel" data-panel="following">
+          <article class="post-card">
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/vander/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">Vanderpump Rules</h2>
+                <div class="show-ep">S11E14</div>
+              </div>
+            </div>
+            <div class="post-author"><strong>@jojobinks</strong> · 45m ago · Following</div>
+            <div class="post-divider"></div>
+            <p class="post-body">Scheana's confessional about "choosing peace" while actively stirring the pot is so on brand I can't even be mad.</p>
+            <div class="reactions-bar">
+              <button type="button" class="reaction-btn" data-emoji="😂"><span>😂</span> 12</button>
+              <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 4</button>
+            </div>
+            <button type="button" class="add-reaction">➕ Add your reaction</button>
+          </article>
+          <article class="post-card">
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/vander/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">Vanderpump Rules</h2>
+                <div class="show-ep">S11E14 · 2 more posts</div>
+              </div>
+            </div>
+            <div class="post-author"><strong>@realitytea</strong> · 2h ago · Following</div>
+            <div class="post-divider"></div>
+            <p class="post-body">The Tom / Raquel tension this episode was UNCOMFORTABLE. Grouped with 2 other posts about this episode.</p>
+            <button type="button" class="view-replies">View 2 related posts</button>
+          </article>
+        </div>
+
+        <div class="feed-panel" data-panel="trending">
+          <article class="post-card">
+            <div class="show-context">
+              <img class="show-poster" src="https://picsum.photos/seed/love/120/180" alt="" width="60" height="90" loading="lazy" />
+              <div class="show-meta">
+                <h2 class="show-title">Love Is Blind</h2>
+                <div class="show-ep">S8E10 · 🔥 Trending #1</div>
+              </div>
+            </div>
+            <div class="post-author"><strong>@podcastqueen</strong> · 38m ago · 847 engagements/hr</div>
+            <div class="post-divider"></div>
+            <p class="post-body">THE REVEAL. I am not okay. This is why we watch.</p>
+            <div class="reactions-bar">
+              <button type="button" class="reaction-btn selected" data-emoji="😱"><span>😱</span> 1.2k</button>
+              <button type="button" class="reaction-btn" data-emoji="🔥"><span>🔥</span> 890</button>
+              <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 534</button>
+            </div>
+            <button type="button" class="add-reaction">➕ Add your reaction</button>
+          </article>
+        </div>
+      </div>
+
+      
+
+      <button type="button" class="fab-compose hidden" id="fabCompose" hidden aria-label="Create post">➕</button>
+    </section>
+<!-- ═══ WATCH PARTY LIVE ═══ -->
+    <section id="sectionWatch" class="social-section" aria-label="Watch Party Live">
+      <header class="section-subnav">
+        <nav class="feed-tabs" role="tablist" aria-label="Watch party lobby">
+          <button type="button" class="feed-tab active" data-wp="live">🔴 Live Now</button>
+          <button type="button" class="feed-tab" data-wp="upcoming">📅 Upcoming</button>
+          <button type="button" class="feed-tab" data-wp="past">📼 Past</button>
+        </nav>
+      </header>
+      <div class="content-scroll" id="watchScroll">
+        <div class="wp-panel active" data-wp-panel="live">
+          <article class="party-card">
+            <img class="party-banner" src="https://picsum.photos/seed/valleylive/800/450" alt="" loading="lazy" />
+            <div class="party-body">
+              <div class="party-live-badge"><span class="party-live-dot"></span> LIVE: The Valley · S3E9</div>
+              <p class="party-ep-title">"The Confrontation"</p>
+              <div class="party-meta">
+                <span>👥 234 watching live</span>
+                <span>⏱️ Started 12 min ago</span>
+                <span>👤 Host: <strong>@valleywatch</strong></span>
+              </div>
+              <button type="button" class="btn-gradient" id="joinLiveChat">Join Live Chat</button>
+              <div class="party-actions">
+                <button type="button">Share</button>
+                <button type="button">Set Reminder for Next Week</button>
+              </div>
+            </div>
+          </article>
+          <article class="party-card">
+            <img class="party-banner" src="https://picsum.photos/seed/rhoblive/800/450" alt="" loading="lazy" />
+            <div class="party-body">
+              <div class="party-live-badge"><span class="party-live-dot"></span> LIVE: RHOBH · S14E8</div>
+              <p class="party-ep-title">Reunion Part 2</p>
+              <div class="party-meta">
+                <span>👥 156 watching live</span>
+                <span>⏱️ Started 28 min ago</span>
+                <span>👤 Host: <strong>@bravohost</strong></span>
+              </div>
+              <button type="button" class="btn-gradient join-live-btn">Join Live Chat</button>
+              <div class="party-actions"><button type="button">Share</button><button type="button">Set Reminder</button></div>
+            </div>
+          </article>
+        </div>
+        <div class="wp-panel" data-wp-panel="upcoming">
+          <article class="party-card">
+            <div class="party-body">
+              <div class="party-row">
+                <img class="show-poster" src="https://picsum.photos/seed/summer/120/180" alt="" loading="lazy" />
+                <div>
+                  <h3 class="party-title">Summer House · S8E6</h3>
+                  <p class="party-ep-title">📅 Tonight at 9:00 PM ET</p>
+                  <p class="party-ep-title">⏰ Starts in 1h 23m</p>
+                </div>
+              </div>
+              <div class="party-meta">
+                <span>👥 47 marked "I'm watching"</span>
+                <span>👤 Hosted by <strong>@hamptonslife</strong></span>
+              </div>
+              <button type="button" class="btn-gradient">Set Reminder</button>
+              <div class="party-actions"><button type="button">Mark: I'm Watching</button><button type="button">Share</button></div>
+            </div>
+          </article>
+        </div>
+        <div class="wp-panel" data-wp-panel="past">
+          <article class="party-card">
+            <div class="party-body">
+              <div class="party-row">
+                <img class="show-poster" src="https://picsum.photos/seed/valley/120/180" alt="" loading="lazy" />
+                <div>
+                  <h3 class="party-title">The Valley · S3E8</h3>
+                  <p class="party-ep-title">📼 Aired May 19 at 9:00 PM</p>
+                  <p class="party-ep-title">👥 342 participants · 1,234 messages</p>
+                </div>
+              </div>
+              <p class="party-ep-title">🔥 Top Highlight: "The confrontation" at 12:34</p>
+              <button type="button" class="btn-gradient" id="viewReplay">View Replay</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+<!-- ═══ SHOW DIARY ═══ -->
+    <section id="sectionDiary" class="social-section" aria-label="Show Diary">
+      <header class="section-subnav">
+        <nav class="feed-tabs" role="tablist" aria-label="Diary sections">
+          <button type="button" class="feed-tab active" data-diary="calendar">📔 My Diary</button>
+          <button type="button" class="feed-tab" data-diary="stats">📊 Stats</button>
+          <button type="button" class="feed-tab" data-diary="lists">🎬 Lists</button>
+        </nav>
+      </header>
+      <div class="content-scroll" id="diaryScroll">
+        <div class="diary-panel active" data-diary-panel="calendar">
+          <div class="month-header">
+            <button type="button" aria-label="Previous month">‹</button>
+            <h2>MAY 2026</h2>
+            <button type="button" aria-label="Next month">›</button>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-dow">MON</div><div class="cal-dow">TUE</div><div class="cal-dow">WED</div><div class="cal-dow">THU</div><div class="cal-dow">FRI</div><div class="cal-dow">SAT</div><div class="cal-dow">SUN</div>
+            <div class="cal-day empty-day"><div class="cal-day-num">1</div></div>
+            <div class="cal-day empty-day"><div class="cal-day-num">2</div></div>
+            <div class="cal-day has-entries" data-day="3"><div class="cal-day-num">3</div><img class="cal-mini-poster" src="https://picsum.photos/seed/v1/40/60" alt="" /><div class="cal-stars">⭐⭐</div></div>
+            <div class="cal-day has-entries diary-day" data-day="10"><div class="cal-day-num">10</div><img class="cal-mini-poster" src="https://picsum.photos/seed/valley/40/60" alt="" /><div class="cal-stars">⭐⭐⭐⭐</div></div>
+            <div class="cal-day has-entries"><div class="cal-day-num">11</div><img class="cal-mini-poster" src="https://picsum.photos/seed/summer/40/60" alt="" /><div class="cal-stars">⭐⭐⭐</div></div>
+            <div class="cal-day today has-entries"><div class="cal-day-num">24</div><img class="cal-mini-poster" src="https://picsum.photos/seed/rhobh/40/60" alt="" /><div class="cal-stars">⭐⭐⭐</div></div>
+          </div>
+          <div class="week-summary"><strong>This week:</strong> 11 episodes · ⭐ 4.2 avg rating<br />Most watched: <strong>The Valley</strong> (3 episodes)</div>
+        </div>
+        <div class="diary-panel" data-diary-panel="stats">
+          <div class="stat-cards">
+            <div class="stat-card"><h3>🎬 Total Episodes Watched</h3><p class="stat-value">1,234</p><p class="stat-sub">Across 42 shows</p></div>
+            <div class="stat-card"><h3>⭐ Average Rating</h3><p class="stat-value">4.2</p><p class="stat-sub">Based on 1,234 ratings</p></div>
+            <div class="stat-card"><h3>📺 Watch Time</h3><p class="stat-value">523 hrs</p><p class="stat-sub">That's 21.8 days!</p>
+              <div class="stat-chart"><div class="stat-bar" style="height:45%"></div><div class="stat-bar" style="height:70%"></div><div class="stat-bar" style="height:55%"></div><div class="stat-bar" style="height:90%"></div><div class="stat-bar" style="height:60%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="diary-panel" data-diary-panel="lists">
+          <article class="list-card">
+            <div class="list-thumb-grid">
+              <img src="https://picsum.photos/seed/l1/60/60" alt="" /><img src="https://picsum.photos/seed/l2/60/60" alt="" />
+              <img src="https://picsum.photos/seed/l3/60/60" alt="" /><img src="https://picsum.photos/seed/l4/60/60" alt="" />
+            </div>
+            <div><h3>Best Reality TV Moments</h3><p>By @jojobinks · 12 episodes · Updated 2 days ago</p><p>👍 45 likes · 💬 8 comments</p></div>
+          </article>
+          <article class="list-card">
+            <div class="list-thumb-grid">
+              <img src="https://picsum.photos/seed/l5/60/60" alt="" /><img src="https://picsum.photos/seed/l6/60/60" alt="" />
+              <img src="https://picsum.photos/seed/l7/60/60" alt="" /><img src="https://picsum.photos/seed/l8/60/60" alt="" />
+            </div>
+            <div><h3>Episodes That Made Me Cry</h3><p>By @jojobinks · 8 episodes · Private</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+<section id="sectionNews" class="social-section" aria-label="Breaking News">
+      <div class="content-scroll" id="newsScroll">
+        <p class="community-replace-banner">
+          <strong>Gossip hub.</strong> Your shows, cast drama, and TV tea — pulled from your watchlist.
+        </p>
+        <div class="gossip-page-head">
+          <h2>Today's Tea &#9749;</h2>
+          <p id="socialGossipMeta">Loading stories…</p>
+        </div>
+        <p class="gossip-empty err" id="socialGossipErr" hidden role="alert"></p>
+        <div id="socialGossipLoading" aria-hidden="true">
+          <div class="gossip-skeleton-hero"></div>
+          <div class="gossip-skeleton-item"></div>
+          <div class="gossip-skeleton-item"></div>
+          <div class="gossip-skeleton-item"></div>
+        </div>
+        <div id="socialGossipContent" hidden>
+          <div id="socialGossipHeroWrap"></div>
+          <div class="gossip-trending" id="socialGossipTrending" aria-label="Trending topics" hidden></div>
+          <h3 class="gossip-section-label">Latest headlines <span>From your shows</span></h3>
+          <ul class="gossip-feed" id="socialGossipFeed"></ul>
+          <div id="socialGossipIndustryBlock">
+          <div class="gossip-divider"></div>
+          <h3 class="gossip-section-label">Industry &amp; casting <span>Broader TV news</span></h3>
+          <ul class="gossip-feed" id="socialGossipIndustryFeed"></ul>
+          </div>
+        </div>
+        <p class="gossip-empty" id="socialGossipEmpty" hidden>No stories in the last 48 hours. Check back soon.</p>
+      </div>
+    </section>
+<!-- Live chat overlay -->
+  <div class="live-chat-overlay" id="socialLiveChatOverlay" aria-label="Live watch party chat">
+    <header class="chat-header">
+      <div class="chat-header-top">
+        <button type="button" class="chat-exit" id="socialExitLiveChat">← Exit</button>
+        <span class="chat-header-title">The Valley S3E9</span>
+        <span class="chat-live-count"><span class="party-live-dot"></span> 156 live</span>
+      </div>
+      <p class="chat-ep-sub">Episode: "The Confrontation"</p>
+    </header>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg chat-mod">
+        <div class="chat-msg-author"><strong>@moderator</strong><span class="chat-mod-badge">🛡️ MOD</span> · 30s ago</div>
+        <p class="chat-msg-body">Welcome everyone! Episode starting soon!</p>
+      </div>
+      <div class="chat-system"><span>──────── Commercial break ────────</span></div>
+      <div class="chat-msg">
+        <div class="chat-msg-author"><strong>@kylefan22</strong> · 12s ago</div>
+        <p class="chat-msg-body">OMG DID SHE JUST SAY THAT?! 😱</p>
+        <div class="chat-msg-actions"><span>❤️ 12</span><button type="button">💬 Reply</button></div>
+      </div>
+      <div class="chat-msg chat-highlight">
+        <div class="chat-highlight-label">🔥 HIGHLIGHT MOMENT</div>
+        <p class="chat-msg-body"><strong>@mod:</strong> "The confrontation scene!" at 12:34</p>
+        <div class="chat-msg-actions">👍 89 votes</div>
+      </div>
+      <div class="chat-msg">
+        <div class="chat-msg-author"><strong>@valleywatch</strong> · 2s ago</div>
+        <p class="chat-msg-body">MICHELLE'S FACE I AM SCREAMING</p>
+        <div class="chat-msg-actions"><span>❤️ 34</span><button type="button">💬 Reply</button></div>
+      </div>
+    </div>
+    <button type="button" class="jump-latest" id="jumpLatest">Jump to latest ↓</button>
+    <div class="highlight-vote">
+      ⚡ Something epic just happened?<br />
+      <button type="button">Vote This as Highlight 🔥</button>
+      <div style="margin-top:0.35rem;color:var(--muted)">Current timestamp: 12:34 · 23 users voted</div>
+    </div>
+    <div class="replay-bar" id="replayBar" hidden>
+      <span>⏮</span><span>⏸</span><span>⏯</span><span>⏭</span>
+      <div class="replay-scrub"><div class="replay-scrub-fill"></div></div>
+      <span>12:34 / 42:00</span>
+    </div>
+    <footer class="chat-composer">
+      <div class="chat-input-row">
+        <input type="text" class="chat-input" placeholder="Type your reaction…" />
+        <button type="button" class="chat-send">Send</button>
+      </div>
+      <div class="chat-emoji-bar">
+        <button type="button">😱</button><button type="button">😭</button><button type="button">😂</button>
+        <button type="button">🔥</button><button type="button">👑</button><button type="button">🚩</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Diary day detail -->
+  <div class="diary-detail-overlay" id="socialDiaryDetailOverlay">
+    <header class="diary-detail-header">
+      <button type="button" id="socialCloseDiaryDetail">← Back to Calendar</button>
+      <h2>May 10, 2026</h2>
+      <p>Friday</p>
+    </header>
+    <div class="diary-detail-scroll">
+      <article class="diary-entry-card">
+        <div class="show-context">
+          <img class="show-poster" src="https://picsum.photos/seed/valley/120/180" alt="" loading="lazy" />
+          <div class="show-meta">
+            <h2 class="show-title">The Valley · S3E9</h2>
+            <div class="show-ep">"The Confrontation"</div>
+            <div class="show-ep">Watched at 9:34 PM</div>
+          </div>
+        </div>
+        <div class="diary-stars">⭐⭐⭐⭐</div>
+        <p class="diary-review">"Holy shit this episode!! The way Sarah confronted Mike at dinner with everyone watching was PEAK reality TV. I rewound that scene three times. 10/10 drama."</p>
+        <p class="diary-tags">#confrontation #realitytv #peak</p>
+        <div class="diary-entry-actions">🔥 34 likes · 💬 12 comments · 🔁 5 shares</div>
+        <div class="diary-entry-btns">
+          <button type="button">Edit Entry</button>
+          <button type="button">Delete</button>
+          <button type="button">Share to Feed</button>
+        </div>
+      </article>
+    </div>
+  </div>
+</div>
