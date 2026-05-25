@@ -38,6 +38,7 @@
           <h3 class="reactor-discussions-heading" id="communityGeneralHeading">Show discussions</h3>
           <p class="reactor-discussions-err err" id="communityThreadsErr" style="display: none"></p>
           <ul class="community-general-list social-reactor-threads" id="communityGeneralList" aria-busy="true"></ul>
+          <div class="reactor-mock-feed" data-preview-mock="reactor-feed">
           <article class="post-card" data-post="1">
             <div class="show-context">
               <img class="show-poster" src="https://picsum.photos/seed/rhobh/120/180" alt="" width="60" height="90" loading="lazy" />
@@ -148,6 +149,7 @@
             </div>
             <button type="button" class="add-reaction">➕ Add your reaction</button>
           </article>
+          </div>
         </div>
 
         <div class="feed-panel" data-panel="following">
@@ -220,7 +222,7 @@
       </header>
       <div class="content-scroll" id="watchScroll">
         <div class="wp-panel active" data-wp-panel="live">
-          <article class="party-card">
+          <article class="party-card" data-party-key="valley-s3e9-live" data-party-title="The Valley · S3E9" data-party-ep="The Confrontation" data-remind-offset-days="7">
             <img class="party-banner" src="https://picsum.photos/seed/valleylive/800/450" alt="" loading="lazy" />
             <div class="party-body">
               <div class="party-live-badge"><span class="party-live-dot"></span> LIVE: The Valley · S3E9</div>
@@ -230,14 +232,14 @@
                 <span>⏱️ Started 12 min ago</span>
                 <span>👤 Host: <strong>@valleywatch</strong></span>
               </div>
-              <button type="button" class="btn-gradient" id="joinLiveChat">Join Live Chat</button>
+              <button type="button" class="btn-gradient wp-btn-join-live" id="socialJoinLiveChat">Join Live Chat</button>
               <div class="party-actions">
-                <button type="button">Share</button>
-                <button type="button">Set Reminder for Next Week</button>
+                <button type="button" class="wp-btn-share">Share</button>
+                <button type="button" class="wp-btn-set-reminder">Set Reminder for Next Week</button>
               </div>
             </div>
           </article>
-          <article class="party-card">
+          <article class="party-card" data-party-key="rhobh-s14e8-live" data-party-title="RHOBH · S14E8" data-party-ep="Reunion Part 2" data-remind-offset-days="7">
             <img class="party-banner" src="https://picsum.photos/seed/rhoblive/800/450" alt="" loading="lazy" />
             <div class="party-body">
               <div class="party-live-badge"><span class="party-live-dot"></span> LIVE: RHOBH · S14E8</div>
@@ -247,13 +249,13 @@
                 <span>⏱️ Started 28 min ago</span>
                 <span>👤 Host: <strong>@bravohost</strong></span>
               </div>
-              <button type="button" class="btn-gradient join-live-btn">Join Live Chat</button>
-              <div class="party-actions"><button type="button">Share</button><button type="button">Set Reminder</button></div>
+              <button type="button" class="btn-gradient wp-btn-join-live join-live-btn">Join Live Chat</button>
+              <div class="party-actions"><button type="button" class="wp-btn-share">Share</button><button type="button" class="wp-btn-set-reminder">Set Reminder</button></div>
             </div>
           </article>
         </div>
         <div class="wp-panel" data-wp-panel="upcoming">
-          <article class="party-card">
+          <article class="party-card" data-party-key="summer-house-s8e6" data-party-title="Summer House · S8E6" data-party-ep="S8E6" data-remind-at="2026-05-26T01:00:00.000Z">
             <div class="party-body">
               <div class="party-row">
                 <img class="show-poster" src="https://picsum.photos/seed/summer/120/180" alt="" loading="lazy" />
@@ -267,13 +269,13 @@
                 <span>👥 47 marked "I'm watching"</span>
                 <span>👤 Hosted by <strong>@hamptonslife</strong></span>
               </div>
-              <button type="button" class="btn-gradient">Set Reminder</button>
-              <div class="party-actions"><button type="button">Mark: I'm Watching</button><button type="button">Share</button></div>
+              <button type="button" class="btn-gradient wp-btn-set-reminder">Set Reminder</button>
+              <div class="party-actions"><button type="button" class="wp-btn-mark-watching">Mark: I'm Watching</button><button type="button" class="wp-btn-share">Share</button></div>
             </div>
           </article>
         </div>
         <div class="wp-panel" data-wp-panel="past">
-          <article class="party-card">
+          <article class="party-card" data-party-key="valley-s3e8-replay" data-party-title="The Valley · S3E8" data-party-ep="S3E8" data-replay="1">
             <div class="party-body">
               <div class="party-row">
                 <img class="show-poster" src="https://picsum.photos/seed/valley/120/180" alt="" loading="lazy" />
@@ -284,7 +286,7 @@
                 </div>
               </div>
               <p class="party-ep-title">🔥 Top Highlight: "The confrontation" at 12:34</p>
-              <button type="button" class="btn-gradient" id="viewReplay">View Replay</button>
+              <button type="button" class="btn-gradient wp-btn-view-replay" id="socialViewReplay">View Replay</button>
             </div>
           </article>
         </div>
@@ -318,13 +320,10 @@
           <div class="week-summary"><strong>This week:</strong> 11 episodes · ⭐ 4.2 avg rating<br />Most watched: <strong>The Valley</strong> (3 episodes)</div>
         </div>
         <div class="diary-panel" data-diary-panel="stats">
-          <div class="stat-cards">
-            <div class="stat-card"><h3>🎬 Total Episodes Watched</h3><p class="stat-value">1,234</p><p class="stat-sub">Across 42 shows</p></div>
-            <div class="stat-card"><h3>⭐ Average Rating</h3><p class="stat-value">4.2</p><p class="stat-sub">Based on 1,234 ratings</p></div>
-            <div class="stat-card"><h3>📺 Watch Time</h3><p class="stat-value">523 hrs</p><p class="stat-sub">That's 21.8 days!</p>
-              <div class="stat-chart"><div class="stat-bar" style="height:45%"></div><div class="stat-bar" style="height:70%"></div><div class="stat-bar" style="height:55%"></div><div class="stat-bar" style="height:90%"></div><div class="stat-bar" style="height:60%"></div></div>
-            </div>
-          </div>
+          <h3 class="reactor-discussions-heading diary-stats-heading">Your stats</h3>
+          <p class="muted diary-loading" id="diaryStatsLoading" hidden style="font-size:0.82rem;margin:0 0 0.75rem">Loading stats…</p>
+          <p class="err diary-err" id="diaryStatsErr" hidden style="font-size:0.82rem;margin:0 0 0.75rem"></p>
+          <div class="myshows-analytics diary-stats-grid" id="diaryStatsCards" aria-live="polite"></div>
         </div>
         <div class="diary-panel" data-diary-panel="lists">
           <article class="list-card">

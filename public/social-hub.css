@@ -37,6 +37,12 @@
   letter-spacing: 0.07em; text-transform: uppercase; color: var(--sh-cyan, var(--neon-cyan));
 }
 #tab-community .social-hub .reactor-discussions-err { font-size: 0.75rem; margin: 0 0 0.65rem; }
+#tab-community .social-hub .reactor-mock-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
+}
 #tab-community .social-hub .gossip-skeleton-hero {
   min-height: 200px; border-radius: 16px; margin-bottom: 0.75rem;
   background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.1), rgba(255,255,255,0.04));
@@ -820,6 +826,68 @@ body:has(#tab-community.tab-panel.active #communityListView[data-social-section=
     /* ── Watch Party ── */
     #tab-community .social-hub .wp-panel { display: none; }
     #tab-community .social-hub .wp-panel.active { display: block; }
+    #tab-community .social-hub .party-card.party-im-watching {
+      animation: party-watching-pulse 2.2s ease-in-out infinite;
+      border-color: rgba(34, 197, 94, 0.55);
+    }
+    @keyframes party-watching-pulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(34, 197, 94, 0.25); }
+      50% { box-shadow: 0 0 22px rgba(34, 197, 94, 0.65); }
+    }
+    #tab-community .social-hub .wp-btn-mark-watching.active {
+      color: #4ade80;
+      border-color: rgba(34, 197, 94, 0.65);
+      animation: party-watching-pulse 2.2s ease-in-out infinite;
+    }
+    #tab-community .social-hub .wp-btn-set-reminder.set {
+      opacity: 0.85;
+    }
+#watchPartyShareModal .watch-party-share-panel {
+  max-width: 22rem;
+}
+#watchPartyShareModal .watch-party-share-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+#watchPartyShareModal .watch-party-share-opt {
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 650;
+  padding: 0.65rem 0.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(130, 200, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text, #f4f7fc);
+  cursor: pointer;
+  text-align: center;
+}
+#watchPartyShareModal .watch-party-share-opt:hover {
+  border-color: var(--neon-cyan, #22d3ee);
+  background: rgba(34, 211, 238, 0.08);
+}
+#watchPartyShareModal .watch-party-share-dm-list {
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  max-height: 12rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+#watchPartyShareModal .watch-party-share-dm-list button {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 0.82rem;
+  padding: 0.5rem 0.55rem;
+  border-radius: 10px;
+  border: 1px solid rgba(130, 200, 255, 0.14);
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+  cursor: pointer;
+}
     #tab-community .social-hub .party-card {
       margin-bottom: 12px;
       border-radius: 16px;
@@ -1191,6 +1259,58 @@ body:has(#tab-community.tab-panel.active #communityListView[data-social-section=
       margin-bottom: 0.75rem;
     }
     #tab-community .social-hub .week-summary strong { color: #fff; }
+    #tab-community .social-hub .diary-stats-heading {
+      margin: 0 0 0.55rem;
+    }
+    #tab-community .social-hub .myshows-analytics.diary-stats-grid,
+    #tab-community .social-hub .diary-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.4rem;
+      margin-bottom: 0.65rem;
+    }
+    @media (min-width: 720px) {
+      #tab-community .social-hub .myshows-analytics.diary-stats-grid,
+      #tab-community .social-hub .diary-stats-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+    #tab-community .social-hub .diary-stats-grid .myshows-stat-card {
+      padding: 0.45rem 0.5rem 0.5rem;
+      border-radius: 10px;
+      border: 1px solid rgba(130, 200, 255, 0.16);
+      background: linear-gradient(145deg, rgba(8, 12, 28, 0.88), rgba(14, 10, 32, 0.82));
+      box-shadow: 0 0 18px -10px rgba(34, 211, 238, 0.35);
+      min-height: 58px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.12rem;
+    }
+    #tab-community .social-hub .diary-stats-grid .myshows-stat-card--wide {
+      grid-column: 1 / -1;
+    }
+    #tab-community .social-hub .diary-stats-grid .myshows-stat-icon {
+      font-size: 0.72rem;
+      opacity: 0.75;
+    }
+    #tab-community .social-hub .diary-stats-grid .myshows-stat-value {
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: #f8fafc;
+    }
+    #tab-community .social-hub .diary-stats-grid .myshows-stat-label {
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(148, 163, 184, 0.95);
+    }
+    #tab-community .social-hub .diary-stats-grid .myshows-stat-sub {
+      font-size: 0.62rem;
+      color: rgba(186, 230, 253, 0.75);
+      line-height: 1.25;
+    }
     #tab-community .social-hub .stat-cards { display: flex; flex-direction: column; gap: 0.65rem; }
     #tab-community .social-hub .stat-card {
       padding: 1rem;

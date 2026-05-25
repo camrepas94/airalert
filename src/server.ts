@@ -47,6 +47,12 @@ import {
   runPersonNewProjectNotifications,
 } from "./jobs.js";
 import {
+  listWatchPartyReminders,
+  runWatchPartyReminderNotifications,
+  upsertWatchPartyReminder,
+} from "./watchPartyReminders.js";
+import { getShowDiary } from "./showDiary.js";
+import {
   pollRssFeeds,
   refreshAllCastCache,
   getTickerItems,
@@ -6122,6 +6128,26 @@ app.get("/api/users/:userId/my-shows-analytics", async (request, reply) => {
   return getMyShowsAnalytics(userId);
 });
 
+app.get("/api/users/:userId/show-diary", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  if (!assertSelfOrAdmin(request, reply, userId)) return;
+  const q = request.query as { year?: string; month?: string };
+  const now = new Date();
+  const year = q.year != null ? Number(q.year) : now.getFullYear();
+  const month = q.month != null ? Number(q.month) : now.getMonth() + 1;
+  try {
+    return getShowDiary(userId, year, month);
+  } catch (e) {
+    reply.code(400);
+    return { error: e instanceof Error ? e.message : "Invalid request" };
+  }
+});
+
 app.patch("/api/users/:userId/watch-tasks/:taskId", async (request, reply) => {
   const { userId, taskId } = request.params as { userId: string; taskId: string };
   const body = (request.body ?? {}) as { completed?: boolean; status?: string };
@@ -6307,6 +6333,68 @@ app.delete("/api/users/:userId/activity-notifications/:notificationId", async (r
     return { error: "Not found" };
   }
   return { ok: true };
+});
+
+app.get("/api/users/:userId/watch-party/reminders", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401);
+    return { error: "Sign in required" };
+  }
+  if (sid !== userId) {
+    reply.code(403);
+    return { error: "Forbidden" };
+  }
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const rows = listWatchPartyReminders(userId);
+  return {
+    reminders: rows.map((r) => ({
+      id: r.id,
+      partyKey: r.party_key,
+      partyTitle: r.party_title,
+      remindAt: r.remind_at,
+      sentAt: r.sent_at,
+      createdAt: r.created_at,
+    })),
+  };
+});
+
+app.post("/api/users/:userId/watch-party/reminders", async (request, reply) => {
+  const { userId } = request.params as { userId: string };
+  const sid = sessionUserIdFromRequest(request);
+  if (!sid) {
+    reply.code(401);
+    return { error: "Sign in required" };
+  }
+  if (sid !== userId) {
+    reply.code(403);
+    return { error: "Forbidden" };
+  }
+  const u = db.prepare(`SELECT id FROM users WHERE id = ?`).get(userId);
+  if (!u) {
+    reply.code(404);
+    return { error: "User not found" };
+  }
+  const body = request.body as { partyKey?: string; partyTitle?: string; remindAt?: string } | null;
+  const partyKey = body?.partyKey != null ? String(body.partyKey).trim() : "";
+  const partyTitle = body?.partyTitle != null ? String(body.partyTitle).trim() : "";
+  const remindAt = body?.remindAt != null ? String(body.remindAt).trim() : "";
+  if (!partyKey || !partyTitle || !remindAt) {
+    reply.code(400);
+    return { error: "partyKey, partyTitle, and remindAt are required" };
+  }
+  try {
+    const out = upsertWatchPartyReminder({ userId, partyKey, partyTitle, remindAt });
+    return { ok: true, reminder: out };
+  } catch (e) {
+    reply.code(400);
+    return { error: e instanceof Error ? e.message : "Invalid reminder" };
+  }
 });
 
 app.get("/api/users/:userId/upcoming", async (request, reply) => {
@@ -9260,6 +9348,17 @@ app.get("/guide-delete-account.html", async (_req, reply) =>
 app.get("/report-bug.html", async (_req, reply) =>
   sendPublicUtf8File(reply, "report-bug.html", "text/html", "no-store, max-age=0"),
 );
+
+cron.schedule("* * * * *", async () => {
+  try {
+    const wp = await runWatchPartyReminderNotifications();
+    if (wp > 0) {
+      app.log.info({ count: wp }, "watch party reminder notifications sent");
+    }
+  } catch (err) {
+    app.log.error(err, "watch party reminder cron failed");
+  }
+});
 
 cron.schedule("5 * * * *", async () => {
   try {

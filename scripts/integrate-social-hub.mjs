@@ -74,6 +74,12 @@ const hubLayout = `#tab-community .social-hub {
   letter-spacing: 0.07em; text-transform: uppercase; color: var(--sh-cyan, var(--neon-cyan));
 }
 #tab-community .social-hub .reactor-discussions-err { font-size: 0.75rem; margin: 0 0 0.65rem; }
+#tab-community .social-hub .reactor-mock-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
+}
 #tab-community .social-hub .gossip-skeleton-hero {
   min-height: 200px; border-radius: 16px; margin-bottom: 0.75rem;
   background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.1), rgba(255,255,255,0.04));
@@ -122,7 +128,12 @@ reactor = reactor.replace(
   `<div class="feed-panel active" data-panel="for-you">
           <h3 class="reactor-discussions-heading" id="communityGeneralHeading">Show discussions</h3>
           <p class="reactor-discussions-err err" id="communityThreadsErr" style="display: none"></p>
-          <ul class="community-general-list social-reactor-threads" id="communityGeneralList" aria-busy="true"></ul>`
+          <ul class="community-general-list social-reactor-threads" id="communityGeneralList" aria-busy="true"></ul>
+          <div class="reactor-mock-feed" data-preview-mock="reactor-feed">`
+);
+reactor = reactor.replace(
+  /(\s*<article class="post-card" data-post="4">[\s\S]*?<\/article>)\s*(\s*<\/div>\s*<div class="feed-panel" data-panel="following">)/m,
+  "$1\n          </div>$2",
 );
 reactor = reactor.replace(
   '<button type="button" class="fab-compose" id="fabCompose"',

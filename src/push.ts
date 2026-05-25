@@ -48,6 +48,8 @@ export type PushPrefs = {
   communityThreadNewPost: boolean;
   /** People you follow — new show on their cast/crew credits */
   personNewProject: boolean;
+  /** Watch party lobby reminders */
+  watchPartyReminder: boolean;
 };
 
 export const DEFAULT_PUSH_PREFS: PushPrefs = {
@@ -58,6 +60,7 @@ export const DEFAULT_PUSH_PREFS: PushPrefs = {
   communityReply: true,
   communityThreadNewPost: true,
   personNewProject: true,
+  watchPartyReminder: true,
 };
 
 export function parsePushPrefsJson(raw: string | null | undefined): PushPrefs {

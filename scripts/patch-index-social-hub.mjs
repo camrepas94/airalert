@@ -177,6 +177,39 @@ const socialHubJs = `
           if (ptr?.classList.contains("visible")) setTimeout(() => ptr.classList.remove("visible"), 1200);
         });
 
+        const reactorSection = sections.reactor;
+        if (reactorSection) {
+          function reactorPreviewNav(label) {
+            alert("Preview: " + label);
+          }
+          reactorSection.querySelectorAll(".show-context").forEach((ctx) => {
+            ctx.style.cursor = "pointer";
+            ctx.addEventListener("click", () => {
+              const show = ctx.querySelector(".show-title")?.textContent?.trim() || "Show";
+              const ep = ctx.querySelector(".show-ep")?.textContent?.trim() || "";
+              reactorPreviewNav("openCommunityThread → " + show + (ep ? " · " + ep : ""));
+            });
+          });
+          reactorSection.querySelectorAll(".post-author strong").forEach((el) => {
+            el.style.cursor = "pointer";
+            el.addEventListener("click", (e) => {
+              e.stopPropagation();
+              reactorPreviewNav("user profile → " + el.textContent.trim());
+            });
+          });
+          reactorSection.querySelectorAll(".view-replies, .add-reaction").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              reactorPreviewNav(btn.classList.contains("view-replies") ? "post replies thread" : "reaction picker / composer");
+            });
+          });
+          reactorSection.querySelectorAll('.reaction-btn[data-emoji="💬"]').forEach((btn) => {
+            btn.addEventListener("click", () => reactorPreviewNav("scroll to replies"));
+          });
+          reactorSection.querySelectorAll(".top-reply-actions button").forEach((btn) => {
+            btn.addEventListener("click", () => reactorPreviewNav("inline reply: " + btn.textContent.trim()));
+          });
+        }
+
         setSocialHubSection(communityState.socialSection || "reactor");
       }
 

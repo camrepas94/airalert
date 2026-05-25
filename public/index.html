@@ -1087,6 +1087,7 @@
       body:has(.modal-backdrop.open) #mainScroll,
       body:has(#aaOverlayHost .community-modal:not([hidden])) #mainScroll,
       body:has(#aaOverlayHost .dm-create-group-modal:not([hidden])) #mainScroll,
+      body:has(#aaOverlayHost #watchPartyShareModal:not([hidden])) #mainScroll,
       body:has(#aaOverlayHost .profile-photo-lightbox:not([hidden])) #mainScroll {
         overflow: hidden !important;
         overscroll-behavior: none;
@@ -1150,7 +1151,7 @@
       }
       .app-top-brand-row {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
         gap: 0.65rem;
         width: 100%;
@@ -1163,8 +1164,59 @@
         align-items: center;
         flex-wrap: nowrap;
         gap: 0;
-        flex: 1 1 auto;
+        flex: 0 1 auto;
         min-width: 0;
+      }
+      .header-streak-pill {
+        flex: 0 0 auto;
+        align-self: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.18rem;
+        margin: 0 auto;
+        padding: 0.3rem 0.62rem 0.34rem;
+        border-radius: 999px;
+        border: 1px solid rgba(251, 146, 60, 0.5);
+        background: linear-gradient(145deg, rgba(42, 14, 8, 0.92), rgba(24, 10, 28, 0.88));
+        box-shadow: 0 0 16px -5px rgba(251, 146, 60, 0.55);
+        color: #fef3c7;
+        font: inherit;
+        font-size: 0.95rem;
+        font-weight: 800;
+        line-height: 1;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .header-streak-pill[hidden] {
+        display: none !important;
+      }
+      .header-streak-pill:hover {
+        border-color: rgba(251, 191, 36, 0.75);
+        box-shadow: 0 0 20px -4px rgba(251, 146, 60, 0.7);
+      }
+      .header-streak-pill--active {
+        animation: header-streak-glow 2.2s ease-in-out infinite;
+      }
+      @keyframes header-streak-glow {
+        0%, 100% {
+          box-shadow: 0 0 12px -4px rgba(251, 146, 60, 0.45);
+          border-color: rgba(251, 146, 60, 0.45);
+        }
+        50% {
+          box-shadow: 0 0 22px -2px rgba(251, 146, 60, 0.75);
+          border-color: rgba(253, 186, 116, 0.85);
+        }
+      }
+      .header-streak-flame {
+        font-size: 1rem;
+        line-height: 1;
+      }
+      .header-streak-count {
+        font-size: 1.05rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #fff;
       }
       /** Right column: icon row on top, guest Log in / Create account beneath (guest-only). */
       .app-top-right-stack {
@@ -1437,8 +1489,8 @@
         #tab-shows .mylist-skeleton-host,
         #tab-shows .person-follows-section .fold-toggle,
         #tab-shows .person-follows-section .fold-body {
-          padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
-          padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+          padding-left: max(var(--layout-pad-x), env(safe-area-inset-left, 0px));
+          padding-right: max(var(--layout-pad-x), env(safe-area-inset-right, 0px));
           box-sizing: border-box;
         }
         #tab-shows .mylist-host {
@@ -1451,16 +1503,17 @@
         #tab-shows .mylist-host .mylist-section {
           width: 100%;
           max-width: none;
+          padding: 0;
           margin-left: 0;
           margin-right: 0;
+          margin-bottom: 0;
           border-radius: 0;
           border-left: none;
           border-right: none;
         }
-        #tab-shows .mylist-host .mylist-section-toggle,
-        #tab-shows .mylist-host .mylist-section-body {
-          padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
-          padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+        #tab-shows .mylist-host .mylist-section-toggle {
+          padding-left: max(var(--layout-pad-x), env(safe-area-inset-left, 0px));
+          padding-right: max(var(--layout-pad-x), env(safe-area-inset-right, 0px));
           box-sizing: border-box;
         }
         #tab-guide .week-guide-head,
@@ -4911,10 +4964,18 @@
         overflow: hidden;
       }
       #tab-shows .mylist-host .mylist-section {
+        padding: 0;
+        margin-bottom: 0;
         border-radius: 0;
         border-left: none;
         border-right: none;
         background: rgba(4, 8, 18, 0.18);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        box-shadow: none;
+      }
+      #tab-shows .mylist-host .mylist-section--airing {
+        box-shadow: 0 0 20px -8px rgba(34, 211, 238, 0.35);
       }
       .mylist-section--airing {
         border-color: rgba(34, 211, 238, 0.28);
@@ -4994,6 +5055,12 @@
         display: flex;
         flex-direction: column;
         gap: 0.4rem;
+      }
+      #tab-shows .mylist-host .mylist-section-body {
+        padding-top: 0;
+        padding-bottom: 0.5rem;
+        padding-left: max(var(--layout-pad-x), env(safe-area-inset-left, 0px));
+        padding-right: max(var(--layout-pad-x), env(safe-area-inset-right, 0px));
       }
       .mylist-section-body[hidden] {
         display: none !important;
@@ -7281,8 +7348,8 @@
       #tab-shows .mylist-skeleton-host,
       #tab-shows .person-follows-section .fold-toggle,
       #tab-shows .person-follows-section .fold-body {
-        padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
-        padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+        padding-left: max(var(--layout-pad-x), env(safe-area-inset-left, 0px));
+        padding-right: max(var(--layout-pad-x), env(safe-area-inset-right, 0px));
         box-sizing: border-box;
       }
       #tab-shows .mylist-host {
@@ -7294,16 +7361,17 @@
       #tab-shows .mylist-host .mylist-section {
         width: 100%;
         max-width: none;
+        padding: 0;
         margin-left: 0;
         margin-right: 0;
+        margin-bottom: 0;
         border-radius: 0;
         border-left: none;
         border-right: none;
       }
-      #tab-shows .mylist-host .mylist-section-toggle,
-      #tab-shows .mylist-host .mylist-section-body {
-        padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
-        padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+      #tab-shows .mylist-host .mylist-section-toggle {
+        padding-left: max(var(--layout-pad-x), env(safe-area-inset-left, 0px));
+        padding-right: max(var(--layout-pad-x), env(safe-area-inset-right, 0px));
         box-sizing: border-box;
       }
       #tab-guide {
@@ -12180,6 +12248,17 @@
               />
             </h1>
           </div>
+          <button
+            type="button"
+            class="header-streak-pill"
+            id="headerStreakBadge"
+            hidden
+            aria-label="Watch streak"
+            title="Watch streak"
+          >
+            <span class="header-streak-flame" aria-hidden="true">🔥</span>
+            <span class="header-streak-count" id="headerStreakCount">0</span>
+          </button>
           <div class="app-top-right-stack">
           <div class="app-top-header-actions">
             <div class="header-menu-wrap">
@@ -12619,21 +12698,6 @@
         <div class="app-shell-mounted" data-app-shell-mounted="shows">
         <section class="panel-rail-blue myshows-page-root mylist-page-root" aria-label="My Shows">
           <h2 class="myshows-page-title app-section-heading">My Shows</h2>
-          <div class="myshows-stats-fold" id="myshowsStatsFold" hidden>
-            <button
-              type="button"
-              class="fold-toggle fold-toggle-cyan myshows-stats-toggle"
-              id="myshowsStatsToggleBtn"
-              aria-expanded="false"
-              aria-controls="myshowsStatsBody"
-            >
-              <span class="fold-title"><span class="app-section-heading">Your stats</span></span>
-              <span class="fold-chev" aria-hidden="true">▼</span>
-            </button>
-            <div class="fold-body" id="myshowsStatsBody" hidden>
-              <div class="myshows-analytics" id="myshowsAnalytics" aria-live="polite"></div>
-            </div>
-          </div>
           <div class="myshows-tools" id="myshowsTools">
             <button type="button" class="tasks-tool-btn" id="mylistExpandAllBtn" title="Expand all shows">Expand all</button>
             <button type="button" class="tasks-tool-btn" id="mylistCollapseAllBtn" title="Collapse all shows">Collapse all</button>
@@ -12815,15 +12879,172 @@
                       <h3 class="reactor-discussions-heading" id="communityGeneralHeading">Show discussions</h3>
                       <p class="reactor-discussions-err err" id="communityThreadsErr" style="display: none"></p>
                       <ul class="community-general-list social-reactor-threads" id="communityGeneralList" aria-busy="true"></ul>
-                      <p class="muted reactor-feed-empty" id="reactorFeedEmpty" style="font-size:0.85rem;margin:1rem 0 0">Episode reactions from the community appear in show threads below.</p>
+                      <div class="reactor-mock-feed" data-preview-mock="reactor-feed">
+                      <article class="post-card" data-post="1">
+                        <div class="show-context">
+                          <img class="show-poster" src="https://picsum.photos/seed/rhobh/120/180" alt="" width="60" height="90" loading="lazy" />
+                          <div class="show-meta">
+                            <h2 class="show-title">The Real Housewives of Beverly Hills</h2>
+                            <div class="show-ep">S14E8 · Reunion Part 2</div>
+                          </div>
+                        </div>
+                        <div class="post-author"><strong>@kylefan22</strong> · 23m ago</div>
+                        <div class="post-divider"></div>
+                        <p class="post-body">Kyle saying "I've never lied to any of you" while the entire cast is side-eyeing her is PEAK television. I screamed at my phone 😭</p>
+                        <div class="reactions-bar">
+                          <button type="button" class="reaction-btn" data-emoji="😱"><span>😱</span> 23</button>
+                          <button type="button" class="reaction-btn selected" data-emoji="😭"><span>😭</span> 45</button>
+                          <button type="button" class="reaction-btn" data-emoji="😂"><span>😂</span> 67</button>
+                          <button type="button" class="reaction-btn" data-emoji="🔥"><span>🔥</span> 12</button>
+                          <button type="button" class="reaction-btn" data-emoji="👑"><span>👑</span> 8</button>
+                          <button type="button" class="reaction-btn" data-emoji="🚩"><span>🚩</span> 3</button>
+                          <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 89</button>
+                          <button type="button" class="reaction-btn bookmark" data-emoji="🔖"><span>🔖</span> 5</button>
+                        </div>
+                        <div class="top-reply">
+                          <div class="top-reply-label">💭 Top reply</div>
+                          <p class="top-reply-text"><strong>@suttonsays</strong> "The side-eye cam alone deserves an Emmy"</p>
+                          <div class="top-reply-actions">
+                            <span>❤️ 12</span>
+                            <button type="button">↩️ Reply</button>
+                            <button type="button">Quote</button>
+                          </div>
+                        </div>
+                        <button type="button" class="view-replies">View all 89 replies</button>
+                        <button type="button" class="add-reaction">➕ Add your reaction</button>
+                      </article>
+
+                      <article class="post-card spoiler-card" data-post="2">
+                        <div class="spoiler-overlay" id="spoilerOverlay">
+                          <h3>⚠️ SPOILER ALERT ⚠️</h3>
+                          <p>The Valley · S3E9</p>
+                          <p>Tap to reveal spoiler<br />(This content discusses plot details)</p>
+                        </div>
+                        <div class="show-context">
+                          <img class="show-poster" src="https://picsum.photos/seed/valley/120/180" alt="" width="60" height="90" loading="lazy" />
+                          <div class="show-meta">
+                            <h2 class="show-title">The Valley</h2>
+                            <div class="show-ep">S3E9 <span class="spoiler-badge">Spoiler</span></div>
+                          </div>
+                        </div>
+                        <div class="post-content-hidden" id="spoilerContent">
+                          <div class="post-author"><strong>@valleywatch</strong> · 1h ago</div>
+                          <div class="post-divider"></div>
+                          <p class="post-body">I CANNOT believe Janet went to Michelle first instead of Danny. That conversation at the end completely changed how I see their whole arc this season. Michelle's face said everything.</p>
+                          <div class="reactions-bar">
+                            <button type="button" class="reaction-btn" data-emoji="😱"><span>😱</span> 156</button>
+                            <button type="button" class="reaction-btn" data-emoji="😭"><span>😭</span> 89</button>
+                            <button type="button" class="reaction-btn" data-emoji="🔥"><span>🔥</span> 234</button>
+                            <button type="button" class="reaction-btn" data-emoji="🚩"><span>🚩</span> 41</button>
+                            <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 312</button>
+                            <button type="button" class="reaction-btn bookmark" data-emoji="🔖"><span>🔖</span> 28</button>
+                          </div>
+                        </div>
+                        <button type="button" class="add-reaction" style="margin-top:0.65rem">➕ Add your reaction</button>
+                      </article>
+
+                      <article class="post-card" data-post="3">
+                        <div class="show-context">
+                          <img class="show-poster" src="https://picsum.photos/seed/summer/120/180" alt="" width="60" height="90" loading="lazy" />
+                          <div class="show-meta">
+                            <h2 class="show-title">Summer House</h2>
+                            <div class="show-ep">S8E5</div>
+                          </div>
+                        </div>
+                        <div class="post-author"><strong>@hamptonslife</strong> · 3h ago</div>
+                        <div class="post-divider"></div>
+                        <p class="post-body collapsed" id="longPost">Okay I need to unpack this because what happened at the pool party was genuinely unhinged. First Carl shows up uninvited which is already a red flag, then Lindsay starts going OFF about the guest list like she owns the house (she doesn't??), and then Paige just sits there eating a salad like she's watching a nature documentary. The producer zoom on Kyle's face when Lindsay said "I don't trust anyone here" — that was a CHOICE. And don't even get me started on the confessional where she tries to rewrite history from last season. I'm team nobody at this point but I'm still watching every second.</p>
+                        <button type="button" class="read-more" data-target="longPost">Read more</button>
+                        <img class="post-media" src="https://picsum.photos/seed/poolparty/800/450" alt="Scene still" loading="lazy" />
+                        <div class="reactions-bar">
+                          <button type="button" class="reaction-btn" data-emoji="😂"><span>😂</span> 412</button>
+                          <button type="button" class="reaction-btn" data-emoji="🔥"><span>🔥</span> 198</button>
+                          <button type="button" class="reaction-btn" data-emoji="🚩"><span>🚩</span> 67</button>
+                          <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 156</button>
+                          <button type="button" class="reaction-btn bookmark selected" data-emoji="🔖"><span>🔖</span> 34</button>
+                        </div>
+                        <div class="top-reply">
+                          <div class="top-reply-label">💭 Top reply</div>
+                          <p class="top-reply-text"><strong>@bravo_insider</strong> "Paige and the salad is my Roman empire"</p>
+                          <div class="top-reply-actions"><span>❤️ 89</span><button type="button">↩️ Reply</button></div>
+                        </div>
+                        <button type="button" class="view-replies">View all 156 replies</button>
+                        <button type="button" class="add-reaction">➕ Add your reaction</button>
+                      </article>
+
+                      <article class="post-card" data-post="4">
+                        <div class="show-context">
+                          <img class="show-poster" src="https://picsum.photos/seed/below/120/180" alt="" width="60" height="90" loading="lazy" />
+                          <div class="show-meta">
+                            <h2 class="show-title">Below Deck Mediterranean</h2>
+                            <div class="show-ep">S9E12</div>
+                          </div>
+                        </div>
+                        <div class="post-author"><strong>@yachtlife</strong> · 5h ago</div>
+                        <div class="post-divider"></div>
+                        <p class="post-body">Captain Sandy's speech about leadership had me in tears. Best episode of the season, no debate.</p>
+                        <div class="reactions-bar">
+                          <button type="button" class="reaction-btn" data-emoji="😭"><span>😭</span> 78</button>
+                          <button type="button" class="reaction-btn" data-emoji="👑"><span>👑</span> 145</button>
+                          <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 42</button>
+                        </div>
+                        <button type="button" class="add-reaction">➕ Add your reaction</button>
+                      </article>
+                      </div>
                     </div>
 
                     <div class="feed-panel" data-panel="following">
-                      <p class="muted" style="font-size:0.85rem;margin:1rem 0">Posts from people you follow will appear here.</p>
+                      <article class="post-card">
+                        <div class="show-context">
+                          <img class="show-poster" src="https://picsum.photos/seed/vander/120/180" alt="" width="60" height="90" loading="lazy" />
+                          <div class="show-meta">
+                            <h2 class="show-title">Vanderpump Rules</h2>
+                            <div class="show-ep">S11E14</div>
+                          </div>
+                        </div>
+                        <div class="post-author"><strong>@jojobinks</strong> · 45m ago · Following</div>
+                        <div class="post-divider"></div>
+                        <p class="post-body">Scheana's confessional about "choosing peace" while actively stirring the pot is so on brand I can't even be mad.</p>
+                        <div class="reactions-bar">
+                          <button type="button" class="reaction-btn" data-emoji="😂"><span>😂</span> 12</button>
+                          <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 4</button>
+                        </div>
+                        <button type="button" class="add-reaction">➕ Add your reaction</button>
+                      </article>
+                      <article class="post-card">
+                        <div class="show-context">
+                          <img class="show-poster" src="https://picsum.photos/seed/vander/120/180" alt="" width="60" height="90" loading="lazy" />
+                          <div class="show-meta">
+                            <h2 class="show-title">Vanderpump Rules</h2>
+                            <div class="show-ep">S11E14 · 2 more posts</div>
+                          </div>
+                        </div>
+                        <div class="post-author"><strong>@realitytea</strong> · 2h ago · Following</div>
+                        <div class="post-divider"></div>
+                        <p class="post-body">The Tom / Raquel tension this episode was UNCOMFORTABLE. Grouped with 2 other posts about this episode.</p>
+                        <button type="button" class="view-replies">View 2 related posts</button>
+                      </article>
                     </div>
 
                     <div class="feed-panel" data-panel="trending">
-                      <p class="muted" style="font-size:0.85rem;margin:1rem 0">Trending episode reactions will appear here.</p>
+                      <article class="post-card">
+                        <div class="show-context">
+                          <img class="show-poster" src="https://picsum.photos/seed/love/120/180" alt="" width="60" height="90" loading="lazy" />
+                          <div class="show-meta">
+                            <h2 class="show-title">Love Is Blind</h2>
+                            <div class="show-ep">S8E10 · 🔥 Trending #1</div>
+                          </div>
+                        </div>
+                        <div class="post-author"><strong>@podcastqueen</strong> · 38m ago · 847 engagements/hr</div>
+                        <div class="post-divider"></div>
+                        <p class="post-body">THE REVEAL. I am not okay. This is why we watch.</p>
+                        <div class="reactions-bar">
+                          <button type="button" class="reaction-btn selected" data-emoji="😱"><span>😱</span> 1.2k</button>
+                          <button type="button" class="reaction-btn" data-emoji="🔥"><span>🔥</span> 890</button>
+                          <button type="button" class="reaction-btn" data-emoji="💬"><span>💬</span> 534</button>
+                        </div>
+                        <button type="button" class="add-reaction">➕ Add your reaction</button>
+                      </article>
                     </div>
                   </div>
 
@@ -12840,7 +13061,7 @@
                   </header>
                   <div class="content-scroll" id="watchScroll">
                     <div class="wp-panel active" data-wp-panel="live">
-                      <article class="party-card">
+                      <article class="party-card" data-party-key="valley-s3e9-live" data-party-title="The Valley · S3E9" data-party-ep="The Confrontation" data-remind-offset-days="7">
                         <img class="party-banner" src="https://picsum.photos/seed/valleylive/800/450" alt="" loading="lazy" />
                         <div class="party-body">
                           <div class="party-live-badge"><span class="party-live-dot"></span> LIVE: The Valley · S3E9</div>
@@ -12850,14 +13071,14 @@
                             <span>⏱️ Started 12 min ago</span>
                             <span>👤 Host: <strong>@valleywatch</strong></span>
                           </div>
-                          <button type="button" class="btn-gradient" id="joinLiveChat">Join Live Chat</button>
+                          <button type="button" class="btn-gradient wp-btn-join-live" id="socialJoinLiveChat">Join Live Chat</button>
                           <div class="party-actions">
-                            <button type="button">Share</button>
-                            <button type="button">Set Reminder for Next Week</button>
+                            <button type="button" class="wp-btn-share">Share</button>
+                            <button type="button" class="wp-btn-set-reminder">Set Reminder for Next Week</button>
                           </div>
                         </div>
                       </article>
-                      <article class="party-card">
+                      <article class="party-card" data-party-key="rhobh-s14e8-live" data-party-title="RHOBH · S14E8" data-party-ep="Reunion Part 2" data-remind-offset-days="7">
                         <img class="party-banner" src="https://picsum.photos/seed/rhoblive/800/450" alt="" loading="lazy" />
                         <div class="party-body">
                           <div class="party-live-badge"><span class="party-live-dot"></span> LIVE: RHOBH · S14E8</div>
@@ -12867,13 +13088,13 @@
                             <span>⏱️ Started 28 min ago</span>
                             <span>👤 Host: <strong>@bravohost</strong></span>
                           </div>
-                          <button type="button" class="btn-gradient join-live-btn">Join Live Chat</button>
-                          <div class="party-actions"><button type="button">Share</button><button type="button">Set Reminder</button></div>
+                          <button type="button" class="btn-gradient wp-btn-join-live join-live-btn">Join Live Chat</button>
+                          <div class="party-actions"><button type="button" class="wp-btn-share">Share</button><button type="button" class="wp-btn-set-reminder">Set Reminder</button></div>
                         </div>
                       </article>
                     </div>
                     <div class="wp-panel" data-wp-panel="upcoming">
-                      <article class="party-card">
+                      <article class="party-card" data-party-key="summer-house-s8e6" data-party-title="Summer House · S8E6" data-party-ep="S8E6" data-remind-at="2026-05-26T01:00:00.000Z">
                         <div class="party-body">
                           <div class="party-row">
                             <img class="show-poster" src="https://picsum.photos/seed/summer/120/180" alt="" loading="lazy" />
@@ -12887,13 +13108,13 @@
                             <span>👥 47 marked "I'm watching"</span>
                             <span>👤 Hosted by <strong>@hamptonslife</strong></span>
                           </div>
-                          <button type="button" class="btn-gradient">Set Reminder</button>
-                          <div class="party-actions"><button type="button">Mark: I'm Watching</button><button type="button">Share</button></div>
+                          <button type="button" class="btn-gradient wp-btn-set-reminder">Set Reminder</button>
+                          <div class="party-actions"><button type="button" class="wp-btn-mark-watching">Mark: I'm Watching</button><button type="button" class="wp-btn-share">Share</button></div>
                         </div>
                       </article>
                     </div>
                     <div class="wp-panel" data-wp-panel="past">
-                      <article class="party-card">
+                      <article class="party-card" data-party-key="valley-s3e8-replay" data-party-title="The Valley · S3E8" data-party-ep="S3E8" data-replay="1">
                         <div class="party-body">
                           <div class="party-row">
                             <img class="show-poster" src="https://picsum.photos/seed/valley/120/180" alt="" loading="lazy" />
@@ -12904,7 +13125,7 @@
                             </div>
                           </div>
                           <p class="party-ep-title">🔥 Top Highlight: "The confrontation" at 12:34</p>
-                          <button type="button" class="btn-gradient" id="viewReplay">View Replay</button>
+                          <button type="button" class="btn-gradient wp-btn-view-replay" id="socialViewReplay">View Replay</button>
                         </div>
                       </article>
                     </div>
@@ -12921,46 +13142,27 @@
                   </header>
                   <div class="content-scroll" id="diaryScroll">
                     <div class="diary-panel active" data-diary-panel="calendar">
+                      <p class="muted diary-loading" id="diaryCalendarLoading" hidden style="font-size:0.82rem;margin:0 0 0.75rem">Loading your diary…</p>
+                      <p class="err diary-err" id="diaryCalendarErr" hidden style="font-size:0.82rem;margin:0 0 0.75rem"></p>
                       <div class="month-header">
-                        <button type="button" aria-label="Previous month">‹</button>
-                        <h2>MAY 2026</h2>
-                        <button type="button" aria-label="Next month">›</button>
+                        <button type="button" id="diaryPrevMonth" aria-label="Previous month">‹</button>
+                        <h2 id="diaryMonthLabel">—</h2>
+                        <button type="button" id="diaryNextMonth" aria-label="Next month">›</button>
                       </div>
-                      <div class="cal-grid">
+                      <div class="cal-grid" id="diaryCalGrid" aria-label="Watch calendar">
                         <div class="cal-dow">MON</div><div class="cal-dow">TUE</div><div class="cal-dow">WED</div><div class="cal-dow">THU</div><div class="cal-dow">FRI</div><div class="cal-dow">SAT</div><div class="cal-dow">SUN</div>
-                        <div class="cal-day empty-day"><div class="cal-day-num">1</div></div>
-                        <div class="cal-day empty-day"><div class="cal-day-num">2</div></div>
-                        <div class="cal-day has-entries" data-day="3"><div class="cal-day-num">3</div><img class="cal-mini-poster" src="https://picsum.photos/seed/v1/40/60" alt="" /><div class="cal-stars">⭐⭐</div></div>
-                        <div class="cal-day has-entries diary-day" data-day="10"><div class="cal-day-num">10</div><img class="cal-mini-poster" src="https://picsum.photos/seed/valley/40/60" alt="" /><div class="cal-stars">⭐⭐⭐⭐</div></div>
-                        <div class="cal-day has-entries"><div class="cal-day-num">11</div><img class="cal-mini-poster" src="https://picsum.photos/seed/summer/40/60" alt="" /><div class="cal-stars">⭐⭐⭐</div></div>
-                        <div class="cal-day today has-entries"><div class="cal-day-num">24</div><img class="cal-mini-poster" src="https://picsum.photos/seed/rhobh/40/60" alt="" /><div class="cal-stars">⭐⭐⭐</div></div>
                       </div>
-                      <div class="week-summary"><strong>This week:</strong> 11 episodes · ⭐ 4.2 avg rating<br />Most watched: <strong>The Valley</strong> (3 episodes)</div>
+                      <div class="week-summary" id="diaryWeekSummary">Loading your week…</div>
                     </div>
                     <div class="diary-panel" data-diary-panel="stats">
-                      <div class="stat-cards">
-                        <div class="stat-card"><h3>🎬 Total Episodes Watched</h3><p class="stat-value">1,234</p><p class="stat-sub">Across 42 shows</p></div>
-                        <div class="stat-card"><h3>⭐ Average Rating</h3><p class="stat-value">4.2</p><p class="stat-sub">Based on 1,234 ratings</p></div>
-                        <div class="stat-card"><h3>📺 Watch Time</h3><p class="stat-value">523 hrs</p><p class="stat-sub">That's 21.8 days!</p>
-                          <div class="stat-chart"><div class="stat-bar" style="height:45%"></div><div class="stat-bar" style="height:70%"></div><div class="stat-bar" style="height:55%"></div><div class="stat-bar" style="height:90%"></div><div class="stat-bar" style="height:60%"></div></div>
-                        </div>
-                      </div>
+                      <h3 class="reactor-discussions-heading diary-stats-heading">Your stats</h3>
+                      <p class="muted diary-loading" id="diaryStatsLoading" hidden style="font-size:0.82rem;margin:0 0 0.75rem">Loading stats…</p>
+                      <p class="err diary-err" id="diaryStatsErr" hidden style="font-size:0.82rem;margin:0 0 0.75rem"></p>
+                      <div class="myshows-analytics diary-stats-grid" id="diaryStatsCards" aria-live="polite"></div>
                     </div>
                     <div class="diary-panel" data-diary-panel="lists">
-                      <article class="list-card">
-                        <div class="list-thumb-grid">
-                          <img src="https://picsum.photos/seed/l1/60/60" alt="" /><img src="https://picsum.photos/seed/l2/60/60" alt="" />
-                          <img src="https://picsum.photos/seed/l3/60/60" alt="" /><img src="https://picsum.photos/seed/l4/60/60" alt="" />
-                        </div>
-                        <div><h3>Best Reality TV Moments</h3><p>By @jojobinks · 12 episodes · Updated 2 days ago</p><p>👍 45 likes · 💬 8 comments</p></div>
-                      </article>
-                      <article class="list-card">
-                        <div class="list-thumb-grid">
-                          <img src="https://picsum.photos/seed/l5/60/60" alt="" /><img src="https://picsum.photos/seed/l6/60/60" alt="" />
-                          <img src="https://picsum.photos/seed/l7/60/60" alt="" /><img src="https://picsum.photos/seed/l8/60/60" alt="" />
-                        </div>
-                        <div><h3>Episodes That Made Me Cry</h3><p>By @jojobinks · 8 episodes · Private</p></div>
-                      </article>
+                      <p class="muted diary-loading" id="diaryListsLoading" hidden style="font-size:0.82rem;margin:0 0 0.75rem">Loading…</p>
+                      <div id="diaryListsHost"></div>
                     </div>
                   </div>
                 </section>
@@ -13053,30 +13255,10 @@
               <div class="diary-detail-overlay" id="socialDiaryDetailOverlay">
                 <header class="diary-detail-header">
                   <button type="button" id="socialCloseDiaryDetail">← Back to Calendar</button>
-                  <h2>May 10, 2026</h2>
-                  <p>Friday</p>
+                  <h2 id="diaryDetailDateTitle">—</h2>
+                  <p id="diaryDetailDateSub"></p>
                 </header>
-                <div class="diary-detail-scroll">
-                  <article class="diary-entry-card">
-                    <div class="show-context">
-                      <img class="show-poster" src="https://picsum.photos/seed/valley/120/180" alt="" loading="lazy" />
-                      <div class="show-meta">
-                        <h2 class="show-title">The Valley · S3E9</h2>
-                        <div class="show-ep">"The Confrontation"</div>
-                        <div class="show-ep">Watched at 9:34 PM</div>
-                      </div>
-                    </div>
-                    <div class="diary-stars">⭐⭐⭐⭐</div>
-                    <p class="diary-review">"Holy shit this episode!! The way Sarah confronted Mike at dinner with everyone watching was PEAK reality TV. I rewound that scene three times. 10/10 drama."</p>
-                    <p class="diary-tags">#confrontation #realitytv #peak</p>
-                    <div class="diary-entry-actions">🔥 34 likes · 💬 12 comments · 🔁 5 shares</div>
-                    <div class="diary-entry-btns">
-                      <button type="button">Edit Entry</button>
-                      <button type="button">Delete</button>
-                      <button type="button">Share to Feed</button>
-                    </div>
-                  </article>
-                </div>
+                <div class="diary-detail-scroll" id="diaryDetailScroll"></div>
               </div>
             </div>
           <div class="community-thread-view hidden" id="communityThreadView">
@@ -13575,6 +13757,26 @@
             <button type="button" class="aa-btn-gradient" id="postWatchReviewSubmitBtn">Save review</button>
             <button type="button" class="secondary" id="postWatchReviewSkipBtn">Skip review</button>
           </div>
+        </div>
+      </div>
+
+      <div id="watchPartyShareModal" class="community-modal" hidden aria-hidden="true">
+        <div class="community-modal-backdrop" data-close-watch-party-share></div>
+        <div class="community-modal-panel watch-party-share-panel" role="dialog" aria-labelledby="watchPartyShareTitle">
+          <h3 id="watchPartyShareTitle" class="community-modal-title">Share watch party</h3>
+          <p class="muted watch-party-share-lead" id="watchPartyShareLead" style="margin: 0 0 0.75rem; font-size: 0.86rem"></p>
+          <div class="watch-party-share-grid" id="watchPartyShareGrid">
+            <button type="button" class="watch-party-share-opt" data-share-action="dm">💬 Message a friend</button>
+            <button type="button" class="watch-party-share-opt" data-share-action="sms">📱 Text message</button>
+            <button type="button" class="watch-party-share-opt" data-share-action="copy">🔗 Copy link</button>
+            <button type="button" class="watch-party-share-opt" data-share-action="native" id="watchPartyShareNative" hidden>📤 More sharing options…</button>
+          </div>
+          <div id="watchPartyShareDmPick" class="watch-party-share-dm-pick" hidden>
+            <p class="muted" style="font-size: 0.8rem; margin: 0 0 0.45rem">Pick a conversation</p>
+            <ul class="watch-party-share-dm-list" id="watchPartyShareDmList"></ul>
+            <button type="button" class="secondary" id="watchPartyShareDmBack">← Back</button>
+          </div>
+          <button type="button" class="secondary community-modal-close" data-close-watch-party-share style="margin-top: 0.65rem">Cancel</button>
         </div>
       </div>
 
@@ -15284,15 +15486,58 @@
         if (hideT) hideT.checked = myListState.hideWatched;
       }
 
-      function renderMyShowsAnalytics(a) {
-        const fold = document.getElementById("myshowsStatsFold");
-        const host = document.getElementById("myshowsAnalytics");
-        if (!host) return;
-        if (!a) {
-          if (fold) fold.hidden = true;
+      function updateHeaderWatchStreak(a) {
+        const badge = document.getElementById("headerStreakBadge");
+        const countEl = document.getElementById("headerStreakCount");
+        if (!badge || !countEl) return;
+        if (!a || !sessionMeSnapshot || !accountIsRegistered(sessionMeSnapshot)) {
+          badge.hidden = true;
+          badge.classList.remove("header-streak-pill--active");
           return;
         }
-        if (fold) fold.hidden = false;
+        const days = Math.max(0, Number(a.streakDays) || 0);
+        countEl.textContent = String(days);
+        const sub =
+          a.streakLabel && String(a.streakLabel).trim()
+            ? String(a.streakLabel)
+            : days === 1
+              ? "1 day watch streak"
+              : days + " day watch streak";
+        badge.title = sub;
+        badge.setAttribute("aria-label", "Watch streak: " + sub);
+        badge.hidden = false;
+        badge.classList.toggle("header-streak-pill--active", days > 0);
+      }
+
+      let headerStreakRefreshTimer = null;
+      function scheduleHeaderWatchStreakRefresh(userId) {
+        if (!userId) {
+          updateHeaderWatchStreak(null);
+          return;
+        }
+        if (headerStreakRefreshTimer) clearTimeout(headerStreakRefreshTimer);
+        headerStreakRefreshTimer = setTimeout(() => {
+          headerStreakRefreshTimer = null;
+          void (async () => {
+            try {
+              const a = await api("/api/users/" + encodeURIComponent(userId) + "/my-shows-analytics");
+              if (myListState.userId === userId) myListState.analytics = a;
+              updateHeaderWatchStreak(a);
+            } catch {
+              updateHeaderWatchStreak(null);
+            }
+          })();
+        }, 280);
+      }
+
+      function renderMyShowsAnalytics(a, hostEl) {
+        const host = hostEl || document.getElementById("myshowsAnalytics");
+        if (!host) return;
+        updateHeaderWatchStreak(a);
+        if (!a) {
+          host.innerHTML = "";
+          return;
+        }
         const cards = [
           { icon: "📺", value: a.showsWatching, label: "Shows watching" },
           { icon: "✓", value: a.episodesWatched, label: "Episodes watched" },
@@ -15305,7 +15550,6 @@
             label: "Avg rating",
           },
           { icon: "⏱", value: a.totalHoursWatched + "h", label: "Hours watched" },
-          { icon: "🔥", value: a.streakDays, label: "Streak", sub: a.streakLabel, wide: true },
         ];
         host.innerHTML = "";
         for (const c of cards) {
@@ -15636,6 +15880,7 @@
         }
         renderMyListHost(userId);
         refreshMyListStats();
+        scheduleHeaderWatchStreakRefresh(userId);
       }
 
       function myListCreateEpisodeRow(userId, t) {
@@ -16000,7 +16245,6 @@
         if (empty) empty.hidden = true;
         const today = localCalendarTodayYmd();
         const filtered = all.filter((s) => myListMatchesFilter(s, q));
-        renderMyShowsAnalytics(myListState.analytics);
         if (filterEmpty) {
           const noMatch = filtered.length === 0;
           filterEmpty.hidden = !noMatch;
@@ -16108,6 +16352,7 @@
           myListState.subscriptions = subRes.subscriptions || [];
           myListState.tasks = taskRes.tasks || [];
           myListState.analytics = analyticsRes;
+          updateHeaderWatchStreak(analyticsRes);
           syncMyListEpisodeRatingsFromTasks();
           tasksState.tasks = taskRes.tasks || [];
           showMyListSkeleton(false);
@@ -16426,6 +16671,7 @@
             });
             setSocialHubSection(key);
             if (key === "news") void loadSocialHubGossip();
+            if (key === "diary") void loadShowDiary();
           });
         });
 
@@ -16460,7 +16706,19 @@
         const liveChat = document.getElementById("socialLiveChatOverlay");
         const replayBar = document.getElementById("replayBar");
         const highlightVote = liveChat?.querySelector(".highlight-vote");
-        function openSocialLiveChat(replay) {
+        const chatTitleEl = liveChat?.querySelector(".chat-header-title");
+        const chatEpSubEl = liveChat?.querySelector(".chat-ep-sub");
+
+        function openSocialLiveChat(replay, card) {
+          if (card) {
+            const title = card.dataset.partyTitle || "Watch party";
+            const ep = card.dataset.partyEp || "";
+            if (chatTitleEl) chatTitleEl.textContent = title;
+            if (chatEpSubEl) {
+              chatEpSubEl.textContent = ep ? 'Episode: "' + ep + '"' : "";
+              chatEpSubEl.hidden = !ep;
+            }
+          }
           liveChat?.classList.add("open");
           if (replayBar) replayBar.hidden = !replay;
           if (highlightVote) highlightVote.hidden = !!replay;
@@ -16468,11 +16726,257 @@
         function closeSocialLiveChat() {
           liveChat?.classList.remove("open");
         }
-        document.getElementById("socialJoinLiveChat")?.addEventListener("click", () => openSocialLiveChat(false));
-        listView.querySelectorAll(".join-live-btn").forEach((b) =>
-          b.addEventListener("click", () => openSocialLiveChat(false)),
-        );
-        document.getElementById("socialViewReplay")?.addEventListener("click", () => openSocialLiveChat(true));
+
+        const WP_WATCHING_KEY = "airalert_wp_watching";
+        function loadWpWatchingKeys() {
+          try {
+            const raw = safeLocalStorageGet(WP_WATCHING_KEY);
+            const arr = raw ? JSON.parse(raw) : [];
+            return Array.isArray(arr) ? arr.map(String) : [];
+          } catch {
+            return [];
+          }
+        }
+        function saveWpWatchingKeys(keys) {
+          safeLocalStorageSet(WP_WATCHING_KEY, JSON.stringify([...new Set(keys)]));
+        }
+        function applyWpWatchingUi(card) {
+          const key = card?.dataset?.partyKey;
+          if (!key) return;
+          const on = loadWpWatchingKeys().includes(key);
+          card.classList.toggle("party-im-watching", on);
+          const markBtn = card.querySelector(".wp-btn-mark-watching");
+          if (markBtn) markBtn.classList.toggle("active", on);
+        }
+
+        function partyRemindAtIso(card) {
+          const fixed = card?.dataset?.remindAt;
+          if (fixed) {
+            const t = new Date(fixed).getTime();
+            if (Number.isFinite(t) && t > Date.now()) return new Date(t).toISOString();
+          }
+          const offsetMin = Number(card?.dataset?.remindOffsetMinutes);
+          if (Number.isFinite(offsetMin) && offsetMin > 0) {
+            return new Date(Date.now() + offsetMin * 60 * 1000).toISOString();
+          }
+          const offsetDays = Number(card?.dataset?.remindOffsetDays);
+          if (Number.isFinite(offsetDays) && offsetDays > 0) {
+            return new Date(Date.now() + offsetDays * 24 * 60 * 60 * 1000).toISOString();
+          }
+          return new Date(Date.now() + 30 * 60 * 1000).toISOString();
+        }
+
+        async function setWatchPartyReminder(card, btn) {
+          const uid = resolveUserId();
+          if (!uid) {
+            showToast("Sign in to set a reminder");
+            return;
+          }
+          const partyKey = card?.dataset?.partyKey;
+          const partyTitle = card?.dataset?.partyTitle;
+          if (!partyKey || !partyTitle) {
+            showToast("Missing watch party info");
+            return;
+          }
+          const remindAt = partyRemindAtIso(card);
+          if (btn) btn.disabled = true;
+          try {
+            await api("/api/users/" + encodeURIComponent(uid) + "/watch-party/reminders", {
+              method: "POST",
+              body: JSON.stringify({ partyKey, partyTitle, remindAt }),
+            });
+            if (btn) {
+              btn.classList.add("set");
+              btn.textContent = "Reminder set ✓";
+            }
+            showToast("Reminder set — you'll get a push and an Activity notification");
+            void refreshHeaderNotificationsUnreadFromServer();
+          } catch (e) {
+            showToast(e.message || "Could not set reminder");
+          } finally {
+            if (btn) btn.disabled = false;
+          }
+        }
+
+        let watchPartySharePayload = null;
+        const shareModal = document.getElementById("watchPartyShareModal");
+        const shareLead = document.getElementById("watchPartyShareLead");
+        const shareGrid = document.getElementById("watchPartyShareGrid");
+        const shareDmPick = document.getElementById("watchPartyShareDmPick");
+        const shareDmList = document.getElementById("watchPartyShareDmList");
+        const shareNativeBtn = document.getElementById("watchPartyShareNative");
+
+        function watchPartyShareText(payload) {
+          const url = window.location.origin + "/?tab=community&socialSection=watch&party=" + encodeURIComponent(payload.partyKey);
+          return "Join me for " + payload.partyTitle + " on AirAlert! " + url;
+        }
+
+        function closeWatchPartyShareModal() {
+          if (!shareModal) return;
+          shareModal.hidden = true;
+          shareModal.setAttribute("aria-hidden", "true");
+          if (shareGrid) shareGrid.hidden = false;
+          if (shareDmPick) shareDmPick.hidden = true;
+          watchPartySharePayload = null;
+        }
+
+        function openWatchPartyShareModal(card) {
+          const partyKey = card?.dataset?.partyKey;
+          const partyTitle = card?.dataset?.partyTitle;
+          if (!partyKey || !partyTitle || !shareModal) return;
+          watchPartySharePayload = { partyKey, partyTitle };
+          if (shareLead) shareLead.textContent = partyTitle;
+          if (shareGrid) shareGrid.hidden = false;
+          if (shareDmPick) shareDmPick.hidden = true;
+          if (shareNativeBtn && typeof navigator.share === "function") {
+            shareNativeBtn.hidden = false;
+          }
+          shareModal.hidden = false;
+          shareModal.setAttribute("aria-hidden", "false");
+        }
+
+        async function shareWatchPartyToDmThread(threadId) {
+          if (!watchPartySharePayload) return;
+          const text = watchPartyShareText(watchPartySharePayload);
+          await api("/api/dm/threads/" + encodeURIComponent(threadId) + "/messages", {
+            method: "POST",
+            body: JSON.stringify({ body: text }),
+          });
+          closeWatchPartyShareModal();
+          showToast("Shared in DM");
+        }
+
+        async function openWatchPartyDmPicker() {
+          if (!shareGrid || !shareDmPick || !shareDmList) return;
+          const dmAk = accountKind(sessionMeSnapshot);
+          if (dmAk !== "registered") {
+            showToast(guestNeedAccountToast("to message friends"));
+            return;
+          }
+          if (!hasFullSocialUiAccess(sessionMeSnapshot)) {
+            showUnlockSocialToast();
+            return;
+          }
+          shareGrid.hidden = true;
+          shareDmPick.hidden = false;
+          shareDmList.innerHTML = "";
+          try {
+            const data = await api("/api/dm/threads");
+            const threads = data.threads || [];
+            if (!threads.length) {
+              const li = document.createElement("li");
+              li.innerHTML = '<span class="muted" style="font-size:0.8rem">No chats yet — open Inbox to start one.</span>';
+              shareDmList.appendChild(li);
+              return;
+            }
+            for (const t of threads.slice(0, 12)) {
+              const li = document.createElement("li");
+              const b = document.createElement("button");
+              b.type = "button";
+              const label = t.otherDisplayName || t.otherUsername || "Chat";
+              b.textContent = label;
+              b.addEventListener("click", () => void shareWatchPartyToDmThread(t.threadId));
+              li.appendChild(b);
+              shareDmList.appendChild(li);
+            }
+          } catch (e) {
+            showToast(e.message || "Could not load chats");
+            shareGrid.hidden = false;
+            shareDmPick.hidden = true;
+          }
+        }
+
+        shareModal?.querySelectorAll("[data-close-watch-party-share]").forEach((el) => {
+          el.addEventListener("click", closeWatchPartyShareModal);
+        });
+        document.getElementById("watchPartyShareDmBack")?.addEventListener("click", () => {
+          if (shareGrid) shareGrid.hidden = false;
+          if (shareDmPick) shareDmPick.hidden = true;
+        });
+        shareModal?.querySelectorAll("[data-share-action]").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            if (!watchPartySharePayload) return;
+            const action = btn.getAttribute("data-share-action");
+            const text = watchPartyShareText(watchPartySharePayload);
+            if (action === "dm") {
+              await openWatchPartyDmPicker();
+              return;
+            }
+            if (action === "sms") {
+              window.location.href = "sms:?&body=" + encodeURIComponent(text);
+              closeWatchPartyShareModal();
+              return;
+            }
+            if (action === "copy") {
+              try {
+                await navigator.clipboard.writeText(text);
+                showToast("Link copied");
+              } catch {
+                showToast("Could not copy — try Text message");
+              }
+              closeWatchPartyShareModal();
+              return;
+            }
+            if (action === "native" && navigator.share) {
+              try {
+                await navigator.share({
+                  title: "AirAlert watch party",
+                  text: watchPartySharePayload.partyTitle,
+                  url: text.split(" ").pop(),
+                });
+                closeWatchPartyShareModal();
+              } catch {
+                /* cancelled */
+              }
+            }
+          });
+        });
+
+        const watchSection = sections.watch;
+        if (watchSection) {
+          watchSection.querySelectorAll(".party-card").forEach((card) => applyWpWatchingUi(card));
+
+          watchSection.addEventListener("click", (e) => {
+            const joinBtn = e.target.closest(".wp-btn-join-live");
+            if (joinBtn) {
+              const card = joinBtn.closest(".party-card");
+              openSocialLiveChat(false, card);
+              return;
+            }
+            const replayBtn = e.target.closest(".wp-btn-view-replay");
+            if (replayBtn) {
+              const card = replayBtn.closest(".party-card");
+              openSocialLiveChat(true, card);
+              return;
+            }
+            const remindBtn = e.target.closest(".wp-btn-set-reminder");
+            if (remindBtn) {
+              const card = remindBtn.closest(".party-card");
+              void setWatchPartyReminder(card, remindBtn);
+              return;
+            }
+            const markBtn = e.target.closest(".wp-btn-mark-watching");
+            if (markBtn) {
+              const card = markBtn.closest(".party-card");
+              const key = card?.dataset?.partyKey;
+              if (!key) return;
+              const keys = loadWpWatchingKeys();
+              const idx = keys.indexOf(key);
+              if (idx >= 0) keys.splice(idx, 1);
+              else keys.push(key);
+              saveWpWatchingKeys(keys);
+              applyWpWatchingUi(card);
+              showToast(idx >= 0 ? "Removed from I'm watching" : "Marked — you're watching!");
+              return;
+            }
+            const shareBtn = e.target.closest(".wp-btn-share");
+            if (shareBtn) {
+              const card = shareBtn.closest(".party-card");
+              openWatchPartyShareModal(card);
+            }
+          });
+        }
+
         document.getElementById("socialExitLiveChat")?.addEventListener("click", closeSocialLiveChat);
 
         const chatMessages = liveChat?.querySelector("#chatMessages");
@@ -16489,12 +16993,341 @@
         });
 
         const diaryOverlay = document.getElementById("socialDiaryDetailOverlay");
-        listView.querySelectorAll(".diary-day").forEach((day) => {
-          day.addEventListener("click", () => diaryOverlay?.classList.add("open"));
-        });
         document.getElementById("socialCloseDiaryDetail")?.addEventListener("click", () =>
           diaryOverlay?.classList.remove("open"),
         );
+
+        let showDiaryMonth = { year: new Date().getFullYear(), month: new Date().getMonth() + 1 };
+        let showDiaryCache = null;
+        let showDiaryLoadId = 0;
+
+        function diaryRatingStars(rating) {
+          const n = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+          if (n < 1) return "";
+          return "⭐".repeat(n);
+        }
+
+        function diaryWeekdayLabel(dateIso) {
+          try {
+            const d = new Date(dateIso + "T12:00:00");
+            return new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(d);
+          } catch {
+            return "";
+          }
+        }
+
+        function renderDiaryWeekSummary(data) {
+          const el = document.getElementById("diaryWeekSummary");
+          if (!el || !data) return;
+          const w = data.weekSummary || {};
+          if (!w.episodeCount) {
+            el.innerHTML = "<strong>This week:</strong> No episodes logged yet — mark shows watched in <strong>Tasks</strong>.";
+            return;
+          }
+          const avg =
+            w.averageRating != null ? " · ⭐ " + escapeHtml(String(w.averageRating)) + " avg rating" : "";
+          const top =
+            w.topShowName && w.topShowCount > 0
+              ? "<br />Most watched: <strong>" + escapeHtml(w.topShowName) + "</strong> (" + w.topShowCount + " episode" + (w.topShowCount === 1 ? "" : "s") + ")"
+              : "";
+          el.innerHTML =
+            "<strong>This week:</strong> " +
+            w.episodeCount +
+            " episode" +
+            (w.episodeCount === 1 ? "" : "s") +
+            avg +
+            top;
+        }
+
+        function renderDiaryCalendarGrid(data) {
+          const grid = document.getElementById("diaryCalGrid");
+          if (!grid || !data) return;
+          const dow = grid.querySelectorAll(".cal-dow");
+          grid.innerHTML = "";
+          dow.forEach((d) => grid.appendChild(d));
+          const y = data.year;
+          const m = data.month;
+          const first = new Date(Date.UTC(y, m - 1, 1, 12, 0, 0));
+          const startPad = (first.getUTCDay() + 6) % 7;
+          const dim = new Date(Date.UTC(y, m, 0)).getUTCDate();
+          let todayKey = new Date().toISOString().slice(0, 10);
+          if (data.timezone) {
+            try {
+              todayKey = new Intl.DateTimeFormat("en-CA", {
+                timeZone: data.timezone,
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              }).format(new Date());
+            } catch {
+              /* keep UTC slice */
+            }
+          }
+          const dayMap = new Map();
+          for (const cd of data.calendarDays || []) dayMap.set(cd.day, cd);
+
+          for (let i = 0; i < startPad; i++) {
+            const cell = document.createElement("div");
+            cell.className = "cal-day empty-day";
+            cell.setAttribute("aria-hidden", "true");
+            grid.appendChild(cell);
+          }
+          for (let day = 1; day <= dim; day++) {
+            const cell = document.createElement("div");
+            cell.className = "cal-day";
+            const dateKey = y + "-" + String(m).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+            if (dateKey === todayKey) cell.classList.add("today");
+            const info = dayMap.get(day);
+            if (info && info.entryCount > 0) {
+              cell.classList.add("has-entries", "diary-day");
+              cell.dataset.date = info.date;
+              const num = document.createElement("div");
+              num.className = "cal-day-num";
+              num.textContent = String(day);
+              cell.appendChild(num);
+              if (info.showImageUrl) {
+                const img = document.createElement("img");
+                img.className = "cal-mini-poster";
+                img.src = info.showImageUrl;
+                img.alt = "";
+                img.loading = "lazy";
+                cell.appendChild(img);
+              } else if (info.entries?.[0]?.tvmazeShowId) {
+                const img = document.createElement("img");
+                img.className = "cal-mini-poster";
+                img.alt = "";
+                img.loading = "lazy";
+                cell.appendChild(img);
+                void fetchTvmazeShowImageUrl(info.entries[0].tvmazeShowId).then((url) => {
+                  if (url) img.src = url;
+                });
+              }
+              if (info.topRating != null) {
+                const stars = document.createElement("div");
+                stars.className = "cal-stars";
+                stars.textContent = diaryRatingStars(info.topRating);
+                cell.appendChild(stars);
+              }
+            } else {
+              const num = document.createElement("div");
+              num.className = "cal-day-num";
+              num.textContent = String(day);
+              cell.appendChild(num);
+            }
+            grid.appendChild(cell);
+          }
+        }
+
+        function renderDiaryStats(data) {
+          const host = document.getElementById("diaryStatsCards");
+          const errEl = document.getElementById("diaryStatsErr");
+          if (!host) return;
+          if (errEl) errEl.hidden = true;
+          if (!data?.stats) {
+            host.innerHTML = "";
+            if (errEl) {
+              errEl.textContent = "No stats yet — add shows and log watched episodes.";
+              errEl.hidden = false;
+            }
+            return;
+          }
+          renderMyShowsAnalytics(data.stats, host);
+        }
+
+        function renderDiaryLists(data) {
+          const host = document.getElementById("diaryListsHost");
+          if (!host) return;
+          host.innerHTML = "";
+          const items = data?.topRated || [];
+          if (!items.length) {
+            host.innerHTML =
+              '<p class="muted" style="font-size:0.85rem;margin:0">Rate episodes you\'ve watched to see your highest-rated list here.</p>';
+            return;
+          }
+          const card = document.createElement("article");
+          card.className = "list-card";
+          const thumbs = document.createElement("div");
+          thumbs.className = "list-thumb-grid";
+          items.slice(0, 4).forEach((it) => {
+            const img = document.createElement("img");
+            img.alt = "";
+            if (it.showImageUrl) img.src = it.showImageUrl;
+            else void fetchTvmazeShowImageUrl(it.tvmazeShowId).then((url) => {
+              if (url) img.src = url;
+            });
+            thumbs.appendChild(img);
+          });
+          const body = document.createElement("div");
+          body.innerHTML =
+            "<h3>Your highest rated</h3><p>" +
+            items.length +
+            " episode" +
+            (items.length === 1 ? "" : "s") +
+            " · Top: <strong>" +
+            escapeHtml(items[0].showName) +
+            "</strong> " +
+            diaryRatingStars(items[0].rating) +
+            "</p>";
+          card.appendChild(thumbs);
+          card.appendChild(body);
+          host.appendChild(card);
+          const ul = document.createElement("ul");
+          ul.style.cssText = "list-style:none;margin:0.75rem 0 0;padding:0;display:flex;flex-direction:column;gap:0.45rem";
+          for (const it of items) {
+            const li = document.createElement("li");
+            li.style.fontSize = "0.82rem";
+            li.innerHTML =
+              escapeHtml(it.showName) +
+              " · " +
+              escapeHtml(it.episodeLabel) +
+              " " +
+              diaryRatingStars(it.rating);
+            ul.appendChild(li);
+          }
+          host.appendChild(ul);
+        }
+
+        function openDiaryDayDetail(dateIso, entries) {
+          const overlay = document.getElementById("socialDiaryDetailOverlay");
+          const scroll = document.getElementById("diaryDetailScroll");
+          const titleEl = document.getElementById("diaryDetailDateTitle");
+          const subEl = document.getElementById("diaryDetailDateSub");
+          if (!overlay || !scroll) return;
+          if (titleEl) {
+            try {
+              const d = new Date(dateIso + "T12:00:00");
+              titleEl.textContent = new Intl.DateTimeFormat("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              }).format(d);
+            } catch {
+              titleEl.textContent = dateIso;
+            }
+          }
+          if (subEl) subEl.textContent = diaryWeekdayLabel(dateIso);
+          scroll.innerHTML = "";
+          if (!entries || !entries.length) {
+            scroll.innerHTML = '<p class="muted" style="font-size:0.85rem">No entries for this day.</p>';
+          } else {
+            for (const ent of entries) {
+              const art = document.createElement("article");
+              art.className = "diary-entry-card";
+              const watchedAt = ent.completedAt ? formatCommunityRelativeTime(ent.completedAt) : "";
+              const stars = ent.rating != null ? diaryRatingStars(ent.rating) : "";
+              const review = ent.reviewExcerpt
+                ? '<p class="diary-review">"' + escapeHtml(ent.reviewExcerpt) + '"</p>'
+                : "";
+              art.innerHTML =
+                '<div class="show-context">' +
+                '<img class="show-poster diary-entry-poster" alt="" loading="lazy" />' +
+                '<div class="show-meta">' +
+                '<h2 class="show-title">' +
+                escapeHtml(ent.showName) +
+                "</h2>" +
+                '<div class="show-ep">' +
+                escapeHtml(ent.episodeLabel) +
+                "</div>" +
+                (watchedAt ? '<div class="show-ep">Watched ' + escapeHtml(watchedAt) + "</div>" : "") +
+                "</div></div>" +
+                (stars ? '<div class="diary-stars">' + stars + "</div>" : "") +
+                review;
+              const poster = art.querySelector(".diary-entry-poster");
+              if (poster) {
+                if (ent.showImageUrl) poster.src = ent.showImageUrl;
+                else void fetchTvmazeShowImageUrl(ent.tvmazeShowId).then((url) => {
+                  if (url) poster.src = url;
+                });
+              }
+              scroll.appendChild(art);
+            }
+          }
+          overlay.classList.add("open");
+        }
+
+        async function loadShowDiary() {
+          const uid = resolveUserId();
+          const loadEl = document.getElementById("diaryCalendarLoading");
+          const statsLoadEl = document.getElementById("diaryStatsLoading");
+          const errEl = document.getElementById("diaryCalendarErr");
+          const statsErrEl = document.getElementById("diaryStatsErr");
+          const monthLabel = document.getElementById("diaryMonthLabel");
+          if (!uid) {
+            if (monthLabel) monthLabel.textContent = "Sign in";
+            if (errEl) {
+              errEl.textContent = "Sign in to see your personalized Show Diary.";
+              errEl.hidden = false;
+            }
+            if (statsErrEl) {
+              statsErrEl.textContent = "Sign in to see your stats.";
+              statsErrEl.hidden = false;
+            }
+            const statsHost = document.getElementById("diaryStatsCards");
+            if (statsHost) statsHost.innerHTML = "";
+            return;
+          }
+          const paintId = ++showDiaryLoadId;
+          if (loadEl) loadEl.hidden = false;
+          if (statsLoadEl) statsLoadEl.hidden = false;
+          if (errEl) errEl.hidden = true;
+          if (statsErrEl) statsErrEl.hidden = true;
+          try {
+            const data = await api(
+              "/api/users/" +
+                encodeURIComponent(uid) +
+                "/show-diary?year=" +
+                showDiaryMonth.year +
+                "&month=" +
+                showDiaryMonth.month,
+            );
+            if (paintId !== showDiaryLoadId) return;
+            showDiaryCache = data;
+            if (monthLabel) monthLabel.textContent = data.monthLabel || "—";
+            renderDiaryCalendarGrid(data);
+            renderDiaryWeekSummary(data);
+            renderDiaryStats(data);
+            renderDiaryLists(data);
+          } catch (e) {
+            if (paintId !== showDiaryLoadId) return;
+            if (errEl) {
+              errEl.textContent = e.message || "Could not load diary";
+              errEl.hidden = false;
+            }
+          } finally {
+            if (paintId === showDiaryLoadId) {
+              if (loadEl) loadEl.hidden = true;
+              if (statsLoadEl) statsLoadEl.hidden = true;
+            }
+          }
+        }
+
+        document.getElementById("diaryCalGrid")?.addEventListener("click", (e) => {
+          const day = e.target.closest(".diary-day");
+          if (!day || !day.dataset.date || !showDiaryCache) return;
+          const info = (showDiaryCache.calendarDays || []).find((d) => d.date === day.dataset.date);
+          openDiaryDayDetail(day.dataset.date, info?.entries || []);
+        });
+
+        document.getElementById("diaryPrevMonth")?.addEventListener("click", () => {
+          let y = showDiaryMonth.year;
+          let m = showDiaryMonth.month - 1;
+          if (m < 1) {
+            m = 12;
+            y -= 1;
+          }
+          showDiaryMonth = { year: y, month: m };
+          void loadShowDiary();
+        });
+        document.getElementById("diaryNextMonth")?.addEventListener("click", () => {
+          let y = showDiaryMonth.year;
+          let m = showDiaryMonth.month + 1;
+          if (m > 12) {
+            m = 1;
+            y += 1;
+          }
+          showDiaryMonth = { year: y, month: m };
+          void loadShowDiary();
+        });
 
         const ptr = document.getElementById("ptrIndicator");
         const scroll = document.getElementById("feedScroll");
@@ -16509,7 +17342,41 @@
           if (ptr?.classList.contains("visible")) setTimeout(() => ptr.classList.remove("visible"), 1200);
         });
 
+        const reactorSection = sections.reactor;
+        if (reactorSection) {
+          function reactorPreviewNav(label) {
+            alert("Preview: " + label);
+          }
+          reactorSection.querySelectorAll(".show-context").forEach((ctx) => {
+            ctx.style.cursor = "pointer";
+            ctx.addEventListener("click", () => {
+              const show = ctx.querySelector(".show-title")?.textContent?.trim() || "Show";
+              const ep = ctx.querySelector(".show-ep")?.textContent?.trim() || "";
+              reactorPreviewNav("openCommunityThread → " + show + (ep ? " · " + ep : ""));
+            });
+          });
+          reactorSection.querySelectorAll(".post-author strong").forEach((el) => {
+            el.style.cursor = "pointer";
+            el.addEventListener("click", (e) => {
+              e.stopPropagation();
+              reactorPreviewNav("user profile → " + el.textContent.trim());
+            });
+          });
+          reactorSection.querySelectorAll(".view-replies, .add-reaction").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              reactorPreviewNav(btn.classList.contains("view-replies") ? "post replies thread" : "reaction picker / composer");
+            });
+          });
+          reactorSection.querySelectorAll('.reaction-btn[data-emoji="💬"]').forEach((btn) => {
+            btn.addEventListener("click", () => reactorPreviewNav("scroll to replies"));
+          });
+          reactorSection.querySelectorAll(".top-reply-actions button").forEach((btn) => {
+            btn.addEventListener("click", () => reactorPreviewNav("inline reply: " + btn.textContent.trim()));
+          });
+        }
+
         setSocialHubSection(communityState.socialSection || "reactor");
+        if (communityState.socialSection === "diary") void loadShowDiary();
       }
 
       function gossipTrendTag(showName) {
@@ -20219,6 +21086,15 @@
         updateOnboardingMissionStrip(me);
         syncHeaderProfileDropdown(me);
         syncHeaderAuthChrome(me);
+        if (me && accountIsRegistered(me) && me.id) {
+          if (myListState.analytics && myListState.userId === me.id) {
+            updateHeaderWatchStreak(myListState.analytics);
+          } else {
+            scheduleHeaderWatchStreakRefresh(me.id);
+          }
+        } else {
+          updateHeaderWatchStreak(null);
+        }
         scheduleHeaderNotificationsUnreadRefresh();
         syncProfileEditDisclosures(me);
       }
@@ -22797,9 +23673,36 @@
         if (lv) lv.classList.remove("hidden");
         if (tv) tv.classList.add("hidden");
         setSocialHubSection(communityState.socialSection || "reactor");
+        applyWatchPartyUrlDeepLink();
         void loadCommunityThreads().then(() => {
           scheduleCommunityListSecondary();
         });
+      }
+
+      function applyWatchPartyUrlDeepLink() {
+        try {
+          const qs = new URLSearchParams(window.location.search);
+          const section = qs.get("socialSection");
+          const wp = qs.get("wp");
+          if (section !== "watch" && !qs.has("wpReminder") && !qs.has("party")) return;
+          setSocialHubSection("watch");
+          const watchNav = document.querySelector('.social-nav-item[data-section="watch"]');
+          watchNav?.classList.add("active");
+          document.querySelector('.social-nav-item[data-section="reactor"]')?.classList.remove("active");
+          document.getElementById("sectionReactor")?.classList.remove("active");
+          document.getElementById("sectionWatch")?.classList.add("active");
+          const wpKey = wp === "live" || wp === "past" || wp === "upcoming" ? wp : qs.has("wpReminder") ? "upcoming" : "live";
+          const wpTab = document.querySelector('#sectionWatch .feed-tab[data-wp="' + wpKey + '"]');
+          wpTab?.click();
+          const u = new URL(window.location.href);
+          u.searchParams.delete("socialSection");
+          u.searchParams.delete("wp");
+          u.searchParams.delete("wpReminder");
+          u.searchParams.delete("party");
+          history.replaceState({}, "", u.pathname + (u.search ? u.search : "") + u.hash);
+        } catch {
+          /* ignore */
+        }
       }
 
       /* ── Community breaking news (horizontal card rail) ── */
@@ -26988,6 +27891,7 @@
         if (kind === "group_chat_invite") return "Group";
         if (kind === "beta_feedback_admin") return "Beta feedback";
         if (kind === "admin_broadcast") return "Broadcast";
+        if (kind === "watch_party_reminder") return "Watch party";
         return "Activity";
       }
 
@@ -27085,6 +27989,18 @@
               (when ? '<div class="hn-meta">' + escapeHtml(when) + "</div>" : "");
             row.addEventListener("click", () => {
               closeHeaderMenus();
+              if (n.kind === "watch_party_reminder") {
+                setTab("community");
+                openCommunityListView();
+                initSocialHub();
+                setSocialHubSection("watch");
+                const watchNav = document.querySelector('.social-nav-item[data-section="watch"]');
+                watchNav?.click();
+                const wpTab = document.querySelector('#sectionWatch .feed-tab[data-wp="upcoming"]');
+                wpTab?.click();
+                showToast(summary || title || "Watch party reminder");
+                return;
+              }
               if (url) {
                 try {
                   const abs = new URL(url, window.location.origin);
@@ -27809,6 +28725,7 @@
           });
           if (communityState.view === "list") {
             initSocialHub();
+            applyWatchPartyUrlDeepLink();
             void loadCommunityThreads().then(() => {
               scheduleCommunityListSecondary();
             });
@@ -28087,6 +29004,15 @@
         }, 320);
       });
       document.getElementById("headerInboxBtn")?.addEventListener("click", () => void openDmInboxModal());
+      document.getElementById("headerStreakBadge")?.addEventListener("click", () => {
+        communityState.socialSection = "diary";
+        setTab("community");
+        openCommunityListView();
+        window.setTimeout(() => {
+          document.querySelector('.social-nav-item[data-section="diary"]')?.click();
+          document.querySelector('#sectionDiary .feed-tab[data-diary="stats"]')?.click();
+        }, 0);
+      });
       let dmCreateGroupMembers = new Map();
       let dmCreateGroupSearchTimer = null;
       let dmCreateGroupSearchGen = 0;
