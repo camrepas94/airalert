@@ -282,6 +282,10 @@ if (!userColNames.has("qa_notes")) {
   db.exec(`ALTER TABLE users ADD COLUMN qa_notes TEXT`);
   userColNames.add("qa_notes");
 }
+if (!userColNames.has("is_community_bot")) {
+  db.exec(`ALTER TABLE users ADD COLUMN is_community_bot INTEGER NOT NULL DEFAULT 0`);
+  userColNames.add("is_community_bot");
+}
 
 /** Backfill account kind: guests vs password (or future OAuth) accounts — safe for existing DBs. */
 db.exec(`
@@ -799,3 +803,38 @@ try {
 } catch {
   /* ignore */
 }
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS community_bot_profiles (
+    user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    enabled INTEGER NOT NULL DEFAULT 1,
+    persona_key TEXT NOT NULL DEFAULT 'fan',
+    persona_prompt TEXT,
+    posts_per_week_max INTEGER NOT NULL DEFAULT 3,
+    replies_per_week_max INTEGER NOT NULL DEFAULT 5,
+    allowed_weekdays_json TEXT NOT NULL DEFAULT '[0,1,2,3,4,5,6]',
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS community_bot_runs (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    kind TEXT NOT NULL,
+    tvmaze_show_id INTEGER,
+    tvmaze_episode_id INTEGER,
+    community_post_id TEXT REFERENCES community_posts(id) ON DELETE SET NULL,
+    detail_json TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_community_bot_runs_user_kind ON community_bot_runs(user_id, kind, created_at DESC);
+
+  CREATE TABLE IF NOT EXISTS community_bot_post_context (
+    post_id TEXT PRIMARY KEY REFERENCES community_posts(id) ON DELETE CASCADE,
+    episode_summary TEXT,
+    persona_key TEXT,
+    generated_prompt_hash TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+`);

@@ -77,6 +77,65 @@
           </details>
           <details class="admin-mod-log-details">
             <summary class="section-header-highlight header-gold admin-mod-log-summary">
+              <span class="app-section-heading">Community bots</span>
+            </summary>
+            <p class="muted" style="font-size: 0.75rem; margin: 0 0 0.45rem; line-height: 1.45">
+              Seed Episode Reactor with bot users. Set <code>COMMUNITY_BOTS_ENABLED=1</code> on the server for live posts.
+              Manage show subscriptions per bot via the list below (same as user accounts).
+            </p>
+            <form id="adminCommunityBotCreateForm" style="max-width: 42rem; margin-bottom: 0.75rem">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin-bottom: 0.45rem">
+                <div>
+                  <label for="adminBotUsername" style="font-size: 0.78rem; font-weight: 600">Username</label>
+                  <input type="text" id="adminBotUsername" maxlength="32" required pattern="[a-zA-Z0-9._-]{3,32}" placeholder="kylefan22" style="width: 100%; box-sizing: border-box; padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid rgba(130,200,255,0.22); background: rgba(0,0,0,0.35); color: inherit; font: inherit" />
+                </div>
+                <div>
+                  <label for="adminBotDisplayName" style="font-size: 0.78rem; font-weight: 600">Display name</label>
+                  <input type="text" id="adminBotDisplayName" maxlength="48" placeholder="Optional" style="width: 100%; box-sizing: border-box; padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid rgba(130,200,255,0.22); background: rgba(0,0,0,0.35); color: inherit; font: inherit" />
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.45rem; margin-bottom: 0.45rem">
+                <div>
+                  <label for="adminBotPersona" style="font-size: 0.78rem; font-weight: 600">Persona</label>
+                  <select id="adminBotPersona" style="width: 100%; font: inherit; padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid rgba(130,200,255,0.22); background: rgba(0,0,0,0.35); color: inherit">
+                    <option value="fan">fan</option>
+                    <option value="hype">hype</option>
+                    <option value="snark">snark</option>
+                    <option value="thoughtful">thoughtful</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="adminBotPostsWeek" style="font-size: 0.78rem; font-weight: 600">Posts / week</label>
+                  <input type="number" id="adminBotPostsWeek" min="0" max="21" value="3" style="width: 100%; box-sizing: border-box; padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid rgba(130,200,255,0.22); background: rgba(0,0,0,0.35); color: inherit; font: inherit" />
+                </div>
+                <div>
+                  <label for="adminBotRepliesWeek" style="font-size: 0.78rem; font-weight: 600">Replies / week</label>
+                  <input type="number" id="adminBotRepliesWeek" min="0" max="50" value="5" style="width: 100%; box-sizing: border-box; padding: 0.45rem 0.6rem; border-radius: 10px; border: 1px solid rgba(130,200,255,0.22); background: rgba(0,0,0,0.35); color: inherit; font: inherit" />
+                </div>
+              </div>
+              <fieldset style="border: 1px solid rgba(130,200,255,0.18); border-radius: 10px; padding: 0.45rem 0.65rem; margin: 0 0 0.45rem">
+                <legend style="font-size: 0.78rem; font-weight: 600; padding: 0 0.25rem">Allowed days</legend>
+                <div id="adminBotWeekdays" style="display: flex; flex-wrap: wrap; gap: 0.35rem 0.65rem; font-size: 0.78rem">
+                  <label><input type="checkbox" value="0" checked /> Sun</label>
+                  <label><input type="checkbox" value="1" checked /> Mon</label>
+                  <label><input type="checkbox" value="2" checked /> Tue</label>
+                  <label><input type="checkbox" value="3" checked /> Wed</label>
+                  <label><input type="checkbox" value="4" checked /> Thu</label>
+                  <label><input type="checkbox" value="5" checked /> Fri</label>
+                  <label><input type="checkbox" value="6" checked /> Sat</label>
+                </div>
+              </fieldset>
+              <button type="submit" class="secondary" style="margin: 0">Add community bot</button>
+            </form>
+            <div style="display: flex; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 0.55rem">
+              <button type="button" class="secondary" id="adminCommunityBotsRefreshBtn" style="margin: 0">Refresh bots</button>
+              <button type="button" class="secondary" id="adminCommunityBotsRunNowBtn" style="margin: 0">Run bots now</button>
+            </div>
+            <p class="muted" id="adminCommunityBotsStatus" style="font-size: 0.78rem; margin: 0 0 0.45rem"></p>
+            <div id="adminCommunityBotsHost" class="admin-accounts-host"></div>
+          </details>
+          <details class="admin-mod-log-details">
+            <summary class="section-header-highlight header-gold admin-mod-log-summary">
               <span class="app-section-heading">User accounts</span>
             </summary>
             <div id="adminAccountsHost" class="admin-accounts-host"></div>

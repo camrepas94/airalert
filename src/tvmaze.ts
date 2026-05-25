@@ -540,22 +540,30 @@ export async function fetchShow(showId: number): Promise<TvmazeShowDetail> {
   return unwrap<TvmazeShowDetail>(res);
 }
 
+type TvmazeEpisodeApi = {
+  id: number;
+  name: string;
+  season: number;
+  number: number;
+  summary?: string | null;
+  _links?: { show?: { href?: string } };
+};
+
+function parseEpisodeShowId(data: TvmazeEpisodeApi): number {
+  const href = data._links?.show?.href ?? "";
+  const m = href.match(/\/shows\/(\d+)/);
+  const showId = m ? Number(m[1]) : NaN;
+  return Number.isInteger(showId) && showId >= 1 ? showId : NaN;
+}
+
 /** Single episode lookup; used to verify an episode belongs to a show when not in cache. */
 export async function fetchEpisodeMeta(
   episodeId: number,
 ): Promise<{ id: number; name: string; season: number; number: number; showId: number } | null> {
   const res = await fetch(`${BASE}/episodes/${episodeId}`);
   if (!res.ok) return null;
-  const data = (await res.json()) as {
-    id: number;
-    name: string;
-    season: number;
-    number: number;
-    _links?: { show?: { href?: string } };
-  };
-  const href = data._links?.show?.href ?? "";
-  const m = href.match(/\/shows\/(\d+)/);
-  const showId = m ? Number(m[1]) : NaN;
+  const data = (await res.json()) as TvmazeEpisodeApi;
+  const showId = parseEpisodeShowId(data);
   if (!Number.isInteger(showId) || showId < 1) return null;
   return {
     id: data.id,
@@ -563,6 +571,26 @@ export async function fetchEpisodeMeta(
     season: data.season,
     number: data.number,
     showId,
+  };
+}
+
+/** Episode lookup including summary text for bot post generation. */
+export async function fetchEpisodeWithSummary(
+  episodeId: number,
+): Promise<{ id: number; name: string; season: number; number: number; showId: number; summary: string | null } | null> {
+  const res = await fetch(`${BASE}/episodes/${episodeId}`);
+  if (!res.ok) return null;
+  const data = (await res.json()) as TvmazeEpisodeApi;
+  const showId = parseEpisodeShowId(data);
+  if (!Number.isInteger(showId) || showId < 1) return null;
+  const summary = data.summary != null ? String(data.summary).trim() || null : null;
+  return {
+    id: data.id,
+    name: data.name || "Episode",
+    season: data.season,
+    number: data.number,
+    showId,
+    summary,
   };
 }
 

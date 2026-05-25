@@ -3490,6 +3490,101 @@ app.post("/api/admin/breaking-news/:id/dismiss", async (request, reply) => {
   return { ok: true };
 });
 
+app.get("/api/admin/community-bots", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const { listCommunityBots, communityBotsEnabled } = await import("./communityBots.js");
+  return { bots: listCommunityBots(), enabled: communityBotsEnabled() };
+});
+
+app.post("/api/admin/community-bots", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const body = (request.body ?? {}) as {
+    username?: string;
+    displayName?: string | null;
+    personaKey?: string;
+    personaPrompt?: string | null;
+    postsPerWeekMax?: number;
+    repliesPerWeekMax?: number;
+    allowedWeekdays?: number[];
+  };
+  const username = typeof body.username === "string" ? body.username.trim() : "";
+  if (!username) {
+    reply.code(400);
+    return { error: "username required" };
+  }
+  try {
+    const { createCommunityBot } = await import("./communityBots.js");
+    const created = createCommunityBot({
+      username,
+      displayName: body.displayName,
+      personaKey: body.personaKey,
+      personaPrompt: body.personaPrompt,
+      postsPerWeekMax: body.postsPerWeekMax,
+      repliesPerWeekMax: body.repliesPerWeekMax,
+      allowedWeekdays: body.allowedWeekdays,
+    });
+    reply.code(201);
+    return { ok: true, ...created };
+  } catch (err) {
+    reply.code(400);
+    return { error: err instanceof Error ? err.message : "Could not create bot" };
+  }
+});
+
+app.patch("/api/admin/community-bots/:userId", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const { userId } = request.params as { userId: string };
+  const body = (request.body ?? {}) as {
+    enabled?: boolean;
+    displayName?: string | null;
+    personaKey?: string;
+    personaPrompt?: string | null;
+    postsPerWeekMax?: number;
+    repliesPerWeekMax?: number;
+    allowedWeekdays?: number[];
+  };
+  const { updateCommunityBot } = await import("./communityBots.js");
+  const bot = updateCommunityBot(userId, body);
+  if (!bot) {
+    reply.code(404);
+    return { error: "Community bot not found" };
+  }
+  return { ok: true, bot };
+});
+
+app.delete("/api/admin/community-bots/:userId", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const { userId } = request.params as { userId: string };
+  const { deleteCommunityBot } = await import("./communityBots.js");
+  const ok = deleteCommunityBot(userId);
+  if (!ok) {
+    reply.code(404);
+    return { error: "Community bot not found" };
+  }
+  return { ok: true };
+});
+
+app.post("/api/admin/community-bots/:userId/dry-run", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const { userId } = request.params as { userId: string };
+  try {
+    const { dryRunCommunityBot } = await import("./communityBots.js");
+    const items = await dryRunCommunityBot(userId);
+    return { ok: true, items };
+  } catch (err) {
+    reply.code(400);
+    return { error: err instanceof Error ? err.message : "Dry run failed" };
+  }
+});
+
+app.post("/api/admin/community-bots/run-now", async (request, reply) => {
+  if (replyForbiddenUnlessAdmin(request, reply)) return;
+  const { runCommunityBotSeedPosts, runCommunityBotReplies } = await import("./communityBots.js");
+  const posts = await runCommunityBotSeedPosts({ force: true });
+  const replies = await runCommunityBotReplies({ force: true });
+  return { ok: true, posts, replies };
+});
+
 app.put("/api/admin/ticker-message", async (request, reply) => {
   if (replyForbiddenUnlessAdmin(request, reply)) return;
   const { message } = (request.body ?? {}) as { message?: string };
@@ -9203,6 +9298,20 @@ cron.schedule("30 */6 * * *", async () => {
     app.log.info(result, "Google News poll completed");
   } catch (err) {
     app.log.error(err, "Google News poll failed");
+  }
+});
+
+cron.schedule("15 10,16,22 * * *", async () => {
+  try {
+    const { runCommunityBotSeedPosts, runCommunityBotReplies, communityBotsEnabled } = await import("./communityBots.js");
+    if (!communityBotsEnabled()) return;
+    const posts = await runCommunityBotSeedPosts();
+    const replies = await runCommunityBotReplies();
+    if (posts.postsCreated > 0 || replies.repliesCreated > 0) {
+      app.log.info({ posts, replies }, "community bot cron completed");
+    }
+  } catch (err) {
+    app.log.error(err, "community bot cron failed");
   }
 });
 
