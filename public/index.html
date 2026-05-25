@@ -1466,6 +1466,8 @@
         #tab-guide .week-guide-empty-banner,
         #tab-guide #weekGuideErr,
         #tab-guide .week-guide-grid {
+          width: 100%;
+          max-width: none;
           padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
           padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
           box-sizing: border-box;
@@ -7319,6 +7321,8 @@
       #tab-guide .week-guide-empty-banner,
       #tab-guide #weekGuideErr,
       #tab-guide .week-guide-grid {
+        width: 100%;
+        max-width: none;
         padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
         padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
         box-sizing: border-box;
@@ -10019,18 +10023,11 @@
         flex-direction: column;
         gap: 0.2rem;
       }
-      .cmp-profile-hero-top {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 0.5rem 0.75rem;
-        flex-wrap: wrap;
-      }
       .cmp-profile-social-stats {
         display: flex;
         gap: 0.35rem;
         flex-shrink: 0;
-        margin-left: auto;
+        margin-top: 0.15rem;
       }
       .cmp-profile-stat-btn {
         display: flex;
@@ -11149,29 +11146,37 @@
 
       .week-guide-head {
         display: flex;
-        flex-wrap: wrap;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 0.75rem 1rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.55rem;
+        width: 100%;
         margin-bottom: 0.55rem;
+        box-sizing: border-box;
       }
-      .week-guide-head .section-header-highlight {
-        margin-bottom: 0.35rem;
-      }
-      .week-guide-sub {
-        margin: 0.25rem 0 0;
-        font-size: 0.82rem;
-        line-height: 1.45;
+      .week-guide-title.section-header-highlight {
+        width: 100%;
+        margin: 0;
+        box-sizing: border-box;
       }
       .week-guide-nav {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 0.4rem;
+        align-items: stretch;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .week-guide-nav-btn {
+        flex: 1 1 0;
+        min-width: 0;
+        display: inline-flex;
         align-items: center;
+        justify-content: center;
+        text-align: center;
       }
       .week-guide-nav .secondary {
         font-size: 0.78rem;
-        padding: 0.38rem 0.65rem;
+        padding: 0.45rem 0.5rem;
       }
       .week-guide-empty-banner {
         margin: 0 0 0.65rem;
@@ -11187,6 +11192,9 @@
         grid-template-columns: repeat(7, minmax(104px, 1fr));
         gap: 0.45rem;
         align-items: stretch;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
         overflow-x: auto;
         padding-bottom: 0.35rem;
         -webkit-overflow-scrolling: touch;
@@ -11296,6 +11304,15 @@
       @media (max-width: 900px) {
         .week-guide-grid {
           grid-template-columns: repeat(7, minmax(120px, 1fr));
+        }
+      }
+      @media (max-width: 767px) {
+        #tab-guide .week-guide-grid {
+          grid-template-columns: repeat(7, minmax(0, 1fr));
+          overflow-x: visible;
+        }
+        #tab-guide .week-guide-day {
+          min-width: 0;
         }
       }
 
@@ -12145,9 +12162,9 @@
             <h1 class="brand-heading">
               <img
                 class="brand-logo"
-                src="/brand-icon.svg?v=aa-tv-5"
-                width="1024"
-                height="1024"
+                src="/logo.png?v=2"
+                width="1916"
+                height="821"
                 alt="AirAlert"
                 decoding="async"
               />
@@ -12658,14 +12675,13 @@
         <div class="app-shell-mounted" data-app-shell-mounted="guide">
         <section class="panel-rail-guide" aria-label="Weekly TV guide">
           <div class="week-guide-head">
-            <div>
-              <h2 class="section-header-highlight header-blue"><span class="app-section-heading">My week</span></h2>
-              <p class="muted week-guide-sub" id="weekGuideRange">Open this tab to load your week.</p>
-            </div>
-            <div class="week-guide-nav">
-              <button type="button" class="secondary" id="weekGuidePrev" title="Previous week">← Prev</button>
-              <button type="button" class="secondary" id="weekGuideToday" title="Jump to this week">This week</button>
-              <button type="button" class="secondary" id="weekGuideNext" title="Next week">Next →</button>
+            <h2 class="week-guide-title section-header-highlight header-blue">
+              <span class="app-section-heading">My week</span>
+            </h2>
+            <div class="week-guide-nav" role="group" aria-label="Week navigation">
+              <button type="button" class="secondary week-guide-nav-btn" id="weekGuidePrev" title="Previous week">← Prev</button>
+              <button type="button" class="secondary week-guide-nav-btn" id="weekGuideToday" title="Jump to this week">This week</button>
+              <button type="button" class="secondary week-guide-nav-btn" id="weekGuideNext" title="Next week">Next →</button>
             </div>
           </div>
           <p class="week-guide-empty-banner" id="weekGuideEmpty" hidden></p>
@@ -16350,7 +16366,6 @@
         const errEl = document.getElementById("weekGuideErr");
         const grid = document.getElementById("weekGuideGrid");
         const empty = document.getElementById("weekGuideEmpty");
-        const rangeEl = document.getElementById("weekGuideRange");
         if (errEl) {
           errEl.style.display = "none";
           errEl.textContent = "";
@@ -16362,7 +16377,6 @@
         if (grid) {
           renderWeekGuideSkeleton(grid);
         }
-        if (rangeEl) rangeEl.textContent = "Loading this week…";
         try {
           const qs = weekGuideWeekStart ? "?weekStart=" + encodeURIComponent(weekGuideWeekStart) : "";
           const data = await api("/api/users/" + encodeURIComponent(userId) + "/week-guide" + qs);
@@ -16379,12 +16393,10 @@
             grid.removeAttribute("aria-busy");
           }
           if (empty) empty.hidden = true;
-          if (rangeEl) rangeEl.textContent = "Couldn’t load this week";
         }
       }
 
       function renderWeekGuide(data) {
-        const rangeEl = document.getElementById("weekGuideRange");
         const grid = document.getElementById("weekGuideGrid");
         const empty = document.getElementById("weekGuideEmpty");
         if (grid) {
@@ -16392,17 +16404,6 @@
           grid.removeAttribute("aria-busy");
         }
         const n = Number(data.episodeCount) || 0;
-        if (rangeEl) {
-          rangeEl.textContent =
-            "Sun " +
-            data.weekStart +
-            " → Sat " +
-            data.weekEnd +
-            " · " +
-            n +
-            " episode" +
-            (n === 1 ? "" : "s");
-        }
         if (!grid) return;
         grid.innerHTML = "";
         const days = data.days || [];
@@ -24488,12 +24489,10 @@
           hero.appendChild(memberAvatarOuter);
           const heroText = document.createElement("div");
           heroText.className = "cmp-profile-hero-text";
-          const heroTop = document.createElement("div");
-          heroTop.className = "cmp-profile-hero-top";
           const hName = document.createElement("h2");
           hName.className = "cmp-profile-display-name";
           hName.textContent = label;
-          heroTop.appendChild(hName);
+          heroText.appendChild(hName);
           const statsWrap = document.createElement("div");
           statsWrap.className = "cmp-profile-social-stats";
           statsWrap.id = "communityProfileSocialStats";
@@ -24517,8 +24516,6 @@
           followingBtn.addEventListener("click", () => void openProfileFollowListModal(userId, "following"));
           statsWrap.appendChild(followersBtn);
           statsWrap.appendChild(followingBtn);
-          heroTop.appendChild(statsWrap);
-          heroText.appendChild(heroTop);
           const uname = d.username && String(d.username).trim();
           if (uname) {
             const hUser = document.createElement("p");
@@ -24530,6 +24527,7 @@
           hSince.className = "cmp-profile-member-since";
           hSince.textContent = "Member since " + formatMemberSince(d.createdAt);
           heroText.appendChild(hSince);
+          heroText.appendChild(statsWrap);
           hero.appendChild(heroText);
           inner.appendChild(hero);
 
